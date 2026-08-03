@@ -2248,7 +2248,13 @@ const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
    inflates the denominator (B08+B04) and squishes NDVI low. All our scenes are
    post-2022, so we subtract 1000 from each band to match ESA's harmonized
    values. This is what closed the ~0.2 gap vs Copernicus (0.54 -> ~0.74). */
-const NDVI_EXPR = "((B08-1000)-(B04-1000))/((B08-1000)+(B04-1000)+1e-6)";
+/* NDVI on Sentinel-2 L2A with the PB04.00 +1000 DN offset removed, which aligns
+   our readings with ESA/Copernicus. numexpr (titiler's expression engine) has no
+   max/abs/where, so we cannot floor the denominator inside the expression. In the
+   rare case both bands sit near 1000 (dark/bare pixels) the denominator nears zero
+   and NDVI can blow up past its valid [-1,1] range — that garbage value is caught
+   and rejected in code (ndviForWindow), which then falls back to the next scene. */
+const NDVI_EXPR = "((B08-1000)-(B04-1000))/((B08-1000)+(B04-1000))";
 // FTW GLOBAL predictions — wall-to-wall, 195 countries incl. full Iraq, 10m, 2024/2025.
 // Host works over plain HTTP, anonymous read (physically s3 tge-labs/ftw-global-data).
 // Two files exist: 2025 (default) and 2024-with-confidence. We use 2025.
@@ -2612,9 +2618,17 @@ async function ndviForWindow(geometry, from, to){
     if(!stR.ok) continue;                       // try next candidate
     let stJ; try{ stJ = await stR.json(); }catch{ continue; }
     const stats = firstStats(stJ);
-    const mean = stats && (stats.mean ?? stats.Mean);
-    if(mean!=null && isFinite(mean)) return {value:mean, date:itemDate, scene:item.id, cloud:item.properties && item.properties["eo:cloud_cover"], tried:triedMasked+1};
-    triedMasked++;                              // masked over the field; keep looking
+    // Prefer the MEDIAN: it's immune to a handful of blown-up pixels (near-zero
+    // denominator) that could skew the mean. titiler may key it as 'median' or
+    // 'percentile_50'. Fall back to mean if neither present.
+    let val = stats && (stats.median ?? stats.Median ?? stats["percentile_50"] ?? stats["50"]);
+    if(val==null) val = stats && (stats.mean ?? stats.Mean);
+    // NDVI is physically bounded to [-1, 1]. Anything outside means the pixel
+    // math blew up over bare/dark pixels, so reject and try the next scene.
+    if(val!=null && isFinite(val) && val>=-1 && val<=1){
+      return {value:val, date:itemDate, scene:item.id, cloud:item.properties && item.properties["eo:cloud_cover"], tried:triedMasked+1};
+    }
+    triedMasked++;                              // masked / invalid — keep looking
   }
   // Every candidate scene was masked/cloudy over this field.
   return {value:null, err:`masked ×${triedMasked}`};
@@ -2762,11 +2776,17 @@ function computeYoY(hist){
   const diff = thisYr.mean - lastYr.mean;           // difference of mean NDVI
   const arrow = diff>0.03 ? "↑" : diff<-0.03 ? "↓" : "≈";
   const color = diff>0.03 ? "var(--canal)" : diff<-0.03 ? "var(--clay)" : "var(--wheat)";
-  // % only when last year's mean is meaningfully above bare soil
-  const meaningfulPct = lastYr.mean>=0.12 && thisYr.mean>=0.12;
-  const pct = meaningfulPct ? Math.round((diff/lastYr.mean)*100) : null;
-  const magnitude = pct!=null ? `${pct>0?"+":""}${pct}%`
-                              : `${diff>0?"+":""}${diff.toFixed(2)}`;
+  // Percentages are only meaningful when BOTH years have real vegetation. On a
+  // near-bare field last year, dividing by a tiny base explodes the ratio
+  // (e.g. +4,568,031%). So: require a solid base (>=0.20), and even then cap the
+  // displayed percentage — beyond that we show the absolute NDVI change instead,
+  // which is always honest.
+  const PCT_CAP = 300;
+  const rawPct = lastYr.mean>=0.20 ? Math.round((diff/lastYr.mean)*100) : null;
+  const usePct = rawPct!=null && Math.abs(rawPct) <= PCT_CAP;
+  const pct = usePct ? rawPct : null;
+  const magnitude = usePct ? `${pct>0?"+":""}${pct}%`
+                           : `${diff>0?"+":""}${diff.toFixed(2)}`;
   const text = `${arrow} ${magnitude}`;
   const msg = diff>0.03 ? t.yoyUp : diff<-0.03 ? t.yoyDown : t.yoySame;
   return {text,color,msg,diff,pct};
