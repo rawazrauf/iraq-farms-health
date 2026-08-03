@@ -363,6 +363,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 <div id="diag">
   <div class="row"><span id="d-fields">—</span></div>
   <div class="geo" id="d-geo">lon —  lat —  z —</div>
+  <div class="geo" id="d-build" style="opacity:.4">build —</div>
 </div>
 
 <div id="err"></div>
@@ -2182,7 +2183,7 @@ if(typeof window!=='undefined'){window.pmtiles=pmtiles;}
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows the health of farm fields across Iraq, from satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field now to open it.",t3:"Watch — this is two years of the field's health, loading in month by month.",t4:"This score is the crop's health right now. Green is healthy, yellow fair, red means little growth — and it shows if this year beats last year.",t5:"Search a place, or save your own fields here to find them again quickly. Tap ? any time to see this guide again.",myFields:"My fields",history:"Ranking",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lon, lat",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",copied:"Link copied ✓",notFound:"Field not found — pan there and tap it.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
+      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows the health of farm fields across Iraq, from satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field now to open it.",t3:"Watch — this is two years of the field's health, loading in month by month.",t4:"This score is the crop's health right now. Green is healthy, yellow fair, red means little growth — and it shows if this year beats last year.",t5:"Search a place, or save your own fields here to find them again quickly. Tap ? any time to see this guide again.",myFields:"My fields",history:"Ranking",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lon, lat",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lon, lat) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -2191,7 +2192,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة صحة الحقول الزراعية في العراق من صور الأقمار الصناعية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل الآن لفتحه.",t3:"شاهد — هذه سنتان من صحة الحقل، تُحمَّل شهراً بعد شهر.",t4:"هذه الدرجة هي صحة المحصول الآن. الأخضر صحي، الأصفر متوسط، الأحمر نمو ضعيف — وتُظهر إن كان هذا العام أفضل من الماضي.",t5:"ابحث عن مكان، أو احفظ حقولك هنا لتجدها بسرعة. انقر ؟ في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",history:"الترتيب",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",copied:"تم نسخ الرابط ✓",notFound:"لم يُعثر على الحقل — تنقّل إليه وانقره.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
+      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة صحة الحقول الزراعية في العراق من صور الأقمار الصناعية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل الآن لفتحه.",t3:"شاهد — هذه سنتان من صحة الحقل، تُحمَّل شهراً بعد شهر.",t4:"هذه الدرجة هي صحة المحصول الآن. الأخضر صحي، الأصفر متوسط، الأحمر نمو ضعيف — وتُظهر إن كان هذا العام أفضل من الماضي.",t5:"ابحث عن مكان، أو احفظ حقولك هنا لتجدها بسرعة. انقر ؟ في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",history:"الترتيب",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lon, lat) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -2200,7 +2201,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە تەندروستی کێڵگەکانی عێراق پیشان دەدات لە وێنەی مانگی دەستکرد. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 ئێستا دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"سەیر بکە — ئەمە دوو ساڵ تەندروستی کێڵگەیە، مانگ بە مانگ بار دەبێت.",t4:"ئەم پلەیە تەندروستی بەرهەمە ئێستا. سەوز تەندروستە، زەرد مامناوەند، سوور گەشەی کەم — و پیشان دەدات ئایا ئەمساڵ لە پار باشترە.",t5:"بەدوای شوێنێکدا بگەڕێ، یان کێڵگەکانت لێرە پاشەکەوت بکە بۆ دۆزینەوەی خێرا. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",history:"ڕیزبەندی",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",copied:"لینک کۆپی کرا ✓",notFound:"کێڵگە نەدۆزرایەوە — بگەڕێ بۆی و دەستی لێبنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",
+      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە تەندروستی کێڵگەکانی عێراق پیشان دەدات لە وێنەی مانگی دەستکرد. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 ئێستا دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"سەیر بکە — ئەمە دوو ساڵ تەندروستی کێڵگەیە، مانگ بە مانگ بار دەبێت.",t4:"ئەم پلەیە تەندروستی بەرهەمە ئێستا. سەوز تەندروستە، زەرد مامناوەند، سوور گەشەی کەم — و پیشان دەدات ئایا ئەمساڵ لە پار باشترە.",t5:"بەدوای شوێنێکدا بگەڕێ، یان کێڵگەکانت لێرە پاشەکەوت بکە بۆ دۆزینەوەی خێرا. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",history:"ڕیزبەندی",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -2237,8 +2238,11 @@ const D = {
 function diag(el,text,cls){ if(!el) return; el.textContent=text; el.className=cls||""; }
 const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
+// Stamp the build version so any screenshot self-identifies which deploy it is.
+(function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 
 /* ---------- constants ---------- */
+const BUILD = "2026.08.03-f";  // bump on each deploy so screenshots self-identify
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
 /* NDVI on Sentinel-2 L2A.
    IMPORTANT: since ESA Processing Baseline 04.00 (Jan 2022), reflectance is
@@ -2248,13 +2252,16 @@ const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
    inflates the denominator (B08+B04) and squishes NDVI low. All our scenes are
    post-2022, so we subtract 1000 from each band to match ESA's harmonized
    values. This is what closed the ~0.2 gap vs Copernicus (0.54 -> ~0.74). */
-/* NDVI on Sentinel-2 L2A with the PB04.00 +1000 DN offset removed, which aligns
-   our readings with ESA/Copernicus. numexpr (titiler's expression engine) has no
-   max/abs/where, so we cannot floor the denominator inside the expression. In the
-   rare case both bands sit near 1000 (dark/bare pixels) the denominator nears zero
-   and NDVI can blow up past its valid [-1,1] range — that garbage value is caught
-   and rejected in code (ndviForWindow), which then falls back to the next scene. */
-const NDVI_EXPR = "((B08-1000)-(B04-1000))/((B08-1000)+(B04-1000))";
+/* NDVI on Sentinel-2 L2A, using the STANDARD formula (B08-B04)/(B08+B04) — the
+   same one Copernicus Browser uses. An earlier "offset-corrected" variant
+   (subtracting the PB04.00 +1000 DN offset from each band) was tried to chase an
+   accuracy gap, but a direct cross-check against Copernicus's own Statistical Info
+   showed the standard formula actually MATCHES Copernicus (~0.51-0.56 on a test
+   field) while the offset version diverged (0.79) AND could blow up past NDVI's
+   valid range when the denominator neared zero. So: standard formula. Both bands
+   are positive DN, so the denominator is always well clear of zero — no blowup.
+   A [-1,1] range check remains in code as a belt-and-suspenders safety net. */
+const NDVI_EXPR = "(B08-B04)/(B08+B04)";
 // FTW GLOBAL predictions — wall-to-wall, 195 countries incl. full Iraq, 10m, 2024/2025.
 // Host works over plain HTTP, anonymous read (physically s3 tge-labs/ftw-global-data).
 // Two files exist: 2025 (default) and 2024-with-confidence. We use 2025.
@@ -2293,7 +2300,7 @@ try{
       },
       layers:[{id:"sat",type:"raster",source:"esri"}]
     },
-    center:[44.36,32.05], zoom:11, maxZoom:16, minZoom:4,
+    center:[43.8290,35.4009], zoom:14.8, maxZoom:16, minZoom:4,
     attributionControl:false
   });
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
@@ -3225,12 +3232,14 @@ function doSearch(){
     const lon=parseFloat(m[1]), lat=parseFloat(m[2]);
     if(isFinite(lon)&&isFinite(lat)){ flyToField(lon, lat); return; }
   }
-  // field id form: look it up in saved pins (only source of id->location we have)
+  // Field-id form. The FTW code is a one-way hash of the centroid, so it can
+  // only be resolved for fields we've already stored: saved pins OR history
+  // (every opened field is auto-logged). Look in both.
   const id = q.toUpperCase().startsWith("FTW-") ? q.toUpperCase() : "FTW-"+q.toUpperCase();
-  const pin = loadPins().find(p=>p.id===id);
-  if(pin){ flyToField(pin.lon, pin.lat); return; }
+  const found = loadPins().find(p=>p.id===id) || loadHistory().find(e=>e.id===id);
+  if(found){ flyToField(found.lon, found.lat); return; }
   showErr(I18N[lang].notFound);
-  setTimeout(()=>{ errBox.style.display="none"; }, 3500);
+  setTimeout(()=>{ errBox.style.display="none"; }, 4500);
 }
 document.getElementById("search-go").addEventListener("click", doSearch);
 searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
@@ -3239,7 +3248,7 @@ searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
    Gated flow: the user must actually TAP a field to proceed, then watches the
    real chart populate live. Steps that require an action hide the Next button. */
 const TOUR_KEY = "iraqFarmHealth.tourSeen.v1";
-const TOUR_FIELD = {lon:43.5694, lat:34.4290};
+const TOUR_FIELD = {lon:43.8290, lat:35.4009};
 const tourEl = document.getElementById("tour");
 const tourHole = document.getElementById("tour-hole");
 const tourCard = document.getElementById("tour-card");
@@ -3267,7 +3276,7 @@ function startTour(){
   }
   // Jump INSTANTLY to the sample field (no animation) so the very first frame
   // the user sees is already the correct view.
-  map.jumpTo({center:[TOUR_FIELD.lon, TOUR_FIELD.lat], zoom:15});
+  map.jumpTo({center:[TOUR_FIELD.lon, TOUR_FIELD.lat], zoom:14.8});
   tourEl.hidden = false;
   // First: let the user pick their language, so the guide isn't a wall of
   // English to an Arabic/Kurdish speaker. Then run the localized steps.
