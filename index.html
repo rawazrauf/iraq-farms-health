@@ -2162,7 +2162,7 @@ try{
     container:"map",
     style:{
       version:8,
-      glyphs:"https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+      glyphs:"https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
       sources:{
         esri:{type:"raster",tiles:[
           "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
@@ -2199,28 +2199,24 @@ function onMapLoad(){
     map.addSource("gov",{type:"geojson",data:IRQ_GOV});
     map.addLayer({id:"gov-line",type:"line",source:"gov",
       paint:{
-        "line-color":"#FCEFC7",
-        "line-dasharray":[3,2],
-        "line-width":["interpolate",["linear"],["zoom"], 5,1.4, 8,2, 12,1],
-        "line-opacity":["interpolate",["linear"],["zoom"], 4,0.7, 9,0.7, 12,0.3, 13,0]
+        "line-color":"#F3EFE4",
+        "line-width":["interpolate",["linear"],["zoom"], 5,1.2, 8,1.6, 12,0.8],
+        "line-opacity":["interpolate",["linear"],["zoom"], 5,0.5, 9,0.55, 12,0.25, 13,0]
       }});
-  }catch(e){ console.warn("gov-line:",e.message); }
-  // Labels are a separate layer/try so a glyph-font problem can't hide the lines.
-  try{
     map.addLayer({id:"gov-label",type:"symbol",source:"gov",
       layout:{
         "text-field":["get","en"],
-        "text-font":["Noto Sans Regular"],
-        "text-size":["interpolate",["linear"],["zoom"], 5,11, 8,14, 11,16],
-        "text-transform":"uppercase","text-letter-spacing":0.06,
-        "symbol-placement":"point","text-max-width":8
+        "text-font":["Open Sans Bold","Arial Unicode MS Bold"],
+        "text-size":["interpolate",["linear"],["zoom"], 5,11, 8,15, 11,17],
+        "text-transform":"uppercase","text-letter-spacing":0.05,
+        "symbol-placement":"point"
       },
       paint:{
-        "text-color":"#FCEFC7",
-        "text-halo-color":"#14261B","text-halo-width":1.6,
-        "text-opacity":["interpolate",["linear"],["zoom"], 5,1, 10,1, 12,0.5, 13,0]
+        "text-color":"#F3EFE4",
+        "text-halo-color":"#14261B","text-halo-width":1.4,
+        "text-opacity":["interpolate",["linear"],["zoom"], 5,0.9, 10,0.9, 12,0.4, 13,0]
       }});
-  }catch(e){ console.warn("gov-label:",e.message); }
+  }catch(e){ console.warn("gov:",e.message); }
 
   // --- live NDVI raster from Planetary Computer mosaic tiler ---
   // We register a Sentinel-2 L2A search, then point the raster source at it.
