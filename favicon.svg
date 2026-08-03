@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#14261B"/>
+  <!-- vegetation health ramp arc -->
+  <path d="M14 42 Q32 14 50 42" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="32" cy="46" r="5" fill="#F3EFE4"/>
+  <defs>
+    <linearGradient id="g" x1="14" y1="0" x2="50" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#B4552D"/>
+      <stop offset="0.5" stop-color="#D9A441"/>
+      <stop offset="1" stop-color="#1E6E5A"/>
+    </linearGradient>
+  </defs>
+</svg>
