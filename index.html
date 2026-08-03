@@ -2238,11 +2238,11 @@ const D = {
 function diag(el,text,cls){ if(!el) return; el.textContent=text; el.className=cls||""; }
 const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
-// Stamp the build version so any screenshot self-identifies which deploy it is.
-(function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 
 /* ---------- constants ---------- */
 const BUILD = "2026.08.03-f";  // bump on each deploy so screenshots self-identify
+// Stamp the build version so any screenshot self-identifies which deploy it is.
+(function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
 /* NDVI on Sentinel-2 L2A.
    IMPORTANT: since ESA Processing Baseline 04.00 (Jan 2022), reflectance is
