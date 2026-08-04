@@ -2240,7 +2240,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2300,7 +2300,7 @@ try{
       },
       layers:[{id:"sat",type:"raster",source:"esri"}]
     },
-    center:[43.8290,35.4009], zoom:14.8, maxZoom:16, minZoom:4,
+    center:[43.1995,36.2282], zoom:14.8, maxZoom:16, minZoom:4,
     attributionControl:false
   });
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
@@ -2546,9 +2546,10 @@ async function onFieldTap(e){
     if(id && c){
       const hist = f.__history;
       let cur=null; for(let i=hist.length-1;i>=0;i--){ if(hist[i].v!=null){ cur=hist[i].v; break; } }
-      const yoy = computeYoY(hist);           // {diff?} — parse the delta for ranking
+      const yoy = computeYoY(hist);
       logHistory({id, lon:c[0], lat:c[1], ndvi:cur, band:healthBand(cur),
-                  improve: (yoy && typeof yoy.diff==="number") ? yoy.diff : null});
+                  improve: (yoy && typeof yoy.diff==="number") ? yoy.diff : null,
+                  improvePct: (yoy && typeof yoy.pct==="number") ? yoy.pct : null});
     }
   }catch(err){ console.warn("history:",err.message); }
 }
@@ -3187,7 +3188,13 @@ function renderHistory(){
     let imp = "—", impColor = "var(--ink)";
     if(typeof e.improve==="number"){
       const up = e.improve>0.03, down = e.improve<-0.03;
-      imp = `${up?"↑":down?"↓":"≈"} ${(e.improve>0?"+":"")}${e.improve.toFixed(2)}`;
+      const arrow = up?"↑":down?"↓":"≈";
+      // Match the field sheet: show a percentage when it's meaningful (stored
+      // when the base wasn't near-zero), otherwise the absolute NDVI change.
+      const mag = (typeof e.improvePct==="number")
+        ? `${e.improvePct>0?"+":""}${e.improvePct}%`
+        : `${e.improve>0?"+":""}${e.improve.toFixed(2)}`;
+      imp = `${arrow} ${mag}`;
       impColor = up?"var(--canal)":down?"var(--clay)":"var(--wheat)";
     }
     row.innerHTML =
@@ -3248,7 +3255,7 @@ searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
    Gated flow: the user must actually TAP a field to proceed, then watches the
    real chart populate live. Steps that require an action hide the Next button. */
 const TOUR_KEY = "iraqFarmHealth.tourSeen.v1";
-const TOUR_FIELD = {lon:43.8290, lat:35.4009};
+const TOUR_FIELD = {lon:43.1995, lat:36.2282};
 const tourEl = document.getElementById("tour");
 const tourHole = document.getElementById("tour-hole");
 const tourCard = document.getElementById("tour-card");
