@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-m";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-n";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2363,8 +2363,9 @@ function onMapLoad(){
     map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:6,maxzoom:16});
     // Insert NDVI just below the field FILL layer (added earlier, synchronously),
     // so it sits above the satellite + Esri reference rasters but beneath the
-    // field outlines and selection highlight.
-    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.75}},
+    // field outlines and selection highlight. Opacity kept fairly high so the
+    // tint reads clearly even over similarly-coloured desert/green terrain.
+    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.9}},
       map.getLayer("fields-fill") ? "fields-fill" : undefined);
     window.__rawNdviTemplate = rawTileTemplate;
     // Surface load status on-screen so we can see failures without a console.
