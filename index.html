@@ -2240,7 +2240,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-h";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-i";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2291,12 +2291,13 @@ try{
       sources:{
         esri:{type:"raster",tiles:[
           "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        ],tileSize:256,attribution:"Esri, Maxar, Earthstar Geographics"},
+        places:{type:"raster",tiles:[
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
         ],tileSize:256,attribution:"Esri"},
-        labels:{type:"raster",tiles:[
-          "https://a.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png",
-          "https://b.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png",
-          "https://c.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}.png"
-        ],tileSize:256,attribution:"© OpenStreetMap contributors © CARTO"}
+        roads:{type:"raster",tiles:[
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+        ],tileSize:256,attribution:"Esri"}
       },
       layers:[{id:"sat",type:"raster",source:"esri"}]
     },
@@ -2313,10 +2314,14 @@ function onMapLoad(){
   // --- place-name + road labels overlay (transparent, no polygons) ---
   // Sits above imagery for orientation; NDVI is inserted beneath it and the
   // field outlines above it, so labels stay readable without clutter.
+  // Esri reference overlays for orientation: transportation (roads) first, then
+  // boundaries & place names on top. NDVI goes beneath these; field outlines above.
   try{
-    map.addLayer({id:"labels",type:"raster",source:"labels",
-      paint:{"raster-opacity":0.9}});
-  }catch(e){ console.warn("labels:",e.message); }
+    map.addLayer({id:"roads",type:"raster",source:"roads",
+      paint:{"raster-opacity":0.85}});
+    map.addLayer({id:"labels",type:"raster",source:"places",
+      paint:{"raster-opacity":0.95}});
+  }catch(e){ console.warn("reference:",e.message); }
 
   // --- governorate boundaries + names, to orient at country/regional zoom ---
   // Fades out as the user zooms into field scale so it doesn't clutter.
@@ -2353,7 +2358,7 @@ function onMapLoad(){
     map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:6,maxzoom:16});
     // insert NDVI BELOW the labels layer so place names stay legible
     map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.7}},
-      map.getLayer("labels")?"labels":undefined);
+      map.getLayer("roads")?"roads":(map.getLayer("labels")?"labels":undefined));
     window.__rawNdviTemplate = rawTileTemplate; // used to sample a real NDVI value on tap
   }).catch(err=>{
     console.warn("ndvi:",err.message);
