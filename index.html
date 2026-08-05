@@ -183,6 +183,10 @@ html,body{margin:0;height:100%;background:var(--ink);
 #help-btn{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
   box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
   border-radius:12px;padding:7px 11px;cursor:pointer}
+#health-toggle{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
+  box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
+  border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px;opacity:.55}
+#health-toggle.on{opacity:1;background:var(--ink);color:var(--paper)}
 #hist-toggle{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
   box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
   border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px}
@@ -325,6 +329,7 @@ html,body{margin:0;height:100%;background:var(--ink);
   </div>
   <button id="pins-toggle" title="My fields">★ <span data-t="myFields">My fields</span> <span id="pins-count"></span></button>
   <button id="hist-toggle" title="History">🏆 <span data-t="history">History</span> <span id="hist-count"></span></button>
+  <button id="health-toggle" class="on" title="Vegetation health overlay">🌱 <span data-t="healthMap">Health map</span></button>
   <button id="help-btn" title="How to use" data-t="helpBtn">? Guide</button>
 </div>
 
@@ -2183,7 +2188,7 @@ if(typeof window!=='undefined'){window.pmtiles=pmtiles;}
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows the health of farm fields across Iraq, from satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field now to open it.",t3:"Watch — this is two years of the field's health, loading in month by month.",t4:"This score is the crop's health right now. Green is healthy, yellow fair, red means little growth — and it shows if this year beats last year.",t5:"Search a place, or save your own fields here to find them again quickly. Tap ? any time to see this guide again.",myFields:"My fields",history:"Ranking",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lon, lat",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lon, lat) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
+      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows the health of farm fields across Iraq, from satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field now to open it.",t3:"Watch — this is two years of the field's health, loading in month by month.",t4:"This score is the crop's health right now. Green is healthy, yellow fair, red means little growth — and it shows if this year beats last year.",t5:"Search a place, or save your own fields here to find them again quickly. Tap ? any time to see this guide again.",myFields:"My fields",history:"Ranking",healthMap:"Health map",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lon, lat",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lon, lat) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -2192,7 +2197,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة صحة الحقول الزراعية في العراق من صور الأقمار الصناعية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل الآن لفتحه.",t3:"شاهد — هذه سنتان من صحة الحقل، تُحمَّل شهراً بعد شهر.",t4:"هذه الدرجة هي صحة المحصول الآن. الأخضر صحي، الأصفر متوسط، الأحمر نمو ضعيف — وتُظهر إن كان هذا العام أفضل من الماضي.",t5:"ابحث عن مكان، أو احفظ حقولك هنا لتجدها بسرعة. انقر ؟ في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",history:"الترتيب",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lon, lat) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
+      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة صحة الحقول الزراعية في العراق من صور الأقمار الصناعية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل الآن لفتحه.",t3:"شاهد — هذه سنتان من صحة الحقل، تُحمَّل شهراً بعد شهر.",t4:"هذه الدرجة هي صحة المحصول الآن. الأخضر صحي، الأصفر متوسط، الأحمر نمو ضعيف — وتُظهر إن كان هذا العام أفضل من الماضي.",t5:"ابحث عن مكان، أو احفظ حقولك هنا لتجدها بسرعة. انقر ؟ في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",history:"الترتيب",healthMap:"خريطة الصحة",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lon, lat) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -2201,7 +2206,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە تەندروستی کێڵگەکانی عێراق پیشان دەدات لە وێنەی مانگی دەستکرد. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 ئێستا دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"سەیر بکە — ئەمە دوو ساڵ تەندروستی کێڵگەیە، مانگ بە مانگ بار دەبێت.",t4:"ئەم پلەیە تەندروستی بەرهەمە ئێستا. سەوز تەندروستە، زەرد مامناوەند، سوور گەشەی کەم — و پیشان دەدات ئایا ئەمساڵ لە پار باشترە.",t5:"بەدوای شوێنێکدا بگەڕێ، یان کێڵگەکانت لێرە پاشەکەوت بکە بۆ دۆزینەوەی خێرا. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",history:"ڕیزبەندی",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",
+      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە تەندروستی کێڵگەکانی عێراق پیشان دەدات لە وێنەی مانگی دەستکرد. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 ئێستا دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"سەیر بکە — ئەمە دوو ساڵ تەندروستی کێڵگەیە، مانگ بە مانگ بار دەبێت.",t4:"ئەم پلەیە تەندروستی بەرهەمە ئێستا. سەوز تەندروستە، زەرد مامناوەند، سوور گەشەی کەم — و پیشان دەدات ئایا ئەمساڵ لە پار باشترە.",t5:"بەدوای شوێنێکدا بگەڕێ، یان کێڵگەکانت لێرە پاشەکەوت بکە بۆ دۆزینەوەی خێرا. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -2240,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-i";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-j";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2478,10 +2483,26 @@ async function registerNdviMosaic(){
   if(!reg.ok) throw new Error("register "+reg.status);
   const {searchid} = await reg.json();
   window.__ndviSearchId = searchid;
+  // Interval colormap matching the app's OWN health ramp exactly, so the map
+  // background and the per-field cards tell the same story in the same colors:
+  //   < 0.20  Poor  -> clay   #B4552D  [180,85,45]
+  //   0.20-0.45 Fair -> wheat #D9A441  [217,164,65]
+  //   >= 0.45  Good  -> green #1E6E5A  [30,110,90]
+  // A little gradation within each band keeps it from looking flat. Below 0 (water/
+  // bare) is transparent so it doesn't paint rivers. Format: [[min,max],[r,g,b,a]].
+  const healthCmap = JSON.stringify([
+    [[-1.0, 0.0],  [0,0,0,0]],           // water / no-veg: transparent
+    [[0.0, 0.10],  [150,66,34,255]],     // very poor (darker clay)
+    [[0.10, 0.20], [180,85,45,255]],     // poor: clay
+    [[0.20, 0.32], [214,150,70,255]],    // fair-low
+    [[0.32, 0.45], [217,164,65,255]],    // fair: wheat
+    [[0.45, 0.58], [120,150,80,255]],    // good-low (wheat->green blend)
+    [[0.58, 0.72], [45,120,80,255]],     // good
+    [[0.72, 1.0],  [30,110,90,255]]      // very good: green
+  ]);
   const params = new URLSearchParams({
     expression:NDVI_EXPR,
-    rescale:"-0.2,0.8",
-    colormap_name:"rdylgn",
+    colormap:healthCmap,
     asset_as_band:"true"
   });
   // Raw template: same NDVI expression, but rescaled 0-255 greyscale with NO colormap,
@@ -3168,6 +3189,15 @@ document.getElementById("hist-toggle").addEventListener("click",()=>{
   if(!histPanel.hidden) renderHistory();
 });
 document.getElementById("hist-close").addEventListener("click",()=>histPanel.hidden=true);
+
+// Toggle the vegetation-health NDVI overlay on/off.
+const healthToggle = document.getElementById("health-toggle");
+healthToggle.addEventListener("click",()=>{
+  const on = healthToggle.classList.toggle("on");
+  if(map.getLayer("ndvi")){
+    map.setLayoutProperty("ndvi","visibility", on?"visible":"none");
+  }
+});
 
 function renderHistory(){
   const t = I18N[lang];
