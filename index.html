@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-n";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-p";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2361,12 +2361,9 @@ function onMapLoad(){
   // We register a Sentinel-2 L2A search, then point the raster source at it.
   registerNdviMosaic().then(({tileUrl, rawTileTemplate})=>{
     map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:6,maxzoom:16});
-    // Insert NDVI just below the field FILL layer (added earlier, synchronously),
-    // so it sits above the satellite + Esri reference rasters but beneath the
-    // field outlines and selection highlight. Opacity kept fairly high so the
-    // tint reads clearly even over similarly-coloured desert/green terrain.
-    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.9}},
-      map.getLayer("fields-fill") ? "fields-fill" : undefined);
+    // TEST: add NDVI on TOP of everything (no beforeId) so if it renders at all,
+    // it's unmistakable. If this shows color, the earlier issue was pure z-order.
+    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.85}});
     window.__rawNdviTemplate = rawTileTemplate;
     // Surface load status on-screen so we can see failures without a console.
     const bd=document.getElementById("d-build");
@@ -2496,19 +2493,16 @@ async function registerNdviMosaic(){
   if(!reg.ok) throw new Error("register "+reg.status);
   const {searchid} = await reg.json();
   window.__ndviSearchId = searchid;
-  // Health overlay across the map. We use the proven rescale + named-colormap
-  // path (rdylgn = red→yellow→green) which reliably renders on PC's mosaic tiler
-  // and reads exactly like the legend: low = red/clay, high = green. (A custom
-  // interval colormap to hit the exact brand hexes did not render reliably on
-  // the mosaic endpoint, so we keep the robust version.)
+  // Simplest known-working form, matching Planetary Computer's own documentation
+  // example exactly: plain NDVI expression, full -1,1 rescale, standard rdylgn
+  // colormap. (Once confirmed rendering, we can refine colors/range.)
   const params = new URLSearchParams({
-    expression:NDVI_EXPR,
-    rescale:"0,0.8",
+    expression:"(B08-B04)/(B08+B04)",
+    asset_as_band:"true",
     colormap_name:"rdylgn",
-    asset_as_band:"true"
+    rescale:"-1,1"
   });
-  // Raw template: same NDVI expression, but rescaled 0-255 greyscale with NO colormap,
-  // so a sampled pixel's byte value maps linearly back to NDVI in [-0.2, 0.8].
+  // Raw greyscale template for pixel sampling on tap (unchanged).
   const rawParams = new URLSearchParams({
     expression:NDVI_EXPR,
     rescale:"-0.2,0.8",
