@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-j";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-k";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2483,26 +2483,15 @@ async function registerNdviMosaic(){
   if(!reg.ok) throw new Error("register "+reg.status);
   const {searchid} = await reg.json();
   window.__ndviSearchId = searchid;
-  // Interval colormap matching the app's OWN health ramp exactly, so the map
-  // background and the per-field cards tell the same story in the same colors:
-  //   < 0.20  Poor  -> clay   #B4552D  [180,85,45]
-  //   0.20-0.45 Fair -> wheat #D9A441  [217,164,65]
-  //   >= 0.45  Good  -> green #1E6E5A  [30,110,90]
-  // A little gradation within each band keeps it from looking flat. Below 0 (water/
-  // bare) is transparent so it doesn't paint rivers. Format: [[min,max],[r,g,b,a]].
-  const healthCmap = JSON.stringify([
-    [[-1.0, 0.0],  [0,0,0,0]],           // water / no-veg: transparent
-    [[0.0, 0.10],  [150,66,34,255]],     // very poor (darker clay)
-    [[0.10, 0.20], [180,85,45,255]],     // poor: clay
-    [[0.20, 0.32], [214,150,70,255]],    // fair-low
-    [[0.32, 0.45], [217,164,65,255]],    // fair: wheat
-    [[0.45, 0.58], [120,150,80,255]],    // good-low (wheat->green blend)
-    [[0.58, 0.72], [45,120,80,255]],     // good
-    [[0.72, 1.0],  [30,110,90,255]]      // very good: green
-  ]);
+  // Health overlay across the map. We use the proven rescale + named-colormap
+  // path (rdylgn = red→yellow→green) which reliably renders on PC's mosaic tiler
+  // and reads exactly like the legend: low = red/clay, high = green. (A custom
+  // interval colormap to hit the exact brand hexes did not render reliably on
+  // the mosaic endpoint, so we keep the robust version.)
   const params = new URLSearchParams({
     expression:NDVI_EXPR,
-    colormap:healthCmap,
+    rescale:"0,0.8",
+    colormap_name:"rdylgn",
     asset_as_band:"true"
   });
   // Raw template: same NDVI expression, but rescaled 0-255 greyscale with NO colormap,
