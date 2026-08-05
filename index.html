@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-q";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-r";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2514,11 +2514,12 @@ async function registerNdviMosaic(){
     body:JSON.stringify(searchBody)
   });
   if(!reg.ok) throw new Error("register "+reg.status);
-  const {searchid} = await reg.json();
+  const regJson = await reg.json();
+  const searchid = regJson.searchid || regJson.id ||
+    (regJson.search && regJson.search.hash);
+  if(!searchid) throw new Error("no searchid in register response: "+JSON.stringify(regJson).slice(0,120));
   window.__ndviSearchId = searchid;
-  // Simplest known-working form, matching Planetary Computer's own documentation
-  // example exactly: plain NDVI expression, full -1,1 rescale, standard rdylgn
-  // colormap. (Once confirmed rendering, we can refine colors/range.)
+  // Display params: simplest documented form (plain NDVI, rdylgn, full range).
   const params = new URLSearchParams({
     expression:"(B08-B04)/(B08+B04)",
     asset_as_band:"true",
@@ -2531,10 +2532,30 @@ async function registerNdviMosaic(){
     rescale:"-0.2,0.8",
     asset_as_band:"true"
   });
-  return {
-    tileUrl: `${PC}/mosaic/${searchid}/tiles/{z}/{x}/{y}?${params.toString()}`,
-    rawTileTemplate: `${PC}/mosaic/${searchid}/tiles/{z}/{x}/{y}?${rawParams.toString()}`
-  };
+  // Ask PC's tiler for the AUTHORITATIVE tile URL template via tilejson, instead
+  // of hand-building the path (which broke when titiler-pgstac moved the tile
+  // path to include the TileMatrixSet id). We try the current path first, then
+  // fall back to the legacy one.
+  async function tileTemplateFrom(qs){
+    const candidates = [
+      `${PC}/mosaic/${searchid}/tilejson.json?${qs}`,
+      `${PC}/mosaic/${searchid}/WebMercatorQuad/tilejson.json?${qs}`,
+      `${PC}/searches/${searchid}/WebMercatorQuad/tilejson.json?${qs}`
+    ];
+    for(const u of candidates){
+      try{
+        const r = await fetch(u);
+        if(!r.ok) continue;
+        const tj = await r.json();
+        if(tj && tj.tiles && tj.tiles[0]) return tj.tiles[0];
+      }catch(e){ /* try next */ }
+    }
+    // last resort: current documented path shape
+    return `${PC}/mosaic/${searchid}/tiles/WebMercatorQuad/{z}/{x}/{y}?${qs}`;
+  }
+  const tileUrl = await tileTemplateFrom(params.toString());
+  const rawTileTemplate = await tileTemplateFrom(rawParams.toString());
+  return { tileUrl, rawTileTemplate };
 }
 
 /* ---------- field tap -> current NDVI (sampled from the live raster) ---------- */
