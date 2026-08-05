@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-k";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-m";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2361,11 +2361,23 @@ function onMapLoad(){
   // We register a Sentinel-2 L2A search, then point the raster source at it.
   registerNdviMosaic().then(({tileUrl, rawTileTemplate})=>{
     map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:6,maxzoom:16});
-    // insert NDVI BELOW the labels layer so place names stay legible
-    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.7}},
-      map.getLayer("roads")?"roads":(map.getLayer("labels")?"labels":undefined));
-    window.__rawNdviTemplate = rawTileTemplate; // used to sample a real NDVI value on tap
+    // Insert NDVI just below the field FILL layer (added earlier, synchronously),
+    // so it sits above the satellite + Esri reference rasters but beneath the
+    // field outlines and selection highlight.
+    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.75}},
+      map.getLayer("fields-fill") ? "fields-fill" : undefined);
+    window.__rawNdviTemplate = rawTileTemplate;
+    // Surface load status on-screen so we can see failures without a console.
+    const bd=document.getElementById("d-build");
+    map.on("sourcedata",e=>{
+      if(e.sourceId==="ndvi" && e.isSourceLoaded && bd){ bd.textContent = "build "+BUILD+" · ndvi ✓"; }
+    });
+    map.on("error",e=>{
+      if(e && e.error && /ndvi/i.test(e.error.message||"") && bd){ bd.textContent = "build "+BUILD+" · ndvi ✗"; }
+    });
   }).catch(err=>{
+    const bd=document.getElementById("d-build");
+    if(bd) bd.textContent = "build "+BUILD+" · ndvi FAILED: "+err.message.slice(0,40);
     console.warn("ndvi:",err.message);
   });
 
