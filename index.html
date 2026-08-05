@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-p";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-q";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2316,6 +2316,29 @@ try{
 }catch(e){ showErr("Map failed to start: "+e.message); }
 
 function onMapLoad(){
+  // ISOLATION TEST MODE: ?ndvionly=1 shows ONLY the Planetary Computer NDVI
+  // layer on a plain background — no satellite, roads, labels, or fields — to
+  // determine definitively whether the PC tiles render at all.
+  const NDVI_ONLY = (()=>{ try{ return new URLSearchParams(location.search).get("ndvionly")==="1"; }catch{ return false; } })();
+  if(NDVI_ONLY){
+    // hide the satellite basemap so only NDVI shows
+    if(map.getLayer("sat")) map.setPaintProperty("sat","raster-opacity",0);
+    registerNdviMosaic().then(({tileUrl})=>{
+      map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:2,maxzoom:16});
+      map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":1}});
+      const bd=document.getElementById("d-build");
+      if(bd) bd.textContent = "build "+BUILD+" · NDVI-ONLY test";
+      // log the actual tile URL so we can inspect it
+      console.log("NDVI tile URL:", tileUrl);
+      const bd2=document.getElementById("d-geo");
+      if(bd2) bd2.textContent = tileUrl.slice(0,80);
+    }).catch(err=>{
+      const bd=document.getElementById("d-build");
+      if(bd) bd.textContent = "build "+BUILD+" · NDVI register FAILED: "+err.message.slice(0,50);
+    });
+    return; // skip everything else in this test mode
+  }
+
   // --- place-name + road labels overlay (transparent, no polygons) ---
   // Sits above imagery for orientation; NDVI is inserted beneath it and the
   // field outlines above it, so labels stay readable without clutter.
