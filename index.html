@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-s";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-t";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2522,9 +2522,9 @@ async function registerNdviMosaic(){
     if(dbg) dbg.textContent = "REG: "+JSON.stringify(regJson).slice(0,140);
     console.log("PC register response:", regJson);
   }catch{}
-  const searchid = regJson.searchid || regJson.id ||
+  const searchid = regJson.id || regJson.searchid ||
     (regJson.search && regJson.search.hash) || (regJson.search && regJson.search.searchid);
-  if(!searchid) throw new Error("no searchid in register response: "+JSON.stringify(regJson).slice(0,120));
+  if(!searchid) throw new Error("no id in register response: "+JSON.stringify(regJson).slice(0,120));
   window.__ndviSearchId = searchid;
   // Display params: simplest documented form (plain NDVI, rdylgn, full range).
   const params = new URLSearchParams({
@@ -2539,18 +2539,14 @@ async function registerNdviMosaic(){
     rescale:"-0.2,0.8",
     asset_as_band:"true"
   });
-  // Ask PC's tiler for the AUTHORITATIVE tile URL template. Newer titiler-pgstac
-  // returns a `links` array with a tilejson href — use that if present, since it
-  // encodes whatever path format PC currently uses. Otherwise try known paths.
+  // Build the tile URL from the FULL id. (PC's own links[].href came back
+  // truncated in testing, so we do NOT use it — we use the complete `id`.)
+  // Verify against tilejson to pick the working path shape, else fall back.
   async function tileTemplateFrom(qs){
-    const linkTj = (regJson.links||[]).find(l=> l.rel==="tilejson" || (l.href||"").includes("tilejson"));
-    const candidates = [];
-    if(linkTj && linkTj.href) candidates.push(linkTj.href + (linkTj.href.includes("?")?"&":"?") + qs);
-    candidates.push(
+    const candidates = [
       `${PC}/mosaic/${searchid}/tilejson.json?${qs}`,
-      `${PC}/mosaic/${searchid}/WebMercatorQuad/tilejson.json?${qs}`,
-      `${PC}/searches/${searchid}/WebMercatorQuad/tilejson.json?${qs}`
-    );
+      `${PC}/mosaic/${searchid}/WebMercatorQuad/tilejson.json?${qs}`
+    ];
     for(const u of candidates){
       try{
         const r = await fetch(u);
@@ -2559,10 +2555,12 @@ async function registerNdviMosaic(){
         if(tj && tj.tiles && tj.tiles[0]) return tj.tiles[0];
       }catch(e){ /* try next */ }
     }
+    // documented current path shape (WebMercatorQuad in the tiles path)
     return `${PC}/mosaic/${searchid}/tiles/WebMercatorQuad/{z}/{x}/{y}?${qs}`;
   }
   const tileUrl = await tileTemplateFrom(params.toString());
   const rawTileTemplate = await tileTemplateFrom(rawParams.toString());
+  try{ const dbg=document.getElementById("d-geo"); if(dbg) dbg.textContent = "TILE: "+tileUrl.slice(0,90); }catch{}
   return { tileUrl, rawTileTemplate };
 }
 
