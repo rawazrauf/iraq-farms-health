@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-u";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-v";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2526,15 +2526,21 @@ async function registerNdviMosaic(){
     (regJson.search && regJson.search.hash) || (regJson.search && regJson.search.searchid);
   if(!searchid) throw new Error("no id in register response: "+JSON.stringify(regJson).slice(0,120));
   window.__ndviSearchId = searchid;
-  // Display params: simplest documented form (plain NDVI, rdylgn, full range).
-  const params = new URLSearchParams({
+  // Build the query string MANUALLY with explicit encoding. The NDVI expression
+  // contains a '+', which in a URL query means "space" — MapLibre's raster tile
+  // fetch was turning %2B back into '+' → space → PC saw a broken expression and
+  // replied "assets must be defined via expression". encodeURIComponent keeps
+  // '+' as %2B and ',' as %2C so the params survive intact.
+  function qstr(obj){
+    return Object.entries(obj).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join("&");
+  }
+  const params = qstr({
     expression:"(B08-B04)/(B08+B04)",
     asset_as_band:"true",
     colormap_name:"rdylgn",
     rescale:"-1,1"
   });
-  // Raw greyscale template for pixel sampling on tap (unchanged).
-  const rawParams = new URLSearchParams({
+  const rawParams = qstr({
     expression:NDVI_EXPR,
     rescale:"-0.2,0.8",
     asset_as_band:"true"
@@ -2546,8 +2552,8 @@ async function registerNdviMosaic(){
   function tileTemplateFrom(qs){
     return `${PC}/mosaic/${searchid}/tiles/WebMercatorQuad/{z}/{x}/{y}?${qs}`;
   }
-  const tileUrl = tileTemplateFrom(params.toString());
-  const rawTileTemplate = tileTemplateFrom(rawParams.toString());
+  const tileUrl = tileTemplateFrom(params);
+  const rawTileTemplate = tileTemplateFrom(rawParams);
   // Show a REAL sample tile URL (z/x/y filled in) so we can open it directly.
   try{
     const dbg=document.getElementById("d-geo");
