@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-t";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-u";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2539,28 +2539,22 @@ async function registerNdviMosaic(){
     rescale:"-0.2,0.8",
     asset_as_band:"true"
   });
-  // Build the tile URL from the FULL id. (PC's own links[].href came back
-  // truncated in testing, so we do NOT use it — we use the complete `id`.)
-  // Verify against tilejson to pick the working path shape, else fall back.
-  async function tileTemplateFrom(qs){
-    const candidates = [
-      `${PC}/mosaic/${searchid}/tilejson.json?${qs}`,
-      `${PC}/mosaic/${searchid}/WebMercatorQuad/tilejson.json?${qs}`
-    ];
-    for(const u of candidates){
-      try{
-        const r = await fetch(u);
-        if(!r.ok) continue;
-        const tj = await r.json();
-        if(tj && tj.tiles && tj.tiles[0]) return tj.tiles[0];
-      }catch(e){ /* try next */ }
-    }
-    // documented current path shape (WebMercatorQuad in the tiles path)
+  // Build the tile URL DIRECTLY with the current titiler-pgstac path shape
+  // (/tiles/WebMercatorQuad/{z}/{x}/{y}). We no longer probe tilejson (those
+  // requests were failing/CORS and causing a fallthrough). The full `id` is now
+  // correct, so this path should resolve.
+  function tileTemplateFrom(qs){
     return `${PC}/mosaic/${searchid}/tiles/WebMercatorQuad/{z}/{x}/{y}?${qs}`;
   }
-  const tileUrl = await tileTemplateFrom(params.toString());
-  const rawTileTemplate = await tileTemplateFrom(rawParams.toString());
-  try{ const dbg=document.getElementById("d-geo"); if(dbg) dbg.textContent = "TILE: "+tileUrl.slice(0,90); }catch{}
+  const tileUrl = tileTemplateFrom(params.toString());
+  const rawTileTemplate = tileTemplateFrom(rawParams.toString());
+  // Show a REAL sample tile URL (z/x/y filled in) so we can open it directly.
+  try{
+    const dbg=document.getElementById("d-geo");
+    const sample = tileUrl.replace("{z}","13").replace("{x}","6386").replace("{y}","4223");
+    if(dbg) dbg.textContent = "TILE13: "+sample;
+    console.log("sample tile:", sample);
+  }catch{}
   return { tileUrl, rawTileTemplate };
 }
 
