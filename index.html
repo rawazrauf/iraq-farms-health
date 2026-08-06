@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-w";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.03-x";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2316,29 +2316,6 @@ try{
 }catch(e){ showErr("Map failed to start: "+e.message); }
 
 function onMapLoad(){
-  // ISOLATION TEST MODE: ?ndvionly=1 shows ONLY the Planetary Computer NDVI
-  // layer on a plain background — no satellite, roads, labels, or fields — to
-  // determine definitively whether the PC tiles render at all.
-  const NDVI_ONLY = (()=>{ try{ return new URLSearchParams(location.search).get("ndvionly")==="1"; }catch{ return false; } })();
-  if(NDVI_ONLY){
-    // hide the satellite basemap so only NDVI shows
-    if(map.getLayer("sat")) map.setPaintProperty("sat","raster-opacity",0);
-    registerNdviMosaic().then(({tileUrl})=>{
-      map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:2,maxzoom:16});
-      map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":1}});
-      const bd=document.getElementById("d-build");
-      if(bd) bd.textContent = "build "+BUILD+" · NDVI-ONLY test";
-      // log the actual tile URL so we can inspect it
-      console.log("NDVI tile URL:", tileUrl);
-      const bd2=document.getElementById("d-geo");
-      if(bd2) bd2.textContent = tileUrl.slice(0,80);
-    }).catch(err=>{
-      const bd=document.getElementById("d-build");
-      if(bd) bd.textContent = "build "+BUILD+" · NDVI register FAILED: "+err.message.slice(0,50);
-    });
-    return; // skip everything else in this test mode
-  }
-
   // --- place-name + road labels overlay (transparent, no polygons) ---
   // Sits above imagery for orientation; NDVI is inserted beneath it and the
   // field outlines above it, so labels stay readable without clutter.
@@ -2381,24 +2358,15 @@ function onMapLoad(){
   }catch(e){ console.warn("gov-label:",e.message); }
 
   // --- live NDVI raster from Planetary Computer mosaic tiler ---
-  // We register a Sentinel-2 L2A search, then point the raster source at it.
+  // Registers a recent Sentinel-2 L2A search and renders it as a health overlay.
   registerNdviMosaic().then(({tileUrl, rawTileTemplate})=>{
     map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:6,maxzoom:16});
-    // TEST: add NDVI on TOP of everything (no beforeId) so if it renders at all,
-    // it's unmistakable. If this shows color, the earlier issue was pure z-order.
-    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.85}});
-    window.__rawNdviTemplate = rawTileTemplate;
-    // Surface load status on-screen so we can see failures without a console.
-    const bd=document.getElementById("d-build");
-    map.on("sourcedata",e=>{
-      if(e.sourceId==="ndvi" && e.isSourceLoaded && bd){ bd.textContent = "build "+BUILD+" · ndvi ✓"; }
-    });
-    map.on("error",e=>{
-      if(e && e.error && /ndvi/i.test(e.error.message||"") && bd){ bd.textContent = "build "+BUILD+" · ndvi ✗"; }
-    });
+    // Sit beneath the field outlines (and selection) but above satellite + labels,
+    // so the health tint reads while field boundaries stay crisp on top.
+    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.6}},
+      map.getLayer("fields-fill") ? "fields-fill" : undefined);
+    window.__rawNdviTemplate = rawTileTemplate; // used to sample a real NDVI value on tap
   }).catch(err=>{
-    const bd=document.getElementById("d-build");
-    if(bd) bd.textContent = "build "+BUILD+" · ndvi FAILED: "+err.message.slice(0,40);
     console.warn("ndvi:",err.message);
   });
 
@@ -2515,16 +2483,9 @@ async function registerNdviMosaic(){
   });
   if(!reg.ok) throw new Error("register "+reg.status);
   const regJson = await reg.json();
-  // DIAGNOSTIC: surface the raw register response so we can see the real field
-  // names and the full search id (PC changed titiler-pgstac's response format).
-  try{
-    const dbg = document.getElementById("d-geo");
-    if(dbg) dbg.textContent = "REG: "+JSON.stringify(regJson).slice(0,140);
-    console.log("PC register response:", regJson);
-  }catch{}
   const searchid = regJson.id || regJson.searchid ||
     (regJson.search && regJson.search.hash) || (regJson.search && regJson.search.searchid);
-  if(!searchid) throw new Error("no id in register response: "+JSON.stringify(regJson).slice(0,120));
+  if(!searchid) throw new Error("no id in register response");
   window.__ndviSearchId = searchid;
   // Build the query string MANUALLY with explicit encoding. The NDVI expression
   // contains a '+', which in a URL query means "space" — MapLibre's raster tile
@@ -2556,13 +2517,6 @@ async function registerNdviMosaic(){
   }
   const tileUrl = tileTemplateFrom(params);
   const rawTileTemplate = tileTemplateFrom(rawParams);
-  // Show a REAL sample tile URL (z/x/y filled in) so we can open it directly.
-  try{
-    const dbg=document.getElementById("d-geo");
-    const sample = tileUrl.replace("{z}","13").replace("{x}","6386").replace("{y}","4223");
-    if(dbg) dbg.textContent = "TILE13: "+sample;
-    console.log("sample tile:", sample);
-  }catch{}
   return { tileUrl, rawTileTemplate };
 }
 
