@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.03-x";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.04-a";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2357,18 +2357,22 @@ function onMapLoad(){
       }});
   }catch(e){ console.warn("gov-label:",e.message); }
 
-  // --- live NDVI raster from Planetary Computer mosaic tiler ---
-  // Registers a recent Sentinel-2 L2A search and renders it as a health overlay.
-  registerNdviMosaic().then(({tileUrl, rawTileTemplate})=>{
-    map.addSource("ndvi",{type:"raster",tiles:[tileUrl],tileSize:256,minzoom:6,maxzoom:16});
-    // Sit beneath the field outlines (and selection) but above satellite + labels,
-    // so the health tint reads while field boundaries stay crisp on top.
-    map.addLayer({id:"ndvi",type:"raster",source:"ndvi",paint:{"raster-opacity":0.6}},
-      map.getLayer("fields-fill") ? "fields-fill" : undefined);
-    window.__rawNdviTemplate = rawTileTemplate; // used to sample a real NDVI value on tap
-  }).catch(err=>{
-    console.warn("ndvi:",err.message);
-  });
+  // --- field-only health colouring ---
+  // Instead of a raster wash across the whole map (which blended with satellite
+  // greenery and confused users), we colour ONLY detected fields by their NDVI.
+  // Each visible field is sampled via the same /statistics endpoint the tap uses,
+  // then filled with the matching health colour. Health therefore appears strictly
+  // inside fields — green outside a field is obviously just satellite, and the
+  // coloured fills make fields visibly tappable.
+  map.addSource("health",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
+  map.addLayer({
+    id:"health-fill",type:"fill",source:"health",
+    paint:{"fill-color":["get","col"],"fill-opacity":0.72}
+  }, map.getLayer("fields-line") ? "fields-line" : undefined);
+  // We still register the mosaic ONLY to keep the raw sampling template for taps.
+  registerNdviMosaic().then(({rawTileTemplate})=>{
+    window.__rawNdviTemplate = rawTileTemplate;
+  }).catch(err=>{ console.warn("ndvi register:",err.message); });
 
   // --- FTW field boundaries as PMTiles ---
   try{
@@ -2433,6 +2437,9 @@ function onMapLoad(){
     map.on("click","fields-fill",onFieldTap);
     map.on("mouseenter","fields-fill",()=>map.getCanvas().style.cursor="pointer");
     map.on("mouseleave","fields-fill",()=>map.getCanvas().style.cursor="");
+
+    // Sample & colour visible fields whenever the map settles (if overlay on).
+    map.on("idle", ()=>{ scheduleHealthSample(); });
   }catch(e){ diag(D.fields,"error","err"); showErr("Fields layer failed: "+e.message); }
 
   // --- live geo readout ---
@@ -2528,6 +2535,83 @@ document.getElementById("sheet-close").addEventListener("click",()=>{
   const selSrc = map.getSource("sel");
   if(selSrc) selSrc.setData({type:"FeatureCollection",features:[]});
 });
+
+/* ---------- field-only health sampling ---------- */
+let healthOn = true;                 // Health map toggle state
+const __healthCache = new Map();     // fieldKey -> {v, col} (NDVI never re-fetched)
+let __healthTimer = null;
+let __healthRunId = 0;
+
+function fieldKey(f){
+  const c = polyCentroid(f.geometry);
+  return c ? `${c[0].toFixed(4)},${c[1].toFixed(4)}` : JSON.stringify(f.geometry).slice(0,40);
+}
+function bboxArea(g){
+  const b = geomBbox(g); if(!b) return 0;
+  return Math.abs((b[2]-b[0])*(b[3]-b[1]));
+}
+function healthFeature(f, col){
+  return {type:"Feature", properties:{col}, geometry:f.geometry};
+}
+function pushHealth(m){
+  const src = map.getSource("health");
+  if(src) src.setData({type:"FeatureCollection", features:Array.from(m.values())});
+}
+function scheduleHealthSample(){
+  clearTimeout(__healthTimer);
+  __healthTimer = setTimeout(runHealthSample, 350);   // debounce map settling
+}
+async function runHealthSample(){
+  const src = map.getSource("health");
+  if(!src) return;
+  if(!healthOn || map.getZoom() < FTW_MIN_ZOOM){
+    src.setData({type:"FeatureCollection",features:[]});
+    return;
+  }
+  const runId = ++__healthRunId;
+  let feats = [];
+  try{ feats = map.queryRenderedFeatures({layers:["fields-fill"]}); }catch{ return; }
+  const seen = new Set(), uniq = [];
+  for(const f of feats){
+    const k = fieldKey(f);
+    if(seen.has(k)) continue; seen.add(k);
+    uniq.push({f, k, area: bboxArea(f.geometry)});
+  }
+  uniq.sort((a,b)=> b.area - a.area);          // biggest fields first
+  const batch = uniq.slice(0, 45);             // cap API volume
+
+  const out = new Map();
+  for(const {f,k} of batch){
+    const cached = __healthCache.get(k);
+    if(cached && cached.v!=null) out.set(k, healthFeature(f, cached.col));
+  }
+  pushHealth(out);
+
+  const now = new Date();
+  const from = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  const iso = d=> d.toISOString().slice(0,10);
+  const todo = batch.filter(({k})=> !__healthCache.has(k));
+  let i = 0;
+  async function worker(){
+    while(i < todo.length){
+      if(runId !== __healthRunId) return;      // superseded by a newer run
+      const {f,k} = todo[i++];
+      try{
+        const r = await ndviForWindow(f.geometry, iso(from), iso(now));
+        if(r && r.value!=null){
+          const col = ndviColorHex(r.value);
+          __healthCache.set(k, {v:r.value, col});
+          out.set(k, healthFeature(f, col));
+          if(runId === __healthRunId && (i % 3 === 0 || i === todo.length)) pushHealth(out);
+        } else {
+          __healthCache.set(k, {v:null, col:null});
+        }
+      }catch{ /* skip */ }
+    }
+  }
+  await Promise.all(Array.from({length:4}, worker));   // small concurrency
+  if(runId === __healthRunId) pushHealth(out);
+}
 
 async function onFieldTap(e){
   const f = e.features && e.features[0];
@@ -3192,13 +3276,14 @@ document.getElementById("hist-toggle").addEventListener("click",()=>{
 });
 document.getElementById("hist-close").addEventListener("click",()=>histPanel.hidden=true);
 
-// Toggle the vegetation-health NDVI overlay on/off.
+// Toggle the field-only vegetation-health colouring on/off.
 const healthToggle = document.getElementById("health-toggle");
 healthToggle.addEventListener("click",()=>{
-  const on = healthToggle.classList.toggle("on");
-  if(map.getLayer("ndvi")){
-    map.setLayoutProperty("ndvi","visibility", on?"visible":"none");
+  healthOn = healthToggle.classList.toggle("on");
+  if(map.getLayer("health-fill")){
+    map.setLayoutProperty("health-fill","visibility", healthOn?"visible":"none");
   }
+  if(healthOn) scheduleHealthSample();
 });
 
 function renderHistory(){
