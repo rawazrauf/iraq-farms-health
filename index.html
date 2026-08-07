@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.04-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.04-b";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2553,9 +2553,21 @@ function bboxArea(g){
 function healthFeature(f, col){
   return {type:"Feature", properties:{col}, geometry:f.geometry};
 }
+const __healthShown = new Map();     // fieldKey -> colored feature currently on the layer
 function pushHealth(m){
+  // The sampler owns the in-view set: replace shown-store with this run's result.
+  __healthShown.clear();
+  for(const [k,feat] of m){ __healthShown.set(k, feat); }
   const src = map.getSource("health");
-  if(src) src.setData({type:"FeatureCollection", features:Array.from(m.values())});
+  if(src) src.setData({type:"FeatureCollection", features:Array.from(__healthShown.values())});
+}
+/* Add/replace a single coloured field immediately (used when a tapped field's
+   NDVI arrives before the next sample run). */
+function mergeHealthField(f, col){
+  const src = map.getSource("health");
+  if(!src) return;
+  __healthShown.set(fieldKey(f), healthFeature(f, col));
+  src.setData({type:"FeatureCollection", features:Array.from(__healthShown.values())});
 }
 function scheduleHealthSample(){
   clearTimeout(__healthTimer);
@@ -2647,6 +2659,17 @@ async function onFieldTap(e){
       const r = await ndviForWindow(f.geometry, slot.from, slot.to);
       slot.v = r.value; slot.date = r.date; slot.err = r.err;
       slot.scene = r.scene; slot.cloud = r.cloud;
+      // As soon as we have this field's current NDVI, colour it into the health
+      // layer immediately (it may not have been in the sampled batch, or the
+      // map may not have settled yet). We already paid for this value, so reuse it.
+      if(slot.v!=null){
+        const k = fieldKey(f);
+        if(!__healthCache.has(k) || __healthCache.get(k).v==null){
+          const col = ndviColorHex(slot.v);
+          __healthCache.set(k, {v:slot.v, col});
+          if(healthOn) mergeHealthField(f, col);
+        }
+      }
     }catch(err){ slot.v = null; slot.err = err.message; }
     slot.pending = false;
     if(lastField===f && sheet.classList.contains("open")) renderField(f); // live update
