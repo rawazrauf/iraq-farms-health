@@ -324,7 +324,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 <div id="tools">
   <div id="search-wrap">
     <input id="search-input" type="text" autocomplete="off"
-           data-t-ph="searchPh" placeholder="Field ID or lon, lat" />
+           data-t-ph="searchPh" placeholder="Field ID or lat, lon" />
     <button id="search-go" data-t="go">Go</button>
   </div>
   <button id="pins-toggle" title="My fields">★ <span data-t="myFields">My fields</span> <span id="pins-count"></span></button>
@@ -389,7 +389,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows the health of farm fields across Iraq, from satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field now to open it.",t3:"Watch — this is two years of the field's health, loading in month by month.",t4:"This score is the crop's health right now. Green is healthy, yellow fair, red means little growth — and it shows if this year beats last year.",t5:"Search a place, or save your own fields here to find them again quickly. Tap ? any time to see this guide again.",myFields:"My fields",history:"Ranking",healthMap:"Health map",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lon, lat",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lon, lat) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
+      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows the health of farm fields across Iraq, from satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field now to open it.",t3:"Watch — this is two years of the field's health, loading in month by month.",t4:"This score is the crop's health right now. Green is healthy, yellow fair, red means little growth — and it shows if this year beats last year.",t5:"Search a place, or save your own fields here to find them again quickly. Tap ? any time to see this guide again.",myFields:"My fields",history:"Ranking",healthMap:"Health map",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -398,7 +398,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة صحة الحقول الزراعية في العراق من صور الأقمار الصناعية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل الآن لفتحه.",t3:"شاهد — هذه سنتان من صحة الحقل، تُحمَّل شهراً بعد شهر.",t4:"هذه الدرجة هي صحة المحصول الآن. الأخضر صحي، الأصفر متوسط، الأحمر نمو ضعيف — وتُظهر إن كان هذا العام أفضل من الماضي.",t5:"ابحث عن مكان، أو احفظ حقولك هنا لتجدها بسرعة. انقر ؟ في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",history:"الترتيب",healthMap:"خريطة الصحة",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lon, lat) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
+      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة صحة الحقول الزراعية في العراق من صور الأقمار الصناعية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل الآن لفتحه.",t3:"شاهد — هذه سنتان من صحة الحقل، تُحمَّل شهراً بعد شهر.",t4:"هذه الدرجة هي صحة المحصول الآن. الأخضر صحي، الأصفر متوسط، الأحمر نمو ضعيف — وتُظهر إن كان هذا العام أفضل من الماضي.",t5:"ابحث عن مكان، أو احفظ حقولك هنا لتجدها بسرعة. انقر ؟ في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",history:"الترتيب",healthMap:"خريطة الصحة",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -446,7 +446,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.08-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.08-b";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -616,7 +616,7 @@ function onMapLoad(){
   // --- live geo readout ---
   const upd=()=>{
     const c=map.getCenter();
-    D.geo.textContent = `lon ${c.lng.toFixed(4)}  lat ${c.lat.toFixed(4)}  z ${map.getZoom().toFixed(1)}`;
+    D.geo.textContent = `lat ${c.lat.toFixed(4)}, lon ${c.lng.toFixed(4)}  z ${map.getZoom().toFixed(1)}`;
   };
   map.on("move",upd); upd();
 
@@ -1025,9 +1025,11 @@ function shareField(f, btn){
   const id = resolveFieldId(f) || "";
   const base = "https://www.iraqfarmshealth.com/";
   const url = `${base}?lat=${c[1].toFixed(5)}&lon=${c[0].toFixed(5)}&z=16`;
-  const shareData = { title:"Iraq Farms Health", text:`${t.title} — ${id}`, url };
+  // IMPORTANT: share ONLY the URL. Including a `text`/title makes iOS append it
+  // after the link ("...&z=16 Iraq Farms Health — FTW-..."), which breaks the URL
+  // when a user pastes it. The clean link alone is what we want on the clipboard.
   if(navigator.share){
-    navigator.share(shareData).catch(()=>{});
+    navigator.share({ url }).catch(()=>{});
   } else if(navigator.clipboard){
     navigator.clipboard.writeText(url).then(()=>{
       const old = btn.textContent; btn.textContent = t.copied;
@@ -1332,7 +1334,7 @@ function healthBand(v){
 }
 function geoLabel(f){
   const c = polyCentroid(f.geometry);
-  return c ? `lon ${c[0].toFixed(4)}  lat ${c[1].toFixed(4)}` : "";
+  return c ? `lat ${c[1].toFixed(4)}, lon ${c[0].toFixed(4)}` : "";
 }
 /* The global FTW PMTiles carry geometry only — the fiboa `id`/`area` columns
    from the source GeoParquet are dropped when tiled for browser display.
@@ -1432,7 +1434,7 @@ function renderPins(){
     row.innerHTML =
       `<span class="sw" style="background:${col}"></span>`+
       `<div><div class="pin-id">${p.id}</div>`+
-      `<div class="pin-sub">lon ${p.lon.toFixed(4)}  lat ${p.lat.toFixed(4)}</div></div>`+
+      `<div class="pin-sub">lat ${p.lat.toFixed(4)}, lon ${p.lon.toFixed(4)}</div></div>`+
       `<button class="pin-del" aria-label="delete">×</button>`;
     row.addEventListener("click",e=>{
       if(e.target.classList.contains("pin-del")){ removePin(p.id); e.stopPropagation(); return; }
@@ -1502,7 +1504,7 @@ function renderHistory(){
       `<div class="hrank">${rank}</div>`+
       `<span class="hsw" style="background:${col}"></span>`+
       `<div class="hbody"><div class="hid">${e.id}</div>`+
-      `<div class="hsub">${t.improveLabel} · lon ${e.lon.toFixed(3)} lat ${e.lat.toFixed(3)}</div></div>`+
+      `<div class="hsub">${t.improveLabel} · lat ${e.lat.toFixed(3)}, lon ${e.lon.toFixed(3)}</div></div>`+
       `<div class="himp" style="color:${impColor}">${imp}</div>`;
     row.addEventListener("click",()=>{ histPanel.hidden = true; flyToField(e.lon, e.lat); });
     histList.appendChild(row);
@@ -1529,16 +1531,17 @@ function flyToField(lon, lat){
   map.once("moveend", ()=>setTimeout(tryTap, 300));
 }
 
-/* Search: accept "lon, lat" or a field id (FTW-XXXXXX). */
+/* Search: accept "lat, lon" or a field id (FTW-XXXXXX). */
 const searchInput = document.getElementById("search-input");
 function doSearch(){
   const q = (searchInput.value||"").trim();
   if(!q) return;
-  // coordinate form: "lon, lat" or "lon lat"
+  // Coordinate form "lat, lon" (matching Google Maps / OSM order and how the app
+  // now displays coordinates everywhere). Accepts comma or space separated.
   const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
   if(m){
-    const lon=parseFloat(m[1]), lat=parseFloat(m[2]);
-    if(isFinite(lon)&&isFinite(lat)){ flyToField(lon, lat); return; }
+    const lat=parseFloat(m[1]), lon=parseFloat(m[2]);
+    if(isFinite(lat)&&isFinite(lon)){ flyToField(lon, lat); return; }
   }
   // Field-id form. The FTW code is a one-way hash of the centroid, so it can
   // only be resolved for fields we've already stored: saved pins OR history
