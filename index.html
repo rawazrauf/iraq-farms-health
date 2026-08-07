@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.04-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.04-d";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2554,20 +2554,32 @@ function healthFeature(f, col){
   return {type:"Feature", properties:{col}, geometry:f.geometry};
 }
 const __healthShown = new Map();     // fieldKey -> colored feature currently on the layer
-function pushHealth(m){
-  // The sampler owns the in-view set: replace shown-store with this run's result.
-  __healthShown.clear();
-  for(const [k,feat] of m){ __healthShown.set(k, feat); }
+function renderHealth(){
   const src = map.getSource("health");
   if(src) src.setData({type:"FeatureCollection", features:Array.from(__healthShown.values())});
 }
+/* Reconcile the shown-set to a run's results WITHOUT clearing first. Fields that
+   are still in view keep their existing colour (no flash); newly-resolved fields
+   are added/updated; fields no longer in the in-view key-set are dropped. This
+   replaces the old clear()-then-rebuild, which briefly wiped freshly-tapped
+   fields and made their colour flicker. */
+function pushHealth(resultMap, inViewKeys){
+  // add / update everything the run resolved
+  for(const [k,feat] of resultMap){ __healthShown.set(k, feat); }
+  // drop only fields that are no longer in view (if we were told the view set)
+  if(inViewKeys){
+    for(const k of Array.from(__healthShown.keys())){
+      if(!inViewKeys.has(k)) __healthShown.delete(k);
+    }
+  }
+  renderHealth();
+}
 /* Add/replace a single coloured field immediately (used when a tapped field's
-   NDVI arrives before the next sample run). */
+   NDVI arrives before the next sample run). Never removes anything. */
 function mergeHealthField(f, col){
-  const src = map.getSource("health");
-  if(!src) return;
+  if(!map.getSource("health")) return;
   __healthShown.set(fieldKey(f), healthFeature(f, col));
-  src.setData({type:"FeatureCollection", features:Array.from(__healthShown.values())});
+  renderHealth();
 }
 function scheduleHealthSample(){
   clearTimeout(__healthTimer);
@@ -2591,12 +2603,15 @@ async function runHealthSample(){
   }
   uniq.sort((a,b)=> b.area - a.area);          // biggest fields first
   const batch = uniq.slice(0, 45);             // cap API volume
+  const inViewKeys = new Set(uniq.map(u=>u.k));  // every field currently visible
 
   const out = new Map();
   for(const {f,k} of batch){
     const cached = __healthCache.get(k);
     if(cached && cached.v!=null) out.set(k, healthFeature(f, cached.col));
   }
+  // First push: add cached results, but DON'T drop anything yet (no flicker of
+  // freshly-tapped fields whose sample is still pending).
   pushHealth(out);
 
   const now = new Date();
@@ -2622,7 +2637,9 @@ async function runHealthSample(){
     }
   }
   await Promise.all(Array.from({length:4}, worker));   // small concurrency
-  if(runId === __healthRunId) pushHealth(out);
+  // Final push: now reconcile against the in-view set — this is the only point
+  // we drop fields that scrolled out of view.
+  if(runId === __healthRunId) pushHealth(out, inViewKeys);
 }
 
 async function onFieldTap(e){
