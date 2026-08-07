@@ -2245,7 +2245,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.04-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.04-c";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2651,25 +2651,38 @@ async function onFieldTap(e){
   historyCache.set(cacheKey, f.__history);
   renderField(f);
 
+  // Colour the tapped polygon IMMEDIATELY: fetch just the current month first,
+  // as a standalone call, so the field recolours right away instead of waiting
+  // in line behind the full 24-month history fill.
+  if(healthOn){
+    const k = fieldKey(f);
+    const cached = __healthCache.get(k);
+    if(cached && cached.v!=null){
+      mergeHealthField(f, cached.col);            // already known — instant
+    }else{
+      const cur = f.__history[f.__history.length-1];
+      ndviForWindow(f.geometry, cur.from, cur.to).then(r=>{
+        if(r && r.value!=null){
+          const col = ndviColorHex(r.value);
+          __healthCache.set(k, {v:r.value, col});
+          mergeHealthField(f, col);
+          // seed the history slot too, so the loop below skips re-fetching it
+          cur.v = r.value; cur.date = r.date; cur.scene = r.scene; cur.cloud = r.cloud; cur.pending = false;
+          if(lastField===f && sheet.classList.contains("open")) renderField(f);
+        }
+      }).catch(()=>{});
+    }
+  }
+
   // Fill newest-first so the current reading and this-month card populate fast.
   const order = [...f.__history.keys()].reverse();
   for(const idx of order){
     const slot = f.__history[idx];
+    if(slot.v!=null && !slot.pending) continue;   // already seeded (e.g. current month)
     try{
       const r = await ndviForWindow(f.geometry, slot.from, slot.to);
       slot.v = r.value; slot.date = r.date; slot.err = r.err;
       slot.scene = r.scene; slot.cloud = r.cloud;
-      // As soon as we have this field's current NDVI, colour it into the health
-      // layer immediately (it may not have been in the sampled batch, or the
-      // map may not have settled yet). We already paid for this value, so reuse it.
-      if(slot.v!=null){
-        const k = fieldKey(f);
-        if(!__healthCache.has(k) || __healthCache.get(k).v==null){
-          const col = ndviColorHex(slot.v);
-          __healthCache.set(k, {v:slot.v, col});
-          if(healthOn) mergeHealthField(f, col);
-        }
-      }
     }catch(err){ slot.v = null; slot.err = err.message; }
     slot.pending = false;
     if(lastField===f && sheet.classList.contains("open")) renderField(f); // live update
