@@ -377,7 +377,9 @@ html,body{margin:0;height:100%;background:var(--ink);
 <div id="diag">
   <div class="row"><span id="d-fields">—</span></div>
   <div class="geo" id="d-geo">lon —  lat —  z —</div>
-  <div class="geo" id="d-build" style="opacity:.4">build —</div>
+  <div class="geo" id="d-build" style="opacity:.4"><span id="d-build-v">build —</span>
+    · <a href="https://github.com/rawazrauf/iraq-farms-health" target="_blank" rel="noopener"
+         style="color:inherit;text-decoration:underline">source</a></div>
 </div>
 
 <div id="err"></div>
@@ -455,9 +457,9 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.08-e";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.08-f";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
-(function(){ const b=document.getElementById("d-build"); if(b) b.textContent = "build "+BUILD; })();
+(function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
 /* NDVI on Sentinel-2 L2A.
    IMPORTANT: since ESA Processing Baseline 04.00 (Jan 2022), reflectance is
