@@ -464,7 +464,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.08-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.08-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -747,7 +747,13 @@ async function runHealthSample(){
   pushHealth(out);
 
   const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  // Use the CURRENT calendar month only (1st of this month → today), matching
+  // the newest bucket the field-tap uses. Previously this window started on the
+  // 1st of LAST month, and because scenes are picked least-cloudy-first (not
+  // newest-first), the sampler could grab last month's clearer scene — colouring
+  // the polygon with an older value that disagreed with the sheet's current
+  // reading. Restricting to this month keeps the two in sync.
+  const from = new Date(now.getFullYear(), now.getMonth(), 1);
   const iso = d=> d.toISOString().slice(0,10);
   const todo = batch.filter(({k})=> !__healthCache.has(k));
   let i = 0;
