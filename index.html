@@ -55,6 +55,13 @@
 </script>
 
 <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
+
+<!-- Load Noto Sans Arabic so Arabic & Kurdish render cleanly even on devices
+     that don't ship the font (common on low-end Androids). The font-family
+     stack already references it; this actually makes it available. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;800&display=swap" rel="stylesheet" />
 <style>
 :root{
   --ink:#14261B;        /* deep field green-black */
@@ -457,7 +464,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.08-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.08-g";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -886,6 +893,27 @@ let __pinnedDot = null;    // index of dot with provenance panel pinned open
    Sentinel-2 passes, so we fetch multiple candidate scenes (least-cloudy first)
    and try each until one returns a real, unmasked NDVI. Only if every candidate
    is masked/cloudy over the field do we report the month as empty. */
+/* Fetch with a small retry-and-backoff on rate-limit / transient errors.
+   Planetary Computer can return 429 ("Too Many Requests") or 503 when we sample
+   many fields at once; retrying after a short, growing wait usually succeeds, so
+   fewer fields silently fail to colour. Waits ~0.4s, 0.8s, 1.6s across 3 retries.
+   Honours a Retry-After header when the server provides one. */
+async function fetchRetry(url, opts, tries=3){
+  let wait = 400;
+  for(let attempt=0; ; attempt++){
+    let r;
+    try{ r = await fetch(url, opts); }
+    catch(e){ if(attempt>=tries) throw e; await sleep(wait); wait*=2; continue; }
+    if((r.status===429 || r.status===503) && attempt<tries){
+      const ra = parseFloat(r.headers.get("retry-after"));
+      await sleep(isFinite(ra) ? ra*1000 : wait);
+      wait*=2; continue;
+    }
+    return r;
+  }
+}
+function sleep(ms){ return new Promise(res=>setTimeout(res, ms)); }
+
 async function ndviForWindow(geometry, from, to){
   const bbox = geomBbox(geometry);
   if(!bbox) throw new Error("bad geometry");
@@ -898,7 +926,7 @@ async function ndviForWindow(geometry, from, to){
     sortby:[{field:"eo:cloud_cover",direction:"asc"}],
     limit:8
   };
-  const sr = await fetch(`https://planetarycomputer.microsoft.com/api/stac/v1/search`,{
+  const sr = await fetchRetry(`https://planetarycomputer.microsoft.com/api/stac/v1/search`,{
     method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
     body:JSON.stringify(searchBody)
   });
@@ -920,7 +948,7 @@ async function ndviForWindow(geometry, from, to){
     }).toString();
     let stR;
     try{
-      stR = await fetch(`${PC}/item/statistics?${qs}`,{
+      stR = await fetchRetry(`${PC}/item/statistics?${qs}`,{
         method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
         body:JSON.stringify(feature)
       });
