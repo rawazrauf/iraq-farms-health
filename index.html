@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.09-i";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.09-j";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1201,7 +1201,7 @@ function renderField(f){
       const already = id && pinExists(id);
       return `<button class="save-btn ${already?'saved':''}" id="save-field-btn" ${already?'disabled':''}>${already?t.saved:t.save}</button>`+
              `<button class="share-btn" id="share-field-btn">${t.share} ↗</button>`+
-             `<button class="share-btn" id="report-field-btn">${t.report} ↓</button>`;
+             `<button class="share-btn ${__reportBuilding?'loading':''}" id="report-field-btn" ${__reportBuilding?'disabled':''}>${__reportBuilding?(t.preparing||'Preparing…'):t.report+' ↓'}</button>`;
     })()}</div>`;
   drawSpark(hist);
   attachSparkHover(hist);
@@ -1289,16 +1289,26 @@ function waitForHistory(f, timeoutMs){
   });
 }
 
+let __reportBuilding = false;
+function setReportBtnState(){
+  // Re-query the live button (renderField may have rebuilt it) and apply state.
+  const b = document.getElementById("report-field-btn");
+  if(!b) return;
+  const t = I18N[lang];
+  if(__reportBuilding){ b.textContent = t.preparing||"Preparing…"; b.disabled=true; b.classList.add("loading"); }
+  else { b.textContent = (t.report||"Report")+" ↓"; b.disabled=false; b.classList.remove("loading"); }
+}
+
 async function buildFieldReport(f, btn){
   const t = I18N[lang];
-  const oldLabel = btn ? btn.textContent : "";
-  if(btn){ btn.textContent = t.preparing || "Preparing…"; btn.disabled = true; btn.classList.add("loading"); }
+  if(__reportBuilding) return;             // ignore double-taps
+  __reportBuilding = true; setReportBtnState();
+  // The history loop calls renderField repeatedly, which rebuilds the button and
+  // would drop our "Preparing…" label. Re-assert the state whenever the sheet
+  // re-renders during the wait, by polling setReportBtnState.
+  const keepState = setInterval(setReportBtnState, 200);
   try{
-    // Wait until the 2-year history has finished loading, so the report never
-    // shows a half-empty chart. We poll the history's pending flags briefly.
     await waitForHistory(f, 12000);
-    // Also wait briefly for nearby fields to gain health colours, so the context
-    // panel isn't full of grey "no data" polygons. Best-effort, short timeout.
     await waitForNeighbourColours(f, 6000);
 
     const W = 1080, pad = 48;
@@ -1395,11 +1405,13 @@ async function buildFieldReport(f, btn){
 
     const blob = await new Promise(res=> cv.toBlob(res, "image/png"));
     await shareOrDownloadImage(blob, `iraq-farms-health-${id||"field"}.png`);
-    if(btn){ btn.textContent = oldLabel; btn.disabled=false; btn.classList.remove("loading"); }
   }catch(err){
     console.warn("report:", err.message);
-    if(btn){ btn.textContent = oldLabel; btn.disabled=false; btn.classList.remove("loading"); }
     alert("Could not build the report image.");
+  }finally{
+    clearInterval(keepState);
+    __reportBuilding = false;
+    setReportBtnState();
   }
 }
 /* Collect the tapped field plus nearby fields (for the report's context panel),
