@@ -233,8 +233,16 @@ html,body{margin:0;height:100%;background:var(--ink);
   animation:zoomhintin .25s ease}
 /* Floating "find my location" button — modern circular FAB, thumb-reachable
    bottom-right, sitting just above the MapLibre zoom control. */
+/* Group the location FAB and the zoom +/- control into one right-edge cluster.
+   The zoom control (MapLibre default) sits bottom-right; we pin its right margin
+   to match the FAB, and place the FAB just above it with a small gap so the two
+   read as a single stack of map controls rather than two floating things. */
+.maplibregl-ctrl-bottom-right{margin:0;inset-inline-end:12px;
+  bottom:calc(var(--safe-b) + 12px)}
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl{margin:0}
 #locate-fab{position:absolute;inset-inline-end:12px;z-index:6;
-  bottom:calc(var(--safe-b) + 124px);
+  /* zoom control is ~64px tall + 12px from bottom; sit 8px above it */
+  bottom:calc(var(--safe-b) + 12px + 64px + 8px);
   width:48px;height:48px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   background:var(--panel);color:var(--ink);
@@ -512,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-h";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-i";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
