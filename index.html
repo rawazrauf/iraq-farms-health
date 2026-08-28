@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.09-m";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.09-n";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1422,16 +1422,28 @@ async function buildFieldReport(f, btn){
     y += drawNdviTable(x, f.__history||[], pad, y+30, W-pad*2) + 30 + 20;
 
     // context lines
+    // context lines (left-aligned), with the NDMI figure right-aligned so long
+    // moisture descriptions don't overflow.
     const lines = [];
     const nh = neighborStanding(f, curV, __healthCache, e=>e.v);
-    if(nh) lines.push("🏞️ " + t["nbrHealth_"+nh]);
+    if(nh) lines.push({ text:"🏞️ " + t["nbrHealth_"+nh], right:null });
     if(f.__moisture!=null){
       const mv=f.__moisture; const mb = mv>=0.2?"moist":(mv>=0.0?"mid":"dry");
-      const mst = neighborStanding(f, mv, __moistCache, e=>e.v);
-      lines.push("💧 " + t["moist_"+mb] + (mst? " — "+t["nbrMoist_"+mst]:""));
+      // Keep this line concise for the fixed-width image: moisture word on the
+      // left, NDMI figure on the right. (The neighbour comparison still appears
+      // in the app's field sheet, where there's room.)
+      lines.push({ text:"💧 " + t["moist_"+mb], right:`NDMI ${mv.toFixed(2)}` });
     }
-    x.font="700 24px system-ui,sans-serif"; x.fillStyle="#14261B";
-    lines.slice(0,2).forEach((ln,i)=>{ x.fillText(ln, pad, y + i*40); });
+    lines.slice(0,2).forEach((ln,i)=>{
+      const ly = y + i*40;
+      x.font="700 24px system-ui,sans-serif"; x.fillStyle="#14261B"; x.textAlign="left";
+      x.fillText(ln.text, pad, ly);
+      if(ln.right){
+        x.font="800 24px system-ui,sans-serif"; x.fillStyle="#6b7b70"; x.textAlign="right";
+        x.fillText(ln.right, W-pad, ly);
+        x.textAlign="left";
+      }
+    });
     y += 130;
 
     // footer
