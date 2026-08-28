@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.09-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.09-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1248,11 +1248,31 @@ function shareField(f, btn){
    thumbnail is attempted first; if the browser blocks the canvas export (cross-
    origin tile "tainting"), we fall back to a report WITHOUT the thumbnail rather
    than failing — the data portion always works because it's all our own drawing. */
+/* Resolve once the field's 24-month history has finished loading (no slots left
+   pending), or after a timeout, so the report never captures a half-loaded chart. */
+function waitForHistory(f, timeoutMs){
+  return new Promise((resolve)=>{
+    const start = Date.now();
+    const check = ()=>{
+      const h = f.__history || [];
+      const stillPending = h.some(s=> s.pending);
+      if(!stillPending && h.length>0) return resolve();
+      if(Date.now()-start > timeoutMs) return resolve();   // give up waiting, build anyway
+      setTimeout(check, 250);
+    };
+    check();
+  });
+}
+
 async function buildFieldReport(f, btn){
   const t = I18N[lang];
   const oldLabel = btn ? btn.textContent : "";
   if(btn){ btn.textContent = "…"; btn.disabled = true; }
   try{
+    // Wait until the 2-year history has finished loading, so the report never
+    // shows a half-empty chart. We poll the history's pending flags briefly.
+    await waitForHistory(f, 12000);
+
     const W = 1080, pad = 48;
     const cur = (f.__history||[]).slice().reverse().find(s=>s.v!=null);
     const curV = cur ? cur.v : null;
@@ -1382,13 +1402,13 @@ function drawFieldContext(ctx, subject, fields, ox, oy, w, h){
   const bb = geomBbox(subject.geometry);
   // Center on the subject but include neighbours within a reasonable window.
   const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
-  const subW = Math.max(bb[2]-bb[0], bb[3]-bb[1]);
-  const half = Math.max(subW*4, 0.01);   // show ~4x the field size around it
-  minX=cx-half; maxX=cx+half; minY=cy-half; maxY=cy+half;
-  // account for latitude distortion so shapes look right
   const latScale = Math.cos(cy*Math.PI/180) || 1;
-  const spanX=(maxX-minX)*latScale, spanY=(maxY-minY);
-  const scale = Math.min(w/spanX, h/spanY)*0.92;
+  const subSpan = Math.max((bb[2]-bb[0])*latScale, bb[3]-bb[1]);
+  // Window sized to the panel's aspect ratio so fields fill it (no dead space).
+  const panelAR = w/h;                       // wide panel
+  const halfY = Math.max(subSpan*2.2, 0.006);
+  const halfX = halfY*panelAR;               // wider in x to match the box
+  const scale = Math.min( w/(2*halfX), h/(2*halfY) );
   const offX = ox + w/2, offY = oy + h/2;
   const proj = (lon,lat)=>[ offX + (lon-cx)*latScale*scale, offY - (lat-cy)*scale ];
 
@@ -1410,13 +1430,15 @@ function drawFieldContext(ctx, subject, fields, ox, oy, w, h){
     ctx.globalAlpha = fl.col ? 0.8 : 1; ctx.fill(); ctx.globalAlpha = 1;
     ctx.strokeStyle="rgba(255,255,255,0.5)"; ctx.lineWidth=1; ctx.stroke();
   }
-  // subject on top, bold outline
+  // subject on top, bold outline: light halo first, dark line over it so it
+  // reads clearly against any neighbour colour.
   const subj = fields.find(fl=>fl.isSubject) || {geometry:subject.geometry, col:null};
   pathGeom(subj.geometry);
   ctx.fillStyle = subj.col || "rgba(30,110,90,0.35)";
-  ctx.globalAlpha = subj.col ? 0.9 : 1; ctx.fill(); ctx.globalAlpha=1;
-  ctx.strokeStyle="#14261B"; ctx.lineWidth=4; ctx.stroke();
-  ctx.strokeStyle="#F4F1E9"; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.globalAlpha = subj.col ? 0.95 : 1; ctx.fill(); ctx.globalAlpha=1;
+  ctx.lineJoin="round";
+  ctx.strokeStyle="#F4F1E9"; ctx.lineWidth=6; ctx.stroke();   // halo underneath
+  ctx.strokeStyle="#14261B"; ctx.lineWidth=3; ctx.stroke();   // dark line on top
 }
 
 function loadImg(src){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; }); }
