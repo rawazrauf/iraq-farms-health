@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-d";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -599,9 +599,16 @@ function onMapLoad(){
   // farmland is visible at country scale where individual polygons aren't yet
   // rendered. Source is FTW's global 500 m confidence COG, tiled on-the-fly by
   // the public titiler.xyz service (FTW publishes COG/Zarr, not {z}/{x}/{y}
-  // tiles, so a tiler sits in between). rescale 0–0.578178 matches FTW's own
-  // confidence scaling; RdYlGn-ish palette. Visible by default, low-zoom only
-  // (faded out by z13 where tappable field polygons take over).
+  // tiles, so a tiler sits in between).
+  //
+  // PALETTE: single-hue PURPLES, deliberately NOT the green/orange used for the
+  // vegetation-health scale — so this "where is the farmland" wash can't be
+  // misread as field health. rescale FLOOR raised to 0.15 (from 0) so low-
+  // confidence desert falls below the ramp and reads as near-nothing instead of
+  // a colored speckle over empty sand. Top stays at 0.578178 (FTW's confidence max).
+  //
+  // Visible by default, low-zoom only (faded out by z13 where tappable field
+  // polygons take over).
   // NOTE: this leans on a THIRD-PARTY tiler we don't control — if titiler.xyz is
   // slow or down, this optional overlay simply won't load; the app is unaffected.
   // The COG URL is verified from FTW docs; the rendered result has NOT been
@@ -611,7 +618,7 @@ function onMapLoad(){
     const ftwDensityTiles =
       "https://titiler.xyz/cog/tiles/WebMercatorQuad/{z}/{x}/{y}.png?url="+
       encodeURIComponent(FTW_CONF_COG)+
-      "&rescale=0,0.578178&colormap_name=rdylgn&nodata=-1";
+      "&rescale=0.15,0.578178&colormap_name=purples&nodata=-1";
     map.addSource("ftw-density",{
       type:"raster", tiles:[ftwDensityTiles], tileSize:256, maxzoom:FTW_MIN_ZOOM,
       attribution:"Field density: Fields of The World (CC-BY 4.0)"
@@ -621,9 +628,11 @@ function onMapLoad(){
       // Visible by default: this is the low-zoom "where is the farmland" wash.
       // maxzoom:FTW_MIN_ZOOM (13) stops it exactly where the tappable field
       // polygons begin; the opacity ramp fades it to 0 across z11→13 so there's
-      // no gap and no hard pop at the handoff.
+      // no gap and no hard pop at the handoff. Base opacity kept moderate so the
+      // light (low-confidence) end reads as faint while dark purple farmland
+      // stays clearly visible.
       minzoom:3, maxzoom:FTW_MIN_ZOOM,
-      paint:{"raster-opacity":["interpolate",["linear"],["zoom"],3,0.6,9,0.55,11,0.5,13,0]}
+      paint:{"raster-opacity":["interpolate",["linear"],["zoom"],3,0.5,9,0.5,11,0.45,13,0]}
     }, map.getLayer("roads") ? "roads" : undefined);
   }catch(e){ console.warn("ftw-density layer:",e.message); }
 
