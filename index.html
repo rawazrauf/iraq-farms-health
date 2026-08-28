@@ -225,6 +225,12 @@ html,body{margin:0;height:100%;background:var(--ink);
   display:flex;align-items:center;gap:7px;white-space:nowrap;pointer-events:none;
   animation:zoomhintin .25s ease}
 #zoom-hint::before{content:"🔍";font-size:14px}
+#locate-toast[hidden]{display:none !important}
+#locate-toast{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);
+  z-index:7;background:var(--ink);color:var(--paper);border-radius:16px;
+  padding:12px 18px;font-size:14px;font-weight:600;box-shadow:var(--shadow);
+  max-width:min(86vw,420px);text-align:center;line-height:1.4;
+  animation:zoomhintin .25s ease}
 @keyframes zoomhintin{from{opacity:0;transform:translate(-50%,-50%) scale(.94)}
   to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 
@@ -351,6 +357,7 @@ html,body{margin:0;height:100%;background:var(--ink);
            data-t-ph="searchPh" placeholder="Field ID or lat, lon" />
     <button id="search-go" data-t="go">Go</button>
   </div>
+  <button id="locate-btn" title="Find my location">📍 <span data-t="locateBtn">My location</span></button>
   <button id="pins-toggle" title="My fields">★ <span data-t="myFields">My fields</span> <span id="pins-count"></span></button>
   <button id="hist-toggle" title="History">🏆 <span data-t="history">History</span> <span id="hist-count"></span></button>
   <button id="health-toggle" class="on" title="Vegetation health overlay">🌱 <span data-t="healthMap">Health map</span></button>
@@ -400,6 +407,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 
 <div id="err"></div>
 <div id="zoom-hint" hidden><span data-t="zoomHint">Zoom in to see and tap fields</span></div>
+<div id="locate-toast" hidden></div>
 
 <div id="sheet">
   <span class="close" id="sheet-close">×</span>
@@ -416,7 +424,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Tap Health map to colour every field by its health at once — green is healthy, red is stressed. Great for spotting problems across a whole area.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",history:"Ranking",healthMap:"Health map",waterMap:"Water",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
+      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Tap Health map to colour every field by its health at once — green is healthy, red is stressed. Great for spotting problems across a whole area.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",waterMap:"Water",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -425,7 +433,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"انقر خريطة الصحة لتلوين كل الحقول حسب صحتها دفعة واحدة — الأخضر صحي والأحمر مُجهَد. مفيد لاكتشاف المشاكل في منطقة كاملة.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",history:"الترتيب",healthMap:"خريطة الصحة",waterMap:"المياه",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
+      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"انقر خريطة الصحة لتلوين كل الحقول حسب صحتها دفعة واحدة — الأخضر صحي والأحمر مُجهَد. مفيد لاكتشاف المشاكل في منطقة كاملة.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",waterMap:"المياه",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -434,7 +442,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دەست بنێ لە نەخشەی تەندروستی بۆ ڕەنگکردنی هەموو کێڵگەکان بەپێی تەندروستییان بەیەکجار — سەوز تەندروستە، سوور لاوازە. باشە بۆ دۆزینەوەی کێشە لە ناوچەیەکی تەواودا.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",waterMap:"ئاو",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",
+      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دەست بنێ لە نەخشەی تەندروستی بۆ ڕەنگکردنی هەموو کێڵگەکان بەپێی تەندروستییان بەیەکجار — سەوز تەندروستە، سوور لاوازە. باشە بۆ دۆزینەوەی کێشە لە ناوچەیەکی تەواودا.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",waterMap:"ئاو",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -473,7 +481,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-e";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-f";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2110,6 +2118,58 @@ healthToggle.addEventListener("click",()=>{
   }
   if(healthOn) scheduleHealthSample();
 });
+
+// --- Find my location -------------------------------------------------------
+// Farmer-facing entry point for people who don't know their field ID or
+// coordinates: press the button, the map flies to where they're standing.
+// Uses the browser geolocation API directly (no extra library) and reuses the
+// existing #zoom-hint bubble to show status/errors in the current language.
+// A single reusable marker shows the located point. All three failure modes
+// (permission denied, position unavailable, timeout) get a plain-language,
+// translated message that also points users to the search box as a fallback.
+(function(){
+  const btn = document.getElementById("locate-btn");
+  if(!btn) return;
+  const toast = document.getElementById("locate-toast");
+  let toastTimer = null, meMarker = null;
+
+  // Show a status message in the dedicated locate toast; auto-hide after `ms`
+  // (0 = leave visible until replaced). Kept separate from #zoom-hint so it
+  // never clobbers that bubble's translated text.
+  function say(msg, ms){
+    if(!toast) return;
+    toast.textContent = msg;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    if(ms){ toastTimer = setTimeout(()=>{ toast.hidden = true; }, ms); }
+  }
+
+  btn.addEventListener("click", ()=>{
+    const t = I18N[lang];
+    if(!("geolocation" in navigator)){ say(t.locateFail, 6000); return; }
+    say(t.locating, 0);
+    btn.disabled = true;
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{
+        btn.disabled = false;
+        const lon = pos.coords.longitude, lat = pos.coords.latitude;
+        // Zoom to a level where field polygons are tappable (>= FTW_MIN_ZOOM).
+        map.flyTo({center:[lon,lat], zoom:15, duration:1200});
+        if(!meMarker){
+          meMarker = new maplibregl.Marker({color:"#2E6F5E"});
+        }
+        meMarker.setLngLat([lon,lat]).addTo(map);
+        say(t.locateOk, 5000);
+      },
+      (err)=>{
+        btn.disabled = false;
+        // 1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT
+        say(err && err.code===1 ? t.locateDenied : t.locateFail, 8000);
+      },
+      { enableHighAccuracy:true, timeout:12000, maximumAge:60000 }
+    );
+  });
+})();
 
 // Toggle the surface-water occurrence overlay on/off.
 const waterToggle = document.getElementById("water-toggle");
