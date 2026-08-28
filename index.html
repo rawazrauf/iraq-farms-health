@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-d";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-e";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -618,7 +618,7 @@ function onMapLoad(){
     const ftwDensityTiles =
       "https://titiler.xyz/cog/tiles/WebMercatorQuad/{z}/{x}/{y}.png?url="+
       encodeURIComponent(FTW_CONF_COG)+
-      "&rescale=0.15,0.578178&colormap_name=purples&nodata=-1";
+      "&rescale=0.22,0.578178&colormap_name=purples&nodata=-1";
     map.addSource("ftw-density",{
       type:"raster", tiles:[ftwDensityTiles], tileSize:256, maxzoom:FTW_MIN_ZOOM,
       attribution:"Field density: Fields of The World (CC-BY 4.0)"
@@ -632,7 +632,7 @@ function onMapLoad(){
       // light (low-confidence) end reads as faint while dark purple farmland
       // stays clearly visible.
       minzoom:3, maxzoom:FTW_MIN_ZOOM,
-      paint:{"raster-opacity":["interpolate",["linear"],["zoom"],3,0.5,9,0.5,11,0.45,13,0]}
+      paint:{"raster-opacity":["interpolate",["linear"],["zoom"],3,0.35,9,0.35,11,0.32,13,0]}
     }, map.getLayer("roads") ? "roads" : undefined);
   }catch(e){ console.warn("ftw-density layer:",e.message); }
 
