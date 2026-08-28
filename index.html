@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.09-d";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.09-e";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1261,11 +1261,10 @@ async function buildFieldReport(f, btn){
     const c = polyCentroid(f.geometry);
 
     // --- try to grab a map thumbnail from the live map canvas ---
-    let mapImg = null;
-    try{
-      const durl = map.getCanvas().toDataURL("image/png");   // throws if tainted
-      mapImg = await loadImg(durl);
-    }catch(e){ mapImg = null; }   // fall back silently
+    // WebGL canvases often read back blank unless captured right after a render,
+    // even with preserveDrawingBuffer. Force a redraw, capture on the render
+    // frame, then verify the capture isn't blank/transparent before using it.
+    let mapImg = await captureMapThumb().catch(()=>null);
 
     const thumbH = mapImg ? 460 : 0;
     const H = pad + 96 + (thumbH?thumbH+24:0) + 150 + 220 + 130 + 90 + pad;
@@ -1354,6 +1353,41 @@ async function buildFieldReport(f, btn){
   }
 }
 function loadImg(src){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; }); }
+
+/* Capture the map canvas reliably: force a render, grab the canvas on the next
+   render event, then check the pixels aren't all blank/transparent (a common
+   WebGL read-back failure). Returns an Image, or null if capture is blank or the
+   canvas is tainted by cross-origin tiles. */
+function captureMapThumb(){
+  return new Promise((resolve)=>{
+    let done=false;
+    const finish=(v)=>{ if(!done){ done=true; try{map.off("render",onRender);}catch{}; resolve(v); } };
+    const onRender=()=>{
+      try{
+        const src = map.getCanvas();
+        const durl = src.toDataURL("image/png");        // throws if tainted
+        // quick blank check: sample the canvas via a small 2D copy
+        const test=document.createElement("canvas"); test.width=32; test.height=32;
+        const tx=test.getContext("2d");
+        // draw from a fresh Image to avoid reading the GL canvas directly
+        const probe=new Image();
+        probe.onload=()=>{
+          tx.drawImage(probe,0,0,32,32);
+          const d=tx.getContext ? tx.getImageData(0,0,32,32).data : null;
+          let nonBlank=false;
+          if(d){ for(let i=3;i<d.length;i+=4){ if(d[i]>10){ nonBlank=true; break; } } }
+          if(nonBlank) loadImg(durl).then(finish).catch(()=>finish(null));
+          else finish(null);
+        };
+        probe.onerror=()=>finish(null);
+        probe.src=durl;
+      }catch(e){ finish(null); }   // tainted or failed
+    };
+    map.on("render", onRender);
+    try{ map.triggerRepaint(); }catch{}
+    setTimeout(()=>finish(null), 1500);   // safety timeout
+  });
+}
 function roundRectPath(x,rx,ry,w,h,r){ x.beginPath(); x.moveTo(rx+r,ry); x.arcTo(rx+w,ry,rx+w,ry+h,r); x.arcTo(rx+w,ry+h,rx,ry+h,r); x.arcTo(rx,ry+h,rx,ry,r); x.arcTo(rx,ry,rx+w,ry,r); x.closePath(); }
 async function shareOrDownloadImage(blob, filename){
   const file = new File([blob], filename, {type:"image/png"});
