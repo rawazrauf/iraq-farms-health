@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-c";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -594,21 +594,48 @@ function onMapLoad(){
     paint:{"fill-color":["get","col"],"fill-opacity":0.72}
   }, map.getLayer("fields-line") ? "fields-line" : undefined);
 
+  // --- FTW field-prediction density (low-zoom country-scale overview) ---
+  // A raster tint showing where FTW's model is confident that fields exist, so
+  // farmland is visible at country scale where individual polygons aren't yet
+  // rendered. Source is FTW's global 500 m confidence COG, tiled on-the-fly by
+  // the public titiler.xyz service (FTW publishes COG/Zarr, not {z}/{x}/{y}
+  // tiles, so a tiler sits in between). rescale 0–0.578178 matches FTW's own
+  // confidence scaling; RdYlGn-ish palette. Visible by default, low-zoom only
+  // (faded out by z13 where tappable field polygons take over).
+  // NOTE: this leans on a THIRD-PARTY tiler we don't control — if titiler.xyz is
+  // slow or down, this optional overlay simply won't load; the app is unaffected.
+  // The COG URL is verified from FTW docs; the rendered result has NOT been
+  // verified on-device from the build environment — confirm it draws on a phone.
+  try{
+    const FTW_CONF_COG = "https://data.source.coop/ftw/global-data/predictions/confidence/confidence/prue_v1_confidence_global.tif";
+    const ftwDensityTiles =
+      "https://titiler.xyz/cog/tiles/WebMercatorQuad/{z}/{x}/{y}.png?url="+
+      encodeURIComponent(FTW_CONF_COG)+
+      "&rescale=0,0.578178&colormap_name=rdylgn&nodata=-1";
+    map.addSource("ftw-density",{
+      type:"raster", tiles:[ftwDensityTiles], tileSize:256, maxzoom:FTW_MIN_ZOOM,
+      attribution:"Field density: Fields of The World (CC-BY 4.0)"
+    });
+    map.addLayer({
+      id:"ftw-density", type:"raster", source:"ftw-density",
+      // Visible by default: this is the low-zoom "where is the farmland" wash.
+      // maxzoom:FTW_MIN_ZOOM (13) stops it exactly where the tappable field
+      // polygons begin; the opacity ramp fades it to 0 across z11→13 so there's
+      // no gap and no hard pop at the handoff.
+      minzoom:3, maxzoom:FTW_MIN_ZOOM,
+      paint:{"raster-opacity":["interpolate",["linear"],["zoom"],3,0.6,9,0.55,11,0.5,13,0]}
+    }, map.getLayer("roads") ? "roads" : undefined);
+  }catch(e){ console.warn("ftw-density layer:",e.message); }
+
   // --- FTW field boundaries as PMTiles ---
   try{
     map.addSource("ftw",{type:"vector",url:"pmtiles://"+FTW_PMTILES});
-    // Low-zoom density layer: the same FTW polygons rendered as a flat filled
-    // mass (no outlines) so farmland is visible where individual fields aren't.
-    // maxzoom:FTW_MIN_ZOOM is a HARD tile cutoff — this layer stops rendering
-    // exactly where the tappable polygons below take over, so they never overlap.
-    // The z11→13 opacity ramp softens the handoff instead of a hard pop.
-    map.addLayer({
-      id:"fields-density",type:"fill",source:"ftw","source-layer":FTW_SRC_LAYER,
-      minzoom:4, maxzoom:FTW_MIN_ZOOM,
-      paint:{"fill-color":"#3E7A57",
-             "fill-opacity":["interpolate",["linear"],["zoom"],
-               4,0.55, 9,0.5, 11,0.5, 13,0]}
-    }, map.getLayer("roads") ? "roads" : undefined);
+    // Low-zoom density layer: shows where farmland is concentrated at country
+    // scale, where individual tappable field polygons aren't yet visible.
+    //
+    // The low-zoom density wash is the "ftw-density" RASTER layer added earlier in
+    // this file (FTW 500 m confidence COG via titiler.xyz). It's set visible and
+    // tuned there — not duplicated here — to avoid a clashing source/layer id.
     map.addLayer({
       id:"fields-fill",type:"fill",source:"ftw","source-layer":FTW_SRC_LAYER,
       minzoom:FTW_MIN_ZOOM,
