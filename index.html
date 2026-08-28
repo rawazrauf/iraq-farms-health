@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.09-n";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-a";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -597,6 +597,18 @@ function onMapLoad(){
   // --- FTW field boundaries as PMTiles ---
   try{
     map.addSource("ftw",{type:"vector",url:"pmtiles://"+FTW_PMTILES});
+    // Low-zoom density layer: the same FTW polygons rendered as a flat filled
+    // mass (no outlines) so farmland is visible where individual fields aren't.
+    // maxzoom:FTW_MIN_ZOOM is a HARD tile cutoff — this layer stops rendering
+    // exactly where the tappable polygons below take over, so they never overlap.
+    // The z11→13 opacity ramp softens the handoff instead of a hard pop.
+    map.addLayer({
+      id:"fields-density",type:"fill",source:"ftw","source-layer":FTW_SRC_LAYER,
+      minzoom:4, maxzoom:FTW_MIN_ZOOM,
+      paint:{"fill-color":"#3E7A57",
+             "fill-opacity":["interpolate",["linear"],["zoom"],
+               4,0.55, 9,0.5, 11,0.5, 13,0]}
+    }, map.getLayer("roads") ? "roads" : undefined);
     map.addLayer({
       id:"fields-fill",type:"fill",source:"ftw","source-layer":FTW_SRC_LAYER,
       minzoom:FTW_MIN_ZOOM,
