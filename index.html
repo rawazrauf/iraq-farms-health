@@ -231,6 +231,28 @@ html,body{margin:0;height:100%;background:var(--ink);
   padding:12px 18px;font-size:14px;font-weight:600;box-shadow:var(--shadow);
   max-width:min(86vw,420px);text-align:center;line-height:1.4;
   animation:zoomhintin .25s ease}
+/* Floating "find my location" button — modern circular FAB, thumb-reachable
+   bottom-right, sitting just above the MapLibre zoom control. */
+#locate-fab{position:absolute;inset-inline-end:12px;z-index:6;
+  bottom:calc(var(--safe-b) + 96px);
+  width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--panel);color:var(--ink);
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  backdrop-filter:blur(6px);cursor:pointer;
+  transition:transform .12s ease, background .18s ease, color .18s ease;
+  -webkit-tap-highlight-color:transparent;pointer-events:auto}
+#locate-fab:active{transform:scale(.92)}
+#locate-fab.active{background:var(--canal);color:#fff;border-color:var(--canal)}
+#locate-fab.locating{background:var(--canal);color:#fff;border-color:var(--canal)}
+#locate-fab.locating svg{animation:locspin 1s linear infinite}
+@keyframes locspin{to{transform:rotate(360deg)}}
+/* Pulsing halo while locating */
+#locate-fab.locating::after{content:"";position:absolute;inset:-4px;
+  border-radius:50%;border:2px solid var(--canal);opacity:.6;
+  animation:locpulse 1.3s ease-out infinite}
+@keyframes locpulse{0%{transform:scale(.9);opacity:.6}
+  100%{transform:scale(1.5);opacity:0}}
 @keyframes zoomhintin{from{opacity:0;transform:translate(-50%,-50%) scale(.94)}
   to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 
@@ -357,7 +379,6 @@ html,body{margin:0;height:100%;background:var(--ink);
            data-t-ph="searchPh" placeholder="Field ID or lat, lon" />
     <button id="search-go" data-t="go">Go</button>
   </div>
-  <button id="locate-btn" title="Find my location">📍 <span data-t="locateBtn">My location</span></button>
   <button id="pins-toggle" title="My fields">★ <span data-t="myFields">My fields</span> <span id="pins-count"></span></button>
   <button id="hist-toggle" title="History">🏆 <span data-t="history">History</span> <span id="hist-count"></span></button>
   <button id="health-toggle" class="on" title="Vegetation health overlay">🌱 <span data-t="healthMap">Health map</span></button>
@@ -408,6 +429,16 @@ html,body{margin:0;height:100%;background:var(--ink);
 <div id="err"></div>
 <div id="zoom-hint" hidden><span data-t="zoomHint">Zoom in to see and tap fields</span></div>
 <div id="locate-toast" hidden></div>
+<button id="locate-fab" title="Find my location" aria-label="Find my location">
+  <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+    <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+    <line x1="12" y1="1.5" x2="12" y2="5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="12" y1="18.5" x2="12" y2="22.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="1.5" y1="12" x2="5.5" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="18.5" y1="12" x2="22.5" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
 
 <div id="sheet">
   <span class="close" id="sheet-close">×</span>
@@ -481,7 +512,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-g";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2128,7 +2159,7 @@ healthToggle.addEventListener("click",()=>{
 // (permission denied, position unavailable, timeout) get a plain-language,
 // translated message that also points users to the search box as a fallback.
 (function(){
-  const btn = document.getElementById("locate-btn");
+  const btn = document.getElementById("locate-fab");
   if(!btn) return;
   const toast = document.getElementById("locate-toast");
   let toastTimer = null, meMarker = null;
@@ -2148,27 +2179,36 @@ healthToggle.addEventListener("click",()=>{
     const t = I18N[lang];
     if(!("geolocation" in navigator)){ say(t.locateFail, 6000); return; }
     say(t.locating, 0);
+    btn.classList.remove("active");
+    btn.classList.add("locating");   // spinner + pulsing halo
     btn.disabled = true;
     navigator.geolocation.getCurrentPosition(
       (pos)=>{
         btn.disabled = false;
+        btn.classList.remove("locating");
+        btn.classList.add("active");  // solid green = we have your location
         const lon = pos.coords.longitude, lat = pos.coords.latitude;
         // Zoom to a level where field polygons are tappable (>= FTW_MIN_ZOOM).
         map.flyTo({center:[lon,lat], zoom:15, duration:1200});
         if(!meMarker){
-          meMarker = new maplibregl.Marker({color:"#2E6F5E"});
+          meMarker = new maplibregl.Marker({color:"#1E6E5A"});
         }
         meMarker.setLngLat([lon,lat]).addTo(map);
         say(t.locateOk, 5000);
       },
       (err)=>{
         btn.disabled = false;
+        btn.classList.remove("locating");
         // 1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT
         say(err && err.code===1 ? t.locateDenied : t.locateFail, 8000);
       },
       { enableHighAccuracy:true, timeout:12000, maximumAge:60000 }
     );
   });
+
+  // Once the user pans away from their located spot, the "active" state no
+  // longer reflects the view centre — drop it so the button reads as neutral.
+  map.on("dragstart", ()=>btn.classList.remove("active"));
 })();
 
 // Toggle the surface-water occurrence overlay on/off.
