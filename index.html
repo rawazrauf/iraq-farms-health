@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.09-e";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.09-g";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1260,14 +1260,12 @@ async function buildFieldReport(f, btn){
     const id = resolveFieldId(f) || "";
     const c = polyCentroid(f.geometry);
 
-    // --- try to grab a map thumbnail from the live map canvas ---
-    // WebGL canvases often read back blank unless captured right after a render,
-    // even with preserveDrawingBuffer. Force a redraw, capture on the render
-    // frame, then verify the capture isn't blank/transparent before using it.
-    let mapImg = await captureMapThumb().catch(()=>null);
-
-    const thumbH = mapImg ? 460 : 0;
-    const H = pad + 96 + (thumbH?thumbH+24:0) + 150 + 220 + 130 + 90 + pad;
+    // --- field context panel: draw the field + its neighbours, coloured by
+    // health (from __healthCache). Pure canvas polygon drawing — reliable, no
+    // WebGL capture, no external tiles, always available. ---
+    const ctxFields = collectContextFields(f);
+    const thumbH = 460;
+    const H = pad + 120 + (thumbH+24) + 150 + 220 + 130 + 90 + pad;
     const cv = document.createElement("canvas"); cv.width=W; cv.height=H;
     const x = cv.getContext("2d");
     x.textBaseline = "top";
@@ -1282,15 +1280,14 @@ async function buildFieldReport(f, btn){
     const sub = `${id}${c?"  ·  "+`lat ${c[1].toFixed(4)}, lon ${c[0].toFixed(4)}`:""}`;
     x.fillText(sub, pad, y+50);
     if(cur && cur.date){ x.fillText(`${t.asOf} ${cur.date}`, pad, y+78); }
-    y += 96;
+    y += 120;
 
-    // map thumbnail
-    if(mapImg){
+    // field-context panel
+    {
       const tw = W - pad*2, th = thumbH;
-      roundRectPath(x, pad, y, tw, th, 16); x.save(); x.clip();
-      const ar = mapImg.width/mapImg.height, boxAr = tw/th;
-      let dw,dh; if(ar>boxAr){ dh=th; dw=th*ar; } else { dw=tw; dh=tw/ar; }
-      x.drawImage(mapImg, pad+(tw-dw)/2, y+(th-dh)/2, dw, dh);
+      x.fillStyle="#e9e4d6"; roundRectPath(x, pad, y, tw, th, 16); x.fill();
+      x.save(); roundRectPath(x, pad, y, tw, th, 16); x.clip();
+      drawFieldContext(x, f, ctxFields, pad, y, tw, th);
       x.restore();
       x.strokeStyle="#D9D2C2"; x.lineWidth=1; roundRectPath(x,pad,y,tw,th,16); x.stroke();
       y += th + 24;
@@ -1352,42 +1349,77 @@ async function buildFieldReport(f, btn){
     alert("Could not build the report image.");
   }
 }
-function loadImg(src){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; }); }
-
-/* Capture the map canvas reliably: force a render, grab the canvas on the next
-   render event, then check the pixels aren't all blank/transparent (a common
-   WebGL read-back failure). Returns an Image, or null if capture is blank or the
-   canvas is tainted by cross-origin tiles. */
-function captureMapThumb(){
-  return new Promise((resolve)=>{
-    let done=false;
-    const finish=(v)=>{ if(!done){ done=true; try{map.off("render",onRender);}catch{}; resolve(v); } };
-    const onRender=()=>{
-      try{
-        const src = map.getCanvas();
-        const durl = src.toDataURL("image/png");        // throws if tainted
-        // quick blank check: sample the canvas via a small 2D copy
-        const test=document.createElement("canvas"); test.width=32; test.height=32;
-        const tx=test.getContext("2d");
-        // draw from a fresh Image to avoid reading the GL canvas directly
-        const probe=new Image();
-        probe.onload=()=>{
-          tx.drawImage(probe,0,0,32,32);
-          const d=tx.getContext ? tx.getImageData(0,0,32,32).data : null;
-          let nonBlank=false;
-          if(d){ for(let i=3;i<d.length;i+=4){ if(d[i]>10){ nonBlank=true; break; } } }
-          if(nonBlank) loadImg(durl).then(finish).catch(()=>finish(null));
-          else finish(null);
-        };
-        probe.onerror=()=>finish(null);
-        probe.src=durl;
-      }catch(e){ finish(null); }   // tainted or failed
-    };
-    map.on("render", onRender);
-    try{ map.triggerRepaint(); }catch{}
-    setTimeout(()=>finish(null), 1500);   // safety timeout
-  });
+/* Collect the tapped field plus nearby fields (for the report's context panel),
+   each with its cached health colour if we have one. */
+function collectContextFields(f){
+  const myKey = fieldKey(f);
+  let feats = [];
+  try{ feats = map.queryRenderedFeatures({layers:["fields-fill"]}); }catch{ feats=[]; }
+  const seen = new Set(); const out = [];
+  for(const nf of feats){
+    const k = fieldKey(nf);
+    if(seen.has(k)) continue; seen.add(k);
+    const cached = __healthCache.get(k);
+    out.push({ geometry:nf.geometry, key:k,
+               col: (cached && cached.col) ? cached.col : null,
+               isSubject: k===myKey });
+  }
+  // make sure the subject field is present even if not in the rendered set
+  if(!out.some(o=>o.isSubject)){
+    const cached = __healthCache.get(myKey);
+    out.push({ geometry:f.geometry, key:myKey,
+               col:(cached&&cached.col)?cached.col:null, isSubject:true });
+  }
+  return out;
 }
+
+/* Draw the field-context panel: neighbouring fields filled by health colour,
+   the subject field outlined boldly so the farmer sees "that's mine". Projects
+   lon/lat to the panel box using a shared bbox so shapes aren't distorted. */
+function drawFieldContext(ctx, subject, fields, ox, oy, w, h){
+  // bounding box over subject + neighbours, with a little padding
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  const bb = geomBbox(subject.geometry);
+  // Center on the subject but include neighbours within a reasonable window.
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const subW = Math.max(bb[2]-bb[0], bb[3]-bb[1]);
+  const half = Math.max(subW*4, 0.01);   // show ~4x the field size around it
+  minX=cx-half; maxX=cx+half; minY=cy-half; maxY=cy+half;
+  // account for latitude distortion so shapes look right
+  const latScale = Math.cos(cy*Math.PI/180) || 1;
+  const spanX=(maxX-minX)*latScale, spanY=(maxY-minY);
+  const scale = Math.min(w/spanX, h/spanY)*0.92;
+  const offX = ox + w/2, offY = oy + h/2;
+  const proj = (lon,lat)=>[ offX + (lon-cx)*latScale*scale, offY - (lat-cy)*scale ];
+
+  function pathGeom(g){
+    const polys = g.type==="MultiPolygon" ? g.coordinates : [g.coordinates];
+    ctx.beginPath();
+    for(const poly of polys){
+      for(const ring of poly){
+        ring.forEach((pt,i)=>{ const [px,py]=proj(pt[0],pt[1]); if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); });
+        ctx.closePath();
+      }
+    }
+  }
+  // neighbours first
+  for(const fl of fields){
+    if(fl.isSubject) continue;
+    pathGeom(fl.geometry);
+    ctx.fillStyle = fl.col || "rgba(120,120,110,0.18)";   // neutral if unknown
+    ctx.globalAlpha = fl.col ? 0.8 : 1; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle="rgba(255,255,255,0.5)"; ctx.lineWidth=1; ctx.stroke();
+  }
+  // subject on top, bold outline
+  const subj = fields.find(fl=>fl.isSubject) || {geometry:subject.geometry, col:null};
+  pathGeom(subj.geometry);
+  ctx.fillStyle = subj.col || "rgba(30,110,90,0.35)";
+  ctx.globalAlpha = subj.col ? 0.9 : 1; ctx.fill(); ctx.globalAlpha=1;
+  ctx.strokeStyle="#14261B"; ctx.lineWidth=4; ctx.stroke();
+  ctx.strokeStyle="#F4F1E9"; ctx.lineWidth=1.5; ctx.stroke();
+}
+
+function loadImg(src){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; }); }
 function roundRectPath(x,rx,ry,w,h,r){ x.beginPath(); x.moveTo(rx+r,ry); x.arcTo(rx+w,ry,rx+w,ry+h,r); x.arcTo(rx+w,ry+h,rx,ry+h,r); x.arcTo(rx,ry+h,rx,ry,r); x.arcTo(rx,ry,rx+w,ry,r); x.closePath(); }
 async function shareOrDownloadImage(blob, filename){
   const file = new File([blob], filename, {type:"image/png"});
