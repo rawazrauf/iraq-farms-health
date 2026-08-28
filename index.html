@@ -473,7 +473,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.09-k";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.09-l";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1201,7 +1201,7 @@ function renderField(f){
       const already = id && pinExists(id);
       return `<button class="save-btn ${already?'saved':''}" id="save-field-btn" ${already?'disabled':''}>${already?t.saved:t.save}</button>`+
              `<button class="share-btn" id="share-field-btn">${t.share} ↗</button>`+
-             `<button class="share-btn ${__reportBuilding?'loading':''}" id="report-field-btn" ${__reportBuilding?'disabled':''}>${__reportBuilding?(t.preparing||'Preparing…'):t.report+' ↓'}</button>`;
+             `<button class="share-btn ${__reportReady?'':'loading'}" id="report-field-btn" ${__reportReady?'':'disabled'}>${__reportReady?(t.report+' ↓'):(t.preparing||'Preparing…')}</button>`;
     })()}</div>`;
   drawSpark(hist);
   attachSparkHover(hist);
@@ -1217,6 +1217,10 @@ function renderField(f){
   if(shareBtn) shareBtn.addEventListener("click",()=> shareField(f, shareBtn));
   const reportBtn = document.getElementById("report-field-btn");
   if(reportBtn) reportBtn.addEventListener("click",()=> buildFieldReport(f, reportBtn));
+  // Start (or refresh) the readiness monitor for this field, which enables the
+  // Report button once the history + neighbour colours are loaded — so the tap
+  // itself is fast and iOS keeps the share sheet (share must fire in the gesture).
+  monitorReportReady(f);
 }
 
 /* Build a shareable link to this exact field and share/copy it. The link
@@ -1289,28 +1293,55 @@ function waitForHistory(f, timeoutMs){
   });
 }
 
-let __reportBuilding = false;
-function setReportBtnState(){
-  // Re-query the live button (renderField may have rebuilt it) and apply state.
+let __reportReady = false;
+let __reportReadyField = null;   // which field the current readiness applies to
+let __reportMonitor = null;
+
+/* Enable the Report button once this field's history and a reasonable share of
+   neighbour colours are ready, so tapping it can build+share quickly (keeping
+   the iOS gesture alive for the share sheet). Falls back to enabling after a
+   timeout so the button never stays stuck on "Preparing…". */
+function monitorReportReady(f){
+  clearInterval(__reportMonitor);
+  __reportReady = false; __reportReadyField = f;
+  setReportReadyState();
+  const start = Date.now();
+  // kick neighbour sampling so colours populate
+  try{ if(typeof scheduleHealthSample==="function") scheduleHealthSample(); }catch{}
+  __reportMonitor = setInterval(()=>{
+    if(lastField!==f){ clearInterval(__reportMonitor); return; }   // moved to another field
+    const h = f.__history||[];
+    const historyDone = h.length>0 && !h.some(s=>s.pending);
+    let coloured=0,total=0;
+    try{
+      const seen=new Set();
+      for(const nf of map.queryRenderedFeatures({layers:["fields-fill"]})){
+        const k=fieldKey(nf); if(seen.has(k))continue; seen.add(k); total++;
+        const cc=__healthCache.get(k); if(cc&&cc.col) coloured++;
+      }
+    }catch{}
+    const coloursReady = total===0 || coloured>=Math.min(8, Math.ceil(total*0.5));
+    const timedOut = Date.now()-start > 12000;
+    if((historyDone && coloursReady) || timedOut){
+      __reportReady = true; setReportReadyState();
+      clearInterval(__reportMonitor);
+    }
+  }, 300);
+}
+function setReportReadyState(){
   const b = document.getElementById("report-field-btn");
   if(!b) return;
   const t = I18N[lang];
-  if(__reportBuilding){ b.textContent = t.preparing||"Preparing…"; b.disabled=true; b.classList.add("loading"); }
-  else { b.textContent = (t.report||"Report")+" ↓"; b.disabled=false; b.classList.remove("loading"); }
+  if(__reportReady){ b.textContent=(t.report||"Report")+" ↓"; b.disabled=false; b.classList.remove("loading"); }
+  else { b.textContent=t.preparing||"Preparing…"; b.disabled=true; b.classList.add("loading"); }
 }
 
 async function buildFieldReport(f, btn){
   const t = I18N[lang];
-  if(__reportBuilding) return;             // ignore double-taps
-  __reportBuilding = true; setReportBtnState();
-  // The history loop calls renderField repeatedly, which rebuilds the button and
-  // would drop our "Preparing…" label. Re-assert the state whenever the sheet
-  // re-renders during the wait, by polling setReportBtnState.
-  const keepState = setInterval(setReportBtnState, 200);
+  if(!__reportReady) return;                 // shouldn't happen — button is disabled
   try{
-    await waitForHistory(f, 12000);
-    await waitForNeighbourColours(f, 6000);
-
+    // Data is already loaded (the button only enabled once it was), so this is
+    // fast and stays within the tap's gesture window → iOS shows the share sheet.
     const W = 1080, pad = 48;
     const cur = (f.__history||[]).slice().reverse().find(s=>s.v!=null);
     const curV = cur ? cur.v : null;
@@ -1408,10 +1439,6 @@ async function buildFieldReport(f, btn){
   }catch(err){
     console.warn("report:", err.message);
     alert("Could not build the report image.");
-  }finally{
-    clearInterval(keepState);
-    __reportBuilding = false;
-    setReportBtnState();
   }
 }
 /* Collect the tapped field plus nearby fields (for the report's context panel),
