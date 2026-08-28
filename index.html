@@ -234,7 +234,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 /* Floating "find my location" button — modern circular FAB, thumb-reachable
    bottom-right, sitting just above the MapLibre zoom control. */
 #locate-fab{position:absolute;inset-inline-end:12px;z-index:6;
-  bottom:calc(var(--safe-b) + 96px);
+  bottom:calc(var(--safe-b) + 124px);
   width:48px;height:48px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   background:var(--panel);color:var(--ink);
@@ -431,12 +431,12 @@ html,body{margin:0;height:100%;background:var(--ink);
 <div id="locate-toast" hidden></div>
 <button id="locate-fab" title="Find my location" aria-label="Find my location">
   <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-    <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
-    <line x1="12" y1="1.5" x2="12" y2="5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <line x1="12" y1="18.5" x2="12" y2="22.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <line x1="1.5" y1="12" x2="5.5" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <line x1="18.5" y1="12" x2="22.5" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <circle cx="12" cy="12" r="1.8" fill="currentColor"/>
+    <line x1="12" y1="1.5" x2="12" y2="5.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="12" y1="18.5" x2="12" y2="22.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="1.5" y1="12" x2="5.5" y2="12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="18.5" y1="12" x2="22.5" y2="12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
   </svg>
 </button>
 
@@ -512,7 +512,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
