@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-j";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-a";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -547,7 +547,7 @@ const NDMI_EXPR = "(B08-B11)/(B08+B11)";   // moisture: NIR vs SWIR (water absor
 // damps bare-soil brightness, so it reads truer on sparse/arid cover (much of
 // Iraq) where plain NDVI is dragged down by visible soil between plants.
 // Range is [-1.5, 1.5], NOT [-1, 1] — the validity clamp below accounts for this.
-const SAVI_EXPR = "1.5*(B08-B04)/(B08+B04+0.5)";
+const SAVI_EXPR = "((B08-B04)/(B08+B04+0.5))*1.5";
 // FTW GLOBAL predictions — wall-to-wall, 195 countries incl. full Iraq, 10m, 2024/2025.
 // Host works over plain HTTP, anonymous read (physically s3 tge-labs/ftw-global-data).
 // Two files exist: 2025 (default) and 2024-with-confidence. We use 2025.
@@ -1219,8 +1219,15 @@ async function sampleSavi(f){
   if(!__saviCache.has(myKey)){
     try{
       const r = await ndviForWindow(f.geometry, iso(from), iso(now), SAVI_EXPR);
-      __saviCache.set(myKey, {v:(r && r.value!=null)? r.value : null});
-    }catch{ __saviCache.set(myKey, {v:null}); }
+      // TEMP DIAGNOSTIC: surface exactly what came back so "no SAVI in report"
+      // can be told apart — computed value vs. API error vs. no scene. Remove
+      // once confirmed working.
+      console.warn("SAVI sample:", JSON.stringify(r));
+      __saviCache.set(myKey, {v:(r && r.value!=null)? r.value : null, err:(r&&r.err)||null});
+    }catch(e){
+      console.warn("SAVI sample threw:", e && e.message);
+      __saviCache.set(myKey, {v:null, err:(e&&e.message)||"threw"});
+    }
   }
   if(myGen!==__tapGen) return;            // user tapped elsewhere meanwhile
   const s = __saviCache.get(myKey);
