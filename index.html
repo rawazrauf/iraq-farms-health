@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-b";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1219,13 +1219,8 @@ async function sampleSavi(f){
   if(!__saviCache.has(myKey)){
     try{
       const r = await ndviForWindow(f.geometry, iso(from), iso(now), SAVI_EXPR);
-      // TEMP DIAGNOSTIC: surface exactly what came back so "no SAVI in report"
-      // can be told apart — computed value vs. API error vs. no scene. Remove
-      // once confirmed working.
-      console.warn("SAVI sample:", JSON.stringify(r));
       __saviCache.set(myKey, {v:(r && r.value!=null)? r.value : null, err:(r&&r.err)||null});
     }catch(e){
-      console.warn("SAVI sample threw:", e && e.message);
       __saviCache.set(myKey, {v:null, err:(e&&e.message)||"threw"});
     }
   }
@@ -1461,8 +1456,15 @@ function monitorReportReady(f){
       }
     }catch{}
     const coloursReady = total===0 || coloured>=Math.min(8, Math.ceil(total*0.5));
+    // SAVI is fired at tap but resolves independently; without waiting for it the
+    // report often builds first and the SAVI line silently omits (this was why it
+    // showed on only some fields — a timing race). "Resolved" = the cache has an
+    // entry for this field (a value OR a confirmed null), i.e. the fetch finished.
+    // A no-data field still resolves (to null), so this can't hang; the 12s
+    // timeout is the backstop either way.
+    const saviResolved = __saviCache.has(fieldKey(f));
     const timedOut = Date.now()-start > 12000;
-    if((historyDone && coloursReady) || timedOut){
+    if((historyDone && coloursReady && saviResolved) || timedOut){
       __reportReady = true; setReportReadyState();
       clearInterval(__reportMonitor);
     }
