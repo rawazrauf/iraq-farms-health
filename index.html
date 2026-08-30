@@ -463,7 +463,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Tap Health map to colour every field by its health at once — green is healthy, red is stressed. Great for spotting problems across a whole area.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",waterMap:"Water",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",
+      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Tap Health map to colour every field by its health at once — green is healthy, red is stressed. Great for spotting problems across a whole area.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",waterMap:"Water",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",saviLabel:"Soil-adjusted (SAVI)",saviGap:"Bare soil is lowering the plain reading",saviAgree:"Dense cover — soil has little effect",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -472,7 +472,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"انقر خريطة الصحة لتلوين كل الحقول حسب صحتها دفعة واحدة — الأخضر صحي والأحمر مُجهَد. مفيد لاكتشاف المشاكل في منطقة كاملة.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",waterMap:"المياه",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",
+      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"انقر خريطة الصحة لتلوين كل الحقول حسب صحتها دفعة واحدة — الأخضر صحي والأحمر مُجهَد. مفيد لاكتشاف المشاكل في منطقة كاملة.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",waterMap:"المياه",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",saviLabel:"معدّل حسب التربة (SAVI)",saviGap:"التربة العارية تخفض القراءة العادية",saviAgree:"غطاء كثيف — تأثير التربة ضئيل",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -481,7 +481,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دەست بنێ لە نەخشەی تەندروستی بۆ ڕەنگکردنی هەموو کێڵگەکان بەپێی تەندروستییان بەیەکجار — سەوز تەندروستە، سوور لاوازە. باشە بۆ دۆزینەوەی کێشە لە ناوچەیەکی تەواودا.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",waterMap:"ئاو",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",
+      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دەست بنێ لە نەخشەی تەندروستی بۆ ڕەنگکردنی هەموو کێڵگەکان بەپێی تەندروستییان بەیەکجار — سەوز تەندروستە، سوور لاوازە. باشە بۆ دۆزینەوەی کێشە لە ناوچەیەکی تەواودا.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",waterMap:"ئاو",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",saviLabel:"ڕێکخراو بۆ خاک (SAVI)",saviGap:"خاکی ڕووت خوێندنەوە ئاساییەکە دادەبەزێنێت",saviAgree:"بەرگی چڕ — کاریگەری خاک کەمە",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.28-i";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.28-j";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -543,6 +543,11 @@ const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
    A [-1,1] range check remains in code as a belt-and-suspenders safety net. */
 const NDVI_EXPR = "(B08-B04)/(B08+B04)";
 const NDMI_EXPR = "(B08-B11)/(B08+B11)";   // moisture: NIR vs SWIR (water absorbs SWIR)
+// SAVI (Soil Adjusted Vegetation Index), L=0.5. Same NIR/Red bands as NDVI but
+// damps bare-soil brightness, so it reads truer on sparse/arid cover (much of
+// Iraq) where plain NDVI is dragged down by visible soil between plants.
+// Range is [-1.5, 1.5], NOT [-1, 1] — the validity clamp below accounts for this.
+const SAVI_EXPR = "1.5*(B08-B04)/(B08+B04+0.5)";
 // FTW GLOBAL predictions — wall-to-wall, 195 countries incl. full Iraq, 10m, 2024/2025.
 // Host works over plain HTTP, anonymous read (physically s3 tge-labs/ftw-global-data).
 // Two files exist: 2025 (default) and 2024-with-confidence. We use 2025.
@@ -822,6 +827,7 @@ document.getElementById("sheet-close").addEventListener("click",()=>{
 let healthOn = true;                 // Health map toggle state
 const __healthCache = new Map();     // fieldKey -> {v, col} (NDVI never re-fetched)
 const __moistCache = new Map();      // fieldKey -> {v} NDMI moisture (sampled on tap)
+const __saviCache = new Map();       // fieldKey -> {v} SAVI (sampled on tap, report only)
 let __healthTimer = null;
 let __healthRunId = 0;
 
@@ -968,6 +974,8 @@ async function onFieldTap(e){
   // when a field is opened. We sample the tapped field and up to ~12 nearby
   // fields so we can say whether this field is wetter/drier than its neighbours.
   sampleMoisture(f).catch(()=>{});
+  // --- SAVI (soil-adjusted) sampled on tap too, for the detailed report only ---
+  sampleSavi(f).catch(()=>{});
 
   // Colour the tapped polygon IMMEDIATELY: fetch just the current month first,
   // as a standalone call, so the field recolours right away instead of waiting
@@ -1080,6 +1088,11 @@ function sleep(ms){ return new Promise(res=>setTimeout(res, ms)); }
 
 async function ndviForWindow(geometry, from, to, expr){
   expr = expr || NDVI_EXPR;
+  // Physical bounds of the index, used to reject blown-up pixel math (near-zero
+  // denominators over bare/dark pixels). NDVI and NDMI are bounded to [-1,1];
+  // SAVI with L=0.5 reaches [-1.5,1.5], so a flat ±1 clamp would wrongly discard
+  // valid SAVI over healthy fields. Pick the bound from the expression.
+  const bound = (expr === SAVI_EXPR) ? 1.5 : 1;
   const bbox = geomBbox(geometry);
   if(!bbox) throw new Error("bad geometry");
   const searchBody = {
@@ -1126,9 +1139,10 @@ async function ndviForWindow(geometry, from, to, expr){
     // 'percentile_50'. Fall back to mean if neither present.
     let val = stats && (stats.median ?? stats.Median ?? stats["percentile_50"] ?? stats["50"]);
     if(val==null) val = stats && (stats.mean ?? stats.Mean);
-    // NDVI is physically bounded to [-1, 1]. Anything outside means the pixel
-    // math blew up over bare/dark pixels, so reject and try the next scene.
-    if(val!=null && isFinite(val) && val>=-1 && val<=1){
+    // Bounded to the index's physical range (see `bound` above). Anything
+    // outside means the pixel math blew up over bare/dark pixels, so reject
+    // and try the next scene.
+    if(val!=null && isFinite(val) && val>=-bound && val<=bound){
       return {value:val, date:itemDate, scene:item.id, cloud:item.properties && item.properties["eo:cloud_cover"], tried:triedMasked+1};
     }
     triedMasked++;                              // masked / invalid — keep looking
@@ -1188,6 +1202,30 @@ async function sampleMoisture(f){
   }
   await Promise.all(Array.from({length:3}, worker));
   if(myGen===__tapGen && lastField===f && sheet.classList.contains("open")) renderField(f);
+}
+
+/* Sample SAVI (soil-adjusted vegetation) for the tapped field only. Unlike
+   moisture there's no neighbour comparison — SAVI is shown solely in the
+   detailed report, paired with NDVI so the reader sees how much bare soil is
+   dragging the plain reading down. Sampled on tap; cached so the report build
+   is instant. Uses the current calendar month, like the health/moisture
+   samplers. */
+async function sampleSavi(f){
+  const now = new Date();
+  const from = new Date(now.getFullYear(), now.getMonth(), 1);
+  const iso = d=> d.toISOString().slice(0,10);
+  const myKey = fieldKey(f);
+  const myGen = __tapGen;
+  if(!__saviCache.has(myKey)){
+    try{
+      const r = await ndviForWindow(f.geometry, iso(from), iso(now), SAVI_EXPR);
+      __saviCache.set(myKey, {v:(r && r.value!=null)? r.value : null});
+    }catch{ __saviCache.set(myKey, {v:null}); }
+  }
+  if(myGen!==__tapGen) return;            // user tapped elsewhere meanwhile
+  const s = __saviCache.get(myKey);
+  f.__savi = s ? s.v : null;
+  if(lastField===f && sheet.classList.contains("open")) renderField(f);
 }
 
 
@@ -1529,7 +1567,16 @@ async function buildFieldReport(f, btn){
       // in the app's field sheet, where there's room.)
       lines.push({ text:"💧 " + t["moist_"+mb], right:`NDMI ${mv.toFixed(2)}` });
     }
-    lines.slice(0,2).forEach((ln,i)=>{
+    // SAVI vs NDVI (report-only expert figure): shows both numbers so the reader
+    // sees how much bare soil is dragging the plain NDVI down. If SAVI diverges
+    // meaningfully from NDVI the field is sparsely covered; if they agree the
+    // cover is dense. Only shown when both values are available.
+    if(f.__savi!=null && curV!=null){
+      const gap = f.__savi - curV;
+      const note = gap >= 0.06 ? t.saviGap : t.saviAgree;
+      lines.push({ text:"🌱 " + note, right:`NDVI ${curV.toFixed(2)} · SAVI ${f.__savi.toFixed(2)}` });
+    }
+    lines.slice(0,3).forEach((ln,i)=>{
       const ly = y + i*40;
       x.font="700 24px system-ui,sans-serif"; x.fillStyle="#14261B"; x.textAlign="left";
       x.fillText(ln.text, pad, ly);
