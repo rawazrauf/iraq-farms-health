@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-c";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1293,7 +1293,16 @@ function renderField(f){
 
   sheetBody.innerHTML = `
     <h2>${t.title}</h2>
-    <p class="sub">${fieldLabel(f)}${geoLabel(f)}${curDate ? "  ·  "+t.asOf+" "+curDate : ""}${loading?`  ·  ${done}/${hist.length}`:""}</p>
+    <p class="sub">${fieldLabel(f)}${geoLabel(f)}${curDate ? "  ·  "+t.asOf+" "+curDate : ""}${loading?`  ·  ${done}/${hist.length}`:""}${(()=>{
+      // Tiny dev-only SAVI state cue: near-invisible to farmers, legible to you,
+      // so you can confirm SAVI is computing without downloading a report.
+      //   · (faint dot) = still fetching   s0.88 = value in   s— = resolved null
+      const k = fieldKey(f);
+      let glyph;
+      if(!__saviCache.has(k)) glyph = "·";
+      else { const sv = __saviCache.get(k); glyph = (sv && sv.v!=null) ? ("s"+sv.v.toFixed(2)) : "s—"; }
+      return `<span style="opacity:.28;font-variant-numeric:tabular-nums">  ·  ${glyph}</span>`;
+    })()}</p>
     <div id="stat">
       <div class="card">
         <div class="n" style="color:${ndviColor(cur)}">${cur!=null?cur.toFixed(2):"—"}</div>
