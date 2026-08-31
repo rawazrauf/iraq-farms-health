@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-g";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1509,6 +1509,9 @@ async function buildFieldReport(f, btn){
       const tw = W - pad*2, th = thumbH;
       x.fillStyle="#e9e4d6"; roundRectPath(x, pad, y, tw, th, 16); x.fill();
       x.save(); roundRectPath(x, pad, y, tw, th, 16); x.clip();
+      // Roads + place/boundary labels underneath, for real place context.
+      // Best-effort: if tiles fail or block CORS, the field schematic still draws.
+      try{ await drawReferenceTiles(x, f, pad, y, tw, th); }catch(e){ console.warn("ref tiles:", e && e.message); }
       drawFieldContext(x, f, ctxFields, pad, y, tw, th);
       x.restore();
       x.strokeStyle="#D9D2C2"; x.lineWidth=1; roundRectPath(x,pad,y,tw,th,16); x.stroke();
@@ -1677,7 +1680,73 @@ function drawFieldContext(ctx, subject, fields, ox, oy, w, h){
   ctx.strokeStyle="#14261B"; ctx.lineWidth=3; ctx.stroke();   // dark line on top
 }
 
-function loadImg(src){ return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; }); }
+function loadImg(src){ return new Promise((res,rej)=>{ const im=new Image(); im.crossOrigin="anonymous"; im.onload=()=>res(im); im.onerror=rej; im.src=src; }); }
+
+/* Composite Esri reference tiles (roads + place/boundary labels) into the report
+   panel, aligned to the same projection drawFieldContext uses, so the little map
+   carries real place context instead of a blank beige field. Drawn UNDER the
+   field polygons. Loaded crossOrigin="anonymous" so the canvas stays exportable;
+   if Esri's CORS headers don't permit it the canvas taints and the PNG export
+   later throws — which the caller already catches, falling back to a report
+   without the thumbnail. Best-effort: any tile that fails to load is skipped.
+   Returns nothing; purely paints into ctx. */
+async function drawReferenceTiles(ctx, subject, ox, oy, w, h){
+  // Recreate the exact window drawFieldContext computes, so tiles line up.
+  const bb = geomBbox(subject.geometry);
+  const cx=(bb[0]+bb[2])/2, cy=(bb[1]+bb[3])/2;
+  const latScale = Math.cos(cy*Math.PI/180) || 1;
+  const subSpan = Math.max((bb[2]-bb[0])*latScale, bb[3]-bb[1]);
+  const panelAR = w/h;
+  const halfY = Math.max(subSpan*2.2, 0.006);
+  const halfX = halfY*panelAR;
+  const scale = Math.min( w/(2*halfX), h/(2*halfY) );
+  const offX = ox + w/2, offY = oy + h/2;
+  const proj = (lon,lat)=>[ offX + (lon-cx)*latScale*scale, offY - (lat-cy)*scale ];
+
+  // Geographic bounds of the panel window.
+  const west = cx - halfX/latScale, east = cx + halfX/latScale;
+  const north = cy + halfY, south = cy - halfY;
+
+  // Web Mercator tile helpers.
+  const lon2tile = (lon,z)=> (lon+180)/360*Math.pow(2,z);
+  const lat2tile = (lat,z)=>{ const r=lat*Math.PI/180;
+    return (1 - Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*Math.pow(2,z); };
+  const tile2lon = (x,z)=> x/Math.pow(2,z)*360-180;
+  const tile2lat = (y,z)=>{ const n=Math.PI-2*Math.PI*y/Math.pow(2,z);
+    return 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))); };
+
+  // Choose a zoom where the window spans a few tiles (enough detail, few fetches).
+  let z = 14;
+  for(let zt=16; zt>=8; zt--){
+    const nx = Math.abs(lon2tile(east,zt)-lon2tile(west,zt));
+    if(nx <= 4){ z = zt; break; }
+  }
+  const xL=Math.floor(lon2tile(west,z)), xR=Math.floor(lon2tile(east,z));
+  const yT=Math.floor(lat2tile(north,z)), yB=Math.floor(lat2tile(south,z));
+
+  const bases = [
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile",
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile"
+  ];
+  // Draw transportation first, then boundaries/places on top (labels legible).
+  for(const base of bases){
+    const jobs = [];
+    for(let tx=xL; tx<=xR; tx++){
+      for(let ty=yT; ty<=yB; ty++){
+        jobs.push((async()=>{
+          try{
+            const im = await loadImg(`${base}/${z}/${ty}/${tx}`);
+            // Tile's geo corners → canvas pixels (same proj as the fields).
+            const [x0,y0] = proj(tile2lon(tx,z),   tile2lat(ty,z));
+            const [x1,y1] = proj(tile2lon(tx+1,z), tile2lat(ty+1,z));
+            ctx.drawImage(im, x0, y0, x1-x0, y1-y0);
+          }catch{ /* skip missing/blocked tile */ }
+        })());
+      }
+    }
+    await Promise.all(jobs);
+  }
+}
 function roundRectPath(x,rx,ry,w,h,r){ x.beginPath(); x.moveTo(rx+r,ry); x.arcTo(rx+w,ry,rx+w,ry+h,r); x.arcTo(rx+w,ry+h,rx,ry+h,r); x.arcTo(rx,ry+h,rx,ry,r); x.arcTo(rx,ry,rx+w,ry,r); x.closePath(); }
 async function shareOrDownloadImage(blob, filename){
   const file = new File([blob], filename, {type:"image/png"});
