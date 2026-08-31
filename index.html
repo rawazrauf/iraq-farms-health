@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -939,6 +939,33 @@ async function onFieldTap(e){
   if(selSrc) selSrc.setData({type:"Feature",properties:{},geometry:f.geometry});
   lastField = f;
   sheet.classList.add("open");
+  // Pan the tapped field into the area still visible ABOVE the sheet, so the
+  // popup doesn't cover the field you just tapped. We center the field's
+  // centroid using easeTo with bottom padding equal to the sheet's height:
+  // MapLibre then frames the field in the remaining viewport above the sheet,
+  // not the full screen. Measured after the sheet lays out (rAF), and only
+  // nudged if the field centroid actually falls under the sheet.
+  requestAnimationFrame(()=>{
+    try{
+      const c = polyCentroid(f.geometry);
+      if(!c) return;
+      const sheetH = sheet.offsetHeight || Math.round(window.innerHeight*0.5);
+      const pt = map.project([c[0], c[1]]);
+      const coveredTop = window.innerHeight - sheetH;   // y below this is hidden
+      // Only move if the field sits under the sheet (or near its edge).
+      if(pt.y > coveredTop - 40){
+        // Place the field centroid in the middle of the visible strip above the
+        // sheet. Move the map center up by (current field y − target y) pixels,
+        // via project/offset/unproject — no persistent padding, so the locate
+        // button's later flyTo isn't affected.
+        const targetY = coveredTop/2;
+        const dy = pt.y - targetY;                       // >0 → shift view up
+        const ctr = map.project(map.getCenter());
+        const center = map.unproject([ctr.x, ctr.y + dy]);
+        map.easeTo({ center, duration:500 });
+      }
+    }catch{}
+  });
   // If the interactive tour is waiting for the user to tap a field, advance it.
   if(typeof window.__onTourFieldTap==="function") window.__onTourFieldTap();
 
