@@ -32,6 +32,18 @@ The tool maps these to three plain-language bands shown to the user:
 
 > **Important:** these thresholds are general defaults, not calibrated to specific Iraqi crops, growth stages, or seasons. A "Poor" reading in mid-summer may simply mean the field is between plantings, not that anything is wrong. NDVI reflects *greenness*, which is related to but not the same as crop *health* or *yield*.
 
+### Moisture — NDMI
+
+Alongside vegetation greenness, the tool reads a field's **NDMI** — the Normalized Difference Moisture Index — as a separate indicator of how much water is present in the crop canopy:
+
+```
+NDMI = (NIR − SWIR) / (NIR + SWIR)
+```
+
+where **SWIR** is short-wave infrared light, which water strongly absorbs. A wetter canopy produces a higher NDMI; a dry or sparse canopy produces a lower one. The tool shows moisture as a plain-language band (roughly: NDMI ≥ 0.2 "good moisture", ≥ 0.0 "moderate", below "low / dry canopy") and, where it can, compares the field's moisture to nearby fields ("wetter" / "drier than most nearby fields").
+
+> **Important:** NDMI is an *index of canopy moisture as seen from space*, not a soil-moisture probe or an irrigation gauge. It is affected by how much vegetation is present (a bare field and a wet field can both read low for different reasons), and like NDVI it is a signal, not a measurement. Treat it as a rough comparison, not an instruction to irrigate.
+
 ---
 
 ## 2. Data sources
@@ -40,7 +52,7 @@ The tool maps these to three plain-language bands shown to the user:
 
 Imagery comes from the **Copernicus Sentinel-2** mission (European Space Agency), which images all of Iraq roughly every five days at 10-metre resolution. The tool accesses Sentinel-2 **Level-2A** (surface reflectance) scenes through **Microsoft's Planetary Computer**.
 
-For each field reading, the tool searches recent Sentinel-2 scenes over that field, preferring scenes with low cloud cover, and computes NDVI statistics for the field's exact boundary.
+For each field reading, the tool searches recent Sentinel-2 scenes over that field, preferring scenes with low cloud cover, and computes NDVI (and NDMI) statistics for the field's exact boundary.
 
 ### Field boundaries — Fields of the World (FTW)
 
@@ -48,9 +60,15 @@ Field outlines come from **Fields of the World (FTW)**, an open, machine-learnin
 
 > **Important:** FTW boundaries are *predictions* from a model, not an official cadastre. Some real fields are missed; some detected "fields" may not be cultivated; and boundaries may not perfectly match a field's true edges — especially in dense, irregular, or small-plot areas. If your field is not outlined, the tool cannot read it. Field outlines are only shown at close zoom (zoom level 13 and above) to avoid clutter and misleading detections over towns.
 
+### Farmland density (low zoom) — FTW confidence
+
+When you are zoomed out too far to see individual field outlines, the map shows a faint overlay indicating where farmland is concentrated, so the country doesn't look empty. This overlay is **not** a field-by-field layer: it is FTW's own model **confidence** for its global field predictions (a 500-metre raster), rendered through the public **titiler.xyz** tiling service and shown only at low zoom. It fades out as you zoom in and the real, tappable field outlines take over.
+
+> **Important:** this layer answers "roughly where is the farmland?", not "is this a field?". It reflects where the FTW model is confident that fields exist, which tracks farmland concentration but is a proxy, not a measurement. It also depends on a third-party tile service (titiler.xyz) that the project does not control; if that service is slow or unavailable, only this low-zoom overlay is affected — the rest of the tool works normally.
+
 ### Base map & reference layers — Esri
 
-The satellite base map and the roads / place-name / boundary reference layers are **Esri World Imagery** and Esri reference services.
+The satellite base map and the roads / place-name / boundary reference layers are **Esri World Imagery** and Esri reference services. The same reference layers (roads and place names) are also composited into the shareable field report so the small map there carries geographic context.
 
 ---
 
@@ -64,6 +82,8 @@ When you tap a field:
 
 **Why the median and not the average?** A field can contain a few anomalous pixels — a shadow, a building, a patch of water, or a sensor artefact — that would distort a simple average. The median (the middle value) is robust to those outliers and better represents the typical condition of the field. Any value that falls outside the physically possible NDVI range of −1 to +1 is rejected as invalid, and the tool tries the next available scene.
 
+The moisture reading (NDMI) is computed the same way — median over the field's pixels, from a recent clear scene — when a field is opened.
+
 ### The two-year history
 
 The month-by-month chart repeats this process for each of the past 24 months, building a picture of how the field's vegetation rises and falls with the seasons. Months with no clear (cloud-free) imagery are left blank rather than guessed.
@@ -74,6 +94,12 @@ To compare this year with last year, the tool computes the **area under the NDVI
 
 - The comparison is only shown when both years have enough clear months of data to be trustworthy.
 - A **percentage change** is shown only when last year's baseline was high enough (mean NDVI ≥ 0.20) for a percentage to be meaningful, and the result is capped at ±300%. On a nearly-bare field, a tiny change can produce an enormous, misleading percentage — so in those cases the tool shows the absolute NDVI change instead. This is a deliberate guard against nonsense figures.
+
+### Field size
+
+The tool reports each field's area in **donums** (1 donum = 2,500 m²). The area is calculated directly from the field's boundary polygon using a geodesic (spherical-excess) formula, which is accurate at Iraq's latitude — a simple flat calculation on raw longitude/latitude degrees would be substantially wrong. Interior holes in a boundary are subtracted.
+
+> **Important:** the size is only as accurate as the FTW boundary it is measured from. Because those boundaries are model predictions (see §2), a field whose outline is slightly too large or too small will produce a correspondingly off size. Treat it as a close estimate, not a survey.
 
 ---
 
@@ -98,8 +124,10 @@ During development, the tool's readings were cross-checked against Copernicus Br
 Being clear about limitations is part of being trustworthy. In summary:
 
 - **NDVI is greenness, not yield or crop health directly.** It correlates with vegetation vigour but does not measure crop type, water stress specifics, disease, or harvest quantity.
-- **Thresholds are generic**, not calibrated to Iraqi crops or growth calendars. Interpret Poor/Fair/Good as rough guidance.
-- **Field boundaries are model predictions.** Fields can be missed, mis-drawn, or falsely detected. If a field isn't outlined, it can't be read.
+- **NDMI is canopy moisture as seen from space**, not soil moisture or an irrigation gauge. It is influenced by how much vegetation is present, so read it as a rough comparison, not a measurement.
+- **Thresholds are generic**, not calibrated to Iraqi crops or growth calendars. Interpret Poor/Fair/Good (and the moisture bands) as rough guidance.
+- **Field boundaries are model predictions.** Fields can be missed, mis-drawn, or falsely detected. If a field isn't outlined, it can't be read — and its reported size inherits any error in the outline.
+- **The low-zoom farmland overlay is a confidence proxy**, not a field layer, and relies on a third-party tile service. It shows roughly where farmland is, not whether any particular spot is a field.
 - **Clouds create gaps.** Sentinel-2 is optical and cannot see through cloud. Cloudy periods leave blanks in the history, and "current" always means the latest *clear* image, which may be several days old.
 - **"Current" is not live.** Satellites revisit every few days, and cloud-free imagery may be older still. Readings reflect the most recent usable pass, not today.
 - **Resolution is 10 metres.** Very small plots may be represented by few pixels, making their readings noisier and less reliable.
@@ -111,7 +139,7 @@ None of these make the tool useless — they define the conditions under which i
 
 ## 7. Reproducibility
 
-The entire tool is a single, commented HTML file. Anyone can read exactly how every number is produced — the NDVI expression, the median selection, the range checks, the year-on-year integral, and the thresholds are all in the source, not hidden behind a server. There is no proprietary processing step. Combined with the verification links, this means every figure the tool shows can be traced, reproduced, and independently checked.
+The entire tool is a single, commented HTML file. Anyone can read exactly how every number is produced — the NDVI and NDMI expressions, the median selection, the range checks, the year-on-year integral, the geodesic area formula, and the thresholds are all in the source, not hidden behind a server. There is no proprietary processing step. Combined with the verification links, this means every figure the tool shows can be traced, reproduced, and independently checked.
 
 ---
 
