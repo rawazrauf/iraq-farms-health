@@ -10,11 +10,16 @@ Tap any field on the map to see how healthy its crops are right now, view a two-
 
 ## What it does
 
+- **Find my location.** Don't know your field's coordinates? Tap the location button and the map jumps to where you're standing, so you can find your own field on the map.
 - **Tap a field, see its health.** Field boundaries come from the open [Fields of the World](https://fieldsofthe.world/) dataset. Tap any field and the tool reads recent Sentinel-2 satellite imagery to calculate its NDVI (a standard measure of plant health).
 - **Two-year history.** A month-by-month chart shows how the field's vegetation has changed over the past two years.
 - **Year-on-year comparison.** See at a glance whether this season is greener or drier than the last.
+- **Moisture reading.** Alongside vegetation health, the tool reads the field's canopy moisture (NDMI) and tells you whether it's wetter or drier than nearby fields.
+- **Field size.** Each field's area is shown in donums.
 - **Health map overlay.** Colour every visible field by its current health at once — green for healthy, red for stressed — to spot problems across a whole area.
+- **See where the farmland is.** Zoomed out to the whole country, a density layer shows where fields are concentrated, before individual fields become tappable.
 - **Save & rank your fields.** Bookmark fields you care about, and see which of your fields improved most since last year.
+- **Shareable field report.** Generate a clean image report for any field — its health, trend, moisture, size, and a small map with roads and place names for context — to save or share.
 - **Verify anything.** Each reading links out to the free Copernicus Browser, opened on the same field and date, so you can check the numbers yourself.
 
 ## Who it's for
@@ -29,7 +34,8 @@ The app is a **single, self-contained HTML file**. It runs entirely in the brows
 
 - **Base map:** Esri World Imagery (satellite) with Esri reference layers for roads, place names, and boundaries.
 - **Field boundaries:** Fields of the World (FTW) global field polygons, served as [PMTiles](https://protomaps.com/docs/pmtiles).
-- **Vegetation data:** Sentinel-2 L2A imagery via Microsoft's [Planetary Computer](https://planetarycomputer.microsoft.com/), which computes NDVI statistics per field.
+- **Vegetation & moisture data:** Sentinel-2 L2A imagery via Microsoft's [Planetary Computer](https://planetarycomputer.microsoft.com/), which computes NDVI and NDMI statistics per field.
+- **Farmland density (low zoom):** FTW field-prediction confidence, rendered as a raster overlay so farmland is visible at country scale before individual fields appear.
 - **Map rendering:** [MapLibre GL JS](https://maplibre.org/).
 
 For a full description of the data sources, the NDVI calculation, and the tool's limitations, see **[METHODOLOGY.md](METHODOLOGY.md)**.
@@ -41,7 +47,7 @@ For a full description of the data sources, the NDVI calculation, and the tool's
 Because it's a single static file, hosting is trivial:
 
 1. Download `index.html`.
-2. Serve it over HTTPS (GitHub Pages, Netlify, or any static host). Opening the file directly from disk (`file://`) will not work reliably, because browsers restrict the network requests the tool depends on.
+2. Serve it over HTTPS (GitHub Pages, Netlify, or any static host). Opening the file directly from disk (`file://`) will not work reliably, because browsers restrict the network requests the tool depends on. (In particular, the "Find my location" button requires HTTPS.)
 
 This repository is deployed via **GitHub Pages** with a custom domain.
 
