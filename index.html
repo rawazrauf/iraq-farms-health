@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-m";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-n";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1245,15 +1245,18 @@ async function sampleRain(f){
   const c = polyCentroid(f.geometry);
   if(!c){ __rainCache.set(myKey, {}); return; }
   try{
-    // ERA5 archive lags ~5 days and rejects future/very-recent end dates. The
-    // history's last month ends at month-end (often in the future), so clamp the
-    // request end to 6 days ago. Missing recent days just don't appear — fine.
-    const safeEnd = new Date(Date.now() - 6*86400*1000).toISOString().slice(0,10);
+    // ERA5-Land (0.1°, ~9km) is finer than default ERA5 (0.25°, ~25km) — chosen
+    // so neighbouring fields no longer share an identical, blocky value. It lags
+    // ~5–8 days and rejects future/very-recent end dates, so clamp the request
+    // end to 9 days ago (a touch more than ERA5-Land's max latency). Missing
+    // recent days just don't appear — fine for a 12-month total.
+    const safeEnd = new Date(Date.now() - 9*86400*1000).toISOString().slice(0,10);
     const reqEnd = (end > safeEnd) ? safeEnd : end;
     const url = "https://archive-api.open-meteo.com/v1/archive"
       + `?latitude=${c[1].toFixed(4)}&longitude=${c[0].toFixed(4)}`
       + `&start_date=${start}&end_date=${reqEnd}`
-      + "&daily=precipitation_sum,temperature_2m_max,temperature_2m_min&timezone=auto";
+      + "&daily=precipitation_sum,temperature_2m_max,temperature_2m_min"
+      + "&models=era5_land&timezone=auto";
     const r = await fetch(url);
     if(!r.ok) throw new Error("archive HTTP "+r.status);
     const j = await r.json();
