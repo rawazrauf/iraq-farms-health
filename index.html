@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-o";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-p";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -998,6 +998,9 @@ async function onFieldTap(e){
   sampleMoisture(f).catch(()=>{});
   // --- 2-year rainfall + temperature (Open-Meteo archive), for report + popup line ---
   sampleRain(f).catch(()=>{});
+  // TEMP A/B probe: compare ERA5 (25km) vs Historical-Forecast (9km) rainfall
+  // for this exact field, side by side. Gated behind ?raintest=1. Throwaway.
+  if(new URLSearchParams(location.search).get("raintest")==="1") rainAB(f).catch(()=>{});
 
   // Colour the tapped polygon IMMEDIATELY: fetch just the current month first,
   // as a standalone call, so the field recolours right away instead of waiting
@@ -1284,6 +1287,55 @@ async function sampleRain(f){
     __rainCache.set(myKey, {});   // empty = tried, no data; UI omits gracefully
   }
   if(myGen===__tapGen && lastField===f && sheet.classList.contains("open")) renderField(f);
+}
+
+/* TEMP A/B PROBE (throwaway, ?raintest=1 only): fetch this field's trailing-12-
+   month rainfall from BOTH sources and show them side by side, so we can judge
+   whether the finer 9km data is actually better than the 25km ERA5 before
+   committing. Source A = default ERA5 archive (25km, current production). Source
+   B = Historical Forecast API (9km, forecast-stitched). Same window + monthly
+   aggregation for both. Result is dumped to console AND shown as a toast. */
+async function rainAB(f){
+  const c = polyCentroid(f.geometry); if(!c) return;
+  const months = (f.__history && f.__history.length) ? f.__history : buildMonths(24);
+  const start = months[0].from;
+  const safeEnd = new Date(Date.now() - 9*86400*1000).toISOString().slice(0,10);
+  const end = months[months.length-1].to;
+  const reqEnd = (end > safeEnd) ? safeEnd : end;
+  const la = c[1].toFixed(4), lo = c[0].toFixed(4);
+  const A = `https://archive-api.open-meteo.com/v1/archive?latitude=${la}&longitude=${lo}`
+    + `&start_date=${start}&end_date=${reqEnd}&daily=precipitation_sum&timezone=auto`;
+  const B = `https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}`
+    + `&start_date=${start}&end_date=${reqEnd}&daily=precipitation_sum&timezone=auto`;
+  // sum trailing-12-months of daily precip from a response
+  async function total(url){
+    try{
+      const r = await fetch(url); if(!r.ok) return {err:"HTTP "+r.status};
+      const j = await r.json();
+      const d = j && j.daily;
+      if(!d || !d.time) return {err:"no daily"};
+      // keep only the last 365 days, sum
+      const days = d.precipitation_sum || [];
+      let mm=0, n=0;
+      const cutoff = new Date(Date.now() - 365*86400*1000).toISOString().slice(0,10);
+      for(let i=0;i<d.time.length;i++){
+        if(d.time[i] < cutoff) continue;
+        const v = days[i];
+        if(v!=null && isFinite(v)){ mm+=v; n++; }
+      }
+      return {mm:Math.round(mm), days:n};
+    }catch(e){ return {err:(e&&e.message)||"threw"}; }
+  }
+  const [ra, rb] = await Promise.all([total(A), total(B)]);
+  const fmt = r => r.err ? `ERR(${r.err})` : `${r.mm}mm/${r.days}d`;
+  const msg = `RAINTEST @${la},${lo}\nERA5 25km: ${fmt(ra)}\nForecast 9km: ${fmt(rb)}`;
+  console.warn(msg);
+  const toast = document.getElementById("locate-toast");
+  if(toast){
+    toast.textContent = `ERA5(25km): ${fmt(ra)}  ·  Fcst(9km): ${fmt(rb)}`;
+    toast.hidden = false;
+    setTimeout(()=>{ toast.hidden = true; }, 12000);
+  }
 }
 
 /* Sum rainfall (mm) over a slice of the history months, reading the rain cache.
