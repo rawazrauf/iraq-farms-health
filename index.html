@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-j";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-k";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1257,7 +1257,6 @@ async function sampleRain(f){
     const r = await fetch(url);
     if(!r.ok) throw new Error("archive HTTP "+r.status);
     const j = await r.json();
-    console.warn("RAIN ok:", url, "days:", (j&&j.daily&&j.daily.time)?j.daily.time.length:"none"); // TEMP
     const d = j && j.daily;
     const out = {};
     if(d && d.time){
@@ -1280,7 +1279,6 @@ async function sampleRain(f){
     }
     __rainCache.set(myKey, fin);
   }catch(e){
-    console.warn("RAIN failed:", e && e.message); // TEMP diagnostic
     __rainCache.set(myKey, {});   // empty = tried, no data; UI omits gracefully
   }
   if(myGen===__tapGen && lastField===f && sheet.classList.contains("open")) renderField(f);
@@ -1434,7 +1432,11 @@ function renderField(f){
       const n = f.__history.length;
       const thisY = rainTotal(f, n-12, n-1);
       const lastY = rainTotal(f, n-24, n-13);
-      if(!thisY || !lastY || thisY.cover<6 || lastY.cover<6) return "";
+      // Require near-complete coverage (>=11 of 12 months). Unlike NDVI, a
+      // MISSING rain month contributes 0mm — indistinguishable from a genuinely
+      // dry month — so a data gap would silently masquerade as drought. Demanding
+      // near-full coverage prevents that false signal.
+      if(!thisY || !lastY || thisY.cover<11 || lastY.cover<11) return "";
       const tv = Math.round(thisY.mm), lv = Math.round(lastY.mm);
       const d = tv - lv;
       const dir = d > 15 ? t.rainWetter : d < -15 ? t.rainDrier : t.rainSame;
@@ -2800,6 +2802,70 @@ function maybeAutoTour(){
 renderPins();
 
 applyLang("en");
+
+/* ============================================================================
+   TEMPORARY VALIDATION LAYER — country-wide 12-month rainfall grid.
+   Gated behind ?rain=1 so it never shows for normal users. Samples a 0.5° grid
+   over Iraq from Open-Meteo (batched), colours each cell by its trailing-12-month
+   rainfall total, so the whole spatial pattern can be eyeballed against known
+   climate (north wet, south/west dry). THROWAWAY: remove once the per-field
+   rainfall data is validated — this is a diagnostic instrument, not a feature.
+   ========================================================================== */
+(function(){
+  if(new URLSearchParams(location.search).get("rain")!=="1") return;
+  const STEP = 0.5;
+  const LAT0=29.0, LAT1=37.5, LON0=38.5, LON1=48.5;
+  const end = new Date(Date.now() - 6*86400*1000).toISOString().slice(0,10);
+  const start = new Date(Date.now() - 371*86400*1000).toISOString().slice(0,10); // ~12mo before end
+  // build grid centre points
+  const pts=[];
+  for(let la=LAT0; la<=LAT1; la+=STEP) for(let lo=LON0; lo<=LON1; lo+=STEP) pts.push([+la.toFixed(3),+lo.toFixed(3)]);
+
+  const rainColor = mm => {
+    // blue scale: pale (dry) -> deep (wet). Anchored to Iraq's range ~0..700mm.
+    const t = Math.max(0, Math.min(1, mm/500));
+    const r = Math.round(230 - 180*t), g = Math.round(238 - 120*t), b = Math.round(245 - 40*t);
+    return `rgb(${r},${g},${b})`;
+  };
+
+  async function run(){
+    const feats=[];
+    const BATCH=100;               // Open-Meteo accepts comma-separated coord lists
+    for(let i=0;i<pts.length;i+=BATCH){
+      const chunk=pts.slice(i,i+BATCH);
+      const lat=chunk.map(p=>p[0]).join(",");
+      const lon=chunk.map(p=>p[1]).join(",");
+      const url="https://archive-api.open-meteo.com/v1/archive"
+        +`?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}`
+        +"&daily=precipitation_sum&timezone=auto";
+      try{
+        const r=await fetch(url); if(!r.ok) throw 0;
+        const j=await r.json();
+        const arr=Array.isArray(j)?j:[j];        // batched returns an array
+        arr.forEach((loc,k)=>{
+          const p=chunk[k]; if(!p) return;
+          const days=loc && loc.daily && loc.daily.precipitation_sum || [];
+          let mm=0; for(const v of days){ if(v!=null&&isFinite(v)) mm+=v; }
+          const [la,lo]=p, h=STEP/2;
+          feats.push({type:"Feature", properties:{mm:Math.round(mm), color:rainColor(mm)},
+            geometry:{type:"Polygon", coordinates:[[[lo-h,la-h],[lo+h,la-h],[lo+h,la+h],[lo-h,la+h],[lo-h,la-h]]]}});
+        });
+      }catch(e){ /* skip failed batch */ }
+    }
+    const fc={type:"FeatureCollection",features:feats};
+    if(map.getSource("rain-grid")) map.getSource("rain-grid").setData(fc);
+    else{
+      map.addSource("rain-grid",{type:"geojson",data:fc});
+      map.addLayer({id:"rain-grid",type:"fill",source:"rain-grid",
+        paint:{"fill-color":["get","color"],"fill-opacity":0.55,"fill-outline-color":"rgba(0,0,0,0.15)"}});
+      map.addLayer({id:"rain-grid-lbl",type:"symbol",source:"rain-grid",
+        minzoom:7, layout:{"text-field":["concat",["to-string",["get","mm"]]," mm"],"text-size":11},
+        paint:{"text-color":"#0b3a66","text-halo-color":"#fff","text-halo-width":1.2}});
+    }
+    console.warn("RAIN GRID: rendered", feats.length, "cells of", pts.length);
+  }
+  if(map.loaded()) run(); else map.on("load", run);
+})();
 
 // Keep the sparkline crisp and correctly proportioned after resize/rotate.
 let __resizeT;
