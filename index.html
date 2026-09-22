@@ -133,7 +133,14 @@ html,body{margin:0;height:100%;background:var(--ink);
   box-shadow:0 -4px 24px rgba(20,38,27,.28);padding:12px 14px calc(var(--safe-b) + 14px)}
 #sheet.open{transform:translateY(0)}
 #sheet .grip{width:38px;height:4px;border-radius:2px;background:var(--line);
-  margin:0 auto 10px}
+  margin:0 auto 10px;position:relative}
+/* The visible grip is 4px tall — far too small a target for a thumb. This
+   invisible box gives it a ~34px tall, 120px wide grab area without changing
+   how it looks. */
+#sheet .grip::before{content:"";position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);width:120px;height:34px}
+#sheet .grip,#sheet h2,#sheet .sub{touch-action:none;cursor:grab}
+#sheet.dragging{transition:none}
 #sheet h2{margin:0 0 2px;font-size:16px;font-weight:800}
 #sheet .sub{margin:0 0 10px;font-size:12px;opacity:.6;font-weight:600}
 #sheet .close{position:absolute;top:12px;inset-inline-end:14px;border:0;background:transparent;
@@ -644,7 +651,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.09.22-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.09.22-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -937,11 +944,46 @@ function onMapLoad(){
 /* ---------- field tap -> current NDVI (sampled via /statistics) ---------- */
 const sheet = document.getElementById("sheet");
 const sheetBody = document.getElementById("sheet-body");
-document.getElementById("sheet-close").addEventListener("click",()=>{
+function closeSheet(){
   sheet.classList.remove("open");
+  sheet.style.transform = "";            // clear any drag offset
   const selSrc = map.getSource("sel");
   if(selSrc) selSrc.setData({type:"FeatureCollection",features:[]});
-});
+}
+document.getElementById("sheet-close").addEventListener("click", closeSheet);
+
+/* Swipe the sheet down to dismiss it.
+   The grip looks like a drag handle, so people try to drag it — and nothing
+   happening reads as the app being broken. Dragging starts only from the grip
+   or the title block, so taps inside the sheet's cards, chart and buttons are
+   untouched. Release past ~90px, or with a quick downward flick, closes it;
+   anything less snaps back. */
+(function(){
+  let startY = 0, dy = 0, dragging = false, t0 = 0;
+  const canStart = e => !!(e.target.closest(".grip, h2, .sub"));
+  sheet.addEventListener("pointerdown", e=>{
+    if(!sheet.classList.contains("open") || !canStart(e)) return;
+    dragging = true; startY = e.clientY; dy = 0; t0 = performance.now();
+    sheet.classList.add("dragging");
+    try{ sheet.setPointerCapture(e.pointerId); }catch{}
+  });
+  sheet.addEventListener("pointermove", e=>{
+    if(!dragging) return;
+    dy = Math.max(0, e.clientY - startY);          // downward only
+    sheet.style.transform = `translateY(${dy}px)`;
+    e.preventDefault();
+  });
+  function end(){
+    if(!dragging) return;
+    dragging = false;
+    sheet.classList.remove("dragging");
+    const v = dy / Math.max(1, performance.now() - t0);   // px per ms
+    if(dy > 90 || v > 0.5) closeSheet();
+    else sheet.style.transform = "";                      // snap back
+  }
+  sheet.addEventListener("pointerup", end);
+  sheet.addEventListener("pointercancel", end);
+})();
 
 /* ---------- field-only health sampling ---------- */
 let healthOn = true;                 // Health map toggle state
