@@ -542,14 +542,18 @@ const DBG = (function(){
   const hideBtn = mk("hide", ()=>{ const h=body.style.display==="none"; body.style.display=h?"":"none"; hideBtn.textContent=h?"hide":"show"; });
   box.appendChild(bar); box.appendChild(body);
   const t0 = performance.now();
+  let lastKey = null, lastDiv = null, rep = 0;
   function log(msg, lvl){
     const ts = ((performance.now()-t0)/1000).toFixed(1).padStart(6);
+    const key = msg.replace(/\d+ms|try \d+/g,"");
+    if(key===lastKey && lastDiv){ rep++; lastDiv.textContent = ts+"s "+msg+"  ×"+(rep+1); lines[lines.length-1]=lastDiv.textContent; return; }
+    lastKey = key; rep = 0;
     const line = ts+"s "+msg;
     lines.push(line); if(lines.length>400) lines.shift();
     const d = document.createElement("div");
     d.textContent = line;
     if(lvl==="err") d.style.color="#f88"; else if(lvl==="warn") d.style.color="#fd6";
-    body.appendChild(d);
+    body.appendChild(d); lastDiv = d;
     while(body.childNodes.length>400) body.removeChild(body.firstChild);
     box.scrollTop = box.scrollHeight;
   }
@@ -560,6 +564,39 @@ const DBG = (function(){
   log("debug on · "+navigator.userAgent.replace(/^.*?\(/,"(").slice(0,90));
   return { log, err:m=>log(m,"err"), warn:m=>log(m,"warn") };
 })();
+/* Connectivity probe — runs once on load, sequentially, before the sampler floods.
+   no-cors tells us if the host is reachable at all (opaque response = reachable).
+   GET search is a CORS "simple" request (no preflight); POST+JSON needs preflight.
+   Comparing them isolates: network/DNS/blocker vs CORS vs preflight-only. */
+async function dbgProbe(){
+  const H = "https://planetarycomputer.microsoft.com";
+  const bb = "43.20,36.22,43.21,36.23";
+  const tests = [
+    ["reach stac (no-cors)", H+"/api/stac/v1/", {mode:"no-cors"}],
+    ["reach data (no-cors)", H+"/api/data/v1/", {mode:"no-cors"}],
+    ["GET stac landing",      H+"/api/stac/v1/", {}],
+    ["GET search (simple)",   H+"/api/stac/v1/search?collections=sentinel-2-l2a&bbox="+bb+"&limit=1", {}],
+    ["POST search json",      H+"/api/stac/v1/search", {method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+                                 body:JSON.stringify({collections:["sentinel-2-l2a"],bbox:bb.split(",").map(Number),limit:1})}],
+    ["POST search text/plain",H+"/api/stac/v1/search", {method:"POST",headers:{"Content-Type":"text/plain"},
+                                 body:JSON.stringify({collections:["sentinel-2-l2a"],bbox:bb.split(",").map(Number),limit:1})}],
+    ["GET data statistics?",  H+"/api/data/v1/collections", {}],
+  ];
+  DBG.warn("PROBE start");
+  for(const [name,url,opts] of tests){
+    const t=performance.now();
+    try{
+      const r = await fetch(url, {...opts, cache:"no-store"});
+      let extra = r.type==="opaque" ? "opaque (host reachable)" : "";
+      if(r.type!=="opaque"){ try{ extra=(await r.text()).slice(0,120).replace(/\s+/g," "); }catch{} }
+      DBG.warn(`PROBE ${name}: ${r.type} ${r.status} ${Math.round(performance.now()-t)}ms ${extra}`);
+    }catch(e){ DBG.err(`PROBE ${name}: THREW ${e.name}: ${e.message} ${Math.round(performance.now()-t)}ms`); }
+  }
+  DBG.warn("PROBE done · online="+navigator.onLine);
+}
+// Circuit breaker: after repeated network-level failures to PC, stop hammering
+// for 30s (keeps the log readable and avoids self-inflicted throttling).
+let __pcFails = 0, __pcPauseUntil = 0;
 // Short label for a URL in the log: host-less path + the params that matter.
 function dbgUrl(u){
   try{ const x=new URL(u); const it=x.searchParams.get("item"); const ex=x.searchParams.get("expression");
@@ -568,7 +605,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.09.22-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.09.22-b";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1148,6 +1185,9 @@ let __pinnedDot = null;    // index of dot with provenance panel pinned open
    Honours a Retry-After header when the server provides one. */
 async function fetchRetry(url, opts, tries=3, timeoutMs=20000){
   let wait = 400;
+  if(!window.__probeDone){ window.__probeDone = dbgProbe(); }
+  await window.__probeDone;                       // probe runs first, uncontended
+  if(Date.now() < __pcPauseUntil) throw new TypeError("breaker open (PC paused)");
   for(let attempt=0; ; attempt++){
     let r;
     // Per-attempt timeout: an overloaded backend can hang with no response
@@ -1160,8 +1200,12 @@ async function fetchRetry(url, opts, tries=3, timeoutMs=20000){
     try{ r = await fetch(url, {...opts, signal: ac.signal}); }
     catch(e){ clearTimeout(timer);
       DBG.err(`FETCH THREW ${e.name}: ${e.message} · ${dbgUrl(url)} · try ${attempt+1} · ${Math.round(performance.now()-tf)}ms`);
-      if(attempt>=tries) throw e; await sleep(wait); wait*=2; continue; }
-    clearTimeout(timer);
+      if(e.name!=="AbortError" && ++__pcFails >= 8 && Date.now() >= __pcPauseUntil){
+        __pcPauseUntil = Date.now()+30000; __pcFails = 0;
+        DBG.err("BREAKER: 8 network failures → pausing PC requests 30s");
+      }
+      if(attempt>=tries || Date.now() < __pcPauseUntil) throw e; await sleep(wait); wait*=2; continue; }
+    clearTimeout(timer); __pcFails = 0;
     { const ms=Math.round(performance.now()-tf);
       if(r.ok) DBG.log(`${r.status} ${ms}ms ${dbgUrl(url)}`);
       else { let snip=""; try{ snip=(await r.clone().text()).slice(0,220).replace(/\s+/g," "); }catch{}
