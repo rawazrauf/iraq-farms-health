@@ -524,6 +524,12 @@ function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
    swallowed stats failure, and any uncaught error/rejection lands here, so an
    iPhone screenshot shows exactly where the NDVI pipeline breaks. */
 const DBG = (function(){
+  // Off by default: ?debug=1 shows the on-screen log, ?probe=1 also runs the
+  // connectivity probe. Kept in the shipped file because when a third-party API
+  // breaks (see the CORS note in ndviForWindow), a phone screenshot of this log
+  // is the fastest route to a diagnosis on a device with no dev tools.
+  const on = new URLSearchParams(location.search).get("debug")==="1";
+  if(!on){ const noop = ()=>{}; return {log:noop, err:noop, warn:noop}; }
   const box = document.createElement("div");
   box.id = "dbg";
   box.style.cssText = "position:fixed;left:6px;right:6px;top:calc(env(safe-area-inset-top,0px) + 6px);"+
@@ -584,7 +590,7 @@ async function dbgProbe(){
     ["POST stats blob (new)", H+"/api/data/v1/item/statistics?collection=sentinel-2-l2a&item=__probe__&expression=(B08-B04)/(B08%2BB04)&asset_as_band=true",
                               {method:"POST", body:new Blob([JSON.stringify({type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:[[[43.20,36.22],[43.21,36.22],[43.21,36.23],[43.20,36.23],[43.20,36.22]]]}})])}],
   ];
-  DBG.warn("PROBE start");
+  DBG.warn("PROBE start");   // only reached via ?probe=1
   for(const [name,url,opts] of tests){
     const t=performance.now();
     try{
@@ -596,6 +602,7 @@ async function dbgProbe(){
   }
   DBG.warn("PROBE done · online="+navigator.onLine);
 }
+if(new URLSearchParams(location.search).get("probe")==="1") setTimeout(dbgProbe, 800);
 // Circuit breaker: after repeated network-level failures to PC, stop hammering
 // for 30s (keeps the log readable and avoids self-inflicted throttling).
 let __pcFails = 0, __pcPauseUntil = 0;
@@ -607,7 +614,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.09.22-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.09.22-d";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1187,8 +1194,6 @@ let __pinnedDot = null;    // index of dot with provenance panel pinned open
    Honours a Retry-After header when the server provides one. */
 async function fetchRetry(url, opts, tries=3, timeoutMs=20000){
   let wait = 400;
-  if(!window.__probeDone){ window.__probeDone = dbgProbe(); }
-  await window.__probeDone;                       // probe runs first, uncontended
   if(Date.now() < __pcPauseUntil) throw new TypeError("breaker open (PC paused)");
   for(let attempt=0; ; attempt++){
     let r;
