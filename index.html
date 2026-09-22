@@ -651,7 +651,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.09.22-h";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.09.22-i";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -714,8 +714,17 @@ try{
       layers:[{id:"sat",type:"raster",source:"esri"}]
     },
     center:[43.1995,36.2282], zoom:14.8, maxZoom:16, minZoom:4,
-    attributionControl:false
+    attributionControl:false,
+    /* Straight-down view only. A two-finger drag would otherwise tilt the map
+       into a pitched pseudo-3D view, which tells a farmer nothing about a flat
+       field, distorts the health colours by foreshortening them, and is hard to
+       undo without a compass control. Rotation goes too, for the same reason:
+       north-up keeps the map matching every other map the user has seen. */
+    pitchWithRotate:false, dragRotate:false, touchPitch:false,
+    maxPitch:0, bearingSnap:0
   });
+  // The two-finger gesture also rotates; keep the zoom half, drop the rotate.
+  map.touchZoomRotate.disableRotation();
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
   map.on("error",e=>{ if(e && e.error) console.warn("map:",e.error.message); });
 
