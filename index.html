@@ -520,7 +520,7 @@ const errBox = document.getElementById("err");
 function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
 
 /* ---------- constants ---------- */
-const BUILD = "2026.08.30-p";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.08.30-q";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1095,13 +1095,23 @@ let __pinnedDot = null;    // index of dot with provenance panel pinned open
    many fields at once; retrying after a short, growing wait usually succeeds, so
    fewer fields silently fail to colour. Waits ~0.4s, 0.8s, 1.6s across 3 retries.
    Honours a Retry-After header when the server provides one. */
-async function fetchRetry(url, opts, tries=3){
+async function fetchRetry(url, opts, tries=3, timeoutMs=20000){
   let wait = 400;
   for(let attempt=0; ; attempt++){
     let r;
-    try{ r = await fetch(url, opts); }
-    catch(e){ if(attempt>=tries) throw e; await sleep(wait); wait*=2; continue; }
-    if((r.status===429 || r.status===503) && attempt<tries){
+    // Per-attempt timeout: an overloaded backend can hang with no response
+    // (issue #476), which would otherwise leave the UI stuck on "Reading…"
+    // forever. AbortController turns a hang into a catchable error so the
+    // retry logic can kick in.
+    const ac = new AbortController();
+    const timer = setTimeout(()=>ac.abort(), timeoutMs);
+    try{ r = await fetch(url, {...opts, signal: ac.signal}); }
+    catch(e){ clearTimeout(timer); if(attempt>=tries) throw e; await sleep(wait); wait*=2; continue; }
+    clearTimeout(timer);
+    // Retry transient server/gateway errors: 429/503 (rate/unavailable) and
+    // 502/504 (bad-gateway/gateway-timeout — the signature of a stressed
+    // backend during Planetary Computer's migration).
+    if((r.status===429 || r.status===502 || r.status===503 || r.status===504) && attempt<tries){
       const ra = parseFloat(r.headers.get("retry-after"));
       await sleep(isFinite(ra) ? ra*1000 : wait);
       wait*=2; continue;
