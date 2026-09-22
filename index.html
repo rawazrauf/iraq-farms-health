@@ -107,10 +107,14 @@ html,body{margin:0;height:100%;background:var(--ink);
 #legend .ends{display:flex;justify-content:space-between;margin-top:4px;opacity:.7;font-weight:600}
 
 /* diagnostic panel */
-#diag{position:absolute;bottom:calc(var(--safe-b) + 8px);inset-inline-start:8px;z-index:4;
+/* Physical `left` for the same reason as the control cluster above: in RTL the
+   logical start edge is the right, which put this panel under the zoom buttons. */
+#diag{position:absolute;bottom:calc(var(--safe-b) + 8px);left:8px;right:auto;z-index:4;
   background:rgba(20,38,27,.82);color:#DCE7DF;backdrop-filter:blur(6px);
   border-radius:10px;padding:7px 9px;font:600 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
-  box-shadow:var(--shadow);max-width:60vw}
+  box-shadow:var(--shadow);max-width:60vw;
+  /* coordinates and build stamp are LTR data whatever the UI language */
+  direction:ltr;text-align:left}
 #diag .row{display:flex;gap:6px;white-space:nowrap}
 #diag .k{opacity:.55}
 #diag .ok{color:#7FD6A6}#diag .warn{color:var(--wheat)}#diag .err{color:#F0876B}
@@ -237,10 +241,15 @@ html,body{margin:0;height:100%;background:var(--ink);
    The zoom control (MapLibre default) sits bottom-right; we pin its right margin
    to match the FAB, and place the FAB just above it with a small gap so the two
    read as a single stack of map controls rather than two floating things. */
-.maplibregl-ctrl-bottom-right{margin:0;inset-inline-end:12px;
+/* Physical `right`, not `inset-inline-end`: in Arabic/Kurdish (dir=rtl) the
+   logical property flipped this cluster to the left edge while MapLibre's own
+   `.maplibregl-ctrl-bottom-right{right:0}` stayed put, so the zoom buttons, the
+   locate FAB and the diagnostics panel all piled up on top of each other. Map
+   controls are chrome, not text — they stay bottom-right in every language. */
+.maplibregl-ctrl-bottom-right{margin:0;right:12px;left:auto;
   bottom:calc(var(--safe-b) + 12px)}
 .maplibregl-ctrl-bottom-right .maplibregl-ctrl{margin:0}
-#locate-fab{position:absolute;inset-inline-end:12px;z-index:6;
+#locate-fab{position:absolute;right:12px;left:auto;z-index:6;
   /* zoom control is ~64px tall + 12px from bottom; sit 8px above it */
   bottom:calc(var(--safe-b) + 12px + 64px + 8px);
   width:48px;height:48px;border-radius:50%;
@@ -490,8 +499,29 @@ const I18N = {
       dir:"rtl"}
 };
 let lang = "en";
+const LANG_KEY = "ifh.lang";
+/* Which language to open in: an explicit ?lang= in the link wins (so a link
+   shared by a Kurdish user opens in Kurdish for the recipient), then whatever
+   this visitor last chose, then English. */
+function initialLang(){
+  try{
+    const q = new URLSearchParams(location.search).get("lang");
+    if(q && I18N[q]) return q;
+    const saved = localStorage.getItem(LANG_KEY);
+    if(saved && I18N[saved]) return saved;
+  }catch{}
+  return "en";
+}
 function applyLang(L){
   lang = L; const t = I18N[L];
+  try{ localStorage.setItem(LANG_KEY, L); }catch{}
+  // Keep ?lang= in the address bar in step with the choice, so a reload — or a
+  // link copied straight from the bar — stays in this language.
+  try{
+    const params = new URLSearchParams(location.search);
+    params.set("lang", L);
+    history.replaceState(null, "", location.pathname + "?" + params.toString());
+  }catch{}
   document.documentElement.lang = L;
   document.documentElement.dir = t.dir;
   document.querySelectorAll("[data-t]").forEach(el=>{
@@ -614,7 +644,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.09.22-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.09.22-g";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -873,6 +903,7 @@ function onMapLoad(){
     params.set("lat", c.lat.toFixed(5));
     params.set("lon", c.lng.toFixed(5));
     params.set("z",   map.getZoom().toFixed(1));
+    params.set("lang", lang);            // don't let a map move drop the language
     try{ history.replaceState(null, "", location.pathname + "?" + params.toString()); }catch{}
   }
   map.on("moveend", syncUrlToView);
@@ -1676,7 +1707,7 @@ function shareField(f, btn){
   if(!c) return;
   const id = resolveFieldId(f) || "";
   const base = "https://www.iraqfarmshealth.com/";
-  const url = `${base}?lat=${c[1].toFixed(5)}&lon=${c[0].toFixed(5)}&z=16`;
+  const url = `${base}?lat=${c[1].toFixed(5)}&lon=${c[0].toFixed(5)}&z=16&lang=${lang}`;
   // IMPORTANT: share ONLY the URL. Including a `text`/title makes iOS append it
   // after the link ("...&z=16 Iraq Farms Health — FTW-..."), which breaks the URL
   // when a user pastes it. The clean link alone is what we want on the clipboard.
@@ -2991,7 +3022,7 @@ function maybeAutoTour(){
 
 renderPins();
 
-applyLang("en");
+applyLang(initialLang());
 
 // Keep the sparkline crisp and correctly proportioned after resize/rotate.
 let __resizeT;
