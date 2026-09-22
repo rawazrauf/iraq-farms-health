@@ -580,7 +580,9 @@ async function dbgProbe(){
                                  body:JSON.stringify({collections:["sentinel-2-l2a"],bbox:bb.split(",").map(Number),limit:1})}],
     ["POST search text/plain",H+"/api/stac/v1/search", {method:"POST",headers:{"Content-Type":"text/plain"},
                                  body:JSON.stringify({collections:["sentinel-2-l2a"],bbox:bb.split(",").map(Number),limit:1})}],
-    ["GET data statistics?",  H+"/api/data/v1/collections", {}],
+    ["GET search sortby",     H+"/api/stac/v1/search?collections=sentinel-2-l2a&bbox="+bb+"&sortby=%2Beo:cloud_cover&limit=2", {}],
+    ["POST stats blob (new)", H+"/api/data/v1/item/statistics?collection=sentinel-2-l2a&item=__probe__&expression=(B08-B04)/(B08%2BB04)&asset_as_band=true",
+                              {method:"POST", body:new Blob([JSON.stringify({type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:[[[43.20,36.22],[43.21,36.22],[43.21,36.23],[43.20,36.23],[43.20,36.22]]]}})])}],
   ];
   DBG.warn("PROBE start");
   for(const [name,url,opts] of tests){
@@ -605,7 +607,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.09.22-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.09.22-c";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1230,22 +1232,27 @@ async function ndviForWindow(geometry, from, to, expr){
   const bound = 1;
   const bbox = geomBbox(geometry);
   if(!bbox) throw new Error("bad geometry");
-  const searchBody = {
-    collections:["sentinel-2-l2a"],
-    bbox,
+  /* GET, not POST. Planetary Computer's edge stopped answering CORS preflight
+     (OPTIONS) requests, and a POST carrying `Content-Type: application/json` is
+     never a "simple" request — the browser must preflight it, so every search
+     died as an opaque `TypeError: Load failed` before reaching the API. A GET
+     with only safelisted headers needs no preflight and goes straight through.
+     The `query` extension has no GET equivalent, so the cloud-cover ceiling is
+     applied client-side below; `sortby` still orders clearest-scene-first. */
+  const sq = new URLSearchParams({
+    collections:"sentinel-2-l2a",
+    bbox:bbox.join(","),
     datetime:`${from}T00:00:00Z/${to}T23:59:59Z`,
-    // Order by least cloud first: best chance of a clear view of the field.
-    query:{"eo:cloud_cover":{"lt":60}},
-    sortby:[{field:"eo:cloud_cover",direction:"asc"}],
-    limit:8
-  };
-  const sr = await fetchRetry(`https://planetarycomputer.microsoft.com/api/stac/v1/search`,{
-    method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-    body:JSON.stringify(searchBody)
-  });
+    sortby:"+eo:cloud_cover",
+    limit:"12"
+  }).toString();
+  const sr = await fetchRetry(`https://planetarycomputer.microsoft.com/api/stac/v1/search?${sq}`,{method:"GET"});
   if(!sr.ok) return {value:null, err:"search "+sr.status};
   const sj = await sr.json();
-  const items = (sj.features||[]);
+  // Cloud ceiling, formerly the server-side query filter (see above).
+  const items = (sj.features||[])
+    .filter(it => { const c = it.properties && it.properties["eo:cloud_cover"]; return c==null || c < 60; })
+    .slice(0,8);
   if(!items.length){ DBG.warn(`no scene ${from}..${to} expr=${expr}`); return {value:null, err:"no scene"}; }
   const reasons = [];
 
@@ -1262,9 +1269,14 @@ async function ndviForWindow(geometry, from, to, expr){
     }).toString();
     let stR;
     try{
+      /* Preflight-free POST: a Blob with an empty type means the browser sends
+         NO Content-Type header at all, which keeps this a "simple" request (no
+         OPTIONS — see the search comment above). FastAPI parses a body with no
+         declared content type as JSON, so titiler still reads the feature.
+         Sending `application/json` here would trigger a preflight and fail. */
       stR = await fetchRetry(`${PC}/item/statistics?${qs}`,{
-        method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-        body:JSON.stringify(feature)
+        method:"POST",
+        body:new Blob([JSON.stringify(feature)])
       });
     }catch(e){ reasons.push("threw:"+(e.name||e.message)); continue; }
     if(!stR.ok){ reasons.push("http"+stR.status); continue; }   // try next candidate
