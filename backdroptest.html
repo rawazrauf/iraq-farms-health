@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Backdrop test</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
+<style>
+  :root{color-scheme:dark; --panel:rgba(18,22,15,.92); --ink:#e9e6da;
+        --muted:#9aa093; --line:#3a4030; --ok:#8fbf82; --bad:#e08585;}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#0d100a;color:var(--ink);
+    font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+
+  #wrap{position:absolute;inset:0}
+  #map,#blend{position:absolute;inset:0}
+  /* The blend map is a second GL canvas stacked over the first. CSS blend
+     modes work between canvases, which is the only way to get the `color`
+     blend MapLibre cannot do between its own layers. */
+  #blend{pointer-events:none;mix-blend-mode:color;display:none}
+
+  #panel{
+    position:absolute;left:0;right:0;bottom:0;z-index:5;
+    background:var(--panel);backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);
+    padding:10px max(12px, env(safe-area-inset-left,0px))
+            calc(10px + env(safe-area-inset-bottom,0px))
+            max(12px, env(safe-area-inset-right,0px));
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row label{font-size:11.5px;color:var(--muted);min-width:62px}
+  input[type=range]{flex:1;min-width:110px;accent-color:var(--ok)}
+  select,button{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:7px;
+    border:1px solid var(--line);background:#1a1f14;color:var(--ink)}
+  button{cursor:pointer}
+  button.on{background:var(--ok);color:#10140c;border-color:var(--ok)}
+  .val{font:11.5px ui-monospace,Menlo,monospace;min-width:44px;text-align:right}
+  #readout{font:11.5px/1.5 ui-monospace,Menlo,monospace;color:var(--muted);
+    white-space:pre;overflow-x:auto}
+  #readout b{color:var(--ink);font-weight:500}
+  .hint{font-size:11.5px;color:var(--muted);margin:0}
+  #status{position:absolute;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;
+    padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);
+    font:11.5px ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="map"></div>
+  <div id="blend"></div>
+</div>
+<div id="status">resolving MODIS window…</div>
+
+<div id="panel">
+  <div class="row">
+    <button id="modeSingle" class="on">One canvas</button>
+    <button id="modeStacked">Stacked blend</button>
+    <button id="toggle">Backdrop off</button>
+  </div>
+  <div class="row">
+    <label for="op">Opacity</label>
+    <input type="range" id="op" min="0" max="100" value="50">
+    <span class="val" id="opVal">0.50</span>
+  </div>
+  <div class="row">
+    <label for="sat">Saturation</label>
+    <input type="range" id="sat" min="0" max="250" value="146">
+    <span class="val" id="satVal">146%</span>
+  </div>
+  <div class="row">
+    <label for="blendMode">Blend</label>
+    <select id="blendMode">
+      <option value="color" selected>color</option>
+      <option value="soft-light">soft-light</option>
+      <option value="multiply">multiply</option>
+      <option value="overlay">overlay</option>
+      <option value="luminosity">luminosity</option>
+      <option value="normal">normal</option>
+    </select>
+    <label for="fadeEnd" style="min-width:auto">Fade by z</label>
+    <input type="range" id="fadeEnd" min="7" max="14" step="0.5" value="9.5" style="min-width:80px">
+    <span class="val" id="fadeVal">9.5</span>
+  </div>
+  <div id="readout"></div>
+  <p class="hint">Blend only applies in stacked mode — MapLibre can't blend its own layers.</p>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<script>
+const LAYER = "MODIS_Terra_NDVI_8Day";
+const TMS   = "GoogleMapsCompatible_Level9";
+const gibs  = d => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${LAYER}/default/${d}/${TMS}/{z}/{y}/{x}.png`;
+const ESRI  = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+
+/* MODIS 8-day windows restart every 1 January, so starts fall on day-of-year
+   1, 9, 17 … and any date off that grid 404s. Newest first. */
+function windowStarts(n = 10){
+  const out = [], today = new Date();
+  let year = today.getUTCFullYear();
+  while (out.length < n){
+    const jan1 = Date.UTC(year, 0, 1);
+    const end = (year === today.getUTCFullYear())
+      ? Math.floor((today - jan1)/86400000) + 1 : 366;
+    for (let doy = 1; doy <= end; doy += 8)
+      out.push(new Date(jan1 + (doy-1)*86400000).toISOString().slice(0,10));
+    out.sort().reverse(); year--;
+  }
+  return out.slice(0, n);
+}
+/* An unpublished window returns a transparent tile, not a 404 — check pixels. */
+function hasData(date){
+  return new Promise(res => {
+    const url = gibs(date).replace("{z}","6").replace("{y}","25").replace("{x}","39");
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => { try{
+      const c = document.createElement("canvas"); c.width = c.height = 32;
+      const cx = c.getContext("2d", {willReadFrequently:true});
+      cx.drawImage(img,0,0,32,32);
+      const p = cx.getImageData(0,0,32,32).data;
+      let on = 0; for(let i=3;i<p.length;i+=4) if(p[i]>10) on++;
+      res(on > 32);
+    }catch(e){ res(true); } };
+    img.onerror = () => res(false);
+    img.src = url;
+  });
+}
+
+const baseStyle = {
+  version: 8,
+  sources: { esri: { type:"raster", tiles:[ESRI], tileSize:256,
+                     attribution:"Esri, Maxar, Earthstar Geographics" } },
+  layers: [{ id:"esri", type:"raster", source:"esri" }]
+};
+
+const map = new maplibregl.Map({
+  container: "map", style: baseStyle,
+  center: [43.7, 33.2], zoom: 5.6, maxZoom: 16, minZoom: 4,
+  attributionControl: false,
+  pitchWithRotate:false, dragRotate:false, touchPitch:false, maxPitch:0
+});
+map.touchZoomRotate.disableRotation();
+map.addControl(new maplibregl.NavigationControl({showCompass:false}), "top-right");
+
+// Second canvas, NDVI only, for the CSS-blended comparison.
+const blendMap = new maplibregl.Map({
+  container: "blend",
+  style: { version:8, sources:{}, layers:[] },
+  center: [43.7, 33.2], zoom: 5.6, maxZoom: 16, minZoom: 4,
+  attributionControl:false, interactive:false
+});
+map.on("move", () => {
+  blendMap.jumpTo({ center: map.getCenter(), zoom: map.getZoom() });
+});
+
+let DATE = null, mode = "single", on = true;
+const el = id => document.getElementById(id);
+
+function ndviSource(){
+  return { type:"raster", tiles:[gibs(DATE)], tileSize:256, maxzoom:9,
+           attribution:"NASA EOSDIS GIBS" };
+}
+function opacityRamp(){
+  const o = +el("op").value/100, end = +el("fadeEnd").value;
+  return ["interpolate", ["linear"], ["zoom"], end - 2, o, end, 0];
+}
+
+function addLayers(){
+  if (!map.getSource("ndvi")) map.addSource("ndvi", ndviSource());
+  if (!map.getLayer("ndvi"))
+    map.addLayer({ id:"ndvi", type:"raster", source:"ndvi",
+      paint:{ "raster-opacity": opacityRamp(),
+              "raster-saturation": 0, "raster-fade-duration":200 } });
+
+  if (!blendMap.getSource("ndvi")) blendMap.addSource("ndvi", ndviSource());
+  if (!blendMap.getLayer("ndvi"))
+    blendMap.addLayer({ id:"ndvi", type:"raster", source:"ndvi",
+      paint:{ "raster-opacity": opacityRamp(), "raster-fade-duration":200 } });
+  apply();
+}
+
+function apply(){
+  const o = +el("op").value/100, s = +el("sat").value, end = +el("fadeEnd").value;
+  el("opVal").textContent = o.toFixed(2);
+  el("satVal").textContent = s + "%";
+  el("fadeVal").textContent = end.toFixed(1);
+
+  const single = (mode === "single");
+  el("blend").style.display = (single || !on) ? "none" : "block";
+  el("blend").style.mixBlendMode = el("blendMode").value;
+  el("blend").style.filter = `saturate(${s}%)`;
+
+  if (map.getLayer("ndvi")){
+    map.setPaintProperty("ndvi","raster-opacity", (on && single) ? opacityRamp() : 0);
+    // raster-saturation takes -1…1; 146% ≈ 0.46.
+    map.setPaintProperty("ndvi","raster-saturation", Math.max(-1, Math.min(1, (s-100)/100)));
+  }
+  if (blendMap.getLayer("ndvi"))
+    blendMap.setPaintProperty("ndvi","raster-opacity", opacityRamp());
+
+  el("readout").innerHTML =
+`mode      <b>${single ? "one canvas (raster-saturation)" : "stacked (" + el("blendMode").value + ")"}</b>
+window    <b>${DATE || "—"}</b>
+opacity   <b>${o.toFixed(2)}</b>   saturation <b>${s}%</b>
+fade      full ≤ z${(end-2).toFixed(1)} → zero at z${end.toFixed(1)}
+zoom      <b>${map.getZoom().toFixed(1)}</b>`;
+}
+
+map.on("zoom", apply);
+["op","sat","fadeEnd"].forEach(id => el(id).addEventListener("input", apply));
+el("blendMode").addEventListener("change", apply);
+el("modeSingle").addEventListener("click", () => {
+  mode = "single"; el("modeSingle").classList.add("on");
+  el("modeStacked").classList.remove("on"); apply();
+});
+el("modeStacked").addEventListener("click", () => {
+  mode = "stacked"; el("modeStacked").classList.add("on");
+  el("modeSingle").classList.remove("on"); apply();
+});
+el("toggle").addEventListener("click", e => {
+  on = !on; e.target.textContent = on ? "Backdrop off" : "Backdrop on";
+  e.target.classList.toggle("on", !on); apply();
+});
+
+(async function start(){
+  for (const d of windowStarts(10)){
+    el("status").textContent = "checking " + d + " …";
+    if (await hasData(d)){ DATE = d; break; }
+  }
+  if (!DATE){
+    el("status").innerHTML = '<span style="color:var(--bad)">no published window found</span>';
+    return;
+  }
+  el("status").textContent = "MODIS Terra NDVI · window " + DATE;
+  if (map.loaded() && blendMap.loaded()) addLayers();
+  else Promise.all([
+    new Promise(r => map.once("load", r)),
+    new Promise(r => blendMap.once("load", r))
+  ]).then(addLayers);
+})();
+</script>
+</body>
+</html>
