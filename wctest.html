@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WorldCereal probe</title>
+<style>
+  :root{color-scheme:dark; --bg:#13160f; --panel:#1c2017; --ink:#e9e6da;
+        --muted:#9aa093; --line:#333829; --ok:#8fbf82; --bad:#e08585; --warn:#d9a05b;}
+  *{box-sizing:border-box}
+  body{margin:0;padding:14px;background:var(--bg);color:var(--ink);
+       font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+  h1{font-size:17px;margin:0 0 4px}
+  p.sub{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+        padding:12px;margin-bottom:12px}
+  .card h2{font-size:13px;margin:0 0 8px}
+  pre{font:11.5px/1.5 ui-monospace,Menlo,monospace;margin:0;white-space:pre-wrap;
+      word-break:break-all}
+  .u{font:11px/1.35 ui-monospace,Menlo,monospace;color:var(--muted);
+     word-break:break-all;margin-bottom:8px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+  .row{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+  img.t{width:120px;height:120px;border:1px solid var(--line);border-radius:6px;
+        background:#000;flex:0 0 auto}
+  button{font:inherit;font-size:12.5px;padding:6px 10px;border-radius:7px;
+    border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+</style>
+</head>
+<body>
+
+<h1>WorldCereal probe</h1>
+<p class="sub">Run from iraqfarmshealth.com. Terrascope answered 400 with a JSON body,
+so the service is reachable and CORS is open — this reads what it actually objected to,
+then takes the real tile template from its capabilities document.</p>
+
+<div id="out"></div>
+
+<script>
+const out = document.getElementById("out");
+function card(title, url){
+  const d = document.createElement("div"); d.className = "card";
+  d.innerHTML = `<h2>${title}</h2>` + (url ? `<div class="u">${url}</div>` : "");
+  const pre = document.createElement("pre"); pre.textContent = "working…";
+  d.appendChild(pre); out.appendChild(d);
+  return { box: d, pre };
+}
+
+const BASE = "https://wmts.terrascope.be";
+const PRODUCTS = ["wintercereals","springcereals","maize","irrigation",
+                  "activecropland","temporarycrops"];
+
+/* 1. What does the 400 actually say? */
+(async () => {
+  const url = BASE + "/wmts?service=WMTS&request=GetTile&version=1.0.0"
+    + "&layer=esa-worldcereal-wintercereals-10m-2021-v1_classification"
+    + "&style=default&format=image%2Fpng&tilematrixset=EPSG:3857"
+    + "&TileMatrix=12&TileRow=1665&TileCol=2554";
+  const c = card("1 · The 400 error body", url);
+  try{
+    const r = await fetch(url, {cache:"no-store"});
+    const t = await r.text();
+    c.pre.className = r.ok ? "ok" : "warn";
+    c.pre.textContent = `HTTP ${r.status}\n\n${t.slice(0,800)}`;
+  }catch(e){
+    c.pre.className = "bad";
+    c.pre.textContent = "THREW " + e.name + ": " + e.message;
+  }
+})();
+
+/* 2. The capabilities document: find the WorldCereal layers and read their
+      real ResourceURL templates, tile matrix sets and TIME defaults. */
+(async () => {
+  const url = BASE + "/?service=wmts&request=GetCapabilities";
+  const c = card("2 · Capabilities — WorldCereal layers", url);
+  try{
+    const r = await fetch(url, {cache:"no-store"});
+    const txt = await r.text();
+    const doc = new DOMParser().parseFromString(txt, "application/xml");
+    const layers = [...doc.getElementsByTagName("Layer")];
+    const wc = layers.filter(l => (l.textContent||"").toLowerCase().includes("worldcereal"));
+    if(!wc.length){
+      c.pre.className = "bad";
+      c.pre.textContent = `HTTP ${r.status} · ${(txt.length/1e6).toFixed(1)}MB · `
+        + `${layers.length} layers parsed · none mention worldcereal`;
+      return;
+    }
+    let report = `HTTP ${r.status} · ${layers.length} layers · ${wc.length} WorldCereal\n\n`;
+    const templates = [];
+    wc.forEach(l => {
+      const id = (l.getElementsByTagName("ows:Identifier")[0]
+               || l.getElementsByTagName("Identifier")[0] || {}).textContent || "?";
+      const res = l.getElementsByTagName("ResourceURL")[0];
+      const tpl = res ? res.getAttribute("template") : "(none)";
+      const tms = [...l.getElementsByTagName("TileMatrixSet")].map(n=>n.textContent).join(", ");
+      const dim = l.getElementsByTagName("Dimension")[0];
+      const def = dim ? (dim.getElementsByTagName("Default")[0]||{}).textContent : null;
+      report += `• ${id}\n  tms: ${tms}\n`;
+      if(def) report += `  TIME default: ${def}\n`;
+      report += `  template: ${tpl}\n\n`;
+      if(res) templates.push({id, tpl, def});
+    });
+    c.pre.className = "ok";
+    c.pre.textContent = report;
+    if(templates.length) tryTemplate(templates[0]);
+  }catch(e){
+    c.pre.className = "bad";
+    c.pre.textContent = "THREW " + e.name + ": " + e.message
+      + "\n(the document is many MB — a timeout here is possible)";
+  }
+})();
+
+/* 3. Build a real tile from the advertised template and draw it.
+      z12 tile over Mishkhab, the southern rice area. */
+function tryTemplate({id, tpl, def}){
+  const z = 12, x = 2554, y = 1665;
+  let u = tpl.replace(/^http:/, "https:")
+             .replace("{TileMatrixSet}","EPSG:3857")
+             .replace("{TileMatrix}", String(z))
+             .replace("{TileCol}", String(x))
+             .replace("{TileRow}", String(y))
+             .replace("{Time}", def || "2021-01-01")
+             .replace("{TIME}", def || "2021-01-01");
+  const c = card("3 · Tile from the real template — " + id, u);
+  const row = document.createElement("div"); row.className = "row";
+  const img = document.createElement("img"); img.className = "t"; img.alt = "";
+  const pre = document.createElement("pre"); pre.textContent = "fetch: …\nimg:   …";
+  row.append(img, pre); c.box.appendChild(row);
+  c.pre.textContent = "";
+  const s = {f:"pending", i:"pending"};
+  const paint = () => {
+    pre.textContent = `fetch: ${s.f}\nimg:   ${s.i}`;
+    pre.className = s.f.startsWith("200") ? "ok" : (s.f==="pending" ? "" : "bad");
+  };
+  fetch(u, {cache:"no-store"})
+    .then(r => { s.f = r.status + " " + (r.headers.get("content-type")||""); paint(); })
+    .catch(e => { s.f = "THREW " + e.name; paint(); });
+  img.onload  = () => { s.i = `loaded ${img.naturalWidth}x${img.naturalHeight}`; paint(); };
+  img.onerror = () => { s.i = "failed"; paint(); };
+  img.src = u; paint();
+}
+
+/* 4. Fallback if the capabilities document is too big to parse on a phone:
+      ask the service to describe just these layers, one at a time. */
+(() => {
+  const c = card("4 · Per-layer capabilities (smaller requests)");
+  c.pre.textContent = "Tap to try — only needed if step 2 times out.";
+  const b = document.createElement("button");
+  b.textContent = "Probe each product";
+  b.onclick = async () => {
+    b.disabled = true;
+    let lines = "";
+    for(const p of PRODUCTS){
+      const layer = `esa-worldcereal-${p}-10m-2021-v1_classification`;
+      const u = `${BASE}/wmts?service=WMTS&request=GetTile&version=1.0.0`
+        + `&layer=${layer}&style=default&format=image%2Fpng`
+        + `&tilematrixset=EPSG:3857&TileMatrix=12&TileRow=1665&TileCol=2554`;
+      try{
+        const r = await fetch(u, {cache:"no-store"});
+        const t = r.ok ? "" : (await r.text()).slice(0,160).replace(/\s+/g," ");
+        lines += `${p}: ${r.status} ${t}\n`;
+      }catch(e){ lines += `${p}: THREW ${e.name}\n`; }
+      c.pre.textContent = lines;
+    }
+  };
+  c.box.appendChild(b);
+})();
+</script>
+</body>
+</html>
