@@ -651,7 +651,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.17-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.17-c";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -687,46 +687,6 @@ const FTW_SRC_LAYER = "field-2025-01-01 00:00:00";
 const FTW_MIN_ZOOM = 13; // only show field outlines when zoomed to farm scale;
                           // below this the polygons blanket whole cities (over-detection)
 
-
-/* ---------- map ---------- */
-let map, lastField=null;
-try{
-  const proto = new pmtiles.Protocol();
-  maplibregl.addProtocol("pmtiles", proto.tile);
-
-  map = new maplibregl.Map({
-    container:"map",
-    preserveDrawingBuffer:true,   // allows capturing the map canvas for the shareable report
-    style:{
-      version:8,
-      glyphs:"https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
-      sources:{
-        esri:{type:"raster",tiles:[
-          "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        ],tileSize:256,attribution:"Esri, Maxar, Earthstar Geographics"},
-        places:{type:"raster",tiles:[
-          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-        ],tileSize:256,attribution:"Esri"},
-        roads:{type:"raster",tiles:[
-          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
-        ],tileSize:256,attribution:"Esri"}
-      },
-      layers:[{id:"sat",type:"raster",source:"esri"}]
-    },
-    center:[43.1995,36.2282], zoom:14.8, maxZoom:16, minZoom:4,
-    attributionControl:false,
-    /* Straight-down view only. A two-finger drag would otherwise tilt the map
-       into a pitched pseudo-3D view, which tells a farmer nothing about a flat
-       field, distorts the health colours by foreshortening them, and is hard to
-       undo without a compass control. Rotation goes too, for the same reason:
-       north-up keeps the map matching every other map the user has seen. */
-    pitchWithRotate:false, dragRotate:false, touchPitch:false,
-    maxPitch:0, bearingSnap:0
-  });
-  // The two-finger gesture also rotates; keep the zoom half, drop the rotate.
-  map.touchZoomRotate.disableRotation();
-  map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
-  map.on("error",e=>{ if(e && e.error) console.warn("map:",e.error.message); });
 
 /* ---------- MODIS NDVI backdrop helpers ----------------------------------
    GIBS files each 8-day composite under its window's START date, on a grid
@@ -792,6 +752,47 @@ async function resolveNdviWindow(){
   DBG.warn("NDVI backdrop: no window verified, falling back to "+candidates[3]);
   return candidates[3] || null;
 }
+
+/* ---------- map ---------- */
+let map, lastField=null;
+try{
+  const proto = new pmtiles.Protocol();
+  maplibregl.addProtocol("pmtiles", proto.tile);
+
+  map = new maplibregl.Map({
+    container:"map",
+    preserveDrawingBuffer:true,   // allows capturing the map canvas for the shareable report
+    style:{
+      version:8,
+      glyphs:"https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+      sources:{
+        esri:{type:"raster",tiles:[
+          "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        ],tileSize:256,attribution:"Esri, Maxar, Earthstar Geographics"},
+        places:{type:"raster",tiles:[
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+        ],tileSize:256,attribution:"Esri"},
+        roads:{type:"raster",tiles:[
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+        ],tileSize:256,attribution:"Esri"}
+      },
+      layers:[{id:"sat",type:"raster",source:"esri"}]
+    },
+    center:[43.1995,36.2282], zoom:14.8, maxZoom:16, minZoom:4,
+    attributionControl:false,
+    /* Straight-down view only. A two-finger drag would otherwise tilt the map
+       into a pitched pseudo-3D view, which tells a farmer nothing about a flat
+       field, distorts the health colours by foreshortening them, and is hard to
+       undo without a compass control. Rotation goes too, for the same reason:
+       north-up keeps the map matching every other map the user has seen. */
+    pitchWithRotate:false, dragRotate:false, touchPitch:false,
+    maxPitch:0, bearingSnap:0
+  });
+  // The two-finger gesture also rotates; keep the zoom half, drop the rotate.
+  map.touchZoomRotate.disableRotation();
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
+  map.on("error",e=>{ if(e && e.error) console.warn("map:",e.error.message); });
+
 
   map.on("load", onMapLoad);
 }catch(e){ showErr("Map failed to start: "+e.message); }
