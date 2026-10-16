@@ -38,6 +38,7 @@
 <div id="status">pick a product</div>
 
 <div id="panel">
+  <div class="row" id="places"></div>
   <div class="row" id="products"></div>
   <div class="row">
     <label for="op">Opacity</label>
@@ -78,6 +79,17 @@ function wcTiles(product, colour, transparentZero){
     + "&colormap=" + encodeURIComponent(JSON.stringify(cmap));
 }
 
+/* Positive controls. A class that is empty everywhere tells you nothing about
+   the data and everything about the plumbing — so each place below is somewhere
+   the named class MUST exist if the layer is working at all. */
+const PLACES = [
+  ["Mishkhab",   44.55, 31.85, 11, "rice belt — expect irrigation, not cereals"],
+  ["Nineveh",    43.10, 36.35, 11, "rainfed winter wheat"],
+  ["Saskatchewan", -106.0, 51.5, 10, "spring wheat heartland"],
+  ["Finland",     23.8, 60.9, 10, "spring barley — winter kills autumn sowing"],
+  ["Nile Delta",  31.0, 30.8, 11, "intensive irrigated cropland"]
+];
+
 const map = new maplibregl.Map({
   container:"map",
   style:{ version:8,
@@ -93,6 +105,40 @@ map.addControl(new maplibregl.NavigationControl({showCompass:false}), "top-right
 
 let active = null, transparentZero = true;
 const el = id => document.getElementById(id);
+
+PLACES.forEach(([label, lon, lat, z, why]) => {
+  const b = document.createElement("button");
+  b.textContent = label;
+  b.title = why;
+  b.onclick = () => {
+    map.jumpTo({center:[lon, lat], zoom:z});
+    el("status").textContent = label + " · " + why;
+    probeCentreTile();
+  };
+  el("places").appendChild(b);
+});
+
+/* Fetch the tile under the map centre directly, so the readout can distinguish
+   "the service returned an empty tile" from "no tile was ever requested". */
+async function probeCentreTile(){
+  if(!active) return;
+  const z = Math.min(14, Math.round(map.getZoom()));
+  const c = map.getCenter();
+  const n = Math.pow(2, z);
+  const x = Math.floor((c.lng + 180)/360 * n);
+  const r = c.lat * Math.PI/180;
+  const y = Math.floor((1 - Math.log(Math.tan(r) + 1/Math.cos(r))/Math.PI)/2 * n);
+  const url = wcTiles(active.product, active.colour, transparentZero)
+    .replace("{z}", z).replace("{x}", x).replace("{y}", y);
+  try{
+    const res = await fetch(url, {cache:"no-store"});
+    const blob = res.ok ? await res.blob() : null;
+    probe = res.ok
+      ? `${res.status} ${blob.size}B ${blob.size < 1000 ? "(empty tile)" : "(has data)"}`
+      : `${res.status} ${(await res.text()).slice(0,80)}`;
+  }catch(e){ probe = "THREW " + e.name; }
+  report();
+}
 
 PRODUCTS.forEach(([label, product, colour]) => {
   const b = document.createElement("button");
@@ -116,12 +162,14 @@ function select(product, label, colour, btn){
   active = { product, label, colour };
   el("status").textContent = label + " · " + product;
   report();
+  probeCentreTile();
 }
 
-let tiles = {ok:0, err:0};
+let tiles = {ok:0, err:0}, probe = "—";
 map.on("sourcedata", e => { if(e.sourceId === "wc" && e.isSourceLoaded) report(); });
 map.on("error", e => { if(e.sourceId === "wc"){ tiles.err++; report(); } });
 map.on("zoom", report);
+map.on("moveend", probeCentreTile);
 
 function report(){
   el("opVal").textContent = (+el("op").value/100).toFixed(2);
@@ -129,7 +177,8 @@ function report(){
 `product   <b>${active ? active.label : "—"}</b>
 zero      <b>${transparentZero ? "transparent" : "grey #757575"}</b>
 opacity   <b>${(+el("op").value/100).toFixed(2)}</b>
-zoom      <b>${map.getZoom().toFixed(1)}</b>   tile errors <b>${tiles.err}</b>`;
+zoom      <b>${map.getZoom().toFixed(1)}</b>   tile errors <b>${tiles.err}</b>
+centre    <b>${probe}</b>`;
 }
 
 el("op").addEventListener("input", () => {
