@@ -651,7 +651,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.09.22-i";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.17-a";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -728,10 +728,73 @@ try{
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),"bottom-right");
   map.on("error",e=>{ if(e && e.error) console.warn("map:",e.error.message); });
 
+/* ---------- MODIS NDVI backdrop helpers ----------------------------------
+   GIBS files each 8-day composite under its window's START date, on a grid
+   that restarts every 1 January (day-of-year 1, 9, 17 …). A date one day off
+   that grid 404s, and composites publish roughly two weeks in arrears, so the
+   newest window is resolved at runtime rather than hardcoded. */
+const GIBS_NDVI_LAYER = "MODIS_Terra_NDVI_8Day";
+const GIBS_NDVI_TMS   = "GoogleMapsCompatible_Level9";
+
+function gibsNdviTiles(date){
+  return "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/"+GIBS_NDVI_LAYER+
+         "/default/"+date+"/"+GIBS_NDVI_TMS+"/{z}/{y}/{x}.png";
+}
+
+// Recent window starts, newest first.
+function ndviWindowStarts(count){
+  const out=[], today=new Date();
+  let year=today.getUTCFullYear();
+  while(out.length<count){
+    const jan1=Date.UTC(year,0,1);
+    const end=(year===today.getUTCFullYear())
+      ? Math.floor((today-jan1)/86400000)+1 : 366;
+    for(let doy=1; doy<=end; doy+=8)
+      out.push(new Date(jan1+(doy-1)*86400000).toISOString().slice(0,10));
+    out.sort().reverse(); year--;
+  }
+  return out.slice(0,count);
+}
+
+/* An unpublished window returns a fully TRANSPARENT tile rather than a 404, so
+   the check has to look at pixels, not at the status code. Probe tile covers
+   central Iraq at z6. */
+function ndviWindowHasData(date){
+  return new Promise(resolve=>{
+    const url=gibsNdviTiles(date)
+      .replace("{z}","6").replace("{y}","25").replace("{x}","39");
+    const img=new Image(); img.crossOrigin="anonymous";
+    const timer=setTimeout(()=>resolve(false), 8000);
+    img.onload=()=>{
+      clearTimeout(timer);
+      try{
+        const c=document.createElement("canvas"); c.width=c.height=32;
+        const cx=c.getContext("2d",{willReadFrequently:true});
+        cx.drawImage(img,0,0,32,32);
+        const px=cx.getImageData(0,0,32,32).data;
+        let painted=0;
+        for(let i=3;i<px.length;i+=4) if(px[i]>10) painted++;
+        resolve(painted>32);
+      }catch(e){ resolve(true); }   // tainted canvas: it drew, so accept it
+    };
+    img.onerror=()=>{ clearTimeout(timer); resolve(false); };
+    img.src=url;
+  });
+}
+
+// Newest window with actual imagery, or null. Normally settles on the 2nd or 3rd.
+async function resolveNdviWindow(){
+  for(const d of ndviWindowStarts(10)){
+    if(await ndviWindowHasData(d)) return d;
+  }
+  DBG.warn("NDVI backdrop: no published window found");
+  return null;   // no backdrop; imagery alone is a fine background
+}
+
   map.on("load", onMapLoad);
 }catch(e){ showErr("Map failed to start: "+e.message); }
 
-function onMapLoad(){
+async function onMapLoad(){
   // --- place-name + road labels overlay (transparent, no polygons) ---
   // Sits above imagery for orientation; NDVI is inserted beneath it and the
   // field outlines above it, so labels stay readable without clutter.
@@ -781,57 +844,55 @@ function onMapLoad(){
     paint:{"fill-color":["get","col"],"fill-opacity":0.72}
   }, map.getLayer("fields-line") ? "fields-line" : undefined);
 
-  // --- FTW field-prediction density (low-zoom country-scale overview) ---
-  // A raster tint showing where FTW's model is confident that fields exist, so
-  // farmland is visible at country scale where individual polygons aren't yet
-  // rendered. Source is FTW's global 500 m confidence COG, tiled on-the-fly by
-  // the public titiler.xyz service (FTW publishes COG/Zarr, not {z}/{x}/{y}
-  // tiles, so a tiler sits in between).
+  // --- MODIS NDVI backdrop (low-zoom country-scale overview) ---
+  // Replaces the former FTW-confidence purple wash, which answered "where are
+  // there fields" — something the polygons themselves answer once you zoom in —
+  // and depended on titiler.xyz, a third-party tiler we don't control.
   //
-  // PALETTE: single-hue PURPLES, deliberately NOT the green/orange used for the
-  // vegetation-health scale — so this "where is the farmland" wash can't be
-  // misread as field health. rescale FLOOR raised to 0.15 (from 0) so low-
-  // confidence desert falls below the ramp and reads as near-nothing instead of
-  // a colored speckle over empty sand. Top stays at 0.578178 (FTW's confidence max).
+  // This shows where anything is actually GREEN right now: the Kurdish foothills,
+  // the Tigris and Euphrates corridors, the southern marshes. At country zoom
+  // that reads as a map of Iraqi agriculture rather than a data-coverage mask.
   //
-  // Visible by default, low-zoom only (faded out by z13 where tappable field
-  // polygons take over).
-  // NOTE: this leans on a THIRD-PARTY tiler we don't control — if titiler.xyz is
-  // slow or down, this optional overlay simply won't load; the app is unaffected.
-  // The COG URL is verified from FTW docs; the rendered result has NOT been
-  // verified on-device from the build environment — confirm it draws on a phone.
+  // SOURCE: NASA GIBS, MODIS Terra NDVI 8-day composite, 250 m, pre-coloured PNG
+  // tiles. Public domain, CORS-open, no key. Verified on-device 2026-10-17.
+  // The GIBS pyramid stops at zoom 9 (GoogleMapsCompatible_Level9).
+  //
+  // PALETTE NOTE: this IS green, unlike the purple it replaces, so it could in
+  // principle be confused with the per-field health scale. It's kept apart by
+  // zoom instead of by hue: full strength at and below z10, gone by z12, where
+  // tappable field polygons take over. The two are never on screen together.
+  //
+  // Settings tuned on-device via backdroptest.html: opacity 0.58, saturation
+  // 145%. MapLibre has no per-layer blend mode, so the CSS `color` blend used
+  // in that test is approximated with raster-saturation (-1…1, so 0.45 ≈ 145%).
   try{
-    const FTW_CONF_COG = "https://data.source.coop/ftw/global-data/predictions/confidence/confidence/prue_v1_confidence_global.tif";
-    const ftwDensityTiles =
-      "https://titiler.xyz/cog/tiles/WebMercatorQuad/{z}/{x}/{y}.png?url="+
-      encodeURIComponent(FTW_CONF_COG)+
-      "&rescale=0.22,0.578178&colormap_name=purples&nodata=-1";
-    map.addSource("ftw-density",{
-      type:"raster", tiles:[ftwDensityTiles], tileSize:256, maxzoom:FTW_MIN_ZOOM,
-      attribution:"Field density: Fields of The World (CC-BY 4.0)"
-    });
-    map.addLayer({
-      id:"ftw-density", type:"raster", source:"ftw-density",
-      // Visible by default: this is the low-zoom "where is the farmland" wash.
-      // maxzoom:FTW_MIN_ZOOM (13) stops it exactly where the tappable field
-      // polygons begin; the opacity ramp fades it to 0 across z11→13 so there's
-      // no gap and no hard pop at the handoff. Base opacity kept moderate so the
-      // light (low-confidence) end reads as faint while dark purple farmland
-      // stays clearly visible.
-      minzoom:3, maxzoom:FTW_MIN_ZOOM,
-      paint:{"raster-opacity":["interpolate",["linear"],["zoom"],3,0.35,9,0.35,11,0.32,13,0]}
-    }, map.getLayer("roads") ? "roads" : undefined);
-  }catch(e){ console.warn("ftw-density layer:",e.message); }
+    const ndviDate = await resolveNdviWindow();
+    if(ndviDate){
+      map.addSource("ndvi-backdrop",{
+        type:"raster",
+        tiles:[gibsNdviTiles(ndviDate)],
+        tileSize:256, maxzoom:9,
+        attribution:"NDVI backdrop: NASA EOSDIS GIBS (MODIS Terra)"
+      });
+      map.addLayer({
+        id:"ndvi-backdrop", type:"raster", source:"ndvi-backdrop",
+        minzoom:3, maxzoom:12,
+        paint:{
+          "raster-opacity":["interpolate",["linear"],["zoom"],3,0.58,10,0.58,12,0],
+          "raster-saturation":0.45,
+          "raster-fade-duration":200
+        }
+      }, map.getLayer("roads") ? "roads" : undefined);
+      DBG.log("NDVI backdrop window "+ndviDate);
+    }
+  }catch(e){ console.warn("ndvi-backdrop layer:",e.message); }
 
   // --- FTW field boundaries as PMTiles ---
   try{
     map.addSource("ftw",{type:"vector",url:"pmtiles://"+FTW_PMTILES});
-    // Low-zoom density layer: shows where farmland is concentrated at country
-    // scale, where individual tappable field polygons aren't yet visible.
-    //
-    // The low-zoom density wash is the "ftw-density" RASTER layer added earlier in
-    // this file (FTW 500 m confidence COG via titiler.xyz). It's set visible and
-    // tuned there — not duplicated here — to avoid a clashing source/layer id.
+    // At country scale the "ndvi-backdrop" RASTER layer added earlier in this
+    // file carries the overview; these vector polygons only begin at
+    // FTW_MIN_ZOOM. The backdrop is faded out by z12 so the two never overlap.
     map.addLayer({
       id:"fields-fill",type:"fill",source:"ftw","source-layer":FTW_SRC_LAYER,
       minzoom:FTW_MIN_ZOOM,
