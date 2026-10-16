@@ -651,7 +651,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.17-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.17-b";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -756,45 +756,47 @@ function ndviWindowStarts(count){
   return out.slice(0,count);
 }
 
-/* An unpublished window returns a fully TRANSPARENT tile rather than a 404, so
-   the check has to look at pixels, not at the status code. Probe tile covers
-   central Iraq at z6. */
-function ndviWindowHasData(date){
-  return new Promise(resolve=>{
-    const url=gibsNdviTiles(date)
-      .replace("{z}","6").replace("{y}","25").replace("{x}","39");
-    const img=new Image(); img.crossOrigin="anonymous";
-    const timer=setTimeout(()=>resolve(false), 8000);
-    img.onload=()=>{
-      clearTimeout(timer);
-      try{
-        const c=document.createElement("canvas"); c.width=c.height=32;
-        const cx=c.getContext("2d",{willReadFrequently:true});
-        cx.drawImage(img,0,0,32,32);
-        const px=cx.getImageData(0,0,32,32).data;
-        let painted=0;
-        for(let i=3;i<px.length;i+=4) if(px[i]>10) painted++;
-        resolve(painted>32);
-      }catch(e){ resolve(true); }   // tainted canvas: it drew, so accept it
-    };
-    img.onerror=()=>{ clearTimeout(timer); resolve(false); };
-    img.src=url;
-  });
+/* An unpublished window answers 404, and a published-but-empty one answers 200
+   with a tiny fully transparent PNG — so neither the status code alone nor a
+   canvas pixel read (which needs CORS on the IMAGE request, a separate grant
+   from the one fetch gets) is reliable. Byte size settles it: a real NDVI tile
+   over Iraq is tens of KB, an empty one is a few hundred bytes.
+   Probe tile covers central Iraq at z6. */
+async function ndviWindowHasData(date){
+  const url = gibsNdviTiles(date)
+    .replace("{z}","6").replace("{y}","25").replace("{x}","39");
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(()=>ctrl.abort(), 6000);
+    const r = await fetch(url, {cache:"no-store", signal:ctrl.signal});
+    clearTimeout(timer);
+    if(!r.ok){ DBG.log("ndvi "+date+": HTTP "+r.status); return false; }
+    const b = await r.blob();
+    DBG.log("ndvi "+date+": "+r.status+" "+b.size+"B");
+    return b.size > 1500;
+  }catch(e){
+    DBG.err("ndvi "+date+": "+e.name+" "+(e.message||""));
+    return false;
+  }
 }
 
 // Newest window with actual imagery, or null. Normally settles on the 2nd or 3rd.
 async function resolveNdviWindow(){
-  for(const d of ndviWindowStarts(10)){
+  const candidates = ndviWindowStarts(10);
+  for(const d of candidates){
     if(await ndviWindowHasData(d)) return d;
   }
-  DBG.warn("NDVI backdrop: no published window found");
-  return null;   // no backdrop; imagery alone is a fine background
+  /* Nothing verified. Rather than show no backdrop at all, fall back to a
+     window about three weeks back — comfortably inside GIBS's publishing lag.
+     If those tiles don't exist either, MapLibre simply draws nothing. */
+  DBG.warn("NDVI backdrop: no window verified, falling back to "+candidates[3]);
+  return candidates[3] || null;
 }
 
   map.on("load", onMapLoad);
 }catch(e){ showErr("Map failed to start: "+e.message); }
 
-async function onMapLoad(){
+function onMapLoad(){
   // --- place-name + road labels overlay (transparent, no polygons) ---
   // Sits above imagery for orientation; NDVI is inserted beneath it and the
   // field outlines above it, so labels stay readable without clutter.
@@ -865,9 +867,14 @@ async function onMapLoad(){
   // Settings tuned on-device via backdroptest.html: opacity 0.58, saturation
   // 145%. MapLibre has no per-layer blend mode, so the CSS `color` blend used
   // in that test is approximated with raster-saturation (-1…1, so 0.45 ≈ 145%).
-  try{
-    const ndviDate = await resolveNdviWindow();
-    if(ndviDate){
+  /* Fire-and-forget: resolving the window needs a network round trip or three,
+     and nothing else on the map should wait for a backdrop. Awaiting this here
+     delayed every layer added below it by as long as the probe loop took. */
+  (async () => {
+    try{
+      const ndviDate = await resolveNdviWindow();
+      if(!ndviDate) return;
+      if(map.getSource("ndvi-backdrop")) return;
       map.addSource("ndvi-backdrop",{
         type:"raster",
         tiles:[gibsNdviTiles(ndviDate)],
@@ -883,9 +890,12 @@ async function onMapLoad(){
           "raster-fade-duration":200
         }
       }, map.getLayer("roads") ? "roads" : undefined);
-      DBG.log("NDVI backdrop window "+ndviDate);
+      DBG.log("NDVI backdrop installed, window "+ndviDate);
+    }catch(e){
+      DBG.err("ndvi-backdrop: "+(e.message||e));
+      console.warn("ndvi-backdrop layer:",e);
     }
-  }catch(e){ console.warn("ndvi-backdrop layer:",e.message); }
+  })();
 
   // --- FTW field boundaries as PMTiles ---
   try{
