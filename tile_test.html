@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tile test</title>
+<style>
+  :root{color-scheme:dark; --bg:#13160f; --panel:#1c2017; --ink:#e9e6da;
+        --muted:#9aa093; --line:#333829; --ok:#8fbf82; --bad:#e08585;}
+  *{box-sizing:border-box}
+  body{margin:0;padding:14px;background:var(--bg);color:var(--ink);
+       font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+  h1{font-size:17px;margin:0 0 4px}
+  p.sub{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+        padding:12px;margin-bottom:12px}
+  .card h2{font-size:13px;margin:0 0 8px}
+  .u{font:11px/1.35 ui-monospace,Menlo,monospace;color:var(--muted);
+     word-break:break-all;margin-bottom:8px}
+  .row{display:flex;gap:10px;align-items:flex-start}
+  img.t{width:110px;height:110px;border:1px solid var(--line);border-radius:6px;
+        background:#000;flex:0 0 auto}
+  pre{font:12px/1.5 ui-monospace,Menlo,monospace;margin:0;white-space:pre-wrap;flex:1;min-width:0}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  #stage{position:relative;width:100%;max-width:560px;aspect-ratio:1/1;
+         border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000}
+  .grid{position:absolute;inset:0;display:grid}
+  .grid img{width:100%;height:100%;display:block}
+  .ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  input[type=range]{flex:1;min-width:130px;accent-color:var(--ok)}
+  select,button{font:inherit;font-size:13px;padding:6px 10px;border-radius:7px;
+    border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+  .val{font:12px ui-monospace,Menlo,monospace;min-width:46px;text-align:right}
+</style>
+</head>
+<body>
+
+<h1>Tile test</h1>
+<p class="sub">Run this from iraqfarmshealth.com — the same origin as the app.
+Checks which third-party tile sources this browser will actually load.</p>
+
+<div id="probes"></div>
+
+<div class="card">
+  <h2>Backdrop preview — MODIS NDVI over Esri imagery, zoom 6</h2>
+  <div id="stage">
+    <div class="grid" id="base"></div>
+    <div class="grid" id="ndvi"></div>
+  </div>
+  <div class="ctl">
+    <label for="op" style="color:var(--muted);font-size:12px">Opacity</label>
+    <input type="range" id="op" min="0" max="100" value="55">
+    <span class="val" id="opVal">0.55</span>
+  </div>
+  <div class="ctl">
+    <select id="blend">
+      <option>normal</option><option>multiply</option><option>overlay</option>
+      <option selected>soft-light</option><option>luminosity</option><option>color</option>
+    </select>
+    <label for="sat" style="color:var(--muted);font-size:12px">Saturation</label>
+    <input type="range" id="sat" min="0" max="200" value="100">
+    <span class="val" id="satVal">100%</span>
+    <button id="hide">Hide imagery</button>
+  </div>
+  <pre id="out" style="margin-top:10px"></pre>
+</div>
+
+<script>
+const Z = 6, BBOX = {w:38.5, s:28.8, e:49.0, n:37.5};
+const tileX = (lon,z) => Math.floor((lon+180)/360*2**z);
+const tileY = (lat,z) => { const r=lat*Math.PI/180;
+  return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*2**z); };
+const X0=tileX(BBOX.w,Z), X1=tileX(BBOX.e,Z), Y0=tileY(BBOX.n,Z), Y1=tileY(BBOX.s,Z);
+
+const GIBS = (d,z,x,y) =>
+  `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_NDVI_8Day/default/${d}/GoogleMapsCompatible_Level9/${z}/${y}/${x}.png`;
+const ESRI = (z,x,y) =>
+  `https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+
+/* MODIS 8-day windows restart each 1 January: day-of-year 1, 9, 17 … so a date
+   off that grid 404s. Newest first; composites publish ~2 weeks in arrears. */
+function windowStarts(n){
+  const out=[], today=new Date(); let year=today.getUTCFullYear();
+  while(out.length<n){
+    const jan1=Date.UTC(year,0,1);
+    const end=(year===today.getUTCFullYear())
+      ? Math.floor((today-jan1)/86400000)+1 : 366;
+    for(let doy=1; doy<=end; doy+=8)
+      out.push(new Date(jan1+(doy-1)*86400000).toISOString().slice(0,10));
+    out.sort().reverse(); year--;
+  }
+  return out.slice(0,n);
+}
+const DATES = windowStarts(12);
+let activeDate = DATES[0];
+
+const probesEl = document.getElementById("probes");
+function card(title, url){
+  const d=document.createElement("div"); d.className="card";
+  d.innerHTML = `<h2>${title}</h2><div class="u">${url}</div>`;
+  const row=document.createElement("div"); row.className="row";
+  const img=document.createElement("img"); img.className="t"; img.alt="";
+  const pre=document.createElement("pre"); pre.textContent="fetch: …\nimg:   …";
+  row.append(img,pre); d.appendChild(row); probesEl.appendChild(d);
+  const s={f:"pending",i:"pending"};
+  const paint=()=>{ pre.textContent=`fetch: ${s.f}\nimg:   ${s.i}`;
+    pre.className = s.f.startsWith("200") ? "ok" : (s.f==="pending"?"":"bad"); };
+  fetch(url,{cache:"no-store"})
+    .then(r=>{ s.f=r.status+" "+(r.headers.get("content-type")||""); paint(); })
+    .catch(e=>{ s.f="THREW "+e.name; paint(); });
+  img.onload =()=>{ s.i=`loaded ${img.naturalWidth}x${img.naturalHeight}`; paint(); };
+  img.onerror=()=>{ s.i="failed"; paint(); };
+  img.src=url; paint();
+}
+
+// 1. Esri — known good, proves the test page itself works.
+card("Esri World Imagery (control)", ESRI(Z, tileX(44,Z), tileY(33,Z)));
+// 2. GIBS MODIS NDVI — the backdrop candidate.
+card("NASA GIBS · MODIS Terra NDVI 8-day", GIBS(DATES[1], Z, tileX(44,Z), tileY(33,Z)));
+// 3. Terrascope WorldCereal — retest; the earlier failure was an invalid test.
+card("Terrascope · WorldCereal winter cereals",
+  "https://wmts.terrascope.be/wmts?service=WMTS&request=GetTile&version=1.0.0"
+  +"&layer=esa-worldcereal-wintercereals-10m-2021-v1_classification&style=default"
+  +"&format=image%2Fpng&tilematrixset=EPSG:3857&TileMatrix=12&TileRow=1665&TileCol=2554");
+// 4. Source Coop — retest for the same reason.
+card("Source Coop · WorldCereal README",
+  "https://data.source.coop/streambatch/worldcereal/README.md");
+
+/* Backdrop mosaic */
+const base=document.getElementById("base"), ndvi=document.getElementById("ndvi");
+const COLS=X1-X0+1, ROWS=Y1-Y0+1;
+[base,ndvi].forEach(g=>{ g.style.gridTemplateColumns=`repeat(${COLS},1fr)`;
+                         g.style.gridTemplateRows=`repeat(${ROWS},1fr)`; });
+function fill(el, fn){
+  el.innerHTML="";
+  for(let y=Y0;y<=Y1;y++) for(let x=X0;x<=X1;x++){
+    const i=new Image(); i.src=fn(x,y); i.alt=""; el.appendChild(i);
+  }
+}
+function hasData(url){
+  return new Promise(res=>{
+    const im=new Image(); im.crossOrigin="anonymous";
+    im.onload=()=>{ try{
+      const c=document.createElement("canvas"); c.width=c.height=32;
+      const cx=c.getContext("2d",{willReadFrequently:true});
+      cx.drawImage(im,0,0,32,32);
+      const p=cx.getImageData(0,0,32,32).data;
+      let on=0; for(let i=3;i<p.length;i+=4) if(p[i]>10) on++;
+      res(on>32);
+    }catch(e){ res(true); } };
+    im.onerror=()=>res(false);
+    im.src=url;
+  });
+}
+const out=document.getElementById("out");
+async function resolveDate(){
+  for(const d of DATES){
+    out.textContent = "checking " + d + " …";
+    if(await hasData(GIBS(d,Z,tileX(44,Z),tileY(33,Z)))){
+      activeDate = d;
+      fill(ndvi,(x,y)=>GIBS(d,Z,x,y));
+      apply();
+      return;
+    }
+  }
+  out.textContent = "no window in the last ~3 months returned pixels";
+}
+const op=document.getElementById("op"), blend=document.getElementById("blend"),
+      sat=document.getElementById("sat");
+function apply(){
+  ndvi.style.opacity = op.value/100;
+  ndvi.style.mixBlendMode = blend.value;
+  ndvi.style.filter = `saturate(${sat.value}%)`;
+  document.getElementById("opVal").textContent=(op.value/100).toFixed(2);
+  document.getElementById("satVal").textContent=sat.value+"%";
+  out.textContent =
+`date      ${activeDate}
+opacity   ${(op.value/100).toFixed(2)}
+blend     ${blend.value}
+saturate  ${sat.value}%`;
+}
+op.oninput=apply; blend.onchange=apply; sat.oninput=apply;
+document.getElementById("hide").onclick=e=>{
+  const h = base.style.visibility==="hidden";
+  base.style.visibility = h?"visible":"hidden";
+  e.target.textContent = h?"Hide imagery":"Show imagery";
+};
+fill(base,(x,y)=>ESRI(Z,x,y));
+apply();
+resolveDate();
+</script>
+</body>
+</html>
