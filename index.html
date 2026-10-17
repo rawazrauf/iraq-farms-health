@@ -653,7 +653,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.17-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.17-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -881,12 +881,15 @@ function onMapLoad(){
     map.addSource("wc-wintercereals",{
       type:"raster",
       tiles:[wcTiles("wintercereals","#ba7135")],
-      tileSize:256, minzoom:11, maxzoom:14,
+      // minzoom 3: the source must advertise the low zooms or MapLibre never
+      // requests them, whatever the layer says. maxzoom 14 is the top of the
+      // published pyramid, not a cutoff — above it MapLibre scales z14 tiles up.
+      tileSize:256, minzoom:3, maxzoom:14,
       attribution:"Crop type: ESA WorldCereal 2021 (CC-BY 4.0)"
     });
     map.addLayer({
       id:"wc-wintercereals", type:"raster", source:"wc-wintercereals",
-      minzoom:11,
+      minzoom:3,
       layout:{visibility:"none"},
       // Fully opaque. At partial opacity the mask blended with whatever
       // terrain lay beneath it — green fields, pale desert, dark basalt — and
@@ -955,7 +958,8 @@ function onMapLoad(){
           "raster-saturation":0.45,
           "raster-fade-duration":200
         }
-      }, map.getLayer("roads") ? "roads" : undefined);
+      }, map.getLayer("wc-wintercereals") ? "wc-wintercereals"
+         : (map.getLayer("roads") ? "roads" : undefined));
       DBG.log("NDVI backdrop installed, window "+ndviDate);
     }catch(e){
       DBG.err("ndvi-backdrop: "+(e.message||e));
@@ -2952,9 +2956,7 @@ if(cropToggle) cropToggle.addEventListener("click",()=>{
     map.setLayoutProperty("wc-wintercereals","visibility", on ? "visible" : "none");
   if(on){
     const t = I18N[lang];
-    // 10 m masks only load from z11; say so rather than showing an empty map.
-    cropSay(map.getZoom() < 11 ? (t.cropWinter + " · " + t.zoomHint)
-                               : (t.cropWinter + " · " + t.cropNote), 6000);
+    cropSay(t.cropWinter + " · " + t.cropNote, 6000);
   }
 });
 
