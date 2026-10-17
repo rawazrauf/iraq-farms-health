@@ -653,7 +653,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.17-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.17-g";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -888,7 +888,14 @@ function onMapLoad(){
       id:"wc-wintercereals", type:"raster", source:"wc-wintercereals",
       minzoom:11,
       layout:{visibility:"none"},
-      paint:{"raster-opacity":0.55,"raster-fade-duration":200}
+      // Fully opaque. At partial opacity the mask blended with whatever
+      // terrain lay beneath it — green fields, pale desert, dark basalt — and
+      // the same crop class read as a different colour in every landscape,
+      // which made it hard to see where cereals actually were. Class 0 is left
+      // out of the colormap, so only cereal pixels paint; everywhere else the
+      // map below still shows through untouched. The toggle is what tells the
+      // user this is an overlay.
+      paint:{"raster-opacity":1,"raster-fade-duration":200}
     }, map.getLayer("roads") ? "roads" : undefined);
   }catch(e){ console.warn("worldcereal layer:",e.message); }
 
