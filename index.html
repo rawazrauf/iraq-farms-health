@@ -675,7 +675,16 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-o";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-p";  // bump on each deploy so screenshots self-identify
+/* Where the map opens (a link's ?lat=&lon= always wins):
+   - first visit: on the guide's sample field, so the guide and the map agree;
+   - once the guide has been seen (finished or skipped): the whole country, to
+     explore and zoom in on their own fields. */
+const TOUR_KEY = "iraqFarmHealth.tourSeen.v1";
+const TOUR_FIELD = {lon:44.0607, lat:33.9415};   // FTW-FIWF1K, near Arab Dulaim
+const TOUR_ZOOM = 16;
+const COUNTRY_VIEW = {lon:43.76422, lat:34.13001, zoom:5.1};
+function guideSeen(){ try{ return localStorage.getItem(TOUR_KEY)==="1"; }catch{ return false; } }
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -979,8 +988,8 @@ try{
       },
       layers:[{id:"sat",type:"raster",source:"esri"}]
     },
-    center: startView ? startView.center : [43.1995,36.2282],
-    zoom:   startView ? Math.min(16, Math.max(4, startView.zoom)) : 14.8,
+    center: startView ? startView.center : (guideSeen() ? [COUNTRY_VIEW.lon, COUNTRY_VIEW.lat] : [TOUR_FIELD.lon, TOUR_FIELD.lat]),
+    zoom:   startView ? Math.min(16, Math.max(4, startView.zoom)) : (guideSeen() ? COUNTRY_VIEW.zoom : TOUR_ZOOM),
     maxZoom:16, minZoom:4,
     attributionControl:false,
     /* Straight-down view only. A two-finger drag would otherwise tilt the map
@@ -3949,11 +3958,8 @@ searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
 /* ---------- first-run interactive tour ----------
    Gated flow: the user must actually TAP a field to proceed, then watches the
    real chart populate live. Steps that require an action hide the Next button. */
-const TOUR_KEY = "iraqFarmHealth.tourSeen.v1";
-// Sample field for the guide: FTW-FIWF1K near Arab Dulaim — a clear winter
+// Sample field for the guide: TOUR_FIELD (top of the script) — a clear winter
 // crop cycle, WorldCereal 2021 wheat/barley, and neighbours in every colour.
-const TOUR_FIELD = {lon:44.0607, lat:33.9415};
-const TOUR_ZOOM = 16;
 const tourEl = document.getElementById("tour");
 const tourHole = document.getElementById("tour-hole");
 const tourCard = document.getElementById("tour-card");
