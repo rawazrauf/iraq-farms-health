@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-l";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-m";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1228,7 +1228,11 @@ function onMapLoad(){
   let __urlSyncOn = false;   // enabled after the initial load/flyto settles
   function syncUrlToView(){
     if(!__urlSyncOn) return;
-    const c = map.getCenter();
+    // A link opens the field under its point. While a field is open, point the
+    // address bar at that field (not the map centre, which sits off it once the
+    // field is panned up above the sheet) so a copied link reopens this field.
+    const open = lastField && sheet.classList.contains("open") ? fieldLinkPoint(lastField.geometry) : null;
+    const c = open ? {lng:open[0], lat:open[1]} : map.getCenter();
     const params = new URLSearchParams(location.search);
     params.set("lat", c.lat.toFixed(5));
     params.set("lon", c.lng.toFixed(5));
@@ -1237,6 +1241,7 @@ function onMapLoad(){
     try{ history.replaceState(null, "", location.pathname + "?" + params.toString()); }catch{}
   }
   map.on("moveend", syncUrlToView);
+  window.__syncUrl = syncUrlToView;       // also on field open/close (no map move needed)
 
   // If opened via a shared field link (?lat=&lon=), go straight to that field
   // and skip the tour. Otherwise, maybe run the first-time tour.
@@ -1273,6 +1278,7 @@ function closeSheet(){
   sheet.style.transform = "";            // clear any drag offset
   const selSrc = map.getSource("sel");
   if(selSrc) selSrc.setData({type:"FeatureCollection",features:[]});
+  if(window.__syncUrl) window.__syncUrl();
 }
 document.getElementById("sheet-close").addEventListener("click", closeSheet);
 
@@ -1665,6 +1671,7 @@ async function onFieldTap(e){
   if(__play) stopPlay(true);
   lastField = f;
   sheet.classList.add("open");
+  if(window.__syncUrl) window.__syncUrl();
   // Pan the tapped field into the area still visible ABOVE the sheet, so the
   // popup doesn't cover the field you just tapped. We center the field's
   // centroid using easeTo with bottom padding equal to the sheet's height:
@@ -1752,7 +1759,7 @@ async function onFieldTap(e){
   // Reading complete — log this field to history (ranked later by improvement).
   try{
     const id = resolveFieldId(f);
-    const c = polyCentroid(f.geometry);
+    const c = fieldLinkPoint(f.geometry);
     if(id && c){
       const hist = f.__history;
       let cur=null; for(let i=hist.length-1;i>=0;i--){ if(hist[i].v!=null){ cur=hist[i].v; break; } }
@@ -2633,7 +2640,7 @@ function renderField(f){
   const saveBtn = document.getElementById("save-field-btn");
   if(saveBtn) saveBtn.addEventListener("click",()=>{
     const id = resolveFieldId(f);
-    const c = polyCentroid(f.geometry);
+    const c = fieldLinkPoint(f.geometry);
     if(!id || !c) return;
     addPin({id, lon:c[0], lat:c[1], band: healthBand(cur)});
     saveBtn.textContent = t.saved; saveBtn.classList.add("saved"); saveBtn.disabled = true;
@@ -2652,7 +2659,7 @@ function renderField(f){
    encodes the field centroid; opening it flies there and selects the field. */
 function shareField(f, btn){
   const t = I18N[lang];
-  const c = polyCentroid(f.geometry);
+  const c = fieldLinkPoint(f.geometry);
   if(!c) return;
   const id = resolveFieldId(f) || "";
   const base = "https://www.iraqfarmshealth.com/";
@@ -3611,6 +3618,33 @@ function ndviColor(v){
   if(v<0.2) return "var(--clay)";
   if(v<0.45) return "var(--wheat)";
   return "var(--canal)";
+}
+/* A point guaranteed to lie INSIDE the field, for anything that reopens a field
+   by location (address bar, Share link, saved fields, Ranking). Links open the
+   field under their point, and the outline-average centre (polyCentroid) can
+   fall outside an L- or U-shaped field — that link would open a neighbour.
+   Uses the centre when it is inside; otherwise the middle of the widest inside
+   stretch of a horizontal line through the field. polyCentroid stays the
+   field's identity (key, FTW ID, displayed lat/lon). */
+function fieldLinkPoint(g){
+  const c = polyCentroid(g);
+  if(!c) return null;
+  if(pointInGeom(c[0], c[1], g)) return c;
+  const bb = geomBbox(g); if(!bb) return c;
+  const lats = [c[1]]; for(let k=1;k<10;k++) lats.push(bb[1] + (bb[3]-bb[1])*k/10);
+  for(const lat of lats){
+    const xs = [];
+    for(const poly of geomPolys(g)) for(const ring of poly)
+      for(let i=1;i<ring.length;i++){
+        const [x0,y0]=ring[i-1], [x1,y1]=ring[i];
+        if((y0>lat)!==(y1>lat)) xs.push(x0 + (lat-y0)*(x1-x0)/(y1-y0));
+      }
+    xs.sort((a,b)=>a-b);
+    let best = null;
+    for(let i=0;i+1<xs.length;i+=2) if(!best || xs[i+1]-xs[i] > best[1]-best[0]) best = [xs[i], xs[i+1]];
+    if(best){ const p = [(best[0]+best[1])/2, lat]; if(pointInGeom(p[0], p[1], g)) return p; }
+  }
+  return c;
 }
 function polyCentroid(g){
   try{
