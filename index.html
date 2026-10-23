@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-j";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-k";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1164,11 +1164,11 @@ function onMapLoad(){
     // tile refresh and is reliably visible in a shared screenshot.
     map.addSource("sel",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
     map.addLayer({
-      id:"sel-fill",type:"fill",source:"sel",
+      id:"sel-fill",type:"fill",source:"sel",filter:["==",["get","k"],"fill"],
       paint:{"fill-color":"#D9A441","fill-opacity":0.18}
     });
     map.addLayer({
-      id:"sel-line",type:"line",source:"sel",
+      id:"sel-line",type:"line",source:"sel",filter:["==",["get","k"],"line"],
       paint:{"line-color":"#D9A441","line-width":3.5,
              "line-opacity":1}
     });
@@ -1451,11 +1451,41 @@ function stitchFields(raw){
     grp.sort((a,b)=> (a.y-b.y) || (a.x-b.x));
     const polys = [];
     for(const p of grp) polys.push(...(p.whole ? geomPolys(p.f.geometry) : p.polys));
+    // Tile edges this field was cut along: outlines skip them (they're joins
+    // inside the field, not its boundary).
+    const cuts = [];
+    for(const p of grp){
+      if(p.whole) continue;
+      if(p.cut.e) cuts.push({axis:"x", v:p.b.e, eps:p.eps});
+      if(p.cut.w) cuts.push({axis:"x", v:p.b.w, eps:p.eps});
+      if(p.cut.n) cuts.push({axis:"y", v:p.b.n, eps:p.eps});
+      if(p.cut.s) cuts.push({axis:"y", v:p.b.s, eps:p.eps});
+    }
     out.push({ type:"Feature", properties:grp[0].f.properties||{},
                geometry: polys.length===1 ? {type:"Polygon", coordinates:polys[0]} : {type:"MultiPolygon", coordinates:polys},
-               __pieces: grp.length });
+               __pieces: grp.length, __cuts: cuts });
   }
   return out;
+}
+/* A field's true boundary as polylines: every ring edge except those lying on
+   a tile edge it was cut along. Unstitched fields have no cuts, so this is just
+   their rings. Used for every outline drawn around a field. */
+function fieldOutline(geometry, cuts){
+  cuts = cuts || [];
+  const onCut = (a,c)=> cuts.some(k => k.axis==="x"
+    ? Math.abs(a[0]-k.v)<k.eps && Math.abs(c[0]-k.v)<k.eps
+    : Math.abs(a[1]-k.v)<k.eps && Math.abs(c[1]-k.v)<k.eps);
+  const lines = [];
+  for(const poly of geomPolys(geometry)) for(const ring of poly){
+    let cur = [];
+    for(let i=1;i<ring.length;i++){
+      const a = ring[i-1], c = ring[i];
+      if(cuts.length && onCut(a,c)){ if(cur.length>1) lines.push(cur); cur = []; }
+      else { if(!cur.length) cur.push(a); cur.push(c); }
+    }
+    if(cur.length>1) lines.push(cur);
+  }
+  return lines;
 }
 // Every whole field currently drawn on the map.
 function fieldsInView(){
@@ -1629,7 +1659,9 @@ async function onFieldTap(e){
   DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
   // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
   const selSrc = map.getSource("sel");
-  if(selSrc) selSrc.setData({type:"Feature",properties:{},geometry:f.geometry});
+  if(selSrc) selSrc.setData({type:"FeatureCollection",features:[
+    {type:"Feature",properties:{k:"fill"},geometry:f.geometry},
+    {type:"Feature",properties:{k:"line"},geometry:{type:"MultiLineString",coordinates:fieldOutline(f.geometry, f.__cuts)}}]});
   if(__play) stopPlay(true);
   lastField = f;
   sheet.classList.add("open");
@@ -2942,14 +2974,14 @@ function collectContextFields(f){
     const k = fieldKey(nf);
     if(seen.has(k)) continue; seen.add(k);
     const cached = __healthCache.get(k);
-    out.push({ geometry:nf.geometry, key:k,
+    out.push({ geometry:nf.geometry, cuts:nf.__cuts, key:k,
                col: (cached && cached.col) ? cached.col : null,
                isSubject: k===myKey });
   }
   // make sure the subject field is present even if not in the rendered set
   if(!out.some(o=>o.isSubject)){
     const cached = __healthCache.get(myKey);
-    out.push({ geometry:f.geometry, key:myKey,
+    out.push({ geometry:f.geometry, cuts:f.__cuts, key:myKey,
                col:(cached&&cached.col)?cached.col:null, isSubject:true });
   }
   return out;
@@ -2984,6 +3016,12 @@ function drawFieldContext(ctx, subject, fields, ox, oy, w, h){
       }
     }
   }
+  function pathOutline(g, cuts){
+    ctx.beginPath();
+    for(const line of fieldOutline(g, cuts)){
+      line.forEach((pt,i)=>{ const [px,py]=proj(pt[0],pt[1]); if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py); });
+    }
+  }
   // neighbours first
   for(const fl of fields){
     if(fl.isSubject) continue;
@@ -2994,14 +3032,16 @@ function drawFieldContext(ctx, subject, fields, ox, oy, w, h){
       // uncoloured: a soft, low-contrast tone that reads as "land" not "broken"
       ctx.fillStyle = "#cdc4b0"; ctx.globalAlpha = 0.55; ctx.fill(); ctx.globalAlpha = 1;
     }
+    pathOutline(fl.geometry, fl.cuts);
     ctx.strokeStyle="rgba(255,255,255,0.45)"; ctx.lineWidth=1; ctx.stroke();
   }
   // subject on top, bold outline: light halo first, dark line over it so it
   // reads clearly against any neighbour colour.
-  const subj = fields.find(fl=>fl.isSubject) || {geometry:subject.geometry, col:null};
+  const subj = fields.find(fl=>fl.isSubject) || {geometry:subject.geometry, cuts:subject.__cuts, col:null};
   pathGeom(subj.geometry);
   ctx.fillStyle = subj.col || "rgba(30,110,90,0.35)";
   ctx.globalAlpha = subj.col ? 0.95 : 1; ctx.fill(); ctx.globalAlpha=1;
+  pathOutline(subj.geometry, subj.cuts);
   ctx.lineJoin="round";
   ctx.strokeStyle="#F4F1E9"; ctx.lineWidth=6; ctx.stroke();   // halo underneath
   ctx.strokeStyle="#14261B"; ctx.lineWidth=3; ctx.stroke();   // dark line on top
