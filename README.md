@@ -16,6 +16,7 @@ Tap any field on the map to see how healthy its crops are right now, view a two-
 - **Year-on-year comparison.** See at a glance whether this season is greener or drier than the last.
 - **Moisture reading.** Alongside vegetation health, the tool reads the field's canopy moisture (NDMI) and tells you whether it's wetter or drier than nearby fields.
 - **Field size.** Each field's area is shown in donums.
+- **Watch it grow.** Play the field's last two years on the map, month by month — the actual satellite NDVI image of the field for each month, from the same scene as that month's reading.
 - **Health map overlay.** Colour every visible field by its current health at once — green for healthy, red for stressed — to spot problems across a whole area.
 - **See where the farmland is.** Zoomed out to the whole country, a density layer shows where fields are concentrated, before individual fields become tappable.
 - **Save & rank your fields.** Bookmark fields you care about, and see which of your fields improved most since last year.
