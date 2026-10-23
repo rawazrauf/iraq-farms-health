@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-g";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1495,7 +1495,7 @@ async function onFieldTap(e){
   // Moisture isn't sampled constantly (that would double API load); we fetch it
   // when a field is opened. We sample the tapped field and up to ~12 nearby
   // fields so we can say whether this field is wetter/drier than its neighbours.
-  sampleMoisture(f).catch(()=>{}).finally(()=>{ f.__moistDone = true; });
+  sampleMoisture(f).catch(()=>{});
   // What WorldCereal recorded for THIS field. Independent of the other samplers
   // and of the Crops toggle — the sheet says it whether or not the layer is on.
   sampleFieldCereal(f).then(r => {
@@ -2537,7 +2537,7 @@ function monitorReportReady(f){
     const timedOut = Date.now()-start > 12000;
     // Wheat/barley and moisture appear only in the Report now, so wait for
     // those lookups to resolve too (data or none).
-    const extrasResolved = f.__cereal!==undefined && !!f.__moistDone;
+    const extrasResolved = f.__cereal!==undefined && __moistCache.has(fieldKey(f));
     if((historyDone && coloursReady && rainResolved && extrasResolved) || timedOut){
       __reportReady = true; setReportReadyState();
       clearInterval(__reportMonitor);
@@ -2562,23 +2562,23 @@ function reportNotes(f, t, curV, band){
   const areaM2 = geomAreaMeters(f.geometry);
   if(areaM2 > 0){
     const d = areaM2/2500;                       // 1 donum = 2,500 m²
-    out.push({text:"📐 "+t.sizeLabel, right:`${d>=10 ? Math.round(d) : d.toFixed(1)} ${t.donums}`});
+    out.push({icon:"📐", text:t.sizeLabel, right:`${d>=10 ? Math.round(d) : d.toFixed(1)} ${t.donums}`});
   }
   // WorldCereal 2021, same rule as the popup: under 15% says nothing rather
   // than a "not wheat" that would only be a silence. The % is the share of the
   // field's pixels mapped as winter cereal.
   const cp = f.__cereal;
   if(cp!=null && cp>=0.15)
-    out.push({text:"🌾 "+t[cp>=0.5 ? "cerealYes" : "cerealPart"], right:`${Math.round(cp*100)}%`});
+    out.push({icon:"🌾", text:t[cp>=0.5 ? "cerealYes" : "cerealPart"], right:`${Math.round(cp*100)}%`});
   const nh = neighborStanding(f, curV, __healthCache, e=>e.v);
-  if(nh) out.push({text:"🏞️ "+t["nbrHealth_"+nh]});
+  if(nh) out.push({icon:"🏞️", text:t["nbrHealth_"+nh]});
   if(f.__moisture!=null){
     const mv = f.__moisture, mb = mv>=0.2 ? "moist" : (mv>=0.0 ? "mid" : "dry");
     const mst = neighborStanding(f, mv, __moistCache, e=>e.v);
-    out.push({text:"💧 "+t["moist_"+mb]+(mst ? ` — ${t["nbrMoist_"+mst]}` : ""), right:`NDMI ${mv.toFixed(2)}`});
+    out.push({icon:"💧", text:t["moist_"+mb]+(mst ? ` — ${t["nbrMoist_"+mst]}` : ""), right:`NDMI ${mv.toFixed(2)}`});
   }
   const rain = rainSummaryText(f, t);
-  if(rain) out.push({text:"🌧️ "+rain});
+  if(rain) out.push({icon:"🌧️", text:rain});
   return out;
 }
 function wrapCanvasText(ctx, text, maxW){
@@ -2625,10 +2625,14 @@ function layoutReportNotes(ctx, notes, ox, oy, w, draw){
       ctx.font = "800 24px system-ui,sans-serif";
       const rw = n.right ? ctx.measureText(n.right).width + 24 : 0;
       ctx.font = "700 24px system-ui,sans-serif";
-      const L = wrapCanvasText(ctx, n.text, w - rw);
+      // The icon gets its own slot: drawn inside one string, Safari's RTL
+      // canvas let bidi reorder it against a leading number ("689 🌧️ ملم…").
+      const iw = n.icon ? 38 : 0;
+      const L = wrapCanvasText(ctx, n.text, w - rw - iw);
       if(draw){
         ctx.textAlign = START; ctx.fillStyle = "#14261B";
-        L.forEach((s,i)=> ctx.fillText(s, at(0), y+i*34));
+        if(n.icon) ctx.fillText(n.icon, at(0), y);
+        L.forEach((s,i)=> ctx.fillText(s, at(iw), y+i*34));
         if(n.right){
           ctx.font = "800 24px system-ui,sans-serif"; ctx.fillStyle = "#6b7b70";
           ctx.textAlign = END; ctx.fillText(n.right, at(w), y);
