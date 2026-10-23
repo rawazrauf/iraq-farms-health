@@ -88,6 +88,15 @@ The moisture reading (NDMI) is computed the same way — median over the field's
 
 The month-by-month chart repeats this process for each of the past 24 months, building a picture of how the field's vegetation rises and falls with the seasons. Months with no clear (cloud-free) imagery are left blank rather than guessed.
 
+### Watching the field month by month
+
+Under the chart, **Watch month by month** plays the field's history on the map. For each month it shows the field's own NDVI image — pixel by pixel, clipped to the field outline — from **the same Sentinel-2 scene that month's number came from**. The picture and the number are one scene, so they cannot disagree; the image simply shows *where* inside the field the greenness is, which a single median cannot.
+
+- **One real image per month.** Months with no clear scene are skipped, not filled in. The line under the controls shows the actual date of the image being shown.
+- **No invented frames.** The short cross-fade between months is a visual transition only; nothing is interpolated between satellite passes.
+- **Same colours as everywhere else.** Rust is Poor (below 0.2), ochre is Fair (0.2–0.45), green is Good (0.45 and above), with deeper green for higher values. The image is smoothed for display, so it looks finer than the 10 m pixels it is made from.
+- **Fetched only when you press play** — up to 24 small images, kept for the rest of the visit.
+
 ### The year-on-year comparison
 
 To compare this year with last year, the tool computes the **area under the NDVI curve** for the most recent 12 months and for the 12 months before that — essentially, the total "greenness over time" of each year — and compares them. This is more meaningful than comparing a single month to the same month a year earlier, because it captures the whole season rather than one snapshot.
@@ -130,6 +139,7 @@ Being clear about limitations is part of being trustworthy. In summary:
 - **The low-zoom farmland overlay is a confidence proxy**, not a field layer, and relies on a third-party tile service. It shows roughly where farmland is, not whether any particular spot is a field.
 - **Clouds create gaps.** Sentinel-2 is optical and cannot see through cloud. Cloudy periods leave blanks in the history, and "current" always means the latest *clear* image, which may be several days old.
 - **"Current" is not live.** Satellites revisit every few days, and cloud-free imagery may be older still. Readings reflect the most recent usable pass, not today.
+- **The month-by-month images show clouds as they are.** The clearest scene of the month is used, but a patch of thin cloud or shadow over the field shows up as a low-NDVI blotch — the same pixels that pull that month's number down.
 - **Resolution is 10 metres.** Very small plots may be represented by few pixels, making their readings noisier and less reliable.
 - **Mixed pixels at edges.** Pixels along a field's boundary may include roads, canals, or neighbouring fields, slightly affecting the statistics.
 
