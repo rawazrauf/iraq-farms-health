@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-e";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-f";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2402,9 +2402,9 @@ function renderField(f){
       <div id="spark-prov" hidden></div>
     </div>
     ${playRowHtml(f)}
-    <div class="msg ${band||'none'}">
-      <div class="msg-main">${cur!=null ? (t[band+"Msg"]) : (loading? t.loading : t.noData)}</div>
-    </div>
+    ${/* The health sentence lives in the Report — the Health card already says
+         it. The box only appears when there is no reading at all, to say why. */
+      (cur==null && !loading) ? `<div class="msg none"><div class="msg-main">${t.noData}</div></div>` : ""}
     <div class="pv-save">${(()=>{
       const id = resolveFieldId(f);
       const already = id && pinExists(id);
