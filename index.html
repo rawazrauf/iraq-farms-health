@@ -307,6 +307,7 @@ html,body{margin:0;height:100%;background:var(--ink);
   font-weight:800;font-size:17px;color:var(--ink);border-radius:12px;padding:13px;cursor:pointer}
 .tour-lang-btns button:active{background:var(--ink);color:var(--paper)}
 /* tap-gate: let taps reach the map, keep the card clickable */
+#tour.has-hole #tour-dim,#tour.clear #tour-dim{background:transparent}
 #tour.pass #tour-dim{pointer-events:none}
 #tour.pass #tour-hole{pointer-events:none}
 #tour.pass{pointer-events:none}
@@ -502,7 +503,7 @@ html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      playBtn:"▶ Watch month by month",playPause:"❚❚ Pause",playResume:"▶ Continue",playReplay:"↻ Watch again",playHide:"Hide",playLoading:"Loading images…",playFail:"Images unavailable right now",playScene:"image",playMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Tap Health map to colour every field by its health at once — green is healthy, red is stressed. Great for spotting problems across a whole area.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",
+      playBtn:"▶ Watch month by month",playPause:"❚❚ Pause",playResume:"▶ Continue",playReplay:"↻ Watch again",playHide:"Hide",playLoading:"Loading images…",playFail:"Images unavailable right now",playScene:"image",playMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Two map layers: 🌱 Health map colours every field by its health — green is healthy, red is stressed. 🌾 Crops shows where wheat or barley grew in 2021.",tCrop:"🌾 This line says the field grew wheat or barley in 2021, from the European Space Agency's crop map. It's a past record, not this season.",tPlay:"Now tap ▶ Watch month by month to see the real satellite picture of this field, one month at a time.",tPlay2:"Each frame is that month's actual satellite image of your field — green is growing, rust is bare soil. Pause, or drag along the chart to pick a month. Tap Next when you're done.",tReport:"Tap Report to download a picture with everything about this field — every month's reading, rainfall, moisture, crop history and how it compares with nearby fields. Keep it, or send it to anyone.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -511,7 +512,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      playBtn:"▶ شاهد شهراً بشهر",playPause:"❚❚ إيقاف مؤقت",playResume:"▶ متابعة",playReplay:"↻ شاهد مجدداً",playHide:"إخفاء",playLoading:"جارٍ تحميل الصور…",playFail:"الصور غير متاحة حالياً",playScene:"صورة",playMonths:["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"انقر خريطة الصحة لتلوين كل الحقول حسب صحتها دفعة واحدة — الأخضر صحي والأحمر مُجهَد. مفيد لاكتشاف المشاكل في منطقة كاملة.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",
+      playBtn:"▶ شاهد شهراً بشهر",playPause:"❚❚ إيقاف مؤقت",playResume:"▶ متابعة",playReplay:"↻ شاهد مجدداً",playHide:"إخفاء",playLoading:"جارٍ تحميل الصور…",playFail:"الصور غير متاحة حالياً",playScene:"صورة",playMonths:["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"طبقتان على الخريطة: 🌱 خريطة الصحة تلوّن كل حقل حسب صحته — الأخضر صحي والأحمر مُجهَد. 🌾 المحاصيل تُظهر أين زُرع القمح أو الشعير عام 2021.",tCrop:"🌾 يشير هذا السطر إلى أن الحقل زُرع قمحاً أو شعيراً عام 2021، وفق خريطة المحاصيل لوكالة الفضاء الأوروبية. إنه سجلّ سابق، وليس هذا الموسم.",tPlay:"الآن انقر ▶ شاهد شهراً بشهر لترى صورة القمر الصناعي الحقيقية لهذا الحقل، شهراً بعد شهر.",tPlay2:"كل لقطة هي صورة القمر الصناعي الفعلية لحقلك في ذلك الشهر — الأخضر نموّ، والبنّي تربة عارية. يمكنك الإيقاف المؤقت، أو السحب على الرسم لاختيار شهر. انقر التالي عند الانتهاء.",tReport:"انقر تقرير لتنزيل صورة فيها كل شيء عن هذا الحقل — قراءة كل شهر والأمطار والرطوبة وسجلّ المحصول ومقارنته بالحقول القريبة. احتفظ بها أو أرسلها لمن تشاء.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -520,7 +521,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      playBtn:"▶ مانگ بە مانگ ببینە",playPause:"❚❚ ڕاگرتن",playResume:"▶ بەردەوامبە",playReplay:"↻ دووبارە ببینە",playHide:"شاردنەوە",playLoading:"وێنەکان بار دەبن…",playFail:"وێنەکان ئێستا بەردەست نین",playScene:"وێنە",playMonths:["کانوونی دووەم","شوبات","ئازار","نیسان","ئایار","حوزەیران","تەممووز","ئاب","ئەیلوول","تشرینی یەکەم","تشرینی دووەم","کانوونی یەکەم"],latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دەست بنێ لە نەخشەی تەندروستی بۆ ڕەنگکردنی هەموو کێڵگەکان بەپێی تەندروستییان بەیەکجار — سەوز تەندروستە، سوور لاوازە. باشە بۆ دۆزینەوەی کێشە لە ناوچەیەکی تەواودا.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",
+      playBtn:"▶ مانگ بە مانگ ببینە",playPause:"❚❚ ڕاگرتن",playResume:"▶ بەردەوامبە",playReplay:"↻ دووبارە ببینە",playHide:"شاردنەوە",playLoading:"وێنەکان بار دەبن…",playFail:"وێنەکان ئێستا بەردەست نین",playScene:"وێنە",playMonths:["کانوونی دووەم","شوبات","ئازار","نیسان","ئایار","حوزەیران","تەممووز","ئاب","ئەیلوول","تشرینی یەکەم","تشرینی دووەم","کانوونی یەکەم"],latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دوو چینی نەخشە: 🌱 نەخشەی تەندروستی هەموو کێڵگەیەک بەپێی تەندروستییەکەی ڕەنگ دەکات — سەوز تەندروستە، سوور لاوازە. 🌾 دانەوێڵە پیشانی دەدات لە ٢٠٢١ لە کوێ گەنم یان جۆ چێندراوە.",tCrop:"🌾 ئەم دێڕە دەڵێت لە ساڵی ٢٠٢١ گەنم یان جۆ لەم کێڵگەیە چێندراوە، بەپێی نەخشەی دانەوێڵەی ئاژانسی بۆشایی ئاسمانی ئەوروپا. ئەمە تۆمارێکی ڕابردووە، نەک ئەم وەرزە.",tPlay:"ئێستا دەست بنێ لە ▶ مانگ بە مانگ ببینە بۆ بینینی وێنەی ڕاستەقینەی سەتەلایت بۆ ئەم کێڵگەیە، مانگ بە مانگ.",tPlay2:"هەر وێنەیەک وێنەی ڕاستەقینەی سەتەلایتی کێڵگەکەتە لەو مانگەدا — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت. دەتوانیت ڕایبگریت، یان بەسەر هێڵکارییەکەدا ڕابکێشیت بۆ هەڵبژاردنی مانگێک. کە تەواو بوویت دەست بنێ لە دواتر.",tReport:"دەست بنێ لە ڕاپۆرت بۆ داگرتنی وێنەیەک کە هەموو شتێکی ئەم کێڵگەیەی تێدایە — خوێندنەوەی هەر مانگێک، باران، شێداری، مێژووی دانەوێڵە و بەراوردی لەگەڵ کێڵگە نزیکەکان. هەڵیبگرە، یان بۆ هەر کەسێک بینێرە.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -674,7 +675,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-n";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-o";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2192,6 +2193,7 @@ function startPlay(f){
   updatePlayUI();
   fitFieldForPlay(f);
   runPlay();
+  if(typeof window.__onTourPlay==="function") window.__onTourPlay();
 }
 
 // With the card compacted, zoom so the field fills the map space above it.
@@ -2200,7 +2202,8 @@ function fitFieldForPlay(f){
     try{
       const bb = geomBbox(f.geometry); if(!bb) return;
       const sheetH = sheet.offsetHeight || 0;
-      const top = 72, side = 24;                     // clear the title/language bar
+      // clear the title/language bar — or the guide's card while the guide is on
+      const top = (typeof tourActive!=="undefined" && tourActive) ? (tourCard.offsetHeight||150) + 30 : 72, side = 24;
       if(window.innerHeight - sheetH - top < 120) return;   // no room — leave the view alone
       map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],
         {padding:{top, bottom:sheetH+side, left:side, right:side}, maxZoom:18, duration:600});
@@ -2625,7 +2628,7 @@ function renderField(f){
       // product never maps, or simply missed — "not wheat" would read as a
       // finding when it is only a silence.
       const key = cp >= 0.5 ? "cerealYes" : "cerealPart";
-      return `<div class="nbr"><span class="nbr-ico">🌾</span> ${t[key]}</div>`;
+      return `<div class="nbr" id="cereal-line"><span class="nbr-ico">🌾</span> ${t[key]}</div>`;
     })()}
     ${(()=>{
       // Rainfall: this year vs last year (rule and wording in rainSummaryText).
@@ -3947,7 +3950,10 @@ searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
    Gated flow: the user must actually TAP a field to proceed, then watches the
    real chart populate live. Steps that require an action hide the Next button. */
 const TOUR_KEY = "iraqFarmHealth.tourSeen.v1";
-const TOUR_FIELD = {lon:43.1995, lat:36.2282};
+// Sample field for the guide: FTW-FIWF1K near Arab Dulaim — a clear winter
+// crop cycle, WorldCereal 2021 wheat/barley, and neighbours in every colour.
+const TOUR_FIELD = {lon:44.0607, lat:33.9415};
+const TOUR_ZOOM = 16;
 const tourEl = document.getElementById("tour");
 const tourHole = document.getElementById("tour-hole");
 const tourCard = document.getElementById("tour-card");
@@ -3956,28 +3962,39 @@ const tourStepEl = document.getElementById("tour-step");
 const tourDotsEl = document.getElementById("tour-dots");
 const tourNextBtn = document.getElementById("tour-next");
 const tourSkipBtn = document.getElementById("tour-skip");
-let tourIdx = 0, tourActive = false;
+let tourIdx = 0, tourActive = false, tourGen = 0, tourReplace = null;
 
-// gate: "tap" waits for a field tap; "chart" waits for data to start filling; else Next.
+/* gate: "tap" waits for a field tap; "chart" waits for data; "play" waits for
+   the farmer to press play, then lets them watch.
+   waitFor: wait (up to maxWait ms) for that element before pointing at it;
+   optional steps are skipped if it never appears (e.g. a field with no crop record).
+   target may be a list — the spotlight then covers all of them. */
 const TOUR_STEPS = [
   {key:"t1", target:"center"},
   {key:"t2", target:"field", gate:"tap"},
   {key:"t3", target:"#stat"},
+  {key:"tCrop", target:"#cereal-line", waitFor:"#cereal-line", maxWait:8000, optional:true},
   {key:"t4", target:"#spark-wrap", gate:"chart"},
-  {key:"t5", target:"#health-toggle"},
+  {key:"tPlay", target:"#play-btn", gate:"play", waitFor:"#play-btn:not([disabled])", maxWait:45000},
+  {key:"tReport", target:"#report-field-btn", before:"stopPlay"},
+  {key:"t5", target:["#health-toggle","#crop-toggle"]},
   {key:"t6", target:"#tools"}
 ];
 
 function startTour(){
-  tourActive = true; tourIdx = 0;
+  tourActive = true; tourIdx = 0; tourGen++;
+  if(typeof stopPlay==="function" && __play) stopPlay(true);
   if(sheet.classList.contains("open")){ // reset any open field
     sheet.classList.remove("open");
     const s=map.getSource("sel"); if(s) s.setData({type:"FeatureCollection",features:[]});
   }
   // Jump INSTANTLY to the sample field (no animation) so the very first frame
   // the user sees is already the correct view.
-  map.jumpTo({center:[TOUR_FIELD.lon, TOUR_FIELD.lat], zoom:14.8});
+  map.jumpTo({center:[TOUR_FIELD.lon, TOUR_FIELD.lat], zoom:TOUR_ZOOM});
   tourEl.hidden = false;
+  // Keep the spotlight on its target while the sheet re-renders and the map moves.
+  clearInterval(tourReplace);
+  tourReplace = setInterval(()=>{ if(tourActive && tourEl.dataset.mode!=="lang" && tourEl.dataset.mode!=="watch") placeTour(); }, 400);
   // First: let the user pick their language, so the guide isn't a wall of
   // English to an Arabic/Kurdish speaker. Then run the localized steps.
   requestAnimationFrame(()=> requestAnimationFrame(()=> showLangChooser()));
@@ -3985,7 +4002,9 @@ function startTour(){
 
 /* Language chooser shown as the tour's very first screen. */
 function showLangChooser(){
+  tourEl.dataset.mode = "lang";
   tourHole.style.display="none";           // no spotlight on this screen
+  tourEl.classList.remove("has-hole","clear");
   tourStepEl.textContent = "";
   tourDotsEl.innerHTML = "";
   tourNextBtn.style.display="none";
@@ -4010,7 +4029,7 @@ function showLangChooser(){
   positionCard(null);
 }
 
-function positionCard(rect){
+function positionCard(rect, atTop){
   const cw = Math.min(340, window.innerWidth*0.88);
   const margin = 12;
   let left = rect ? rect.left + rect.width/2 - cw/2 : window.innerWidth/2 - cw/2;
@@ -4018,7 +4037,9 @@ function positionCard(rect){
   tourCard.style.width = cw+"px";
   tourCard.style.left = left+"px";
   const cardH = tourCard.offsetHeight || 170;
-  if(rect && rect.bottom + cardH + margin < window.innerHeight){
+  if(atTop){
+    tourCard.style.top = (margin + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--safe-t"))||0))+"px";
+  } else if(rect && rect.bottom + cardH + margin < window.innerHeight){
     tourCard.style.top = (rect.bottom + margin)+"px";
   } else if(rect && rect.top - cardH - margin > 0){
     tourCard.style.top = (rect.top - cardH - margin)+"px";
@@ -4027,34 +4048,61 @@ function positionCard(rect){
   }
 }
 
+// Screen box around the sample field's real outline (falls back to a square).
+function tourFieldRect(){
+  const pt = map.project([TOUR_FIELD.lon, TOUR_FIELD.lat]);
+  let rect = {left:pt.x-95, top:pt.y-95, right:pt.x+95, bottom:pt.y+95};
+  try{
+    const f = fieldsInView().find(ff=>pointInGeom(TOUR_FIELD.lon, TOUR_FIELD.lat, ff.geometry));
+    const bb = f && geomBbox(f.geometry);
+    if(bb){
+      const a = map.project([bb[0], bb[3]]), c = map.project([bb[2], bb[1]]);
+      const pad = 14;
+      rect = {left:Math.min(a.x,c.x)-pad, top:Math.min(a.y,c.y)-pad, right:Math.max(a.x,c.x)+pad, bottom:Math.max(a.y,c.y)+pad};
+    }
+  }catch{}
+  rect.width = rect.right-rect.left; rect.height = rect.bottom-rect.top;
+  return rect;
+}
+
 function highlight(target){
   let rect = null;
   if(target==="center" || target==="field"){
-    const pt = map.project([TOUR_FIELD.lon, TOUR_FIELD.lat]);
-    const size = 190;
-    rect = {left:pt.x-size/2, top:pt.y-size/2, width:size, height:size,
-            bottom:pt.y+size/2, right:pt.x+size/2};
+    rect = tourFieldRect();
   } else {
-    const el = document.querySelector(target);
-    if(el){ const r = el.getBoundingClientRect();
-      rect = {left:r.left-6, top:r.top-6, width:r.width+12, height:r.height+12,
-              bottom:r.bottom+6, right:r.right+6}; }
+    const els = (Array.isArray(target) ? target : [target]).map(sel=>document.querySelector(sel)).filter(Boolean);
+    if(els.length){
+      let l=Infinity,t=Infinity,r=-Infinity,b=-Infinity;
+      for(const el of els){ const q = el.getBoundingClientRect(); l=Math.min(l,q.left); t=Math.min(t,q.top); r=Math.max(r,q.right); b=Math.max(b,q.bottom); }
+      rect = {left:l-6, top:t-6, width:r-l+12, height:b-t+12, bottom:b+6, right:r+6};
+    }
   }
   if(rect){
     tourHole.style.display="block";
+    tourEl.classList.add("has-hole");
     tourHole.style.left=rect.left+"px"; tourHole.style.top=rect.top+"px";
     tourHole.style.width=rect.width+"px"; tourHole.style.height=rect.height+"px";
-  } else { tourHole.style.display="none"; }
+  } else { tourHole.style.display="none"; tourEl.classList.remove("has-hole"); }
   return rect;
+}
+function placeTour(){
+  const step = TOUR_STEPS[tourIdx]; if(!step) return;
+  positionCard(highlight(step.target));
 }
 
 function showTourStep(i){
   const t = I18N[lang];
   const step = TOUR_STEPS[i];
+  if(!step){ endTour(); return; }
+  const gen = ++tourGen;
   tourIdx = i;
+  tourEl.dataset.mode = "";
+  tourEl.classList.remove("clear");
+  if(step.before==="stopPlay" && __play) stopPlay(false);   // full card back, so the Report button shows
   tourStepEl.textContent = `${t.tourStep} ${i+1} / ${TOUR_STEPS.length}`;
   tourTextEl.textContent = t[step.key];
   tourDotsEl.innerHTML = TOUR_STEPS.map((_,k)=>`<span class="${k===i?'on':''}"></span>`).join("");
+  window.__onTourFieldTap = null; window.__onTourPlay = null;
 
   // A "tap" gate hides Next and lets the map receive the tap; the spotlight
   // pulses over the field. Advancing happens via __onTourFieldTap.
@@ -4066,8 +4114,27 @@ function showTourStep(i){
       window.__onTourFieldTap = null;
       tourEl.classList.remove("pass");
       tourHole.classList.remove("pulse");
-      // move on to the chart step once the sheet is opening
+      // move on once the sheet is opening
       setTimeout(()=>showTourStep(i+1), 500);
+    };
+  } else if(step.gate==="play"){
+    // The farmer presses play themselves; then the dim lifts so they can watch,
+    // pause or scrub, and Next appears when they're ready to move on.
+    tourNextBtn.style.display="none";
+    tourHole.classList.add("pulse");
+    tourEl.classList.add("pass");
+    window.__onTourPlay = ()=>{
+      window.__onTourPlay = null;
+      if(gen!==tourGen) return;
+      tourHole.classList.remove("pulse");
+      tourHole.style.display="none";
+      tourEl.classList.remove("has-hole");
+      tourEl.classList.add("clear");          // no dim: let them watch
+      tourEl.dataset.mode = "watch";
+      tourTextEl.textContent = I18N[lang].tPlay2;
+      tourNextBtn.style.display="";
+      tourNextBtn.textContent = I18N[lang].tourNext;
+      positionCard(null, true);               // card at the top; play zoom leaves room for it
     };
   } else {
     tourNextBtn.style.display="";
@@ -4076,23 +4143,34 @@ function showTourStep(i){
     tourNextBtn.textContent = (i===TOUR_STEPS.length-1) ? t.tourDone : t.tourNext;
   }
 
-  // Position spotlight/card. For the chart step, wait until it actually has data.
-  const place = ()=>{ const rect = highlight(step.target); positionCard(rect); };
-  if(step.gate==="chart"){
-    // keep re-placing as the sheet lays out; the chart is already filling live
-    place();
-    setTimeout(place, 300); setTimeout(place, 900);
-  } else {
-    setTimeout(place, 60);
+  // Wait for the target if it arrives later (crop line, play button after the
+  // history loads); skip optional steps whose target never appears.
+  if(step.waitFor && !document.querySelector(step.waitFor)){
+    tourHole.style.display="none"; tourEl.classList.remove("has-hole");
+    positionCard(null);
+    const t0 = Date.now();
+    const poll = setInterval(()=>{
+      if(gen!==tourGen){ clearInterval(poll); return; }
+      if(document.querySelector(step.waitFor)){ clearInterval(poll); placeTour(); return; }
+      if(Date.now()-t0 > (step.maxWait||8000)){
+        clearInterval(poll);
+        if(step.optional) showTourStep(i+1); else placeTour();
+      }
+    }, 250);
+    return;
   }
+  setTimeout(()=>{ if(gen===tourGen) placeTour(); }, step.gate==="chart" ? 60 : 60);
+  if(step.gate==="chart" || step.before){ setTimeout(()=>{ if(gen===tourGen) placeTour(); }, 450); }
 }
 
 function endTour(){
-  tourActive = false;
+  tourActive = false; tourGen++;
+  clearInterval(tourReplace);
   tourEl.hidden = true;
-  tourEl.classList.remove("pass");
+  tourEl.classList.remove("pass","has-hole","clear");
+  tourEl.dataset.mode = "";
   tourHole.classList.remove("pulse");
-  window.__onTourFieldTap = null;
+  window.__onTourFieldTap = null; window.__onTourPlay = null;
   try{ localStorage.setItem(TOUR_KEY,"1"); }catch{}
 }
 tourNextBtn.addEventListener("click",()=>{
@@ -4104,7 +4182,7 @@ document.getElementById("help-btn").addEventListener("click", ()=>{
   pinsPanel.hidden = true; startTour();
 });
 window.addEventListener("resize",()=>{
-  if(tourActive){ const rect = highlight(TOUR_STEPS[tourIdx].target); positionCard(rect); }
+  if(tourActive && tourEl.dataset.mode!=="lang" && tourEl.dataset.mode!=="watch") placeTour();
 });
 
 function maybeAutoTour(){
