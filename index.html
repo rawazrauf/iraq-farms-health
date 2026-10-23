@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-m";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-n";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -947,6 +947,18 @@ try{
   const proto = new pmtiles.Protocol();
   maplibregl.addProtocol("pmtiles", proto.tile);
 
+  /* Start where the link points. The map used to open on the default field and
+     only jump to ?lat=&lon= once it had loaded, so every shared link, refresh
+     or reopened field first flashed the default location for a second or so. */
+  const startView = (()=>{
+    try{
+      const q = new URLSearchParams(location.search);
+      const la = parseFloat(q.get("lat")), lo = parseFloat(q.get("lon")), z = parseFloat(q.get("z"));
+      if(isFinite(la) && isFinite(lo) && Math.abs(la)<=85 && Math.abs(lo)<=180)
+        return {center:[lo,la], zoom: isFinite(z) ? z : 16};
+    }catch{}
+    return null;
+  })();
   map = new maplibregl.Map({
     container:"map",
     preserveDrawingBuffer:true,   // allows capturing the map canvas for the shareable report
@@ -966,7 +978,9 @@ try{
       },
       layers:[{id:"sat",type:"raster",source:"esri"}]
     },
-    center:[43.1995,36.2282], zoom:14.8, maxZoom:16, minZoom:4,
+    center: startView ? startView.center : [43.1995,36.2282],
+    zoom:   startView ? Math.min(16, Math.max(4, startView.zoom)) : 14.8,
+    maxZoom:16, minZoom:4,
     attributionControl:false,
     /* Straight-down view only. A two-finger drag would otherwise tilt the map
        into a pitched pseudo-3D view, which tells a farmer nothing about a flat
@@ -3885,7 +3899,9 @@ function renderHistory(){
 
 /* Fly to a location, then select+open the field under that point once tiles load. */
 function flyToField(lon, lat){
-  map.flyTo({center:[lon,lat], zoom:15, duration:800});
+  // Keep the link's zoom when it's already close enough to see fields; only
+  // zoom in from further out (e.g. a Ranking entry across the country).
+  map.flyTo({center:[lon,lat], zoom:Math.max(15, map.getZoom()), duration:800});
   const tryTap = ()=>{
     const pt = map.project([lon,lat]);
     const feats = map.queryRenderedFeatures(pt, {layers:["fields-fill"]});
