@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-i";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-j";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1193,7 +1193,7 @@ function onMapLoad(){
         return;
       }
       if(zoomHint) zoomHint.hidden = true;
-      const feats = map.queryRenderedFeatures({layers:["fields-fill"]});
+      const feats = fieldsInView();
       if(feats.length){
         diag(D.fields, `${feats.length} ${t.fieldsInView}`, "");
       } else if(!ftwEverLoaded || !map.areTilesLoaded()){
@@ -1317,6 +1317,161 @@ const __rainCache = new Map();       // fieldKey -> { "YYYY-MM": {mm, tmax, tmin
 let __healthTimer = null;
 let __healthRunId = 0;
 
+/* ---------- Whole fields from tile pieces ----------
+   FTW fields reach the map as vector tiles, and a tile only holds the part of a
+   field inside it — plus a "buffer" strip copied from its neighbours. So a field
+   crossing a tile edge comes back from queryRenderedFeatures as several clipped,
+   OVERLAPPING pieces. Treated as separate fields, each piece got its own key,
+   its own NDVI request and its own colour, and the overlaps were painted twice
+   (the darker straight-edged bands on the health map and in the Report). A tap
+   on either half of a large field could even give two different field IDs.
+
+   stitchFields() fixes that at the source:
+     1. each piece is trimmed back to its own tile (removes the buffer overlap);
+     2. pieces that were cut at the same tile edge and meet along it are joined
+        into one MultiPolygon — the whole field;
+     3. a field that never touched a tile edge is returned untouched, so its
+        geometry, key and FTW ID are exactly what they were before.
+   MapLibre 5 exposes each queried feature's source tile as _z/_x/_y; if a future
+   version drops them, pieces pass through unchanged (the old behaviour). */
+function tileBoundsLL(z, x, y){
+  const n = Math.pow(2, z);
+  const lat = yy => 360/Math.PI*Math.atan(Math.exp((1 - 2*yy/n)*Math.PI)) - 90;  // same formula MapLibre uses
+  return { w: x/n*360-180, e: (x+1)/n*360-180, n: lat(y), s: lat(y+1) };
+}
+// Sutherland–Hodgman against an axis-aligned box, in lon/lat. Over a single
+// field, linear interpolation in latitude is indistinguishable from Mercator.
+function clipRingToBox(ring, b){
+  const edges = [
+    [p=>p[0]>=b.w, (a,c)=>{ const t=(b.w-a[0])/(c[0]-a[0]); return [b.w, a[1]+t*(c[1]-a[1])]; }],
+    [p=>p[0]<=b.e, (a,c)=>{ const t=(b.e-a[0])/(c[0]-a[0]); return [b.e, a[1]+t*(c[1]-a[1])]; }],
+    [p=>p[1]>=b.s, (a,c)=>{ const t=(b.s-a[1])/(c[1]-a[1]); return [a[0]+t*(c[0]-a[0]), b.s]; }],
+    [p=>p[1]<=b.n, (a,c)=>{ const t=(b.n-a[1])/(c[1]-a[1]); return [a[0]+t*(c[0]-a[0]), b.n]; }],
+  ];
+  let pts = ring.slice(0, -1);                 // drop the closing duplicate
+  for(const [inside, cross] of edges){
+    if(!pts.length) break;
+    const out = [];
+    for(let i=0;i<pts.length;i++){
+      const cur = pts[i], prev = pts[(i+pts.length-1)%pts.length];
+      const ci = inside(cur), pi = inside(prev);
+      if(ci){ if(!pi) out.push(cross(prev,cur)); out.push(cur); }
+      else if(pi) out.push(cross(prev,cur));
+    }
+    pts = out;
+  }
+  if(pts.length < 3) return null;
+  pts.push(pts[0].slice());
+  return pts;
+}
+function ringArea(r){
+  let a = 0;
+  for(let i=1;i<r.length;i++) a += r[i-1][0]*r[i][1] - r[i][0]*r[i-1][1];
+  return Math.abs(a/2);
+}
+function geomPolys(g){
+  return g.type==="Polygon" ? [g.coordinates] : g.type==="MultiPolygon" ? g.coordinates : [];
+}
+// Latitude/longitude intervals where a clipped polygon runs along one tile side.
+function sideIntervals(polys, side, b, eps){
+  const out = [];
+  const on = side==="e" ? p=>Math.abs(p[0]-b.e)<eps : side==="w" ? p=>Math.abs(p[0]-b.w)<eps
+           : side==="n" ? p=>Math.abs(p[1]-b.n)<eps : p=>Math.abs(p[1]-b.s)<eps;
+  const coord = (side==="e"||side==="w") ? 1 : 0;   // run along lat for E/W sides, lon for N/S
+  for(const poly of polys){
+    const ring = poly[0];
+    for(let i=1;i<ring.length;i++){
+      const a = ring[i-1], c = ring[i];
+      if(on(a) && on(c)){
+        const lo = Math.min(a[coord],c[coord]), hi = Math.max(a[coord],c[coord]);
+        if(hi-lo > eps) out.push([lo,hi]);
+      }
+    }
+  }
+  return out;
+}
+function intervalsTouch(A, B, eps){
+  for(const [a0,a1] of A) for(const [b0,b1] of B) if(Math.min(a1,b1) - Math.max(a0,b0) > eps) return true;
+  return false;
+}
+function stitchFields(raw){
+  if(!raw || !raw.length) return [];
+  // Use only the most detailed zoom present: while tiles cross-fade MapLibre can
+  // return the same field from a parent tile too, which would be a duplicate.
+  let zMax = -1;
+  for(const f of raw) if(Number.isInteger(f._z)) zMax = Math.max(zMax, f._z);
+  const pieces = [];
+  for(const f of raw){
+    if(!Number.isInteger(f._z)){ pieces.push({f, whole:true}); continue; }   // no tile info: pass through
+    if(f._z !== zMax) continue;
+    const b = tileBoundsLL(f._z, f._x, f._y);
+    const eps = (b.e-b.w)*1e-4;
+    const g = f.geometry;
+    const rb = geomBbox(g) || [0,0,0,0];
+    const cut = { e: rb[2] > b.e+eps, w: rb[0] < b.w-eps, n: rb[3] > b.n+eps, s: rb[1] < b.s-eps };
+    if(!cut.e && !cut.w && !cut.n && !cut.s){ pieces.push({f, whole:true}); continue; }  // untouched
+    const polys = [];
+    for(const poly of geomPolys(g)){
+      const outer = clipRingToBox(poly[0], b);
+      // A field ending exactly on the tile edge leaves a zero-width sliver in
+      // the neighbour's buffer; trimmed, it has no area — not a field.
+      if(!outer || ringArea(outer) < eps*eps) continue;
+      const holes = poly.slice(1).map(r=>clipRingToBox(r, b)).filter(Boolean);
+      polys.push([outer, ...holes]);
+    }
+    if(!polys.length) continue;                 // piece was only buffer
+    pieces.push({f, b, eps, cut, polys, z:f._z, x:f._x, y:f._y,
+      iv:{ e: cut.e ? sideIntervals(polys,"e",b,eps) : [], w: cut.w ? sideIntervals(polys,"w",b,eps) : [],
+           n: cut.n ? sideIntervals(polys,"n",b,eps) : [], s: cut.s ? sideIntervals(polys,"s",b,eps) : [] }});
+  }
+  // Union-find over cut pieces that meet across a shared tile edge.
+  const parent = pieces.map((_,i)=>i);
+  const find = i=>{ while(parent[i]!==i){ parent[i]=parent[parent[i]]; i=parent[i]; } return i; };
+  const byTile = new Map();
+  pieces.forEach((p,i)=>{ if(p.whole) return; const k=p.z+"/"+p.x+"/"+p.y; (byTile.get(k)||byTile.set(k,[]).get(k)).push(i); });
+  pieces.forEach((p,i)=>{
+    if(p.whole) return;
+    const tryJoin = (dx, dy, mySide, theirSide)=>{
+      if(!p.iv[mySide].length) return;
+      for(const j of (byTile.get(p.z+"/"+(p.x+dx)+"/"+(p.y+dy)) || [])){
+        const q = pieces[j];
+        if(q.iv[theirSide].length && intervalsTouch(p.iv[mySide], q.iv[theirSide], p.eps)) parent[find(i)] = find(j);
+      }
+    };
+    tryJoin(1, 0, "e", "w");    // east neighbour
+    tryJoin(0, 1, "s", "n");    // south neighbour (tile y grows southward)
+  });
+  const groups = new Map();
+  pieces.forEach((p,i)=>{ const r=find(i); (groups.get(r)||groups.set(r,[]).get(r)).push(p); });
+  const out = [];
+  for(const grp of groups.values()){
+    if(grp.length===1 && grp[0].whole){ out.push(grp[0].f); continue; }
+    // Deterministic part order (north-west tile first) so the field's key and
+    // FTW ID don't depend on the order MapLibre returned the pieces in.
+    grp.sort((a,b)=> (a.y-b.y) || (a.x-b.x));
+    const polys = [];
+    for(const p of grp) polys.push(...(p.whole ? geomPolys(p.f.geometry) : p.polys));
+    out.push({ type:"Feature", properties:grp[0].f.properties||{},
+               geometry: polys.length===1 ? {type:"Polygon", coordinates:polys[0]} : {type:"MultiPolygon", coordinates:polys},
+               __pieces: grp.length });
+  }
+  return out;
+}
+// Every whole field currently drawn on the map.
+function fieldsInView(){
+  let raw = [];
+  try{ raw = map.queryRenderedFeatures({layers:["fields-fill"]}); }catch{ return []; }
+  return stitchFields(raw);
+}
+// The whole field under a tap (or a looked-up point). Falls back to the raw
+// piece if stitching can't place the point, so a tap always opens something.
+function wholeFieldAt(lngLat, rawPiece){
+  if(lngLat){
+    for(const f of fieldsInView()) if(pointInGeom(lngLat.lng, lngLat.lat, f.geometry)) return f;
+  }
+  return rawPiece || null;
+}
+
 function fieldKey(f){
   const c = polyCentroid(f.geometry);
   return c ? `${c[0].toFixed(4)},${c[1].toFixed(4)}` : JSON.stringify(f.geometry).slice(0,40);
@@ -1369,7 +1524,7 @@ async function runHealthSample(){
   }
   const runId = ++__healthRunId;
   let feats = [];
-  try{ feats = map.queryRenderedFeatures({layers:["fields-fill"]}); }catch{ return; }
+  try{ feats = fieldsInView(); }catch{ return; }
   const seen = new Set(), uniq = [];
   for(const f of feats){
     const k = fieldKey(f);
@@ -1468,8 +1623,9 @@ function startFieldLookups(f){
 }
 
 async function onFieldTap(e){
-  const f = e.features && e.features[0];
-  if(!f) return;
+  const piece = e.features && e.features[0];
+  if(!piece) return;
+  const f = wholeFieldAt(e.lngLat, piece);       // the whole field, not one tile's piece of it
   DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
   // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
   const selSrc = map.getSource("sel");
@@ -2107,7 +2263,7 @@ async function sampleMoisture(f){
   // 2) a few neighbours for the comparison (only if we have a value to compare)
   if(f.__moisture==null) return;
   let feats = [];
-  try{ feats = map.queryRenderedFeatures({layers:["fields-fill"]}); }catch{ return; }
+  try{ feats = fieldsInView(); }catch{ return; }
   const seen = new Set([myKey]); const neighbours = [];
   for(const nf of feats){
     const k = fieldKey(nf);
@@ -2310,13 +2466,15 @@ function geomAreaMeters(g){
 }
 
 function geomBbox(g){
-  let ring;
-  if(g.type==="Polygon") ring=g.coordinates[0];
-  else if(g.type==="MultiPolygon") ring=g.coordinates.flat(1)[0];
+  // Every part's outer ring — a field stitched from tile pieces is a
+  // MultiPolygon, and its extent is all of it, not just the first part.
+  let rings;
+  if(g.type==="Polygon") rings=[g.coordinates[0]];
+  else if(g.type==="MultiPolygon") rings=g.coordinates.map(p=>p[0]);
   else return null;
   let w=Infinity,s=Infinity,e=-Infinity,n=-Infinity;
-  ring.forEach(p=>{ w=Math.min(w,p[0]); e=Math.max(e,p[0]); s=Math.min(s,p[1]); n=Math.max(n,p[1]); });
-  return [w,s,e,n];
+  for(const ring of rings) for(const p of ring){ w=Math.min(w,p[0]); e=Math.max(e,p[0]); s=Math.min(s,p[1]); n=Math.max(n,p[1]); }
+  return isFinite(w) ? [w,s,e,n] : null;
 }
 
 /* Statistics response is a GeoJSON feature; stats live under
@@ -2480,7 +2638,7 @@ function waitForNeighbourColours(f, timeoutMs){
     try{ if(typeof scheduleHealthSample==="function") scheduleHealthSample(); }catch{}
     const start = Date.now();
     const check = ()=>{
-      let feats=[]; try{ feats = map.queryRenderedFeatures({layers:["fields-fill"]}); }catch{}
+      let feats=[]; try{ feats = fieldsInView(); }catch{}
       if(feats.length){
         const keys = new Set(); let total=0, coloured=0;
         for(const nf of feats){ const k=fieldKey(nf); if(keys.has(k))continue; keys.add(k); total++;
@@ -2533,7 +2691,7 @@ function monitorReportReady(f){
     let coloured=0,total=0;
     try{
       const seen=new Set();
-      for(const nf of map.queryRenderedFeatures({layers:["fields-fill"]})){
+      for(const nf of fieldsInView()){
         const k=fieldKey(nf); if(seen.has(k))continue; seen.add(k); total++;
         const cc=__healthCache.get(k); if(cc&&cc.col) coloured++;
       }
@@ -2778,7 +2936,7 @@ async function buildFieldReport(f, btn){
 function collectContextFields(f){
   const myKey = fieldKey(f);
   let feats = [];
-  try{ feats = map.queryRenderedFeatures({layers:["fields-fill"]}); }catch{ feats=[]; }
+  try{ feats = fieldsInView(); }catch{ feats=[]; }
   const seen = new Set(); const out = [];
   for(const nf of feats){
     const k = fieldKey(nf);
@@ -3641,7 +3799,7 @@ function flyToField(lon, lat){
     const pt = map.project([lon,lat]);
     const feats = map.queryRenderedFeatures(pt, {layers:["fields-fill"]});
     if(feats && feats.length){
-      onFieldTap({features:[feats[0]]});
+      onFieldTap({features:[feats[0]], lngLat:{lng:lon, lat:lat}});
       return true;
     }
     return false;

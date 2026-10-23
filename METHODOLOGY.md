@@ -76,7 +76,7 @@ The satellite base map and the roads / place-name / boundary reference layers ar
 
 When you tap a field:
 
-1. The field's **boundary polygon** (from FTW) is used as the exact area of interest.
+1. The field's **boundary polygon** (from FTW) is used as the exact area of interest. Field boundaries are delivered in map tiles, so a large field can arrive cut into pieces at tile edges; the tool joins those pieces back into one field first, so the reading, the size and the field ID always cover the whole field.
 2. The tool asks Planetary Computer's statistics service for NDVI over that polygon, for a recent time window, across candidate Sentinel-2 scenes (least-cloudy first).
 3. It reads the **median** NDVI of all the pixels inside the field for the chosen scene.
 
