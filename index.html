@@ -339,6 +339,9 @@ html,body{margin:0;height:100%;background:var(--ink);
   color:var(--ink);background:var(--wheat);border:0;border-radius:8px;padding:7px 12px}
 #sheet .save-btn.saved{background:var(--canal);color:#fff}
 #play-wrap{margin:10px 0 4px}
+/* Compact sheet while a playback is open: keep the field line, the chart and the
+   play controls; everything else steps aside so the map has the room. */
+#sheet.compact #stat,#sheet.compact .nbr,#sheet.compact .msg,#sheet.compact .pv-save{display:none}
 #play-row{display:flex;gap:8px;align-items:stretch}
 #play-btn{flex:1;border:0;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:15px;font-weight:800;
   background:var(--canal);color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -671,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-b";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1420,22 +1423,10 @@ async function runHealthSample(){
   if(runId === __healthRunId) pushHealth(out, inViewKeys);
 }
 
-async function onFieldTap(e){
-  const f = e.features && e.features[0];
-  if(!f) return;
-  DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
-  // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
-  const selSrc = map.getSource("sel");
-  if(selSrc) selSrc.setData({type:"Feature",properties:{},geometry:f.geometry});
-  if(__play) stopPlay(true);
-  lastField = f;
-  sheet.classList.add("open");
-  // Pan the tapped field into the area still visible ABOVE the sheet, so the
-  // popup doesn't cover the field you just tapped. We center the field's
-  // centroid using easeTo with bottom padding equal to the sheet's height:
-  // MapLibre then frames the field in the remaining viewport above the sheet,
-  // not the full screen. Measured after the sheet lays out (rAF), and only
-  // nudged if the field centroid actually falls under the sheet.
+/* Pan the field into the strip still visible above the sheet (see onFieldTap).
+   Also called when the sheet changes height, e.g. leaving the compact
+   playback card. */
+function panFieldAboveSheet(f){
   requestAnimationFrame(()=>{
     try{
       const c = polyCentroid(f.geometry);
@@ -1457,6 +1448,25 @@ async function onFieldTap(e){
       }
     }catch{}
   });
+}
+
+async function onFieldTap(e){
+  const f = e.features && e.features[0];
+  if(!f) return;
+  DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
+  // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
+  const selSrc = map.getSource("sel");
+  if(selSrc) selSrc.setData({type:"Feature",properties:{},geometry:f.geometry});
+  if(__play) stopPlay(true);
+  lastField = f;
+  sheet.classList.add("open");
+  // Pan the tapped field into the area still visible ABOVE the sheet, so the
+  // popup doesn't cover the field you just tapped. We center the field's
+  // centroid using easeTo with bottom padding equal to the sheet's height:
+  // MapLibre then frames the field in the remaining viewport above the sheet,
+  // not the full screen. Measured after the sheet lays out (rAF), and only
+  // nudged if the field centroid actually falls under the sheet.
+  panFieldAboveSheet(f);
   // If the interactive tour is waiting for the user to tap a field, advance it.
   if(typeof window.__onTourFieldTap==="function") window.__onTourFieldTap();
 
@@ -1958,8 +1968,24 @@ function startPlay(f){
   if(!frames.length) return;
   __play = {f, frames, pos:0, idx:null, state:"loading", gen:0, front:"a", shownAny:false, failStreak:0};
   DBG.log(`playback: ${frames.length} months`);
+  sheet.classList.add("compact");
   updatePlayUI();
+  fitFieldForPlay(f);
   runPlay();
+}
+
+// With the card compacted, zoom so the field fills the map space above it.
+function fitFieldForPlay(f){
+  requestAnimationFrame(()=>{
+    try{
+      const bb = geomBbox(f.geometry); if(!bb) return;
+      const sheetH = sheet.offsetHeight || 0;
+      const top = 72, side = 24;                     // clear the title/language bar
+      if(window.innerHeight - sheetH - top < 120) return;   // no room — leave the view alone
+      map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],
+        {padding:{top, bottom:sheetH+side, left:side, right:side}, maxZoom:18, duration:600});
+    }catch{}
+  });
 }
 
 // Drag/tap on the chart while paused or finished: show that month's image.
@@ -1980,7 +2006,11 @@ async function scrubTo(i){
 
 function stopPlay(silent){
   __playGen++;
+  const f = __play && __play.f;
   __play = null;
+  sheet.classList.remove("compact");
+  // Hide → the full card is back and taller; keep the field visible above it.
+  if(!silent && f && f===lastField) panFieldAboveSheet(f);
   if(map){
     for(const id of ["play-a","play-b"]) if(map.getLayer(id)) map.setPaintProperty(id, "raster-opacity", 0);
   }
