@@ -142,7 +142,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 #sheet .grip,#sheet h2,#sheet .sub{touch-action:none;cursor:grab}
 #sheet.dragging{transition:none}
 #sheet h2{margin:0 0 2px;font-size:16px;font-weight:800}
-#sheet .sub{margin:0 0 10px;font-size:12px;opacity:.6;font-weight:600}
+#sheet .sub{margin:0 0 10px;font-size:12px;opacity:.6;font-weight:600;padding-inline-end:30px}
 #sheet .close{position:absolute;top:12px;inset-inline-end:14px;border:0;background:transparent;
   font-size:20px;line-height:1;color:var(--ink);opacity:.5;cursor:pointer;padding:4px}
 #stat{display:flex;gap:8px;margin-bottom:10px}
@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-c";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2343,7 +2343,6 @@ function renderField(f){
   const yoy = computeYoY(hist);
 
   sheetBody.innerHTML = `
-    <h2>${t.title}</h2>
     <p class="sub">${fieldLabel(f)}${geoLabel(f)}${curDate ? "  ·  "+t.asOf+" "+curDate : ""}${loading?`  ·  ${done}/${hist.length}`:""}</p>
     <div id="stat">
       <div class="card">
@@ -2359,11 +2358,8 @@ function renderField(f){
         <div class="c">${t.vsLastYear}</div>
       </div>
     </div>
-    ${(()=>{
-      const st = neighborStanding(f, cur, __healthCache, e=>e.v);
-      if(!st) return "";
-      return `<div class="nbr"><span class="nbr-ico">🏞️</span> ${t["nbrHealth_"+st]}</div>`;
-    })()}
+    ${/* Neighbour comparison and NDMI moisture live in the Report, not here:
+         the popup keeps to what a farmer reads at a glance. */""}
     ${(()=>{
       // What ESA WorldCereal mapped on this field in 2021. The year is in the
       // sentence, not a footnote: a five-year-old mask read as this season's
@@ -2376,15 +2372,6 @@ function renderField(f){
       // finding when it is only a silence.
       const key = cp >= 0.5 ? "cerealYes" : "cerealPart";
       return `<div class="nbr"><span class="nbr-ico">🌾</span> ${t[key]}</div>`;
-    })()}
-    ${(()=>{
-      const mv = f.__moisture;
-      if(mv==null) return "";
-      // Own moisture value with a rough band word, plus neighbour comparison.
-      const band = mv>=0.2 ? "moist" : (mv>=0.0 ? "mid" : "dry");
-      const mst = neighborStanding(f, mv, __moistCache, e=>e.v);
-      const nbr = mst ? ` — ${t["nbrMoist_"+mst]}` : "";
-      return `<div class="nbr"><span class="nbr-ico">💧</span> ${t["moist_"+band]}${nbr}</div>`;
     })()}
     ${(()=>{
       // Rainfall: this year vs last year, using the SAME rolling 12-month windows
