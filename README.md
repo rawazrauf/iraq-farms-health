@@ -18,7 +18,7 @@ Tap any field on the map to see how healthy its crops are right now, view a two-
 - **Field size.** Each field's area is shown in donums.
 - **Watch it grow.** Play the field's last two years on the map, month by month — the actual satellite NDVI image of the field for each month, from the same scene as that month's reading.
 - **Health map overlay.** Colour every visible field by its current health at once — green for healthy, red for stressed — to spot problems across a whole area.
-- **See where the farmland is.** Zoomed out to the whole country, a density layer shows where fields are concentrated, before individual fields become tappable.
+- **See where it's green, country-wide.** Zoomed out, a NASA MODIS greenness layer shows where vegetation is growing across Iraq right now; zoom in and individual fields take over. The Health map button switches both on and off.
 - **Save & rank your fields.** Bookmark fields you care about, and see which of your fields improved most since last year.
 - **Shareable field report.** Generate a clean image report for any field — its health, trend, moisture, size, and a small map with roads and place names for context — to save or share.
 - **Verify anything.** Each reading links out to the free Copernicus Browser, opened on the same field and date, so you can check the numbers yourself.
@@ -36,7 +36,7 @@ The app is a **single, self-contained HTML file**. It runs entirely in the brows
 - **Base map:** Esri World Imagery (satellite) with Esri reference layers for roads, place names, and boundaries.
 - **Field boundaries:** Fields of the World (FTW) global field polygons, served as [PMTiles](https://protomaps.com/docs/pmtiles).
 - **Vegetation & moisture data:** Sentinel-2 L2A imagery via Microsoft's [Planetary Computer](https://planetarycomputer.microsoft.com/), which computes NDVI and NDMI statistics per field.
-- **Farmland density (low zoom):** FTW field-prediction confidence, rendered as a raster overlay so farmland is visible at country scale before individual fields appear.
+- **Country-wide greenness (low zoom):** NASA MODIS Terra 8-day NDVI via NASA GIBS, shown until individual fields appear.
 - **Map rendering:** [MapLibre GL JS](https://maplibre.org/).
 
 For a full description of the data sources, the NDVI calculation, and the tool's limitations, see **[METHODOLOGY.md](METHODOLOGY.md)**.
