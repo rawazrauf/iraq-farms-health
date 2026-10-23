@@ -338,6 +338,24 @@ html,body{margin:0;height:100%;background:var(--ink);
 #sheet .save-btn{display:inline-block;font-size:13px;font-weight:800;cursor:pointer;
   color:var(--ink);background:var(--wheat);border:0;border-radius:8px;padding:7px 12px}
 #sheet .save-btn.saved{background:var(--canal);color:#fff}
+#play-wrap{margin:10px 0 4px}
+#play-row{display:flex;gap:8px;align-items:stretch}
+#play-btn{flex:1;border:0;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:15px;font-weight:800;
+  background:var(--canal);color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#play-btn:disabled{opacity:.45;cursor:default}
+#play-row.on #play-btn{flex:0 0 48px;padding:0;font-size:17px}
+#play-hide{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:12px;padding:0 14px;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+/* What the map is showing right now: lives in the sheet (like the chart's
+   playhead) rather than floating on the map, so it never covers the field. */
+#play-now{flex:1;min-width:0;border:1px solid var(--line);background:#fff;border-radius:12px;padding:6px 12px}
+#play-now .pm{font-size:17px;font-weight:800;line-height:1.25;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#play-now .ps{font-size:11px;font-weight:600;color:#6B6350;margin-top:1px;white-space:nowrap}
+#play-leg{margin-top:7px}
+#play-leg .pl{height:7px;border-radius:4px}
+#play-leg .pll{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:#6B6350;margin-top:3px}
+/* RTL: labels run right-to-left, so the colour ramps must too (poor end on the right). */
+html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(--canal))}
 </style>
 
 <!-- Microsoft Clarity (anonymous session analytics + heatmaps) -->
@@ -481,7 +499,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Tap Health map to colour every field by its health at once — green is healthy, red is stressed. Great for spotting problems across a whole area.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",
+      playBtn:"▶ Watch month by month",playPause:"❚❚ Pause",playResume:"▶ Continue",playReplay:"↻ Watch again",playHide:"Hide",playLoading:"Loading images…",playFail:"Images unavailable right now",playScene:"image",playMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Tap Health map to colour every field by its health at once — green is healthy, red is stressed. Great for spotting problems across a whole area.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place. Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",copied:"Link copied ✓",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -490,7 +508,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"انقر خريطة الصحة لتلوين كل الحقول حسب صحتها دفعة واحدة — الأخضر صحي والأحمر مُجهَد. مفيد لاكتشاف المشاكل في منطقة كاملة.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",
+      playBtn:"▶ شاهد شهراً بشهر",playPause:"❚❚ إيقاف مؤقت",playResume:"▶ متابعة",playReplay:"↻ شاهد مجدداً",playHide:"إخفاء",playLoading:"جارٍ تحميل الصور…",playFail:"الصور غير متاحة حالياً",playScene:"صورة",playMonths:["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"انقر خريطة الصحة لتلوين كل الحقول حسب صحتها دفعة واحدة — الأخضر صحي والأحمر مُجهَد. مفيد لاكتشاف المشاكل في منطقة كاملة.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان. انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",copied:"تم نسخ الرابط ✓",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -499,7 +517,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دەست بنێ لە نەخشەی تەندروستی بۆ ڕەنگکردنی هەموو کێڵگەکان بەپێی تەندروستییان بەیەکجار — سەوز تەندروستە، سوور لاوازە. باشە بۆ دۆزینەوەی کێشە لە ناوچەیەکی تەواودا.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",
+      playBtn:"▶ مانگ بە مانگ ببینە",playPause:"❚❚ ڕاگرتن",playResume:"▶ بەردەوامبە",playReplay:"↻ دووبارە ببینە",playHide:"شاردنەوە",playLoading:"وێنەکان بار دەبن…",playFail:"وێنەکان ئێستا بەردەست نین",playScene:"وێنە",playMonths:["کانوونی دووەم","شوبات","ئازار","نیسان","ئایار","حوزەیران","تەممووز","ئاب","ئەیلوول","تشرینی یەکەم","تشرینی دووەم","کانوونی یەکەم"],latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دەست بنێ لە نەخشەی تەندروستی بۆ ڕەنگکردنی هەموو کێڵگەکان بەپێی تەندروستییان بەیەکجار — سەوز تەندروستە، سوور لاوازە. باشە بۆ دۆزینەوەی کێشە لە ناوچەیەکی تەواودا.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ. دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",copied:"لینک کۆپی کرا ✓",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -653,7 +671,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.17-j";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-a";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1247,6 +1265,7 @@ function onMapLoad(){
 const sheet = document.getElementById("sheet");
 const sheetBody = document.getElementById("sheet-body");
 function closeSheet(){
+  stopPlay(true);
   sheet.classList.remove("open");
   sheet.style.transform = "";            // clear any drag offset
   const selSrc = map.getSource("sel");
@@ -1408,6 +1427,7 @@ async function onFieldTap(e){
   // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
   const selSrc = map.getSource("sel");
   if(selSrc) selSrc.setData({type:"Feature",properties:{},geometry:f.geometry});
+  if(__play) stopPlay(true);
   lastField = f;
   sheet.classList.add("open");
   // Pan the tapped field into the area still visible ABOVE the sheet, so the
@@ -1689,6 +1709,335 @@ async function ndviForWindow(geometry, from, to, expr){
   // Every candidate scene was masked/cloudy over this field.
   DBG.warn(`${from.slice(0,7)} ${expr===NDVI_EXPR?"NDVI":"expr"} null · ${items.length} scenes · ${reasons.join(" | ").slice(0,300)}`);
   return {value:null, err:`masked ×${triedMasked}`};
+}
+
+/* ---------- Month-by-month NDVI playback ----------
+   "Watch month by month" plays the field's own history on the map: for each
+   month it shows the per-pixel NDVI of the SAME Sentinel-2 scene that month's
+   number came from (slot.scene), clipped to the field outline and coloured in
+   the house Poor/Fair/Good palette. So the picture and the number can never
+   disagree — they are one scene.
+
+   Honesty rules (see METHODOLOGY §3):
+   - One real image per month. Months with no clear scene are skipped, never
+     interpolated or invented. The chip shows the actual image date.
+   - The cross-fade between frames is a visual transition only (~0.3 s); no
+     in-between frames are synthesised.
+   - Nothing is fetched until the farmer presses Play (≤24 small PNGs, cached
+     for the session), so opening a field costs no extra requests.
+
+   Pixels come from Planetary Computer's titiler as a GET bbox crop (a CORS
+   "simple" request — no preflight, see ndviForWindow). The PNG is NDVI rescaled
+   −1…1 → 0…255 in grey + alpha; it is recoloured client-side with the same
+   palette as the cards and chart, upscaled with smoothing, then clipped to the
+   exact polygon so the image edge sits under the outline. */
+const PLAY_FRAME_MS = 900;      // time each month stays on screen
+const PLAY_FADE_MS  = 300;      // cross-fade between months
+const __frameCache = new Map(); // fieldKey|scene -> Promise<{url, coords}>
+let __play = null;              // {f, frames:[histIdx], pos, idx, state, gen, front, shownAny, failStreak}
+let __playGen = 0;
+let __bboxRoute = null;         // tiler route confirmed to work: "bbox" | "crop"
+
+// Continuous NDVI ramp built on the house band colours: rust (poor, <0.2),
+// ochre (fair, 0.2–0.45), green (good, ≥0.45), deepening with higher NDVI.
+// The blends straddle the same 0.2 / 0.45 thresholds the cards use.
+const NDVI_STOPS = [
+  [-0.20,[122, 58, 34]],
+  [ 0.15,[180, 85, 45]],   // #B4552D poor
+  [ 0.23,[217,164, 65]],   // #D9A441 fair
+  [ 0.40,[217,164, 65]],
+  [ 0.50,[111,163,107]],
+  [ 0.85,[ 30,110, 90]],   // #1E6E5A good
+];
+function ndviRampRGB(v){
+  const S = NDVI_STOPS;
+  if(v<=S[0][0]) return S[0][1];
+  for(let k=1;k<S.length;k++){
+    if(v<=S[k][0]){
+      const [a,ca]=S[k-1], [b,cb]=S[k], u=(v-a)/(b-a);
+      return [0,1,2].map(j=>Math.round(ca[j]+(cb[j]-ca[j])*u));
+    }
+  }
+  return S[S.length-1][1];
+}
+// 256-entry lookup: grey byte → colour (byte = (NDVI+1)/2 × 255).
+const NDVI_LUT = Array.from({length:256}, (_,b)=> ndviRampRGB(b/255*2-1));
+function ndviRampCss(){
+  const lo=-0.2, hi=0.85;
+  const dir = document.documentElement.dir==="rtl" ? "270deg" : "90deg";
+  return "linear-gradient("+dir+","+NDVI_STOPS.map(([v,c])=>
+    `rgb(${c.join(",")}) ${Math.round((v-lo)/(hi-lo)*100)}%`).join(",")+")";
+}
+
+// Field bbox padded by ~2 pixels (20 m) so pixels under the outline exist.
+function playBox(geometry){
+  const bb = geomBbox(geometry); if(!bb) return null;
+  const lat = (bb[1]+bb[3])/2;
+  const dLat = 20/111320, dLon = 20/(111320*Math.cos(lat*Math.PI/180));
+  return [bb[0]-dLon, bb[1]-dLat, bb[2]+dLon, bb[3]+dLat];
+}
+
+async function fetchFramePng(scene, box){
+  const b = box.map(x=>x.toFixed(6)).join(",");
+  const qs = new URLSearchParams({
+    collection:"sentinel-2-l2a", item:scene,
+    expression:NDVI_EXPR, asset_as_band:"true", rescale:"-1,1"
+  }).toString();
+  // titiler renamed /crop → /bbox; try the known-good one first, else both.
+  const routes = __bboxRoute ? [__bboxRoute] : ["bbox","crop"];
+  let last = "no route";
+  for(const rt of routes){
+    let r;
+    try{ r = await fetchRetry(`${PC}/item/${rt}/${b}.png?${qs}`, {method:"GET"}); }
+    catch(e){ last = "threw "+(e.name||e.message); continue; }
+    if(r.ok){
+      const blob = await r.blob();
+      if(!/image\//.test(blob.type||"image/png")){ last = "not an image"; continue; }
+      if(!__bboxRoute){ __bboxRoute = rt; DBG.log("playback route: "+rt); }
+      return blob;
+    }
+    last = rt+" "+r.status;
+    if(r.status!==404 && r.status!==405 && r.status!==422) break;  // real failure, not a missing route
+  }
+  throw new Error(last);
+}
+
+function loadImg(url){
+  return new Promise((res,rej)=>{
+    const im = new Image();
+    im.onload = ()=>res(im);
+    im.onerror = ()=>rej(new Error("png decode"));
+    im.src = url;
+  });
+}
+
+// Recolour the grey NDVI PNG, upscale smoothly, clip to the field polygon.
+function paintFrame(img, geometry, box){
+  const w0 = img.naturalWidth, h0 = img.naturalHeight;
+  const c0 = document.createElement("canvas"); c0.width = w0; c0.height = h0;
+  const x0 = c0.getContext("2d");
+  x0.drawImage(img, 0, 0);
+  const id = x0.getImageData(0, 0, w0, h0), d = id.data;
+  for(let i=0;i<d.length;i+=4){
+    if(d[i+3]===0) continue;
+    const c = NDVI_LUT[d[i]];
+    d[i]=c[0]; d[i+1]=c[1]; d[i+2]=c[2];
+  }
+  x0.putImageData(id, 0, 0);
+
+  const S = Math.max(1, Math.min(16, Math.round(512/Math.max(w0,h0))));
+  const W = w0*S, H = h0*S;
+  const c1 = document.createElement("canvas"); c1.width = W; c1.height = H;
+  const x1 = c1.getContext("2d");
+  x1.imageSmoothingEnabled = true; x1.imageSmoothingQuality = "high";
+  x1.drawImage(c0, 0, 0, W, H);
+  x1.globalCompositeOperation = "destination-in";
+  x1.beginPath();
+  const polys = geometry.type==="Polygon" ? [geometry.coordinates] : geometry.coordinates;
+  for(const poly of polys) for(const ring of poly){
+    ring.forEach((p,i)=>{
+      const X = (p[0]-box[0])/(box[2]-box[0])*W;
+      const Y = (box[3]-p[1])/(box[3]-box[1])*H;
+      if(i) x1.lineTo(X,Y); else x1.moveTo(X,Y);
+    });
+    x1.closePath();
+  }
+  x1.fillStyle = "#000";
+  x1.fill("evenodd");
+  return c1;
+}
+
+function frameFor(f, slot){
+  const ck = fieldKey(f)+"|"+slot.scene;
+  if(__frameCache.has(ck)) return __frameCache.get(ck);
+  const p = (async()=>{
+    const box = playBox(f.geometry);
+    if(!box) throw new Error("bad geometry");
+    const blob = await fetchFramePng(slot.scene, box);
+    const srcUrl = URL.createObjectURL(blob);
+    let cv;
+    try{ cv = paintFrame(await loadImg(srcUrl), f.geometry, box); }
+    finally{ URL.revokeObjectURL(srcUrl); }
+    const out = await new Promise(res=>cv.toBlob(res, "image/png"));
+    if(!out) throw new Error("toBlob");
+    return { url:URL.createObjectURL(out),
+             coords:[[box[0],box[3]],[box[2],box[3]],[box[2],box[1]],[box[0],box[1]]] };
+  })();
+  p.catch(e=>{ __frameCache.delete(ck); DBG.warn(`frame ${slot.ym}: ${e.message}`); });
+  __frameCache.set(ck, p);
+  return p;
+}
+
+// Two image layers, A/B, swapped with a cross-fade. Sit above the selection
+// tint and health fill, under the selection outline.
+function ensurePlayLayers(fr){
+  for(const id of ["play-a","play-b"]){
+    if(map.getSource(id)) continue;
+    map.addSource(id, {type:"image", url:fr.url, coordinates:fr.coords});
+    map.addLayer({id, type:"raster", source:id,
+      paint:{"raster-opacity":0, "raster-opacity-transition":{duration:PLAY_FADE_MS, delay:0},
+             "raster-fade-duration":0, "raster-resampling":"linear"}},
+      map.getLayer("sel-line") ? "sel-line" : undefined);
+  }
+}
+function waitSource(id){
+  return new Promise(res=>{
+    let done = false;
+    const fin = ()=>{ if(done) return; done = true; map.off("sourcedata", on); res(); };
+    const on = e=>{ if(e.sourceId===id && map.isSourceLoaded(id)) fin(); };
+    map.on("sourcedata", on);
+    setTimeout(fin, 450);
+  });
+}
+async function showFrame(P, fr){
+  ensurePlayLayers(fr);
+  const back = P.front==="a" ? "play-b" : "play-a";
+  const front = P.front==="a" ? "play-a" : "play-b";
+  map.getSource(back).updateImage({url:fr.url, coordinates:fr.coords});
+  await waitSource(back);
+  map.setPaintProperty(back, "raster-opacity", 1);
+  if(P.shownAny) map.setPaintProperty(front, "raster-opacity", 0);
+  P.front = back==="play-a" ? "a" : "b";
+}
+
+function playFrames(f){
+  const h = f.__history || [];
+  const out = [];
+  for(let i=0;i<h.length;i++) if(h[i].v!=null && h[i].scene) out.push(i);
+  return out;
+}
+
+async function prefetchFrames(P, g){
+  let next = P.pos;
+  const worker = async()=>{
+    while(next < P.frames.length && g===P.loadGen){
+      const slot = P.f.__history[P.frames[next++]];
+      try{ await frameFor(P.f, slot); }catch{}
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+}
+
+async function runPlay(){
+  const P = __play; if(!P) return;
+  const g = P.gen = ++__playGen;
+  P.loadGen = g;
+  prefetchFrames(P, g);
+  while(P.pos < P.frames.length){
+    if(g!==__playGen || __play!==P) return;
+    const i = P.frames[P.pos];
+    const t0 = performance.now();
+    let fr = null;
+    try{ fr = await frameFor(P.f, P.f.__history[i]); }catch(e){}
+    if(g!==__playGen || __play!==P) return;
+    P.pos++;
+    if(fr){
+      P.failStreak = 0;
+      await showFrame(P, fr);
+      if(g!==__playGen || __play!==P) return;
+      P.idx = i; P.shownAny = true; P.state = "playing";
+      updatePlayUI();
+      if(P.pos < P.frames.length) await sleep(Math.max(0, PLAY_FRAME_MS-(performance.now()-t0)));
+    }else{
+      P.failStreak = (P.failStreak||0)+1;
+      if(!P.shownAny && P.failStreak>=3){ P.state = "error"; updatePlayUI(); return; }
+    }
+  }
+  if(g===__playGen && __play===P){ P.state = P.shownAny ? "done" : "error"; updatePlayUI(); }
+}
+
+function startPlay(f){
+  if(__play && __play.f===f){
+    const P = __play;
+    if(P.state==="playing" || P.state==="loading"){ P.state = "paused"; __playGen++; updatePlayUI(); return; }
+    if(P.state==="paused"){ P.state = "playing"; updatePlayUI(); runPlay(); return; }
+    // done / error → start over
+  }
+  stopPlay(true);
+  const frames = playFrames(f);
+  if(!frames.length) return;
+  __play = {f, frames, pos:0, idx:null, state:"loading", gen:0, front:"a", shownAny:false, failStreak:0};
+  DBG.log(`playback: ${frames.length} months`);
+  updatePlayUI();
+  runPlay();
+}
+
+// Drag/tap on the chart while paused or finished: show that month's image.
+async function scrubTo(i){
+  const P = __play;
+  if(!P || P.f!==lastField || P.state==="playing" || P.state==="loading") return;
+  const slot = P.f.__history[i];
+  if(!slot || slot.v==null || !slot.scene) return;
+  if(P.state==="done") P.state = "paused";
+  P.scrubTarget = i;
+  let fr; try{ fr = await frameFor(P.f, slot); }catch{ return; }
+  if(__play!==P || P.scrubTarget!==i || P.state==="playing") return;
+  await showFrame(P, fr);
+  P.idx = i; P.shownAny = true;
+  const k = P.frames.indexOf(i); if(k>=0) P.pos = k+1;
+  updatePlayUI();
+}
+
+function stopPlay(silent){
+  __playGen++;
+  __play = null;
+  if(map){
+    for(const id of ["play-a","play-b"]) if(map.getLayer(id)) map.setPaintProperty(id, "raster-opacity", 0);
+  }
+  if(!silent) updatePlayUI();
+}
+
+function playMonthName(slot){
+  const t = I18N[lang];
+  const names = t.playMonths || I18N.en.playMonths;
+  return `${names[slot.monthIdx]} ${slot.year}`;
+}
+
+// Play controls + "now showing" line, inside the sheet under the chart.
+// Re-rendered with the sheet, and swapped in place on every frame.
+function playRowHtml(f){
+  const t = I18N[lang];
+  const hist = f.__history || [];
+  const loading = hist.some(h=>h.pending);
+  const n = playFrames(f).length;
+  if(!loading && n<2) return `<div id="play-wrap"></div>`;
+  const P = (__play && __play.f===f) ? __play : null;
+  if(!P){
+    return `<div id="play-wrap"><div id="play-row"><button id="play-btn" ${loading?"disabled":""}>${t.playBtn}${loading?" …":""}</button></div></div>`;
+  }
+  const strip = s=>s.replace(/^[^\p{L}]+/u,"");          // "❚❚ Pause" → "Pause" for aria-label
+  let icon, aria;
+  if(P.state==="playing" || P.state==="loading"){ icon = "❚❚"; aria = strip(t.playPause); }
+  else if(P.state==="paused"){ icon = "▶"; aria = strip(t.playResume); }
+  else { icon = "↻"; aria = strip(t.playReplay); }
+  let main, sub = "";
+  if(P.state==="error") main = t.playFail;
+  else if(P.idx==null) main = t.playLoading;
+  else{
+    const s = P.f.__history[P.idx];
+    main = playMonthName(s);
+    sub = `${t.playScene} <bdi dir="ltr">${s.date||""}</bdi> · <bdi dir="ltr">NDVI ${s.v.toFixed(2)}</bdi>`;
+  }
+  const leg = P.state==="error" ? "" :
+    `<div id="play-leg"><div class="pl" style="background:${ndviRampCss()}"></div>`+
+    `<div class="pll"><span>${t.poor}</span><span>${t.fair}</span><span>${t.good}</span></div></div>`;
+  return `<div id="play-wrap"><div id="play-row" class="on">`+
+    `<button id="play-btn" aria-label="${aria}" title="${aria}">${icon}</button>`+
+    `<div id="play-now" aria-live="polite"><div class="pm">${main}</div>${sub?`<div class="ps">${sub}</div>`:""}</div>`+
+    `<button id="play-hide">${t.playHide}</button>`+
+    `</div>${leg}</div>`;
+}
+function wirePlayRow(f){
+  const b = document.getElementById("play-btn");
+  if(b) b.onclick = ()=> startPlay(f);
+  const h = document.getElementById("play-hide");
+  if(h) h.onclick = ()=> stopPlay(false);
+}
+function updatePlayUI(){
+  if(!lastField || !sheet.classList.contains("open")) return;
+  const w = document.getElementById("play-wrap");
+  if(w){ w.outerHTML = playRowHtml(lastField); wirePlayRow(lastField); }
+  if(lastField.__history) drawSpark(lastField.__history);
 }
 
 /* Sample NDMI moisture for the tapped field plus a handful of nearby visible
@@ -2031,6 +2380,7 @@ function renderField(f){
       <div id="spark-tip" hidden></div>
       <div id="spark-prov" hidden></div>
     </div>
+    ${playRowHtml(f)}
     <div class="msg ${band||'none'}">
       <div class="msg-main">${cur!=null ? (t[band+"Msg"]) : (loading? t.loading : t.noData)}</div>
       ${yoy.msg?`<div class="msg-sub">${yoy.msg}</div>`:""}
@@ -2044,6 +2394,7 @@ function renderField(f){
     })()}</div>`;
   drawSpark(hist);
   attachSparkHover(hist);
+  wirePlayRow(f);
   const saveBtn = document.getElementById("save-field-btn");
   if(saveBtn) saveBtn.addEventListener("click",()=>{
     const id = resolveFieldId(f);
@@ -2729,6 +3080,17 @@ function drawSpark(hist){
     ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill();
     __sparkDots.push({i, cx, cy, v:s.v, label:s.label, year:s.year, date:s.date, scene:s.scene, cloud:s.cloud, thisYear:i>=n-12});
   }
+  // Playback playhead: the month currently shown on the map.
+  if(__play && __play.idx!=null && __play.f.__history===hist){
+    const pi = __play.idx, px = x(pi);
+    ctx.strokeStyle="rgba(20,38,27,.55)"; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(px,P-4); ctx.lineTo(px,H-16); ctx.stroke();
+    const s = hist[pi];
+    if(s && s.v!=null){
+      ctx.strokeStyle="#14261B"; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.arc(px,y(s.v),6.5,0,7); ctx.stroke();
+    }
+  }
   // Highlight the hovered dot with a ring.
   if(__hoverDot!=null){
     const d = __sparkDots.find(d=>d.i===__hoverDot);
@@ -2858,6 +3220,7 @@ function attachSparkHover(hist){
   function show(d){
     if(!d){ hide(); return; }
     if(__hoverDot!==d.i){ __hoverDot=d.i; drawSpark(hist); }
+    if(__play) scrubTo(d.i);
     tip.innerHTML = `<span class="tv">${d.v.toFixed(2)}</span>`+
       `<div class="td">${d.label} ${d.year}${d.date?" · "+d.date:""}</div>`;
     tip.style.left = d.cx+"px";
