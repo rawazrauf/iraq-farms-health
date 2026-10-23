@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-d";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2400,7 +2400,6 @@ function renderField(f){
     ${playRowHtml(f)}
     <div class="msg ${band||'none'}">
       <div class="msg-main">${cur!=null ? (t[band+"Msg"]) : (loading? t.loading : t.noData)}</div>
-      ${yoy.msg?`<div class="msg-sub">${yoy.msg}</div>`:""}
     </div>
     <div class="pv-save">${(()=>{
       const id = resolveFieldId(f);
