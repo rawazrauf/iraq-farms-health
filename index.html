@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-h";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -1450,6 +1450,23 @@ function panFieldAboveSheet(f){
   });
 }
 
+/* Per-field lookups that feed the popup and the Report: moisture (NDMI),
+   WorldCereal 2021, and two years of rain. Each caches by field, so calling
+   this again when a field is re-opened costs no requests — it just copies the
+   cached answers onto the new tap's feature object. (Re-opened fields used to
+   skip this, which dropped moisture and wheat/barley from their Report.) */
+function startFieldLookups(f){
+  sampleMoisture(f).catch(()=>{});
+  // What WorldCereal recorded for THIS field. Independent of the other samplers
+  // and of the Crops toggle — the sheet says it whether or not the layer is on.
+  sampleFieldCereal(f).then(r => {
+    f.__cereal = r ? r.pct : null;
+    if(lastField===f && sheet.classList.contains("open")) renderField(f);
+  }).catch(()=>{ f.__cereal = null; });
+  // --- 2-year rainfall + temperature (Open-Meteo archive), for report + popup line ---
+  sampleRain(f).catch(()=>{});
+}
+
 async function onFieldTap(e){
   const f = e.features && e.features[0];
   if(!f) return;
@@ -1478,6 +1495,7 @@ async function onFieldTap(e){
     const done = cached.filter(s=>!s.pending).length;
     if(done >= cached.length - 2){               // essentially complete
       f.__history = cached;
+      startFieldLookups(f);
       renderField(f);
       return;
     }
@@ -1495,15 +1513,7 @@ async function onFieldTap(e){
   // Moisture isn't sampled constantly (that would double API load); we fetch it
   // when a field is opened. We sample the tapped field and up to ~12 nearby
   // fields so we can say whether this field is wetter/drier than its neighbours.
-  sampleMoisture(f).catch(()=>{});
-  // What WorldCereal recorded for THIS field. Independent of the other samplers
-  // and of the Crops toggle — the sheet says it whether or not the layer is on.
-  sampleFieldCereal(f).then(r => {
-    f.__cereal = r ? r.pct : null;
-    if(lastField===f && sheet.classList.contains("open")) renderField(f);
-  }).catch(()=>{ f.__cereal = null; });
-  // --- 2-year rainfall + temperature (Open-Meteo archive), for report + popup line ---
-  sampleRain(f).catch(()=>{});
+  startFieldLookups(f);
   // TEMP A/B probe: compare ERA5 (25km) vs Historical-Forecast (9km) rainfall
   // for this exact field, side by side. Gated behind ?raintest=1. Throwaway.
   if(new URLSearchParams(location.search).get("raintest")==="1") rainAB(f).catch(()=>{});
@@ -2081,7 +2091,6 @@ async function sampleMoisture(f){
   const from = new Date(now.getFullYear(), now.getMonth(), 1);
   const iso = d=> d.toISOString().slice(0,10);
   const myKey = fieldKey(f);
-  const myGen = __tapGen;   // tie to the current tap so stale samples don't render
 
   // 1) the tapped field's moisture first (its own value)
   if(!__moistCache.has(myKey)){
@@ -2110,18 +2119,18 @@ async function sampleMoisture(f){
   let i=0;
   async function worker(){
     while(i < pick.length){
-      if(myGen !== __tapGen) return;      // user tapped elsewhere — stop
+      if(lastField !== f) return;         // user opened another field — stop
       const {f:nf,k} = pick[i++];
       if(__moistCache.has(k)) continue;
       try{
         const r = await ndviForWindow(nf.geometry, iso(from), iso(now), NDMI_EXPR);
         __moistCache.set(k, {v:(r && r.value!=null)? r.value : null});
       }catch{ __moistCache.set(k, {v:null}); }
-      if(myGen===__tapGen && lastField===f && sheet.classList.contains("open")) renderField(f);
+      if(lastField===f && sheet.classList.contains("open")) renderField(f);
     }
   }
   await Promise.all(Array.from({length:3}, worker));
-  if(myGen===__tapGen && lastField===f && sheet.classList.contains("open")) renderField(f);
+  if(lastField===f && sheet.classList.contains("open")) renderField(f);
 }
 
 /* Sample 24 months of rainfall + temperature for the field, from Open-Meteo's
@@ -2135,9 +2144,8 @@ async function sampleMoisture(f){
    (CC BY 4.0); attribution shown with the report chart. */
 async function sampleRain(f){
   const myKey = fieldKey(f);
-  const myGen = __tapGen;
   if(__rainCache.has(myKey)){
-    if(myGen===__tapGen && lastField===f && sheet.classList.contains("open")) renderField(f);
+    if(lastField===f && sheet.classList.contains("open")) renderField(f);
     return;
   }
   const months = (f.__history && f.__history.length) ? f.__history : buildMonths(24);
@@ -2183,7 +2191,7 @@ async function sampleRain(f){
   }catch(e){
     __rainCache.set(myKey, {});   // empty = tried, no data; UI omits gracefully
   }
-  if(myGen===__tapGen && lastField===f && sheet.classList.contains("open")) renderField(f);
+  if(lastField===f && sheet.classList.contains("open")) renderField(f);
 }
 
 /* TEMP A/B PROBE (throwaway, ?raintest=1 only): fetch this field's trailing-12-
