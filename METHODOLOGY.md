@@ -40,7 +40,7 @@ Alongside vegetation greenness, the tool reads a field's **NDMI** — the Normal
 NDMI = (NIR − SWIR) / (NIR + SWIR)
 ```
 
-where **SWIR** is short-wave infrared light, which water strongly absorbs. A wetter canopy produces a higher NDMI; a dry or sparse canopy produces a lower one. The tool shows moisture as a plain-language band (roughly: NDMI ≥ 0.2 "good moisture", ≥ 0.0 "moderate", below "low / dry canopy") and, where it can, compares the field's moisture to nearby fields ("wetter" / "drier than most nearby fields").
+where **SWIR** is short-wave infrared light, which water strongly absorbs. A wetter canopy produces a higher NDMI; a dry or sparse canopy produces a lower one. The tool shows moisture as a plain-language band (roughly: NDMI ≥ 0.2 "good moisture", ≥ 0.0 "moderate", below "low / dry canopy") and, where it can, compares the field's moisture to nearby fields ("wetter" / "drier than most nearby fields"). The same comparison is made for greenness. **Nearby** means fields within about 2 km whose readings the tool has fetched; it needs at least five of them, and if the field is within 0.05 of their median it says "about average" — small differences between similar fields are noise, not a finding.
 
 > **Important:** NDMI is an *index of canopy moisture as seen from space*, not a soil-moisture probe or an irrigation gauge. It is affected by how much vegetation is present (a bare field and a wet field can both read low for different reasons), and like NDVI it is a signal, not a measurement. Treat it as a rough comparison, not an instruction to irrigate.
 

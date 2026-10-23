@@ -674,7 +674,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-k";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.23-l";  // bump on each deploy so screenshots self-identify
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
@@ -2526,20 +2526,37 @@ function firstStats(j){
    the health map, in __healthCache). Returns a simple word bucket, or null if we
    don't have enough neighbours to say anything honestly. `getVal` pulls the value
    to compare from a cache entry (NDVI by default). Needs >=5 neighbours. */
+/* "Greener / drier than most nearby fields". Nearby means what it says: fields
+   whose centre is within NEARBY_M of this one (the caches hold every field
+   sampled this session, anywhere in Iraq — ranking against all of them made the
+   answer depend on where else you'd looked). At least 5 such fields are needed,
+   and a gap from their median smaller than NEARBY_MIN_DIFF reads as "about
+   average": among fallow October fields that all sit at 0.08–0.12, a 0.01
+   difference is noise, not a finding. */
+const NEARBY_M = 2000, NEARBY_MIN_DIFF = 0.05;
 function neighborStanding(f, myVal, cache, getVal){
   if(myVal==null) return null;
   const myKey = fieldKey(f);
+  const c = polyCentroid(f.geometry);
+  if(!c) return null;
+  const cosLat = Math.cos(c[1]*Math.PI/180);
   const vals = [];
   for(const [k,entry] of cache){
     if(k===myKey) continue;
+    const m = /^(-?\d+\.\d+),(-?\d+\.\d+)$/.exec(k);   // fieldKey is "lon,lat" of the field's centre
+    if(!m) continue;
+    const dx = (+m[1]-c[0])*111320*cosLat, dy = (+m[2]-c[1])*110574;
+    if(dx*dx + dy*dy > NEARBY_M*NEARBY_M) continue;
     const v = getVal(entry);
     if(v!=null && isFinite(v)) vals.push(v);
   }
-  if(vals.length < 5) return null;               // too few to compare honestly
-  // How many neighbours is this field at or above?
-  const below = vals.filter(v=> v < myVal).length;
-  const frac = below / vals.length;              // 0..1, higher = greener than more neighbours
-  // Simple three-way bucket with a neutral middle band.
+  if(vals.length < 5) return null;               // too few nearby to compare honestly
+  vals.sort((a,b)=>a-b);
+  const mid = vals.length>>1;
+  const median = vals.length%2 ? vals[mid] : (vals[mid-1]+vals[mid])/2;
+  if(Math.abs(myVal - median) < NEARBY_MIN_DIFF) return "around";
+  // How many neighbours is this field above?
+  const frac = vals.filter(v=> v < myVal).length / vals.length;
   if(frac >= 0.66) return "above";
   if(frac <= 0.33) return "below";
   return "around";
