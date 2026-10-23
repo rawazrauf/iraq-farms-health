@@ -60,11 +60,11 @@ Field outlines come from **Fields of the World (FTW)**, an open, machine-learnin
 
 > **Important:** FTW boundaries are *predictions* from a model, not an official cadastre. Some real fields are missed; some detected "fields" may not be cultivated; and boundaries may not perfectly match a field's true edges — especially in dense, irregular, or small-plot areas. If your field is not outlined, the tool cannot read it. Field outlines are only shown at close zoom (zoom level 13 and above) to avoid clutter and misleading detections over towns.
 
-### Farmland density (low zoom) — FTW confidence
+### Country-wide greenness (low zoom) — NASA MODIS
 
-When you are zoomed out too far to see individual field outlines, the map shows a faint overlay indicating where farmland is concentrated, so the country doesn't look empty. This overlay is **not** a field-by-field layer: it is FTW's own model **confidence** for its global field predictions (a 500-metre raster), rendered through the public **titiler.xyz** tiling service and shown only at low zoom. It fades out as you zoom in and the real, tappable field outlines take over.
+When you are zoomed out too far to see individual fields, the map shows where land is green right now across Iraq, so the country doesn't look empty. This is NASA's **MODIS Terra 8-day NDVI** composite (about 250 m pixels), served by NASA's free GIBS tile service. The tool picks the newest composite NASA has published, which is usually one to three weeks old. It fades out as you zoom in, and the tappable field outlines with their own Sentinel-2 readings take over; the two are never on screen together.
 
-> **Important:** this layer answers "roughly where is the farmland?", not "is this a field?". It reflects where the FTW model is confident that fields exist, which tracks farmland concentration but is a proxy, not a measurement. It also depends on a third-party tile service (titiler.xyz) that the project does not control; if that service is slow or unavailable, only this low-zoom overlay is affected — the rest of the tool works normally.
+> **Important:** this layer is a regional picture of greenness, not a reading of any field — a 250 m pixel can cover several fields, roads and villages at once. Field readings always come from Sentinel-2 at 10 m (§3). The **Health map** button turns this layer and the per-field colours on and off together.
 
 ### Base map & reference layers — Esri
 
@@ -114,7 +114,7 @@ The tool reports each field's area in **donums** (1 donum = 2,500 m²). The area
 
 ## 4. The health map overlay
 
-The **Health map** colours whole fields at once. When it is on, the tool samples the current-month NDVI for the fields visible on screen (largest first, up to a capped number to limit load) and fills each field polygon with its health colour.
+The **Health map** colours whole fields at once. The same button also controls the country-wide greenness layer shown when zoomed out (§2); switched off, the map shows the plain satellite picture at every zoom. When it is on, the tool samples the current-month NDVI for the fields visible on screen (largest first, up to a capped number to limit load) and fills each field polygon with its health colour.
 
 Colours appear **only inside detected fields** — never over rivers, roads, towns, or bare land. This is deliberate: it means green outside a field is just the satellite image, not a health reading, and it makes the tappable fields obvious. Fields colour in progressively as their readings return; very small fields, or fields with no recent clear imagery, may remain uncoloured (this is honest — the tool does not guess).
 
@@ -136,7 +136,7 @@ Being clear about limitations is part of being trustworthy. In summary:
 - **NDMI is canopy moisture as seen from space**, not soil moisture or an irrigation gauge. It is influenced by how much vegetation is present, so read it as a rough comparison, not a measurement.
 - **Thresholds are generic**, not calibrated to Iraqi crops or growth calendars. Interpret Poor/Fair/Good (and the moisture bands) as rough guidance.
 - **Field boundaries are model predictions.** Fields can be missed, mis-drawn, or falsely detected. If a field isn't outlined, it can't be read — and its reported size inherits any error in the outline.
-- **The low-zoom farmland overlay is a confidence proxy**, not a field layer, and relies on a third-party tile service. It shows roughly where farmland is, not whether any particular spot is a field.
+- **The zoomed-out greenness layer is coarse and a little behind.** It is a 250 m, 8-day MODIS composite, typically one to three weeks old, and shows regional greenness, not individual fields.
 - **Clouds create gaps.** Sentinel-2 is optical and cannot see through cloud. Cloudy periods leave blanks in the history, and "current" always means the latest *clear* image, which may be several days old.
 - **"Current" is not live.** Satellites revisit every few days, and cloud-free imagery may be older still. Readings reflect the most recent usable pass, not today.
 - **The month-by-month images show clouds as they are.** The clearest scene of the month is used, but a patch of thin cloud or shadow over the field shows up as a low-NDVI blotch — the same pixels that pull that month's number down.
