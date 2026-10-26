@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Iraq Crop Map — Wheat &amp; Barley</title>
+<meta name="description" content="Open 10 m map of wheat, barley and other crops in Iraq (ESA WorldCereal), with statistics by governorate and region, area downloads and links for QGIS and GeoLibre." />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;800&display=swap" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+/* Same visual identity as Iraq Farms Health: dry-soil paper, field green-black ink. */
+:root{
+  --ink:#14261B; --paper:#F3EFE4; --card:#FBF9F3; --clay:#B4552D; --canal:#1E6E5A; --wheat:#D9A441;
+  --line:#C9BFA8; --muted:#5E6B60; --panel:rgba(243,239,228,.95); --shadow:0 2px 14px rgba(20,38,27,.18);
+  --c-wheat:#E3B505; --c-barley:#C2571A; --c-other:#4F9D69; --c-nocrop:#9AA0A6;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
+  --font:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:var(--font)}
+body{display:flex;flex-direction:column;overflow:hidden}
+a{color:var(--canal)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--canal);outline-offset:2px}
+
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:calc(8px + var(--safe-t)) max(12px,var(--safe-r)) 8px max(12px,var(--safe-l));
+  background:var(--ink);color:var(--paper)}
+header h1{font-size:16px;margin:0;font-weight:800;display:flex;align-items:center;gap:8px;letter-spacing:.2px}
+header h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--wheat)}
+header .season{font-weight:600;opacity:.7;font-size:13px}
+header .back{color:var(--paper);opacity:.8;font-size:13px;font-weight:700;text-decoration:none;margin-inline-start:auto}
+header .back:hover{opacity:1;text-decoration:underline}
+#lang{display:flex;gap:2px;background:rgba(243,239,228,.12);border-radius:10px;padding:3px}
+#lang button{border:0;background:transparent;color:var(--paper);font-weight:700;font-size:13px;padding:5px 9px;border-radius:7px;opacity:.6;cursor:pointer}
+#lang button.on{opacity:1;background:var(--paper);color:var(--ink)}
+
+main{flex:1;display:flex;min-height:0}
+#mapwrap{position:relative;flex:1;min-width:0}
+#map{position:absolute;inset:0}
+aside{width:420px;max-width:46vw;display:flex;flex-direction:column;border-inline-start:1px solid var(--line);background:var(--paper);min-height:0}
+@media (max-width:820px){
+  body{overflow:auto}
+  main{flex-direction:column}
+  #mapwrap{flex:none;height:56vh;min-height:320px}
+  aside{width:auto;max-width:none;border-inline-start:0;border-top:1px solid var(--line)}
+}
+
+/* map overlays */
+#legend{position:absolute;z-index:3;top:10px;inset-inline-start:10px;display:block;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:9px 11px;font-size:13px;
+  max-width:min(260px,62%)}
+#legend .ttl{font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);cursor:pointer;list-style-position:inside}
+#legend[open] .ttl{margin-bottom:4px}
+#legend label{margin-top:2px}
+#legend label{display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap}
+#legend .sw{width:13px;height:13px;border-radius:3px;flex:none}
+#legend .sub{font-size:12px;color:var(--muted)}
+#legend input[type=range]{width:100%;accent-color:var(--canal)}
+#status{position:absolute;z-index:3;bottom:calc(10px + var(--safe-b));inset-inline-start:10px;background:rgba(20,38,27,.86);
+  color:var(--paper);font-size:12px;font-weight:600;border-radius:9px;padding:6px 9px;max-width:70%}
+#status[hidden]{display:none}
+.maplibregl-popup-content{font-family:var(--font);font-size:13px;border-radius:10px;padding:10px 12px;background:var(--card)}
+.maplibregl-popup-tip{border-top-color:var(--card)!important;border-bottom-color:var(--card)!important}
+
+/* side panel */
+nav.tabs{display:flex;border-bottom:1px solid var(--line);padding:0 max(12px,var(--safe-r)) 0 max(12px,var(--safe-l));gap:4px;flex:none}
+nav.tabs button{border:0;background:transparent;padding:11px 12px 10px;font-weight:700;font-size:14px;color:var(--muted);
+  border-bottom:3px solid transparent;cursor:pointer}
+nav.tabs button.on{color:var(--ink);border-bottom-color:var(--wheat)}
+.pane{overflow:auto;padding:14px max(14px,var(--safe-r)) calc(18px + var(--safe-b)) max(14px,var(--safe-l));display:flex;flex-direction:column;gap:14px;min-height:0;flex:1}
+.pane>*{flex:none}
+.pane[hidden]{display:none}
+h2{font-size:15px;margin:0;font-weight:800}
+h3{font-size:13px;margin:0;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+p{margin:0;line-height:1.55;font-size:14px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.5}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.banner{background:#FFF6DD;border:1px solid #E7D29A;border-radius:10px;padding:9px 11px;font-size:13px;line-height:1.5}
+.banner b{font-weight:800}
+.bar{height:8px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--canal)}
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:380px){.regions{grid-template-columns:1fr}}
+.region .name{font-weight:800;font-size:14px;margin-bottom:8px}
+.rrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;font-weight:700;margin-top:8px}
+.rrow:first-of-type{margin-top:0}
+.rrow .k{display:flex;align-items:center;gap:6px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.rsub{font-size:12px;color:var(--muted);line-height:1.45}
+.sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex:none}
+.share{font-size:12px;color:var(--muted)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 9px;text-align:start;border-bottom:1px solid #E6DFCE;white-space:nowrap}
+th{font-size:12px;color:var(--muted);font-weight:800;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card)}
+th[aria-sort]::after{content:" ▾";opacity:.6}
+th[aria-sort=ascending]::after{content:" ▴"}
+td.n,th.n{text-align:end;font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+tbody tr.gov{cursor:pointer}
+tbody tr.gov:hover{background:#F2ECDD}
+tbody tr.gov.sel{background:#EDE3C8}
+tbody tr.dist td{font-size:12.5px;color:var(--muted);background:#F7F3EA}
+tbody tr.dist td:first-child{padding-inline-start:22px}
+tr.kri td:first-child{border-inline-start:3px solid var(--wheat)}
+.pct{font-size:12px;color:var(--muted)}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;
+  padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.on{background:var(--canal);color:#fff;border-color:var(--canal)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 10px;font-weight:600;font-size:13px;max-width:100%}
+.code{font-family:var(--mono);font-size:12px;background:#1d2a21;color:#E8EFE9;border-radius:10px;padding:10px 12px;
+  overflow-x:auto;white-space:pre;direction:ltr;text-align:left;line-height:1.5}
+.copyrow{display:flex;gap:8px;align-items:stretch;direction:ltr}
+.copyrow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-family:var(--mono);font-size:12px;background:var(--card)}
+.progress{height:8px;border-radius:5px;background:var(--line);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--wheat);transition:width .2s}
+ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
+.aoi-sum{font-size:13px}
+[dir=rtl] .code,[dir=rtl] .copyrow{direction:ltr}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="dot" aria-hidden="true"></span><span data-t="title">Iraq Crop Map</span></h1>
+  <span class="season" id="season"></span>
+  <a class="back" href="../" data-t="back">← Iraq Farms Health</a>
+  <div id="lang" role="group" aria-label="Language">
+    <button data-l="en">EN</button><button data-l="ar">عربي</button><button data-l="ku">کوردی</button>
+  </div>
+</header>
+<main>
+  <div id="mapwrap">
+    <div id="map" role="application" aria-label="Map of crops in Iraq"></div>
+    <details id="legend" open>
+      <summary class="ttl" data-t="legend">Crops</summary>
+      <label><input type="checkbox" id="lg-wheat" checked><span class="sw" style="background:var(--c-wheat)"></span><span data-t="wheat">Wheat</span></label>
+      <label><input type="checkbox" id="lg-barley" checked><span class="sw" style="background:var(--c-barley)"></span><span data-t="barley">Barley</span></label>
+      <label><input type="checkbox" id="lg-other" checked><span class="sw" style="background:var(--c-other)"></span><span data-t="other">Other crops</span></label>
+      <label><input type="checkbox" id="lg-nocrop" checked><span class="sw" style="background:var(--c-nocrop)"></span><span data-t="nocrop">Cropland, no crop</span></label>
+      <label class="sub"><input type="checkbox" id="lg-fade" checked><span data-t="fade">Fade where WorldCereal is less sure</span></label>
+      <label class="sub" for="lg-op"><span data-t="opacity">Opacity</span></label>
+      <input type="range" id="lg-op" min="0.2" max="1" step="0.05" value="0.9" aria-label="Opacity">
+    </details>
+    <div id="status" hidden></div>
+  </div>
+  <aside>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="stats" class="on" data-t="tabStats">Statistics</button>
+      <button role="tab" data-tab="dl" data-t="tabDl">Download &amp; GIS</button>
+      <button role="tab" data-tab="about" data-t="tabAbout">About</button>
+    </nav>
+
+    <section class="pane" id="pane-stats" role="tabpanel">
+      <div class="banner" id="provisional" hidden></div>
+      <div>
+        <h3 data-t="byRegion">By region</h3>
+      </div>
+      <div class="regions" id="regions"></div>
+      <p class="note" data-t="regionNote">Kurdistan Region = Duhok, Erbil, Sulaymaniyah and Halabja governorates as drawn in the open boundary data. The district table lets anyone regroup areas whose administration is disputed.</p>
+      <div>
+        <h3 data-t="byGov">By governorate</h3>
+        <p class="note" data-t="govHint">Click a governorate to see its districts and zoom the map.</p>
+      </div>
+      <div class="tablewrap"><table id="govtable">
+        <thead><tr>
+          <th data-k="name" data-t="colGov">Governorate</th>
+          <th class="n" data-k="wheat" data-t="colWheat" aria-sort="descending">Wheat (ha)</th>
+          <th class="n" data-k="barley" data-t="colBarley">Barley (ha)</th>
+          <th class="n" data-k="cov" data-t="colCov">Processed</th>
+        </tr></thead><tbody></tbody>
+      </table></div>
+      <div class="links" id="csvlinks"></div>
+      <p class="note" id="statsnote"></p>
+    </section>
+
+    <section class="pane" id="pane-dl" role="tabpanel" hidden>
+      <div class="card" style="display:grid;gap:10px">
+        <h2 data-t="aoiTitle">1. Choose an area</h2>
+        <div class="seg">
+          <button class="btn" id="aoi-draw" data-t="aoiDraw">Draw a box</button>
+          <button class="btn" id="aoi-view" data-t="aoiView">Current map view</button>
+          <select id="aoi-gov" aria-label="Governorate"><option value="" data-t="aoiGov">Governorate…</option></select>
+        </div>
+        <div class="aoi-sum" id="aoi-sum" data-t="aoiNone">No area chosen yet.</div>
+      </div>
+      <div class="card" style="display:grid;gap:10px">
+        <h2 data-t="dlTitle">2. Download GeoTIFF</h2>
+        <label style="display:grid;gap:4px;font-size:13px"><span data-t="detail">Detail</span>
+          <select id="dl-level"></select></label>
+        <div class="seg"><button class="btn primary" id="dl-go" disabled data-t="dlGo">Download</button></div>
+        <div class="progress" id="dl-prog" hidden><i></i></div>
+        <div id="dl-result" class="aoi-sum"></div>
+        <p class="note" data-t="dlNote">One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure. Opens in QGIS, ArcGIS and GeoLibre.</p>
+      </div>
+      <div class="card" style="display:grid;gap:10px">
+        <h2 data-t="qgisTitle">Stream in QGIS (whole country, full detail)</h2>
+        <ol>
+          <li data-t="qgis1">Layer ▸ Add Layer ▸ Add Raster Layer…</li>
+          <li data-t="qgis2">Source type: Protocol: HTTP(S), cloud, etc. Paste this link:</li>
+        </ol>
+        <div class="copyrow"><input id="url-vrt" readonly><button class="btn" data-copy="url-vrt" data-t="copy">Copy</button></div>
+        <p class="note"><span data-t="qgis3">Then load the colours: Layer Properties ▸ Style ▸ Load Style ▸</span> <a id="qml" download data-t="qmlLink">iraq_crops.qml</a></p>
+        <h3 data-t="gdalTitle">GDAL command for your area</h3>
+        <div class="code" id="gdal"></div>
+      </div>
+      <div class="card" style="display:grid;gap:10px">
+        <h2 data-t="glTitle">GeoLibre and other COG viewers</h2>
+        <p class="note" data-t="glText">Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:</p>
+        <div class="copyrow"><input id="url-ov" readonly><button class="btn" data-copy="url-ov" data-t="copy">Copy</button></div>
+        <p class="note" data-t="glCells">Full 10 m detail is split into blocks; the blocks covering your area:</p>
+        <div id="cell-links" class="note"></div>
+      </div>
+      <div class="links" id="dl-files"></div>
+    </section>
+
+    <section class="pane" id="pane-about" role="tabpanel" hidden>
+      <div id="about"></div>
+    </section>
+  </aside>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js"></script>
+<script src="crop-layer.js"></script>
+<script>
+(function(){
+"use strict";
+// Data folder (relative to this page). Override with ?data=<url> to test another location.
+const DATA = new URLSearchParams(location.search).get("data") || "2026/";
+const DATA_ABS = new URL(DATA, location.href).href;
+const KRI_NAME = "Kurdistan Region";
+
+/* ------------------------------------------------------------------ text */
+const T = {
+ en:{title:"Iraq Crop Map",back:"← Iraq Farms Health",legend:"Crops",wheat:"Wheat",barley:"Barley",other:"Other crops",nocrop:"Cropland, no crop",
+  fade:"Fade where WorldCereal is less sure",opacity:"Opacity",tabStats:"Statistics",tabDl:"Download & GIS",tabAbout:"About",
+  byRegion:"By region",byGov:"By governorate",govHint:"Click a governorate to see its districts and zoom the map.",
+  regionNote:"Kurdistan Region = Duhok, Erbil, Sulaymaniyah and Halabja governorates as drawn in the open boundary data. The district table lets anyone regroup areas whose administration is disputed.",
+  colGov:"Governorate",colWheat:"Wheat (ha)",colBarley:"Barley (ha)",colCov:"Processed",
+  kri:"Kurdistan Region",fed:"Other governorates",iraq:"Iraq (all processed areas)",
+  cropland:"Cropland",sure:"of which WorldCereal sure",ofIraq:"of Iraq's mapped total",processed:"Processed",
+  provisional:"<b>Provisional.</b> {d} of {p} planned tiles processed so far ({pc}). Totals will rise as the remaining tiles are processed; compare areas only where both show 100%.",
+  complete:"All {p} planned tiles processed.",
+  csv:"CSV",csvR:"Regions",csvG:"Governorates",csvD:"Districts",
+  statsNote:"Hectares counted at 10 m from WorldCereal's own classification (no extra threshold). “Sure” = WorldCereal's confidence ≥ {t}%. Areas outside the processed tiles are not counted. Generated {g} UTC.",
+  aoiTitle:"1. Choose an area",aoiDraw:"Draw a box",aoiDrawing:"Drag on the map…",aoiView:"Current map view",aoiGov:"Governorate…",aoiNone:"No area chosen yet.",
+  aoiArea:"{name}: {km} km²",dlTitle:"2. Download GeoTIFF",detail:"Detail",dlGo:"Download",dlWorking:"Reading…",
+  lvl:"{m} m pixels — about {mb} MB",lvlFull:"Full detail (WorldCereal {m} m) — about {mb} MB",lvlTooBig:"too large for the browser — use QGIS/GDAL",
+  dlDone:"Downloaded. In this area (approximate, from the map pixels): wheat {w} ha, barley {b} ha, all cropland {c} ha.",dlFail:"Download failed: {e}",
+  dlNote:"One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure. Opens in QGIS, ArcGIS and GeoLibre.",
+  qgisTitle:"Stream in QGIS (whole country, full detail)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"Source type: Protocol: HTTP(S), cloud, etc. Paste this link:",
+  qgis3:"Then load the colours: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"GDAL command for your area",
+  glTitle:"GeoLibre and other COG viewers",glText:"Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:",glCells:"Full 10 m detail is split into blocks; the blocks covering your area:",
+  copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
+  loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
+  view:"Map view",gov:"Governorate",ha:"ha"},
+ ar:{title:"خريطة المحاصيل في العراق",back:"→ صحة مزارع العراق",legend:"المحاصيل",wheat:"قمح",barley:"شعير",other:"محاصيل أخرى",nocrop:"أرض زراعية بلا محصول",
+  fade:"تخفيف اللون حيث تكون WorldCereal أقل ثقة",opacity:"الشفافية",tabStats:"الإحصاءات",tabDl:"التنزيل ونظم المعلومات",tabAbout:"حول",
+  byRegion:"حسب الإقليم",byGov:"حسب المحافظة",govHint:"انقر على محافظة لعرض أقضيتها وتقريب الخريطة.",
+  regionNote:"إقليم كوردستان = محافظات دهوك وأربيل والسليمانية وحلبجة كما تظهر في بيانات الحدود المفتوحة. يتيح جدول الأقضية لأي شخص إعادة تجميع المناطق المتنازع على إدارتها.",
+  colGov:"المحافظة",colWheat:"قمح (هكتار)",colBarley:"شعير (هكتار)",colCov:"المعالَج",
+  kri:"إقليم كوردستان",fed:"المحافظات الأخرى",iraq:"العراق (كل المناطق المعالَجة)",
+  cropland:"الأراضي الزراعية",sure:"منها بثقة WorldCereal",ofIraq:"من إجمالي العراق المرسوم",processed:"المعالَج",
+  provisional:"<b>نتائج أولية.</b> عولج {d} من أصل {p} مربعاً مخططاً حتى الآن ({pc}). سترتفع الأرقام مع معالجة البقية؛ قارن بين المناطق فقط حين تبلغ كلتاهما 100%.",
+  complete:"عولجت جميع المربعات المخططة ({p}).",
+  csv:"CSV",csvR:"الأقاليم",csvG:"المحافظات",csvD:"الأقضية",
+  statsNote:"الهكتارات محسوبة بدقة 10 م من تصنيف WorldCereal نفسه (دون عتبة إضافية). «بثقة» = ثقة WorldCereal ≥ {t}%. المناطق خارج المربعات المعالَجة غير محسوبة. أُنشئت {g} بالتوقيت العالمي.",
+  aoiTitle:"١. اختر منطقة",aoiDraw:"ارسم مستطيلاً",aoiDrawing:"اسحب على الخريطة…",aoiView:"عرض الخريطة الحالي",aoiGov:"محافظة…",aoiNone:"لم تُختر منطقة بعد.",
+  aoiArea:"{name}: {km} كم²",dlTitle:"٢. تنزيل GeoTIFF",detail:"الدقة",dlGo:"تنزيل",dlWorking:"جارٍ القراءة…",
+  lvl:"بكسل {m} م — نحو {mb} م.ب",lvlFull:"الدقة الكاملة (WorldCereal {m} م) — نحو {mb} م.ب",lvlTooBig:"أكبر من أن يعالجه المتصفح — استخدم QGIS/GDAL",
+  dlDone:"تم التنزيل. في هذه المنطقة (تقريبياً، من بكسلات الخريطة): قمح {w} هكتار، شعير {b} هكتار، كل الأراضي الزراعية {c} هكتار.",dlFail:"فشل التنزيل: {e}",
+  dlNote:"نطاق واحد مع الألوان. 0 = ليست أرضاً زراعية؛ الرموز 1–24 = أصناف WorldCereal؛ +100 = ثقة أقل. يُفتح في QGIS وArcGIS وGeoLibre.",
+  qgisTitle:"البث في QGIS (كل البلاد، دقة كاملة)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"نوع المصدر: Protocol: HTTP(S). الصق هذا الرابط:",
+  qgis3:"ثم حمّل الألوان: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"أمر GDAL لمنطقتك",
+  glTitle:"GeoLibre وعارضات COG الأخرى",glText:"الصق رابط GeoTIFF محسّن للسحابة. كل البلاد بدقة 76 م:",glCells:"الدقة الكاملة 10 م مقسّمة إلى كتل؛ الكتل التي تغطي منطقتك:",
+  copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
+  loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
+  view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
+ ku:{title:"نەخشەی بەرهەمەکانی عێراق",back:"→ تەندروستی کێڵگەکانی عێراق",legend:"بەرهەمەکان",wheat:"گەنم",barley:"جۆ",other:"بەرهەمی تر",nocrop:"زەوی کشتوکاڵی بێ بەرهەم",
+  fade:"کاڵکردنەوە لەو شوێنانەی WorldCereal دڵنیایی کەمترە",opacity:"ڕوونی",tabStats:"ئامارەکان",tabDl:"داگرتن و GIS",tabAbout:"دەربارە",
+  byRegion:"بەپێی هەرێم",byGov:"بەپێی پارێزگا",govHint:"کرتە لە پارێزگایەک بکە بۆ بینینی قەزاکانی و نزیککردنەوەی نەخشە.",
+  regionNote:"هەرێمی کوردستان = پارێزگاکانی دهۆک، هەولێر، سلێمانی و هەڵەبجە وەک لە داتای سنووری کراوەدا هاتووە. خشتەی قەزاکان ڕێگە دەدات هەر کەسێک ناوچە ناکۆکەکان بە شێوەی خۆی کۆبکاتەوە.",
+  colGov:"پارێزگا",colWheat:"گەنم (هێکتار)",colBarley:"جۆ (هێکتار)",colCov:"ڕێژەی پرۆسێس",
+  kri:"هەرێمی کوردستان",fed:"پارێزگاکانی تر",iraq:"عێراق (هەموو ناوچە پرۆسێسکراوەکان)",
+  cropland:"زەوی کشتوکاڵی",sure:"لەوانە بە دڵنیایی WorldCereal",ofIraq:"لە کۆی نەخشەکراوی عێراق",processed:"پرۆسێسکراو",
+  provisional:"<b>ئەنجامی سەرەتایی.</b> تا ئێستا {d} لە {p} چوارگۆشەی پلاندانراو پرۆسێس کراوە ({pc}). ژمارەکان زیاد دەکەن کاتێک ئەوانی تر پرۆسێس دەکرێن؛ تەنها کاتێک بەراورد بکە کە هەردووکیان 100% بن.",
+  complete:"هەموو {p} چوارگۆشە پلاندانراوەکان پرۆسێس کراون.",
+  csv:"CSV",csvR:"هەرێمەکان",csvG:"پارێزگاکان",csvD:"قەزاکان",
+  statsNote:"هێکتارەکان بە وردی 10 م لە پۆلێنکردنی خودی WorldCereal ژمێردراون (بێ سنووری زیادە). «دڵنیا» = دڵنیایی WorldCereal ≥ {t}%. ناوچەکانی دەرەوەی چوارگۆشە پرۆسێسکراوەکان نەژمێردراون. دروستکراوە {g} UTC.",
+  aoiTitle:"١. ناوچەیەک هەڵبژێرە",aoiDraw:"چوارگۆشەیەک بکێشە",aoiDrawing:"لەسەر نەخشە ڕابکێشە…",aoiView:"دیمەنی ئێستای نەخشە",aoiGov:"پارێزگا…",aoiNone:"هێشتا ناوچە هەڵنەبژێردراوە.",
+  aoiArea:"{name}: {km} کم²",dlTitle:"٢. داگرتنی GeoTIFF",detail:"وردی",dlGo:"داگرتن",dlWorking:"خوێندنەوە…",
+  lvl:"پیکسڵی {m} م — نزیکەی {mb} MB",lvlFull:"وردی تەواو (WorldCereal {m} م) — نزیکەی {mb} MB",lvlTooBig:"زۆر گەورەیە بۆ وێبگەڕ — QGIS/GDAL بەکاربهێنە",
+  dlDone:"داگیرا. لەم ناوچەیەدا (نزیکەیی، لە پیکسڵەکانی نەخشە): گەنم {w} هێکتار، جۆ {b} هێکتار، هەموو زەوی کشتوکاڵی {c} هێکتار.",dlFail:"داگرتن سەرکەوتوو نەبوو: {e}",
+  dlNote:"یەک باند، ڕەنگەکانی تێدایە. 0 = زەوی کشتوکاڵی نییە؛ کۆدەکانی 1–24 = پۆلەکانی WorldCereal؛ +100 = دڵنیایی کەمتر. لە QGIS و ArcGIS و GeoLibre دەکرێتەوە.",
+  qgisTitle:"پەخش لە QGIS (هەموو وڵات، وردی تەواو)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"جۆری سەرچاوە: Protocol: HTTP(S). ئەم بەستەرە دابنێ:",
+  qgis3:"پاشان ڕەنگەکان باربکە: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"فەرمانی GDAL بۆ ناوچەکەت",
+  glTitle:"GeoLibre و بینەرەکانی تری COG",glText:"بەستەری GeoTIFFی گونجاو بۆ هەور دابنێ. هەموو وڵات بە وردی 76 م:",glCells:"وردی تەواوی 10 م دابەشکراوە بۆ بلۆک؛ ئەو بلۆکانەی ناوچەکەت دادەپۆشن:",
+  copy:"کۆپی",copied:"کۆپی کرا",chooseArea:"سەرەتا ناوچەیەک هەڵبژێرە.",here:"لێرە",notCrop:"زەوی کشتوکاڵی نییە (یان هێشتا پرۆسێس نەکراوە)",lessSure:"دڵنیایی کەمتر",
+  loading:"چینی بەرهەمەکان باردەکرێت…",noData:"چینی بەرهەمەکان هێشتا بڵاو نەکراوەتەوە.",files:"فایلەکان",legendCsv:"ڕێبەری ڕەنگ (CSV)",indexJson:"پێڕست (JSON)",
+  view:"دیمەنی نەخشە",gov:"پارێزگا",ha:"هێکتار"}
+};
+const CLASS_T = {
+  ar:{wheat:"قمح",barley:"شعير",rye:"شيلم",oats:"شوفان",maize:"ذرة",sorghum:"ذرة بيضاء",rice:"رز",other_temporary_crops:"محاصيل مؤقتة أخرى",millet:"دخن",vegetables:"خضروات",beet:"شمندر",dry_pulses_legumes:"بقوليات",sunflower:"عباد الشمس",soy_soybeans:"فول الصويا",rapeseed_rape:"سلجم",other_oilseed:"بذور زيتية أخرى",groundnuts:"فول سوداني",fibre_crops:"محاصيل ألياف",potatoes:"بطاطا",cassava:"كسافا",tobacco:"تبغ",grass_fodder_crops:"أعلاف",sugar_cane:"قصب السكر",no_crop:"بلا محصول"},
+  ku:{wheat:"گەنم",barley:"جۆ",rye:"چاودار",oats:"جۆی ئاسایی",maize:"گەنمەشامی",sorghum:"زوڕات",rice:"برنج",other_temporary_crops:"بەرهەمی کاتی تر",millet:"هەرزن",vegetables:"سەوزە",beet:"چەوەندەر",dry_pulses_legumes:"دانەوێڵەی پاقلەیی",sunflower:"گوڵەبەڕۆژە",soy_soybeans:"سۆیا",rapeseed_rape:"کەڵزا",other_oilseed:"تۆوی ڕۆنی تر",groundnuts:"فستق",fibre_crops:"بەرهەمی ڕیشاڵی",potatoes:"پەتاتە",cassava:"کاساڤا",tobacco:"تووتن",grass_fodder_crops:"ئالیک",sugar_cane:"قامیشی شەکر",no_crop:"بێ بەرهەم"}
+};
+let LANG = "en";
+try{ LANG = localStorage.getItem("ifh-lang") || (navigator.language||"en").slice(0,2); }catch(e){}
+if(!T[LANG]) LANG = "en";
+const t = (k, v) => { let s = (T[LANG][k] ?? T.en[k] ?? k); if(v) for(const [a,b] of Object.entries(v)) s = s.split("{"+a+"}").join(b); return s; };
+const fmt = n => Math.round(n).toLocaleString("en-US");
+const clsName = c => LANG==="en" ? c.replace(/_/g," ").replace(/^./,m=>m.toUpperCase()) : (CLASS_T[LANG][c] || c);
+const govName = g => !g ? "" : LANG==="ar" ? (g.name_ar||g.name) : LANG==="ku" ? (g.name_ku||g.name) : g.name;
+const regionName = n => n===KRI_NAME ? t("kri") : t("fed");
+
+/* ------------------------------------------------------------------ state */
+let INDEX = null, STATS = null, BOUNDS = null, map = null;
+let AOI = null; // {name, bbox:[w,s,e,n], geom (optional lon/lat polygon), key}
+let sortKey = "wheat", sortAsc = false, openGov = null;
+const $ = s => document.querySelector(s);
+
+/* ------------------------------------------------------------------ language */
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG==="en" ? "ltr" : "rtl";
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const k = el.dataset.t; if(T.en[k]===undefined) return;
+    if(el.tagName==="OPTION" || !el.children.length) el.textContent = t(k);
+  });
+  document.querySelectorAll("#lang button").forEach(b => b.classList.toggle("on", b.dataset.l===LANG));
+  if(STATS){ renderStats(); fillGovSelect(); }
+  if(INDEX) renderAbout();
+  updateAoi();
+}
+document.querySelectorAll("#lang button").forEach(b => b.onclick = () => {
+  LANG = b.dataset.l; try{ localStorage.setItem("ifh-lang", LANG); }catch(e){} applyLang();
+});
+
+/* ------------------------------------------------------------------ tabs */
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav.tabs button").forEach(x => x.classList.toggle("on", x===b));
+  document.querySelectorAll(".pane").forEach(p => p.hidden = p.id !== "pane-"+b.dataset.tab);
+});
+
+/* ------------------------------------------------------------------ statistics */
+function cls(r, c){ return (r.classes && r.classes[c]) || {ha:0, ha_sure:0}; }
+function renderStats(){
+  const s = STATS;
+  const done = s.tiles_finished, plan = s.tiles_planned;
+  const pb = $("#provisional");
+  pb.hidden = false;
+  pb.innerHTML = done < plan ? t("provisional",{d:done,p:plan,pc:Math.round(100*done/plan)+"%"}) : t("complete",{p:plan});
+  const tot = {wheat:0, barley:0, crop:0};
+  s.regions.forEach(r => { tot.wheat += cls(r,"wheat").ha; tot.barley += cls(r,"barley").ha; tot.crop += r.cropland_ha; });
+  const order = [...s.regions].sort((a,b) => (a.name===KRI_NAME ? 0 : 1) - (b.name===KRI_NAME ? 0 : 1));
+  $("#regions").innerHTML = order.map(r => {
+    const w = cls(r,"wheat"), b = cls(r,"barley"), cov = r.planned_km2 ? r.processed_km2/r.planned_km2 : 0;
+    const share = (v, T) => T ? `<span class="num">${Math.round(100*v/T)}%</span> ${t("ofIraq")}` : "";
+    return `<div class="card region"><div class="name">${regionName(r.name)}</div>
+      <div class="rrow"><span class="k"><span class="sw" style="background:var(--c-wheat)"></span>${t("wheat")}</span><span><span class="num">${fmt(w.ha)}</span> ${t("ha")}</span></div>
+      <div class="rsub">${t("sure")}: <span class="num">${fmt(w.ha_sure)}</span> · ${share(w.ha, tot.wheat)}</div>
+      <div class="rrow"><span class="k"><span class="sw" style="background:var(--c-barley)"></span>${t("barley")}</span><span><span class="num">${fmt(b.ha)}</span> ${t("ha")}</span></div>
+      <div class="rsub">${t("sure")}: <span class="num">${fmt(b.ha_sure)}</span> · ${share(b.ha, tot.barley)}</div>
+      <div class="rrow"><span class="k">${t("cropland")}</span><span><span class="num">${fmt(r.cropland_ha)}</span> ${t("ha")}</span></div>
+      <div class="share" style="margin-top:8px">${t("processed")}: ${Math.round(100*cov)}%</div>
+      <div class="bar"><i style="width:${Math.min(100,100*cov)}%"></i></div></div>`;
+  }).join("");
+  renderGovTable();
+  $("#csvlinks").innerHTML = `<span class="note" style="align-self:center">${t("csv")}:</span>` +
+    [["stats_regions.csv","csvR"],["stats_governorates.csv","csvG"],["stats_districts.csv","csvD"]]
+      .map(([f,k]) => `<a class="btn" href="${DATA}${f}" download>${t(k)}</a>`).join("");
+  $("#statsnote").textContent = t("statsNote",{t:s.confidence_threshold, g:s.generated_utc});
+}
+function govRow(g){ return {g, name:govName(g), wheat:cls(g,"wheat").ha, barley:cls(g,"barley").ha, cov: g.planned_km2 ? g.processed_km2/g.planned_km2 : -1}; }
+function renderGovTable(){
+  const rows = STATS.governorates.map(govRow).sort((a,b) => {
+    const d = sortKey==="name" ? a.name.localeCompare(b.name) : a[sortKey]-b[sortKey];
+    return sortAsc ? d : -d;
+  });
+  document.querySelectorAll("#govtable th").forEach(th => {
+    if(th.dataset.k===sortKey) th.setAttribute("aria-sort", sortAsc ? "ascending" : "descending"); else th.removeAttribute("aria-sort");
+  });
+  const body = [];
+  for(const r of rows){
+    const kri = r.g.region===KRI_NAME;
+    body.push(`<tr class="gov${kri?" kri":""}${openGov===r.g.name?" sel":""}" data-g="${r.g.name}">
+      <td>${r.name}</td><td class="n">${fmt(r.wheat)}</td><td class="n">${fmt(r.barley)}</td>
+      <td class="n pct">${r.cov<0?"–":Math.round(100*r.cov)+"%"}</td></tr>`);
+    if(openGov===r.g.name){
+      STATS.districts.filter(d => d.gov===r.g.name).sort((a,b)=>cls(b,"wheat").ha-cls(a,"wheat").ha).forEach(d => {
+        body.push(`<tr class="dist"><td>${d.name}</td><td class="n">${fmt(cls(d,"wheat").ha)}</td><td class="n">${fmt(cls(d,"barley").ha)}</td>
+          <td class="n pct">${d.planned_km2?Math.round(100*d.processed_km2/d.planned_km2)+"%":"–"}</td></tr>`);
+      });
+    }
+  }
+  $("#govtable tbody").innerHTML = body.join("");
+  document.querySelectorAll("#govtable tr.gov").forEach(tr => tr.onclick = () => {
+    openGov = openGov===tr.dataset.g ? null : tr.dataset.g;
+    renderGovTable();
+    if(openGov) selectGovernorate(openGov, false);
+  });
+}
+document.querySelectorAll("#govtable th").forEach(th => th.onclick = () => {
+  if(sortKey===th.dataset.k) sortAsc = !sortAsc; else { sortKey = th.dataset.k; sortAsc = th.dataset.k==="name"; }
+  renderGovTable();
+});
+
+/* ------------------------------------------------------------------ about */
+function renderAbout(){
+  const i = INDEX, attr = i.attribution;
+  const txt = {
+    en:`<div style="display:grid;gap:12px">
+      <h2>What this map shows</h2>
+      <p>Which crop grew on each 10 m patch of Iraqi farmland in the winter season ${i.season}: wheat, barley and 22 other crop types, from ESA's open WorldCereal system. It is the crop layer used by <a href="../">Iraq Farms Health</a>, published here so anyone can check it, download it and use it.</p>
+      <h2>How it was made</h2>
+      <p>Iraq Farms Health ran WorldCereal's own default model, unchanged, on Sentinel-1 radar and Sentinel-2 imagery for the whole season, tile by tile on the Copernicus Data Space. No crop identification is done by Iraq Farms Health itself.</p>
+      <h2>How sure is it?</h2>
+      <p>WorldCereal reports its own confidence for every pixel. “Wheat or barley” is usually reliable; telling wheat from barley is harder. Pixels where WorldCereal was less than ${i.codes.confidence_threshold}% sure are shown faded and coded +100, so you can include or exclude them.</p>
+      <h2>Statistics</h2>
+      <p>Hectares are counted at full 10 m detail and summed by district (geoBoundaries, CC BY 4.0), then by governorate and region. Halabja is shown as its own governorate (since 2025). Only areas inside processed tiles count, and tiles with very little farmland were not processed, so totals are lower bounds.</p>
+      <h2>Licence and credit</h2>
+      <p>Free to use under CC BY 4.0. Please credit: “${attr}”</p>
+      <p class="note">Generated ${i.generated_utc} UTC · ${i.tiles_finished} of ${i.tiles_planned} planned tiles.</p></div>`,
+    ar:`<div style="display:grid;gap:12px">
+      <h2>ماذا تعرض هذه الخريطة</h2>
+      <p>أيّ محصول نما على كل رقعة بمساحة 10 م من الأراضي الزراعية العراقية في الموسم الشتوي ${i.season}: القمح والشعير و22 محصولاً آخر، من نظام WorldCereal المفتوح التابع لوكالة الفضاء الأوروبية. هذه هي طبقة المحاصيل المستخدمة في <a href="../">صحة مزارع العراق</a>، منشورة هنا ليتحقق منها الجميع وينزّلوها ويستخدموها.</p>
+      <h2>كيف أُنتجت</h2>
+      <p>شغّل «صحة مزارع العراق» النموذج الافتراضي لـ WorldCereal دون تعديل على صور رادار Sentinel-1 وصور Sentinel-2 للموسم كاملاً، مربعاً بعد مربع على منصة Copernicus Data Space. لا يقوم «صحة مزارع العراق» بنفسه بتحديد المحاصيل.</p>
+      <h2>ما مدى الدقة؟</h2>
+      <p>تُبلغ WorldCereal عن درجة ثقتها لكل بكسل. «قمح أو شعير» موثوق عادةً؛ أما التمييز بين القمح والشعير فأصعب. البكسلات التي كانت ثقة WorldCereal فيها أقل من ${i.codes.confidence_threshold}% تظهر باهتة ورمزها +100، لتتمكن من تضمينها أو استبعادها.</p>
+      <h2>الإحصاءات</h2>
+      <p>تُحسب الهكتارات بدقة 10 م كاملة وتُجمع حسب القضاء (geoBoundaries، CC BY 4.0) ثم حسب المحافظة والإقليم. تظهر حلبجة محافظةً مستقلة (منذ 2025). تُحسب فقط المناطق داخل المربعات المعالَجة، ولم تُعالج المربعات ذات الأراضي الزراعية القليلة جداً، لذا فالأرقام حدود دنيا.</p>
+      <h2>الترخيص والإسناد</h2>
+      <p>حرّ الاستخدام بموجب CC BY 4.0. يُرجى الإسناد: «${attr}»</p>
+      <p class="note">أُنشئت ${i.generated_utc} بالتوقيت العالمي · ${i.tiles_finished} من ${i.tiles_planned} مربعاً مخططاً.</p></div>`,
+    ku:`<div style="display:grid;gap:12px">
+      <h2>ئەم نەخشەیە چی پیشان دەدات</h2>
+      <p>چ بەرهەمێک لەسەر هەر پارچەیەکی 10 مەتری زەوی کشتوکاڵی عێراق لە وەرزی زستانی ${i.season} ڕواوە: گەنم، جۆ و 22 بەرهەمی تر، لە سیستەمی کراوەی WorldCerealی ئاژانسی بۆشایی ئەوروپا. ئەمە ئەو چینەی بەرهەمەیە کە <a href="../">تەندروستی کێڵگەکانی عێراق</a> بەکاری دەهێنێت، لێرە بڵاوکراوەتەوە بۆ ئەوەی هەموو کەس پشکنینی بکات، دایبگرێت و بەکاری بهێنێت.</p>
+      <h2>چۆن دروستکرا</h2>
+      <p>تەندروستی کێڵگەکانی عێراق مۆدێلی بنەڕەتی خودی WorldCereal ی بێ گۆڕانکاری لەسەر وێنەکانی ڕاداری Sentinel-1 و Sentinel-2 بۆ هەموو وەرزەکە، چوارگۆشە بە چوارگۆشە لەسەر Copernicus Data Space کارپێکرد. خودی تەندروستی کێڵگەکانی عێراق هیچ ناسینەوەیەکی بەرهەم ناکات.</p>
+      <h2>چەندە دڵنیایە؟</h2>
+      <p>WorldCereal دڵنیایی خۆی بۆ هەر پیکسڵێک ڕادەگەیەنێت. «گەنم یان جۆ» زۆربەی کات جێی متمانەیە؛ جیاکردنەوەی گەنم لە جۆ قورسترە. ئەو پیکسڵانەی WorldCereal تێیاندا کەمتر لە ${i.codes.confidence_threshold}% دڵنیا بووە کاڵ پیشان دەدرێن و کۆدیان +100 ـە، بۆ ئەوەی بتوانیت تێیانبخەیت یان دەریانبهێنیت.</p>
+      <h2>ئامارەکان</h2>
+      <p>هێکتارەکان بە وردی تەواوی 10 م دەژمێردرێن و بەپێی قەزا کۆدەکرێنەوە (geoBoundaries، CC BY 4.0)، پاشان بەپێی پارێزگا و هەرێم. هەڵەبجە وەک پارێزگایەکی سەربەخۆ پیشان دراوە (لە 2025ەوە). تەنها ناوچەکانی ناو چوارگۆشە پرۆسێسکراوەکان دەژمێردرێن، و چوارگۆشەکانی خاوەن زەوی کشتوکاڵی زۆر کەم پرۆسێس نەکراون، بۆیە ژمارەکان کەمترین سنوورن.</p>
+      <h2>مۆڵەت و ناوهێنان</h2>
+      <p>بەکارهێنانی ئازادە بەپێی CC BY 4.0. تکایە ناوی سەرچاوە بهێنە: «${attr}»</p>
+      <p class="note">دروستکراوە ${i.generated_utc} UTC · ${i.tiles_finished} لە ${i.tiles_planned} چوارگۆشەی پلاندانراو.</p></div>`
+  };
+  $("#about").innerHTML = txt[LANG];
+}
+
+/* ------------------------------------------------------------------ map */
+function setStatus(msg){ const s = $("#status"); s.hidden = !msg; s.textContent = msg || ""; }
+function initMap(){
+  CropLayer.registerProtocol(maplibregl);
+  map = new maplibregl.Map({
+    container:"map", attributionControl:false, center:[44.2,33.6], zoom:5.6, maxZoom:17, minZoom:4,
+    style:{version:8, sources:{
+      img:{type:"raster",tiles:["https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:18,
+           attribution:"Imagery: Esri, Maxar, Earthstar Geographics"},
+      lbl:{type:"raster",tiles:["https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Esri"}
+    }, layers:[{id:"img",type:"raster",source:"img"}]}
+  });
+  window.cropMap = map;   // handy for the browser console
+  map.addControl(new maplibregl.AttributionControl({compact:true, customAttribution:"Crops: ESA WorldCereal / Iraq Farms Health · Boundaries: geoBoundaries"}));
+  map.once("load", () => document.querySelectorAll(".maplibregl-ctrl-attrib").forEach(el => el.classList.remove("maplibregl-compact-show")));
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}), LANG==="en" ? "top-right" : "top-left");
+  map.on("load", () => {
+    map.addSource("crops",{type:"raster",tiles:["wcrop://{z}/{x}/{y}?v=0"],tileSize:256,minzoom:4,maxzoom:INDEX.max_zoom});
+    map.addLayer({id:"crops",type:"raster",source:"crops",paint:{"raster-opacity":0.9,"raster-resampling":"nearest","raster-fade-duration":0}});
+    map.addLayer({id:"lbl",type:"raster",source:"lbl",paint:{"raster-opacity":0.85}});
+    if(BOUNDS){
+      map.addSource("gov",{type:"geojson",data:BOUNDS});
+      map.addLayer({id:"gov-fill",type:"fill",source:"gov",paint:{"fill-color":"#000","fill-opacity":0}});
+      map.addLayer({id:"gov-line",type:"line",source:"gov",paint:{"line-color":"#F3EFE4","line-width":["interpolate",["linear"],["zoom"],5,0.8,10,2],"line-opacity":0.75}});
+      map.addLayer({id:"gov-sel",type:"line",source:"gov",filter:["==",["get","name"],""],paint:{"line-color":"#D9A441","line-width":3}});
+    }
+    map.addSource("aoi",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
+    map.addLayer({id:"aoi-fill",type:"fill",source:"aoi",paint:{"fill-color":"#D9A441","fill-opacity":0.12}});
+    map.addLayer({id:"aoi-line",type:"line",source:"aoi",paint:{"line-color":"#D9A441","line-width":2.5,"line-dasharray":[2,1.5]}});
+    let pending = 0;
+    map.on("dataloading", e => { if(e.sourceId==="crops"){ pending++; setStatus(t("loading")); } });
+    map.on("idle", () => { pending = 0; setStatus(""); });
+    map.on("sourcedata", e => { if(e.sourceId==="crops" && map.isSourceLoaded("crops")) setStatus(""); });
+  });
+  map.on("click", async e => {
+    if(drawing) return;
+    const code = await CropLayer.sample(e.lngLat.lng, e.lngLat.lat);
+    const d = CropLayer.describe(code);
+    let gov = "";
+    if(map.getLayer("gov-fill")){
+      const f = map.queryRenderedFeatures(e.point,{layers:["gov-fill"]})[0];
+      if(f) gov = govName(f.properties);
+    }
+    const what = d.cls ? `<b>${clsName(d.cls)}</b>${d.less ? ` <span class="pct">(${t("lessSure")})</span>` : ""}` : t("notCrop");
+    new maplibregl.Popup({closeButton:true,maxWidth:"260px"}).setLngLat(e.lngLat)
+      .setHTML(`<div>${t("here")}: ${what}</div>${gov?`<div class="pct" style="margin-top:4px">${t("gov")}: ${gov}</div>`:""}`).addTo(map);
+  });
+}
+function refreshCrops(){
+  const s = map && map.getSource("crops"); if(!s) return;
+  CropLayer.version = (CropLayer.version||0)+1;
+  s.setTiles(["wcrop://{z}/{x}/{y}?v="+CropLayer.version]);
+}
+["wheat","barley","other","nocrop"].forEach(k => $("#lg-"+k).onchange = e => { CropLayer.setOptions({show:{[k]:e.target.checked}}); refreshCrops(); });
+$("#lg-fade").onchange = e => { CropLayer.setOptions({fadeLess:e.target.checked}); refreshCrops(); };
+$("#lg-op").oninput = e => map && map.getLayer("crops") && map.setPaintProperty("crops","raster-opacity",+e.target.value);
+
+/* ------------------------------------------------------------------ area of interest */
+let drawing = false, drawStart = null;
+function bboxOfGeom(g){
+  let w=180,s=90,e=-180,n=-90;
+  const polys = g.type==="Polygon" ? [g.coordinates] : g.coordinates;
+  polys.forEach(p => p.forEach(r => r.forEach(([x,y]) => { w=Math.min(w,x); e=Math.max(e,x); s=Math.min(s,y); n=Math.max(n,y); })));
+  return [w,s,e,n];
+}
+function setAoi(a){
+  AOI = a;
+  const fc = {type:"FeatureCollection",features:[]};
+  if(a){
+    const [w,s,e,n] = a.bbox;
+    fc.features.push({type:"Feature",properties:{},geometry: a.geom || {type:"Polygon",coordinates:[[[w,s],[e,s],[e,n],[w,n],[w,s]]]}});
+  }
+  if(map && map.getSource("aoi")) map.getSource("aoi").setData(fc);
+  updateAoi();
+}
+function bbox3857(b){ const [x0,y0] = CropLayer.lonLatTo3857(b[0],b[1]), [x1,y1] = CropLayer.lonLatTo3857(b[2],b[3]); return [x0,y0,x1,y1]; }
+function km2(b){ // geodesic-ish area of a lon/lat box
+  const R = 6371.0088, rad = Math.PI/180;
+  return Math.abs(R*R*(b[2]-b[0])*rad*(Math.sin(b[3]*rad)-Math.sin(b[1]*rad)));
+}
+function polyKm2(g){ // equal-area approximation, good to ~0.5% at Iraq's size
+  const R = 6371.0088, rad = Math.PI/180; let a = 0;
+  const polys = g.type==="Polygon" ? [g.coordinates] : g.coordinates;
+  for(const p of polys) p.forEach((ring, k) => {
+    let s = 0;
+    for(let i=0;i<ring.length-1;i++){ const [x1,y1]=ring[i],[x2,y2]=ring[i+1]; s += (x2-x1)*rad*(2+Math.sin(y1*rad)+Math.sin(y2*rad)); }
+    a += (k ? -1 : 1) * Math.abs(s*R*R/2);
+  });
+  return Math.abs(a);
+}
+const LEVELS = [0,1,2,3,4];
+const MAX_PX = 70e6;
+function updateAoi(){
+  const sum = $("#aoi-sum"), lv = $("#dl-level");
+  if(!INDEX) return;
+  $("#url-vrt").value = DATA_ABS + INDEX.vrt;
+  $("#url-ov").value = DATA_ABS + INDEX.overview.file;
+  $("#qml").href = DATA + "iraq_crops.qml";
+  $("#dl-files").innerHTML = `<span class="note" style="align-self:center">${t("files")}:</span>
+    <a class="btn" href="${DATA}legend.csv" download>${t("legendCsv")}</a>
+    <a class="btn" href="${DATA}iraq_crops.qml" download>QGIS style</a>
+    <a class="btn" href="${DATA}index.json" target="_blank" rel="noopener">${t("indexJson")}</a>`;
+  if(!AOI){
+    sum.textContent = t("aoiNone"); lv.innerHTML = ""; $("#dl-go").disabled = true;
+    $("#gdal").textContent = `gdal_translate -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  iraq_crops_${INDEX.season}.tif`;
+    $("#cell-links").textContent = "–";
+    return;
+  }
+  const area = AOI.geom ? polyKm2(AOI.geom) : km2(AOI.bbox);
+  sum.textContent = t("aoiArea",{name:AOI.label, km:fmt(area)});
+  const b = bbox3857(AOI.bbox);
+  const opts = [];
+  for(const L of LEVELS){
+    const r = CropLayer.levelRes(L), px = ((b[2]-b[0])/r)*((b[3]-b[1])/r);
+    if(px > MAX_PX) continue;
+    const ground = Math.round(r*Math.cos(((AOI.bbox[1]+AOI.bbox[3])/2)*Math.PI/180));
+    const mb = Math.max(0.1, px*0.06/1e6).toFixed(px*0.06/1e6 < 10 ? 1 : 0);
+    opts.push(`<option value="${L}">${L===0 ? t("lvlFull",{m:10,mb}) : t("lvl",{m:ground,mb})}</option>`);
+  }
+  lv.innerHTML = opts.length ? opts.join("") : `<option value="">${t("lvlTooBig")}</option>`;
+  $("#dl-go").disabled = !opts.length;
+  const [w,s,e,n] = AOI.bbox.map(v => +v.toFixed(5));
+  const out = `iraq_crops_${INDEX.season}_${AOI.key}.tif`;
+  $("#gdal").textContent = AOI.gov
+    ? `gdalwarp -cutline /vsicurl/${DATA_ABS}boundaries.geojson \\\n  -cwhere "name='${AOI.gov}'" -crop_to_cutline \\\n  -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  ${out}`
+    : `gdal_translate -projwin_srs EPSG:4326 -projwin ${w} ${n} ${e} ${s} \\\n  -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  ${out}`;
+  const R = 20037508.342789244, cs = 2*R/2**INDEX.cell_zoom;
+  const cells = INDEX.cells.filter(c => { const cb=[-R+c.x*cs, R-(c.y+1)*cs, -R+(c.x+1)*cs, R-c.y*cs]; return cb[0]<b[2]&&cb[2]>b[0]&&cb[1]<b[3]&&cb[3]>b[1]; });
+  $("#cell-links").innerHTML = cells.length ? cells.slice(0,12).map(c => `<div class="copyrow" style="margin-top:6px"><input readonly value="${DATA_ABS}${c.file}"><button class="btn" data-copyval="${DATA_ABS}${c.file}">${t("copy")}</button></div>`).join("") + (cells.length>12?`<div>+${cells.length-12}…</div>`:"") : "–";
+}
+$("#aoi-draw").onclick = () => {
+  drawing = !drawing;
+  $("#aoi-draw").classList.toggle("on", drawing);
+  $("#aoi-draw").textContent = drawing ? t("aoiDrawing") : t("aoiDraw");
+  map.getCanvas().style.cursor = drawing ? "crosshair" : "";
+  if(drawing){ map.dragPan.disable(); map.touchZoomRotate.disable(); } else { map.dragPan.enable(); map.touchZoomRotate.enable(); }
+  if(drawing && matchMedia("(max-width:820px)").matches) document.getElementById("mapwrap").scrollIntoView({behavior:"smooth"});
+};
+function drawEvt(type, e){
+  if(!drawing) return;
+  if(e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length > 1) return;
+  const ll = e.lngLat;
+  if(type==="down"){ drawStart = ll; e.preventDefault && e.preventDefault(); }
+  else if(drawStart){
+    const b = [Math.min(drawStart.lng,ll.lng), Math.min(drawStart.lat,ll.lat), Math.max(drawStart.lng,ll.lng), Math.max(drawStart.lat,ll.lat)];
+    if(type==="move") map.getSource("aoi").setData({type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:[[[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]],[b[0],b[1]]]]}});
+    if(type==="up"){
+      drawStart = null;
+      if(b[2]-b[0] > 1e-4 && b[3]-b[1] > 1e-4) setAoi({bbox:b, label:t("aoiDraw"), key:"box"});
+      $("#aoi-draw").click();
+    }
+  }
+}
+function wireDraw(){
+  map.on("mousedown", e => drawEvt("down", e)); map.on("mousemove", e => drawEvt("move", e)); map.on("mouseup", e => drawEvt("up", e));
+  map.on("touchstart", e => drawEvt("down", e)); map.on("touchmove", e => drawEvt("move", e)); map.on("touchend", e => drawEvt("up", e));
+}
+$("#aoi-view").onclick = () => {
+  const b = map.getBounds();
+  setAoi({bbox:[b.getWest(),b.getSouth(),b.getEast(),b.getNorth()], label:t("view"), key:"view"});
+};
+function fillGovSelect(){
+  if(!BOUNDS) return;
+  const sel = $("#aoi-gov"), cur = sel.value;
+  const items = BOUNDS.features.map(f => ({v:f.properties.name, l:govName(f.properties)})).sort((a,b)=>a.l.localeCompare(b.l));
+  sel.innerHTML = `<option value="">${t("aoiGov")}</option>` + items.map(i => `<option value="${i.v}">${i.l}</option>`).join("");
+  sel.value = cur;
+}
+function selectGovernorate(name, asAoi){
+  const f = BOUNDS && BOUNDS.features.find(x => x.properties.name===name);
+  if(!f) return;
+  const bb = bboxOfGeom(f.geometry);
+  if(map){
+    map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],{padding:30,duration:600});
+    if(map.getLayer("gov-sel")) map.setFilter("gov-sel",["==",["get","name"],name]);
+  }
+  if(asAoi) setAoi({bbox:bb, geom:f.geometry, label:govName(f.properties), key:name.toLowerCase().replace(/[^a-z]+/g,"_"), gov:name});
+}
+$("#aoi-gov").onchange = e => e.target.value && selectGovernorate(e.target.value, true);
+
+$("#dl-go").onclick = async () => {
+  if(!AOI) return alertMsg(t("chooseArea"));
+  const L = +$("#dl-level").value, prog = $("#dl-prog"), res = $("#dl-result");
+  const btn = $("#dl-go"); btn.disabled = true; btn.textContent = t("dlWorking");
+  prog.hidden = false; prog.firstElementChild.style.width = "0";
+  res.textContent = "";
+  try{
+    let area = await CropLayer.readArea(bbox3857(AOI.bbox), L, p => prog.firstElementChild.style.width = Math.round(p*90)+"%");
+    if(AOI.geom) CropLayer.maskToPolygon(area, AOI.geom);
+    const counts = CropLayer.areaStats(area), cl = CropLayer.classes();
+    let w=0,b=0,c=0;
+    for(let v=1; v<256; v++){ if(!counts[v]) continue; const k = cl[(v%100)-1]; c += counts[v]; if(k==="wheat") w += counts[v]; if(k==="barley") b += counts[v]; }
+    const blob = await CropLayer.toGeoTIFF(area, `Iraq crop types ${INDEX.season} (ESA WorldCereal) - ${AOI.label}`);
+    prog.firstElementChild.style.width = "100%";
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `iraq_crops_${INDEX.season}_${AOI.key}${L?"_"+Math.round(CropLayer.levelRes(L))+"m":""}.tif`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    res.textContent = t("dlDone",{w:fmt(w), b:fmt(b), c:fmt(c)});
+  }catch(err){
+    res.textContent = t("dlFail",{e: err.message || err});
+  }finally{
+    btn.disabled = false; btn.textContent = t("dlGo");
+    setTimeout(() => prog.hidden = true, 1200);
+  }
+};
+function alertMsg(m){ $("#dl-result").textContent = m; }
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-copy],[data-copyval]"); if(!b) return;
+  const val = b.dataset.copyval || document.getElementById(b.dataset.copy).value;
+  try{ await navigator.clipboard.writeText(val); }catch(err){
+    const inp = b.parentElement.querySelector("input"); if(inp){ inp.select(); try{ document.execCommand("copy"); }catch(_){} }
+  }
+  const old = b.textContent; b.textContent = t("copied"); setTimeout(() => b.textContent = old, 1400);
+});
+
+/* ------------------------------------------------------------------ start */
+(async function start(){
+  if(matchMedia("(max-width:820px)").matches) $("#legend").open = false;
+  applyLang();
+  try{
+    INDEX = await CropLayer.init(DATA);
+    $("#season").textContent = INDEX.season;
+    const [st, bd] = await Promise.all([
+      fetch(DATA+"stats.json",{cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(DATA+"boundaries.geojson").then(r => r.ok ? r.json() : null).catch(() => null)
+    ]);
+    STATS = st; BOUNDS = bd;
+    initMap(); wireDraw();
+    applyLang();
+  }catch(err){
+    document.getElementById("pane-stats").innerHTML = `<div class="banner">${t("noData")}</div>`;
+    console.warn(err);
+  }
+})();
+})();
+</script>
+</body>
+</html>
