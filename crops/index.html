@@ -68,6 +68,9 @@ aside{width:420px;max-width:46vw;display:flex;flex-direction:column;border-inlin
 #status{position:absolute;z-index:3;bottom:calc(10px + var(--safe-b));inset-inline-start:10px;background:rgba(20,38,27,.86);
   color:var(--paper);font-size:12px;font-weight:600;border-radius:9px;padding:6px 9px;max-width:70%}
 #status[hidden]{display:none}
+#zoomhint{position:absolute;z-index:3;bottom:calc(44px + var(--safe-b));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);border:0;
+  border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;box-shadow:var(--shadow);cursor:pointer;max-width:70%}
+#zoomhint[hidden]{display:none}
 .maplibregl-popup-content{font-family:var(--font);font-size:13px;border-radius:10px;padding:10px 12px;background:var(--card)}
 .maplibregl-popup-tip{border-top-color:var(--card)!important;border-bottom-color:var(--card)!important}
 
@@ -173,6 +176,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
       <input type="range" id="lg-op" min="0.2" max="1" step="0.05" value="0.9" aria-label="Opacity">
     </details>
     <div id="status" hidden></div>
+    <button id="zoomhint" hidden data-t="zoomCmp">Zoom in to compare 2021 and 2025-26 (detail needed).</button>
   </div>
   <aside>
     <nav class="tabs" role="tablist">
@@ -301,7 +305,7 @@ const T = {
   ck4:"Click any spot to see what each year says. Lower the opacity to look at the satellite image underneath.",
   ck5:"2021 was a severe drought year, so less rain-fed land was planted then. 2021 also does not separate wheat from barley, so this checks “wheat or barley” together.",
   ckNote:"Compared on a ~16 m grid, only inside the {n} processed tiles. “Change” = 2025-26 ÷ 2021. Pixel agreement (0–1): {f}.",
-  y2021yes:"winter cereal",y2021no:"not winter cereal",y2021na:"not available",title:"Iraq Crop Map",back:"← Iraq Farms Health",legend:"Crops",wheat:"Wheat",barley:"Barley",other:"Other crops",nocrop:"Cropland, no crop",
+  zoomCmp:"Zoom in to compare 2021 and 2025-26 (detail needed).",y2021yes:"winter cereal",y2021no:"not winter cereal",y2021na:"not available",title:"Iraq Crop Map",back:"← Iraq Farms Health",legend:"Crops",wheat:"Wheat",barley:"Barley",other:"Other crops",nocrop:"Cropland, no crop",
   fade:"Fade where WorldCereal is less sure",opacity:"Opacity",tabStats:"Statistics",tabDl:"Download & GIS",tabAbout:"About",
   byRegion:"By region",byGov:"By governorate",govHint:"Click a governorate to see its districts and zoom the map.",
   regionNote:"Kurdistan Region = Duhok, Erbil, Sulaymaniyah and Halabja governorates as drawn in the open boundary data. The district table lets anyone regroup areas whose administration is disputed.",
@@ -335,7 +339,7 @@ const T = {
   ck4:"انقر على أي نقطة لترى ما تقوله كل سنة. خفّف الشفافية لرؤية صورة القمر الصناعي تحتها.",
   ck5:"كان 2021 عام جفاف شديد، فزُرعت مساحة أقل من الأراضي الديمية. كما أن خريطة 2021 لا تفرّق بين القمح والشعير، لذا يتحقق هذا من «قمح أو شعير» معاً.",
   ckNote:"المقارنة على شبكة ~16 م، داخل المربعات المعالَجة ({n}) فقط. «التغيّر» = 2025-26 ÷ 2021. تطابق البكسلات (0–1): {f}.",
-  y2021yes:"حبوب شتوية",y2021no:"ليست حبوباً شتوية",y2021na:"غير متاح",title:"خريطة المحاصيل في العراق",back:"→ صحة مزارع العراق",legend:"المحاصيل",wheat:"قمح",barley:"شعير",other:"محاصيل أخرى",nocrop:"أرض زراعية بلا محصول",
+  zoomCmp:"قرّب الخريطة للمقارنة بين 2021 و2025-26 (يتطلب تفاصيل أدق).",y2021yes:"حبوب شتوية",y2021no:"ليست حبوباً شتوية",y2021na:"غير متاح",title:"خريطة المحاصيل في العراق",back:"→ صحة مزارع العراق",legend:"المحاصيل",wheat:"قمح",barley:"شعير",other:"محاصيل أخرى",nocrop:"أرض زراعية بلا محصول",
   fade:"تخفيف اللون حيث تكون WorldCereal أقل ثقة",opacity:"الشفافية",tabStats:"الإحصاءات",tabDl:"التنزيل ونظم المعلومات",tabAbout:"حول",
   byRegion:"حسب الإقليم",byGov:"حسب المحافظة",govHint:"انقر على محافظة لعرض أقضيتها وتقريب الخريطة.",
   regionNote:"إقليم كوردستان = محافظات دهوك وأربيل والسليمانية وحلبجة كما تظهر في بيانات الحدود المفتوحة. يتيح جدول الأقضية لأي شخص إعادة تجميع المناطق المتنازع على إدارتها.",
@@ -369,7 +373,7 @@ const T = {
   ck4:"کرتە لە هەر شوێنێک بکە بۆ بینینی ئەوەی هەر ساڵێک دەیڵێت. ڕوونی کەم بکەرەوە بۆ بینینی وێنەی مانگی دەستکرد لە ژێرەوە.",
   ck5:"2021 ساڵێکی وشکەساڵیی توند بوو، بۆیە زەوی دێمی کەمتر چێنرا. هەروەها نەخشەی 2021 گەنم و جۆ لێک جیا ناکاتەوە، بۆیە ئەمە «گەنم یان جۆ» پێکەوە دەپشکنێت.",
   ckNote:"بەراورد لەسەر تۆڕێکی ~16 م، تەنها لە ناو {n} چوارگۆشە پرۆسێسکراوەکان. «گۆڕان» = 2025-26 ÷ 2021. ڕێککەوتنی پیکسڵەکان (0–1): {f}.",
-  y2021yes:"دانەوێڵەی زستانی",y2021no:"دانەوێڵەی زستانی نییە",y2021na:"بەردەست نییە",title:"نەخشەی بەرهەمەکانی عێراق",back:"→ تەندروستی کێڵگەکانی عێراق",legend:"بەرهەمەکان",wheat:"گەنم",barley:"جۆ",other:"بەرهەمی تر",nocrop:"زەوی کشتوکاڵی بێ بەرهەم",
+  zoomCmp:"نەخشەکە نزیک بکەرەوە بۆ بەراوردی 2021 و 2025-26 (وردی زیاتر پێویستە).",y2021yes:"دانەوێڵەی زستانی",y2021no:"دانەوێڵەی زستانی نییە",y2021na:"بەردەست نییە",title:"نەخشەی بەرهەمەکانی عێراق",back:"→ تەندروستی کێڵگەکانی عێراق",legend:"بەرهەمەکان",wheat:"گەنم",barley:"جۆ",other:"بەرهەمی تر",nocrop:"زەوی کشتوکاڵی بێ بەرهەم",
   fade:"کاڵکردنەوە لەو شوێنانەی WorldCereal دڵنیایی کەمترە",opacity:"ڕوونی",tabStats:"ئامارەکان",tabDl:"داگرتن و GIS",tabAbout:"دەربارە",
   byRegion:"بەپێی هەرێم",byGov:"بەپێی پارێزگا",govHint:"کرتە لە پارێزگایەک بکە بۆ بینینی قەزاکانی و نزیککردنەوەی نەخشە.",
   regionNote:"هەرێمی کوردستان = پارێزگاکانی دهۆک، هەولێر، سلێمانی و هەڵەبجە وەک لە داتای سنووری کراوەدا هاتووە. خشتەی قەزاکان ڕێگە دەدات هەر کەسێک ناوچە ناکۆکەکان بە شێوەی خۆی کۆبکاتەوە.",
@@ -582,6 +586,7 @@ function initMap(){
     if(CropLayer.opts.mode !== "crops") setView(CropLayer.opts.mode);
   };
   if(map.isStyleLoaded()) addLayers(); else map.once("style.load", addLayers);
+  map.on("zoomend", zoomHint);
   map.once("load", addLayers);
   map.on("click", async e => {
     if(drawing) return;
@@ -618,15 +623,21 @@ async function sample2021(lon, lat){
   if(!m) return null;
   return m[Math.floor(((R - my) / s - ty) * 256) * 256 + Math.floor(((mx + R) / s - tx) * 256)];
 }
+function zoomHint(){
+  const show = map && CropLayer.opts.mode === "diff" && map.getZoom() < CropLayer.DIFF_MIN_ZOOM;
+  const el = $("#zoomhint"); if(el) el.hidden = !show;
+}
 function setView(v){
   if(v === "diff" && !CropLayer.canCompare()) v = "crops";
   CropLayer.setOptions({mode:v});
   document.querySelectorAll("input[name=view]").forEach(r => r.checked = r.value === v);
   $("#lg-crops").hidden = v !== "crops"; $("#lg-diff").hidden = v !== "diff"; $("#lg-y2021").hidden = v !== "y2021";
   if(map && map.getLayer("proc-line")) map.setLayoutProperty("proc-line","visibility", v === "diff" ? "visible" : "none");
+  zoomHint();
   refreshCrops();
 }
 document.querySelectorAll("input[name=view]").forEach(r => r.onchange = () => setView(r.value));
+$("#zoomhint").onclick = () => map && map.easeTo({zoom:CropLayer.DIFF_MIN_ZOOM, duration:600});
 $("#ck-diff").onclick = () => {
   setView("diff"); $("#legend").open = true;
   if(matchMedia("(max-width:820px)").matches) document.getElementById("mapwrap").scrollIntoView({behavior:"smooth"});
