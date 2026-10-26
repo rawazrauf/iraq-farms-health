@@ -25,6 +25,8 @@
       + "&tilematrixset=EPSG:3857&TileMatrix={z}&TileRow={y}&TileCol={x}&TIME=2021-01-01"
       + "&name=classification&assets=classification&nodata=255&colormap=" + encodeURIComponent('{"100":"#ff0000"}'),
     DIFF_COLORS: { both: [46, 125, 50, 235], only2026: [227, 181, 5, 235], only2021: [123, 63, 160, 235], y2021: [186, 113, 53, 225] },
+    // Below this zoom both maps are shrunk by different methods, so a pixel-by-pixel difference would mislead.
+    DIFF_MIN_ZOOM: 12,
     _wc21: new Map(),
     _proc: new Map(),
     _tiffs: new Map(),
@@ -254,7 +256,7 @@
           if (mode === "y2021") {
             return { data: await this._pngRGBA(d => { if (w21) for (let i = 0; i < 65536; i++) if (w21[i]) d.set(C.y2021, i * 4); }) };
           }
-          if (!w21) return { data: await this._pngRGBA(() => {}) };   // 2021 tile unavailable: show nothing rather than a false "2026 only"
+          if (!w21 || z < this.DIFF_MIN_ZOOM) return { data: await this._pngRGBA(() => {}) };   // 2021 tile unavailable: show nothing rather than a false "2026 only"
           const proc = this.procTile(z, x, y);
           return { data: await this._pngRGBA(d => {
             for (let i = 0; i < 65536; i++) {
