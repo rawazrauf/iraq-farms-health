@@ -36,9 +36,9 @@ Baquba,Diyala,Federal Iraq (outside Kurdistan Region),16704.6,6524.9,2389.5,6635
 Khanaqin,Diyala,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,3965.9
 Kifri,Diyala,Federal Iraq (outside Kurdistan Region),80.0,8.9,0.0,33.5,0.6,0.8,2187.9
 Al-Amadiya,Duhok,Kurdistan Region,294.8,133.5,19.3,4.1,0.0,63.4,2661.6
-Duhok,Duhok,Kurdistan Region,0.0,0,0,0,0,0.0,1036.8
-Sumail,Duhok,Kurdistan Region,0.0,0,0,0,0,0.0,1353.3
-Zakho,Duhok,Kurdistan Region,0.0,0,0,0,0,0.0,1338.6
+Duhok,Duhok,Kurdistan Region,3189.8,907.9,161.7,565.1,19.9,234.3,1036.8
+Sumail,Duhok,Kurdistan Region,54193.2,26137.7,7575.9,13505.3,935.2,786.0,1353.3
+Zakho,Duhok,Kurdistan Region,24196.7,6852.5,1247.4,4324.5,121.4,509.0,1338.6
 Al-Zibar,Erbil,Kurdistan Region,0.0,0,0,0,0,0.0,822.4
 Erbil,Erbil,Kurdistan Region,154741.2,117008.8,69427.6,5937.2,1320.6,1995.8,2728.1
 Koysinjaq,Erbil,Kurdistan Region,67566.5,41506.0,14703.6,951.9,117.6,1395.0,2041.9
@@ -53,12 +53,12 @@ Al-Hawiga,Kirkuk,Federal Iraq (outside Kurdistan Region),66632.0,37502.4,24154.8
 Daquq,Kirkuk,Federal Iraq (outside Kurdistan Region),106647.0,43227.9,26055.1,39918.9,15198.2,1411.3,2669.9
 Dibis,Kirkuk,Federal Iraq (outside Kurdistan Region),119233.5,71862.8,39655.8,14195.8,2665.3,1507.1,1721.5
 Kirkuk,Kirkuk,Federal Iraq (outside Kurdistan Region),172130.8,72668.1,29463.7,24316.6,5932.5,2888.3,2909.4
-Al-Amara,Maysan,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,3998.9
-Al-Kahla,Maysan,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,3553.7
-Al-Maimouna,Maysan,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2692.5
-Al-Mejar Al-Kabir,Maysan,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2074.1
+Al-Amara,Maysan,Federal Iraq (outside Kurdistan Region),1317.4,679.5,360.2,406.0,177.5,37.6,3998.9
+Al-Kahla,Maysan,Federal Iraq (outside Kurdistan Region),17890.8,6752.1,2197.0,8374.4,2987.0,445.6,3553.7
+Al-Maimouna,Maysan,Federal Iraq (outside Kurdistan Region),28897.8,14805.8,6376.6,9768.9,2878.5,572.8,2692.5
+Al-Mejar Al-Kabir,Maysan,Federal Iraq (outside Kurdistan Region),22648.9,12131.9,5645.3,8193.0,3078.4,444.4,2074.1
 Ali Al-Gharbi,Maysan,Federal Iraq (outside Kurdistan Region),2411.8,1061.8,416.5,713.3,211.7,109.5,3673.2
-Qalat Saleh,Maysan,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,282.5
+Qalat Saleh,Maysan,Federal Iraq (outside Kurdistan Region),4027.9,1429.2,367.6,1973.3,809.0,99.7,282.5
 Al-Khidhir,Muthanna,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,1714.1
 Al-Rumaitha,Muthanna,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2301.9
 Al-Salman,Muthanna,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,13456.3
@@ -73,7 +73,7 @@ Al-Mosul,Nineveh,Federal Iraq (outside Kurdistan Region),4200.0,1537.2,400.8,189
 Al-Shikhan,Nineveh,Federal Iraq (outside Kurdistan Region),34675.3,22745.8,10597.9,1016.0,138.0,545.1,1258.9
 Aqra,Nineveh,Federal Iraq (outside Kurdistan Region),88109.0,63867.5,32718.9,2349.6,320.5,1477.1,2959.3
 Sinjar,Nineveh,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2982.0
-Telafar,Nineveh,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,4821.6
+Telafar,Nineveh,Federal Iraq (outside Kurdistan Region),1762.0,957.4,208.5,378.7,28.8,27.3,4821.6
 Tilkaef,Nineveh,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,1266.9
 Afaq,Qadisiyah,Federal Iraq (outside Kurdistan Region),7158.6,3463.5,1706.2,1100.5,401.8,698.1,3837.0
 Al-Diwaniya,Qadisiyah,Federal Iraq (outside Kurdistan Region),2714.5,1548.5,532.9,699.4,249.1,251.2,1267.8
