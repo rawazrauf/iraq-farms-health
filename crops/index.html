@@ -58,6 +58,9 @@ aside{width:420px;max-width:46vw;display:flex;flex-direction:column;border-inlin
 #legend .ttl{font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);cursor:pointer;list-style-position:inside}
 #legend[open] .ttl{margin-bottom:4px}
 #legend label{margin-top:2px}
+#legend .views{display:grid;gap:3px;padding-bottom:6px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+#legend .lgrow{display:flex;align-items:center;gap:7px;margin-top:3px}
+#legend .views label{font-weight:700}
 #legend label{display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap}
 #legend .sw{width:13px;height:13px;border-radius:3px;flex:none}
 #legend .sub{font-size:12px;color:var(--muted)}
@@ -126,6 +129,7 @@ select{border:1px solid var(--line);background:var(--card);border-radius:10px;pa
 .progress i{display:block;height:100%;width:0;background:var(--wheat);transition:width .2s}
 ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
 .aoi-sum{font-size:13px}
+.lgrow2{display:flex;align-items:center;gap:8px;font-size:14px}
 [dir=rtl] .code,[dir=rtl] .copyrow{direction:ltr}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -144,11 +148,27 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
     <div id="map" role="application" aria-label="Map of crops in Iraq"></div>
     <details id="legend" open>
       <summary class="ttl" data-t="legend">Crops</summary>
+      <div class="views" role="radiogroup" aria-label="View">
+        <label><input type="radio" name="view" value="crops" checked><span data-t="v2026">2025-26 crops</span></label>
+        <label><input type="radio" name="view" value="y2021"><span data-t="v2021">2021 cereals (ESA)</span></label>
+        <label><input type="radio" name="view" value="diff"><span data-t="vdiff">2021 vs 2025-26</span></label>
+      </div>
+      <div id="lg-crops">
       <label><input type="checkbox" id="lg-wheat" checked><span class="sw" style="background:var(--c-wheat)"></span><span data-t="wheat">Wheat</span></label>
       <label><input type="checkbox" id="lg-barley" checked><span class="sw" style="background:var(--c-barley)"></span><span data-t="barley">Barley</span></label>
       <label><input type="checkbox" id="lg-other" checked><span class="sw" style="background:var(--c-other)"></span><span data-t="other">Other crops</span></label>
       <label><input type="checkbox" id="lg-nocrop" checked><span class="sw" style="background:var(--c-nocrop)"></span><span data-t="nocrop">Cropland, no crop</span></label>
       <label class="sub"><input type="checkbox" id="lg-fade" checked><span data-t="fade">Fade where WorldCereal is less sure</span></label>
+      </div>
+      <div id="lg-diff" hidden>
+        <div class="lgrow"><span class="sw" style="background:#2E7D32"></span><span data-t="dBoth">Cereal in both years</span></div>
+        <div class="lgrow"><span class="sw" style="background:#E3B505"></span><span data-t="d2026">2025-26 only</span></div>
+        <div class="lgrow"><span class="sw" style="background:#7B3FA0"></span><span data-t="d2021">2021 only</span></div>
+        <div class="sub" data-t="dNote">Only inside processed areas (dashed outline).</div>
+      </div>
+      <div id="lg-y2021" hidden>
+        <div class="lgrow"><span class="sw" style="background:#BA7135"></span><span data-t="y21">Winter cereals, 2021 (ESA WorldCereal)</span></div>
+      </div>
       <label class="sub" for="lg-op"><span data-t="opacity">Opacity</span></label>
       <input type="range" id="lg-op" min="0.2" max="1" step="0.05" value="0.9" aria-label="Opacity">
     </details>
@@ -158,6 +178,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
     <nav class="tabs" role="tablist">
       <button role="tab" data-tab="stats" class="on" data-t="tabStats">Statistics</button>
       <button role="tab" data-tab="dl" data-t="tabDl">Download &amp; GIS</button>
+      <button role="tab" data-tab="check" data-t="tabCheck">Check</button>
       <button role="tab" data-tab="about" data-t="tabAbout">About</button>
     </nav>
 
@@ -224,6 +245,31 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
       <div class="links" id="dl-files"></div>
     </section>
 
+    <section class="pane" id="pane-check" role="tabpanel" hidden>
+      <div style="display:grid;gap:8px">
+        <h2 data-t="ckTitle">Is this map right? Check it yourself</h2>
+        <p data-t="ckIntro">Compare our 2025-26 map with ESA's own published WorldCereal map for 2021, over satellite imagery. Same system, different year, so they should agree on where farming happens, and differ only where land use really changed.</p>
+      </div>
+      <div class="seg"><button class="btn primary" id="ck-diff" data-t="ckShow">Show 2021 vs 2025-26 on the map</button></div>
+      <div class="banner" id="ck-unavail" hidden data-t="ckUnavail">The comparison needs the newest data files. It will appear after the next data update.</div>
+      <div class="card" style="display:grid;gap:6px">
+        <div class="lgrow2"><span class="sw" style="background:#2E7D32"></span> <span data-t="dBoth">Cereal in both years</span></div>
+        <div class="lgrow2"><span class="sw" style="background:#E3B505"></span> <span data-t="d2026">2025-26 only</span></div>
+        <div class="lgrow2"><span class="sw" style="background:#7B3FA0"></span> <span data-t="d2021">2021 only</span></div>
+      </div>
+      <div style="display:grid;gap:6px">
+        <h3 data-t="ckLook">What to look for</h3>
+        <ul id="ck-list"></ul>
+      </div>
+      <div id="ck-numbers" hidden style="display:grid;gap:8px">
+        <h3 data-t="ckNums">Winter cereals inside the processed area (ha)</h3>
+        <div class="tablewrap"><table id="ck-table"><thead><tr>
+          <th data-t="ckArea">Area</th><th class="n">2021</th><th class="n">2025-26</th><th class="n" data-t="ckBoth">Both</th><th class="n" data-t="ckRatio">Change</th>
+        </tr></thead><tbody></tbody></table></div>
+        <p class="note" id="ck-note"></p>
+      </div>
+    </section>
+
     <section class="pane" id="pane-about" role="tabpanel" hidden>
       <div id="about"></div>
     </section>
@@ -243,7 +289,19 @@ const KRI_NAME = "Kurdistan Region";
 
 /* ------------------------------------------------------------------ text */
 const T = {
- en:{title:"Iraq Crop Map",back:"← Iraq Farms Health",legend:"Crops",wheat:"Wheat",barley:"Barley",other:"Other crops",nocrop:"Cropland, no crop",
+ en:{v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
+  dNote:"Only inside processed areas (dashed outline).",y21:"Winter cereals, 2021 (ESA WorldCereal)",tabCheck:"Check",
+  ckTitle:"Is this map right? Check it yourself",
+  ckIntro:"Compare our 2025-26 map with ESA's own published WorldCereal map for 2021, over satellite imagery. Same system, different year, so they should agree on where farming happens, and differ only where land use really changed.",
+  ckShow:"Show 2021 vs 2025-26 on the map",ckUnavail:"The comparison needs the newest data files. It will appear after the next data update.",
+  ckLook:"What to look for",ckNums:"Winter cereals inside the processed area (ha)",ckArea:"Area",ckBoth:"Both",ckRatio:"Change",
+  ck1:"Field-shaped patches (straight edges, canal grids) that changed colour are usually real changes in what farmers planted.",
+  ck2:"Gold spread thinly across hills or open steppe, without field edges, may be pasture or natural vegetation after a wet winter. The map is least reliable there.",
+  ck3:"Gold in desert, marshes, towns or rivers would be a clear error. Please <a href=\"https://github.com/rawazrauf/iraq-farms-health/issues\" target=\"_blank\" rel=\"noopener\">report it</a> with the location.",
+  ck4:"Click any spot to see what each year says. Lower the opacity to look at the satellite image underneath.",
+  ck5:"2021 was a severe drought year, so less rain-fed land was planted then. 2021 also does not separate wheat from barley, so this checks “wheat or barley” together.",
+  ckNote:"Compared on a ~16 m grid, only inside the {n} processed tiles. “Change” = 2025-26 ÷ 2021. Pixel agreement (0–1): {f}.",
+  y2021yes:"winter cereal",y2021no:"not winter cereal",y2021na:"not available",title:"Iraq Crop Map",back:"← Iraq Farms Health",legend:"Crops",wheat:"Wheat",barley:"Barley",other:"Other crops",nocrop:"Cropland, no crop",
   fade:"Fade where WorldCereal is less sure",opacity:"Opacity",tabStats:"Statistics",tabDl:"Download & GIS",tabAbout:"About",
   byRegion:"By region",byGov:"By governorate",govHint:"Click a governorate to see its districts and zoom the map.",
   regionNote:"Kurdistan Region = Duhok, Erbil, Sulaymaniyah and Halabja governorates as drawn in the open boundary data. The district table lets anyone regroup areas whose administration is disputed.",
@@ -265,7 +323,19 @@ const T = {
   copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
   view:"Map view",gov:"Governorate",ha:"ha"},
- ar:{title:"خريطة المحاصيل في العراق",back:"→ صحة مزارع العراق",legend:"المحاصيل",wheat:"قمح",barley:"شعير",other:"محاصيل أخرى",nocrop:"أرض زراعية بلا محصول",
+ ar:{v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
+  dNote:"داخل المناطق المعالَجة فقط (الحد المتقطع).",y21:"الحبوب الشتوية 2021 (ESA WorldCereal)",tabCheck:"التحقق",
+  ckTitle:"هل الخريطة صحيحة؟ تحقّق بنفسك",
+  ckIntro:"قارن خريطتنا لموسم 2025-26 بخريطة WorldCereal الرسمية التي نشرتها وكالة الفضاء الأوروبية لعام 2021، فوق صور الأقمار الصناعية. النظام نفسه وسنة مختلفة، لذا يُفترض أن تتفقا على أماكن الزراعة وأن تختلفا فقط حيث تغيّر استخدام الأرض فعلاً.",
+  ckShow:"اعرض 2021 مقابل 2025-26 على الخريطة",ckUnavail:"تحتاج المقارنة إلى أحدث ملفات البيانات، وستظهر بعد التحديث القادم.",
+  ckLook:"ما الذي تبحث عنه",ckNums:"الحبوب الشتوية داخل المنطقة المعالَجة (هكتار)",ckArea:"المنطقة",ckBoth:"كلتاهما",ckRatio:"التغيّر",
+  ck1:"الرقع ذات شكل الحقول (حواف مستقيمة، شبكات قنوات) التي تغيّر لونها هي غالباً تغيّرات حقيقية فيما زرعه المزارعون.",
+  ck2:"اللون الذهبي المنتشر بخفة على التلال أو السهوب المفتوحة دون حدود حقول قد يكون مراعي أو نباتاً طبيعياً بعد شتاء ممطر. الخريطة أقل موثوقية هناك.",
+  ck3:"اللون الذهبي في الصحراء أو الأهوار أو المدن أو الأنهار خطأ واضح. يُرجى <a href=\"https://github.com/rawazrauf/iraq-farms-health/issues\" target=\"_blank\" rel=\"noopener\">الإبلاغ عنه</a> مع الموقع.",
+  ck4:"انقر على أي نقطة لترى ما تقوله كل سنة. خفّف الشفافية لرؤية صورة القمر الصناعي تحتها.",
+  ck5:"كان 2021 عام جفاف شديد، فزُرعت مساحة أقل من الأراضي الديمية. كما أن خريطة 2021 لا تفرّق بين القمح والشعير، لذا يتحقق هذا من «قمح أو شعير» معاً.",
+  ckNote:"المقارنة على شبكة ~16 م، داخل المربعات المعالَجة ({n}) فقط. «التغيّر» = 2025-26 ÷ 2021. تطابق البكسلات (0–1): {f}.",
+  y2021yes:"حبوب شتوية",y2021no:"ليست حبوباً شتوية",y2021na:"غير متاح",title:"خريطة المحاصيل في العراق",back:"→ صحة مزارع العراق",legend:"المحاصيل",wheat:"قمح",barley:"شعير",other:"محاصيل أخرى",nocrop:"أرض زراعية بلا محصول",
   fade:"تخفيف اللون حيث تكون WorldCereal أقل ثقة",opacity:"الشفافية",tabStats:"الإحصاءات",tabDl:"التنزيل ونظم المعلومات",tabAbout:"حول",
   byRegion:"حسب الإقليم",byGov:"حسب المحافظة",govHint:"انقر على محافظة لعرض أقضيتها وتقريب الخريطة.",
   regionNote:"إقليم كوردستان = محافظات دهوك وأربيل والسليمانية وحلبجة كما تظهر في بيانات الحدود المفتوحة. يتيح جدول الأقضية لأي شخص إعادة تجميع المناطق المتنازع على إدارتها.",
@@ -287,7 +357,19 @@ const T = {
   copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
   view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
- ku:{title:"نەخشەی بەرهەمەکانی عێراق",back:"→ تەندروستی کێڵگەکانی عێراق",legend:"بەرهەمەکان",wheat:"گەنم",barley:"جۆ",other:"بەرهەمی تر",nocrop:"زەوی کشتوکاڵی بێ بەرهەم",
+ ku:{v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
+  dNote:"تەنها لە ناو ناوچە پرۆسێسکراوەکان (سنووری پچڕپچڕ).",y21:"دانەوێڵەی زستانی، 2021 (ESA WorldCereal)",tabCheck:"پشکنین",
+  ckTitle:"ئایا ئەم نەخشەیە ڕاستە؟ خۆت بیپشکنە",
+  ckIntro:"نەخشەکەمان بۆ وەرزی 2025-26 بەراورد بکە لەگەڵ نەخشەی فەرمیی WorldCereal ی ئاژانسی بۆشایی ئەوروپا بۆ ساڵی 2021، لەسەر وێنەی مانگی دەستکرد. هەمان سیستەم و ساڵێکی جیاواز، بۆیە دەبێت لەسەر شوێنی کشتوکاڵ ڕێک بن و تەنها لەو شوێنانە جیاواز بن کە بەکارهێنانی زەوی بەڕاستی گۆڕاوە.",
+  ckShow:"2021 بەراورد بە 2025-26 لەسەر نەخشە پیشان بدە",ckUnavail:"بەراوردەکە پێویستی بە نوێترین فایلەکانی داتایە، دوای نوێکردنەوەی داهاتوو دەردەکەوێت.",
+  ckLook:"بەدوای چیدا بگەڕێیت",ckNums:"دانەوێڵەی زستانی لە ناو ناوچەی پرۆسێسکراو (هێکتار)",ckArea:"ناوچە",ckBoth:"هەردووکیان",ckRatio:"گۆڕان",
+  ck1:"پارچە بە شێوەی کێڵگە (لێواری ڕاست، تۆڕی جۆگە) کە ڕەنگیان گۆڕاوە زۆربەی کات گۆڕانی ڕاستەقینەن لەوەی جووتیاران چاندوویانە.",
+  ck2:"ڕەنگی زێڕین کە بە تەنکی بەسەر گردەکان یان دەشتی کراوەدا بڵاوبووەتەوە بێ سنووری کێڵگە، لەوانەیە لەوەڕگا یان ڕووەکی سروشتی بێت دوای زستانێکی بەباران. نەخشەکە لەوێ کەمترین متمانەی هەیە.",
+  ck3:"ڕەنگی زێڕین لە بیابان، هۆڕ، شار یان ڕووبار هەڵەیەکی ڕوونە. تکایە <a href=\"https://github.com/rawazrauf/iraq-farms-health/issues\" target=\"_blank\" rel=\"noopener\">ڕاپۆرتی بکە</a> لەگەڵ شوێنەکەی.",
+  ck4:"کرتە لە هەر شوێنێک بکە بۆ بینینی ئەوەی هەر ساڵێک دەیڵێت. ڕوونی کەم بکەرەوە بۆ بینینی وێنەی مانگی دەستکرد لە ژێرەوە.",
+  ck5:"2021 ساڵێکی وشکەساڵیی توند بوو، بۆیە زەوی دێمی کەمتر چێنرا. هەروەها نەخشەی 2021 گەنم و جۆ لێک جیا ناکاتەوە، بۆیە ئەمە «گەنم یان جۆ» پێکەوە دەپشکنێت.",
+  ckNote:"بەراورد لەسەر تۆڕێکی ~16 م، تەنها لە ناو {n} چوارگۆشە پرۆسێسکراوەکان. «گۆڕان» = 2025-26 ÷ 2021. ڕێککەوتنی پیکسڵەکان (0–1): {f}.",
+  y2021yes:"دانەوێڵەی زستانی",y2021no:"دانەوێڵەی زستانی نییە",y2021na:"بەردەست نییە",title:"نەخشەی بەرهەمەکانی عێراق",back:"→ تەندروستی کێڵگەکانی عێراق",legend:"بەرهەمەکان",wheat:"گەنم",barley:"جۆ",other:"بەرهەمی تر",nocrop:"زەوی کشتوکاڵی بێ بەرهەم",
   fade:"کاڵکردنەوە لەو شوێنانەی WorldCereal دڵنیایی کەمترە",opacity:"ڕوونی",tabStats:"ئامارەکان",tabDl:"داگرتن و GIS",tabAbout:"دەربارە",
   byRegion:"بەپێی هەرێم",byGov:"بەپێی پارێزگا",govHint:"کرتە لە پارێزگایەک بکە بۆ بینینی قەزاکانی و نزیککردنەوەی نەخشە.",
   regionNote:"هەرێمی کوردستان = پارێزگاکانی دهۆک، هەولێر، سلێمانی و هەڵەبجە وەک لە داتای سنووری کراوەدا هاتووە. خشتەی قەزاکان ڕێگە دەدات هەر کەسێک ناوچە ناکۆکەکان بە شێوەی خۆی کۆبکاتەوە.",
@@ -339,7 +421,7 @@ function applyLang(){
   });
   document.querySelectorAll("#lang button").forEach(b => b.classList.toggle("on", b.dataset.l===LANG));
   if(STATS){ renderStats(); fillGovSelect(); }
-  if(INDEX) renderAbout();
+  if(INDEX) { renderAbout(); renderCheck(); }
   updateAoi();
 }
 document.querySelectorAll("#lang button").forEach(b => b.onclick = () => {
@@ -473,9 +555,12 @@ function initMap(){
   });
   window.cropMap = map;   // handy for the browser console
   map.addControl(new maplibregl.AttributionControl({compact:true, customAttribution:"Crops: ESA WorldCereal / Iraq Farms Health · Boundaries: geoBoundaries"}));
-  map.once("load", () => document.querySelectorAll(".maplibregl-ctrl-attrib").forEach(el => el.classList.remove("maplibregl-compact-show")));
+  const closeAttrib = () => document.querySelectorAll(".maplibregl-ctrl-attrib").forEach(el => el.classList.remove("maplibregl-compact-show"));
+  map.once("style.load", () => setTimeout(closeAttrib, 0)); map.once("load", closeAttrib);
   map.addControl(new maplibregl.NavigationControl({showCompass:false}), LANG==="en" ? "top-right" : "top-left");
-  map.on("load", () => {
+  // Add our layers as soon as the style is ready, without waiting for every basemap tile ("load" waits for those).
+  const addLayers = () => {
+    if(map.getSource("crops")) return;
     map.addSource("crops",{type:"raster",tiles:["wcrop://{z}/{x}/{y}?v=0"],tileSize:256,minzoom:4,maxzoom:INDEX.max_zoom});
     map.addLayer({id:"crops",type:"raster",source:"crops",paint:{"raster-opacity":0.9,"raster-resampling":"nearest","raster-fade-duration":0}});
     map.addLayer({id:"lbl",type:"raster",source:"lbl",paint:{"raster-opacity":0.85}});
@@ -485,6 +570,8 @@ function initMap(){
       map.addLayer({id:"gov-line",type:"line",source:"gov",paint:{"line-color":"#F3EFE4","line-width":["interpolate",["linear"],["zoom"],5,0.8,10,2],"line-opacity":0.75}});
       map.addLayer({id:"gov-sel",type:"line",source:"gov",filter:["==",["get","name"],""],paint:{"line-color":"#D9A441","line-width":3}});
     }
+    map.addSource("proc",{type:"geojson",data:{type:"FeatureCollection",features:(INDEX.processed||[]).map(p=>({type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:[p.ring]}}))}});
+    map.addLayer({id:"proc-line",type:"line",source:"proc",layout:{visibility:"none"},paint:{"line-color":"#F3EFE4","line-width":1.2,"line-dasharray":[3,2],"line-opacity":0.9}});
     map.addSource("aoi",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
     map.addLayer({id:"aoi-fill",type:"fill",source:"aoi",paint:{"fill-color":"#D9A441","fill-opacity":0.12}});
     map.addLayer({id:"aoi-line",type:"line",source:"aoi",paint:{"line-color":"#D9A441","line-width":2.5,"line-dasharray":[2,1.5]}});
@@ -492,7 +579,10 @@ function initMap(){
     map.on("dataloading", e => { if(e.sourceId==="crops"){ pending++; setStatus(t("loading")); } });
     map.on("idle", () => { pending = 0; setStatus(""); });
     map.on("sourcedata", e => { if(e.sourceId==="crops" && map.isSourceLoaded("crops")) setStatus(""); });
-  });
+    if(CropLayer.opts.mode !== "crops") setView(CropLayer.opts.mode);
+  };
+  if(map.isStyleLoaded()) addLayers(); else map.once("style.load", addLayers);
+  map.once("load", addLayers);
   map.on("click", async e => {
     if(drawing) return;
     const code = await CropLayer.sample(e.lngLat.lng, e.lngLat.lat);
@@ -503,8 +593,13 @@ function initMap(){
       if(f) gov = govName(f.properties);
     }
     const what = d.cls ? `<b>${clsName(d.cls)}</b>${d.less ? ` <span class="pct">(${t("lessSure")})</span>` : ""}` : t("notCrop");
+    let y21 = "";
+    if(CropLayer.opts.mode !== "crops"){
+      const v = await sample2021(e.lngLat.lng, e.lngLat.lat);
+      y21 = `<div style="margin-top:4px">2021 (ESA): <b>${v===null ? t("y2021na") : v ? t("y2021yes") : t("y2021no")}</b></div>`;
+    }
     new maplibregl.Popup({closeButton:true,maxWidth:"260px"}).setLngLat(e.lngLat)
-      .setHTML(`<div>${t("here")}: ${what}</div>${gov?`<div class="pct" style="margin-top:4px">${t("gov")}: ${gov}</div>`:""}`).addTo(map);
+      .setHTML(`<div>${CropLayer.opts.mode!=="crops"?"2025-26":t("here")}: ${what}</div>${y21}${gov?`<div class="pct" style="margin-top:4px">${t("gov")}: ${gov}</div>`:""}`).addTo(map);
   });
 }
 function refreshCrops(){
@@ -515,6 +610,45 @@ function refreshCrops(){
 ["wheat","barley","other","nocrop"].forEach(k => $("#lg-"+k).onchange = e => { CropLayer.setOptions({show:{[k]:e.target.checked}}); refreshCrops(); });
 $("#lg-fade").onchange = e => { CropLayer.setOptions({fadeLess:e.target.checked}); refreshCrops(); };
 $("#lg-op").oninput = e => map && map.getLayer("crops") && map.setPaintProperty("crops","raster-opacity",+e.target.value);
+
+async function sample2021(lon, lat){
+  const z = 14, n = 2 ** z, [mx, my] = CropLayer.lonLatTo3857(lon, lat), R = 20037508.342789244, s = 2 * R / n;
+  const tx = Math.floor((mx + R) / s), ty = Math.floor((R - my) / s);
+  const m = await CropLayer.wc21Tile(z, tx, ty);
+  if(!m) return null;
+  return m[Math.floor(((R - my) / s - ty) * 256) * 256 + Math.floor(((mx + R) / s - tx) * 256)];
+}
+function setView(v){
+  if(v === "diff" && !CropLayer.canCompare()) v = "crops";
+  CropLayer.setOptions({mode:v});
+  document.querySelectorAll("input[name=view]").forEach(r => r.checked = r.value === v);
+  $("#lg-crops").hidden = v !== "crops"; $("#lg-diff").hidden = v !== "diff"; $("#lg-y2021").hidden = v !== "y2021";
+  if(map && map.getLayer("proc-line")) map.setLayoutProperty("proc-line","visibility", v === "diff" ? "visible" : "none");
+  refreshCrops();
+}
+document.querySelectorAll("input[name=view]").forEach(r => r.onchange = () => setView(r.value));
+$("#ck-diff").onclick = () => {
+  setView("diff"); $("#legend").open = true;
+  if(matchMedia("(max-width:820px)").matches) document.getElementById("mapwrap").scrollIntoView({behavior:"smooth"});
+};
+let CMP = null;
+function renderCheck(){
+  $("#ck-list").innerHTML = ["ck1","ck2","ck3","ck4","ck5"].map(k => `<li>${t(k)}</li>`).join("");
+  const can = CropLayer.canCompare();
+  $("#ck-unavail").hidden = can; $("#ck-diff").disabled = !can;
+  document.querySelector("input[name=view][value=diff]").disabled = !can;
+  if(!CMP){ $("#ck-numbers").hidden = true; return; }
+  $("#ck-numbers").hidden = false;
+  const row = (name, m, cls) => `<tr${cls?` class="${cls}"`:""}><td>${name}</td><td class="n">${fmt(m.wc21)}</td><td class="n">${fmt(m.wc26)}</td><td class="n">${fmt(m.wc_both)}</td><td class="n">${m.wc_ratio_2026_to_2021!=null?"×"+m.wc_ratio_2026_to_2021:"–"}</td></tr>`;
+  const gmeta = Object.fromEntries((STATS ? STATS.governorates : []).map(g => [g.name, g]));
+  const rows = [];
+  if(CMP.regions["Kurdistan Region"]) rows.push(row(`<b>${t("kri")}</b>`, CMP.regions["Kurdistan Region"]));
+  if(CMP.regions["Other governorates"]) rows.push(row(`<b>${t("fed")}</b>`, CMP.regions["Other governorates"]));
+  CMP.governorates.filter(g => g.name && g.name[0] !== "(" && g.wc21 + g.wc26 > 0)
+    .forEach(g => rows.push(row(govName(gmeta[g.name] || {name:g.name}), g, g.region==="Kurdistan Region"?"kri":"")));
+  $("#ck-table tbody").innerHTML = rows.join("");
+  $("#ck-note").textContent = t("ckNote",{n:CMP.tiles_processed, f:CMP.total.wc_f1});
+}
 
 /* ------------------------------------------------------------------ area of interest */
 let drawing = false, drawStart = null;
@@ -689,6 +823,7 @@ document.addEventListener("click", async e => {
       fetch(DATA+"boundaries.geojson").then(r => r.ok ? r.json() : null).catch(() => null)
     ]);
     STATS = st; BOUNDS = bd;
+    CMP = await fetch(DATA+"compare_2021.json",{cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null);
     initMap(); wireDraw();
     applyLang();
   }catch(err){

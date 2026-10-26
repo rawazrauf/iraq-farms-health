@@ -18,7 +18,15 @@
   const CropLayer = {
     base: "",
     index: null,
-    opts: { show: { wheat: true, barley: true, other: true, nocrop: true }, fadeLess: true },
+    opts: { show: { wheat: true, barley: true, other: true, nocrop: true }, fadeLess: true, mode: "crops" },
+    // ESA WorldCereal 2021 v100 winter cereals (official product), the same service Iraq Farms Health uses.
+    WC21_URL: "https://wmts.terrascope.be/wmts?service=WMTS&request=GetTile&version=1.0.0"
+      + "&layer=esa-worldcereal-wintercereals-10m-2021-v1_classification&style=default&format=image%2Fpng"
+      + "&tilematrixset=EPSG:3857&TileMatrix={z}&TileRow={y}&TileCol={x}&TIME=2021-01-01"
+      + "&name=classification&assets=classification&nodata=255&colormap=" + encodeURIComponent('{"100":"#ff0000"}'),
+    DIFF_COLORS: { both: [46, 125, 50, 235], only2026: [227, 181, 5, 235], only2021: [123, 63, 160, 235], y2021: [186, 113, 53, 225] },
+    _wc21: new Map(),
+    _proc: new Map(),
     _tiffs: new Map(),
     _codes: new Map(),
     _lut: null,
@@ -31,6 +39,10 @@
       if (!r.ok) throw new Error("Crop layer index not found (" + r.status + ")");
       this.index = await r.json();
       this.cellSet = new Map(this.index.cells.map(c => [c.x + "/" + c.y, c]));
+      // processed footprint (finished tiles), in Web Mercator, for the 2021 comparison
+      this._footprint = (this.index.processed || []).map(t => t.ring.map(([lon, lat]) => this.lonLatTo3857(lon, lat)));
+      const cl = this.classes();
+      this._winter = new Set(cl.map((c, i) => ["wheat", "barley", "rye", "oats"].includes(c) ? i + 1 : 0).filter(Boolean));
       this._buildLut();
       return this.index;
     },
@@ -149,6 +161,70 @@
       return val;
     },
 
+    /** Can the 2021 comparison be shown? Needs the processed footprint in index.json. */
+    canCompare() { return !!(this._footprint && this._footprint.length); },
+    isWinterCereal(code) { return !!code && this._winter.has(code % LESS); },
+
+    /** ESA WorldCereal 2021 winter cereals for tile z/x/y → Uint8Array (1 = cereal), or null on failure. */
+    async wc21Tile(z, x, y, signal) {
+      const key = z + "/" + x + "/" + y;
+      if (this._wc21.has(key)) return this._wc21.get(key);
+      const p = (async () => {
+        const url = this.WC21_URL.replace("{z}", z).replace("{x}", x).replace("{y}", y);
+        const r = await fetch(url, { signal });
+        if (r.status === 204 || r.status === 404) return new Uint8Array(65536);
+        if (!r.ok) throw new Error("WorldCereal 2021 tile " + r.status);
+        const bmp = await createImageBitmap(await r.blob());
+        const c = document.createElement("canvas"); c.width = c.height = 256;
+        const g = c.getContext("2d", { willReadFrequently: true });
+        g.drawImage(bmp, 0, 0, 256, 256);
+        const d = g.getImageData(0, 0, 256, 256).data, m = new Uint8Array(65536);
+        for (let i = 0; i < 65536; i++) m[i] = d[i * 4 + 3] > 0 && d[i * 4] > 128 ? 1 : 0;
+        return m;
+      })().catch(e => { this._wc21.delete(key); return null; });
+      if (this._wc21.size > 600) this._wc21.delete(this._wc21.keys().next().value);
+      this._wc21.set(key, p);
+      return p;
+    },
+
+    /** 1 where tile z/x/y lies inside a processed tile. */
+    procTile(z, x, y) {
+      const key = z + "/" + x + "/" + y;
+      if (this._proc.has(key)) return this._proc.get(key);
+      const b = this.tileBounds(z, x, y), s = (b[2] - b[0]) / 256, m = new Uint8Array(65536);
+      for (const ring of this._footprint) {
+        let w = Infinity, e = -Infinity, so = Infinity, n = -Infinity;
+        for (const [px, py] of ring) { w = Math.min(w, px); e = Math.max(e, px); so = Math.min(so, py); n = Math.max(n, py); }
+        if (e < b[0] || w > b[2] || n < b[1] || so > b[3]) continue;
+        const pts = ring.map(([px, py]) => [(px - b[0]) / s, (b[3] - py) / s]);
+        for (let j = 0; j < 256; j++) {
+          const yy = j + 0.5, xs = [];
+          for (let k = 0; k < pts.length - 1; k++) {
+            const [ax, ay] = pts[k], [bx, by] = pts[k + 1];
+            if ((ay <= yy) !== (by <= yy)) xs.push(ax + (yy - ay) / (by - ay) * (bx - ax));
+          }
+          xs.sort((a, c) => a - c);
+          for (let k = 0; k + 1 < xs.length; k += 2) {
+            const i0 = Math.max(0, Math.ceil(xs[k] - 0.5)), i1 = Math.min(256, Math.ceil(xs[k + 1] - 0.5));
+            for (let i = i0; i < i1; i++) m[j * 256 + i] = 1;
+          }
+        }
+      }
+      if (this._proc.size > 600) this._proc.delete(this._proc.keys().next().value);
+      this._proc.set(key, m);
+      return m;
+    },
+
+    async _pngRGBA(fill) {
+      const c = document.createElement("canvas");
+      c.width = c.height = 256;
+      const img = new ImageData(256, 256);
+      fill(img.data);
+      c.getContext("2d").putImageData(img, 0, 0);
+      const blob = await new Promise(res => c.toBlob(res, "image/png"));
+      return blob.arrayBuffer();
+    },
+
     async _png(codes) {
       const c = document.createElement("canvas");
       c.width = c.height = 256;
@@ -170,7 +246,25 @@
       maplibregl.addProtocol("wcrop", async (params, abort) => {
         const m = params.url.match(/^wcrop:\/\/(\d+)\/(\d+)\/(\d+)/);
         if (!m || !this.index) return { data: await this._png(null) };
-        const codes = await this.tileCodes(+m[1], +m[2], +m[3], abort && abort.signal);
+        const z = +m[1], x = +m[2], y = +m[3], sig = abort && abort.signal, mode = this.opts.mode;
+        if (mode === "y2021" || mode === "diff") {
+          const [w21, codes] = await Promise.all([this.wc21Tile(z, x, y, sig),
+                                                  mode === "diff" ? this.tileCodes(z, x, y, sig) : null]);
+          const C = this.DIFF_COLORS;
+          if (mode === "y2021") {
+            return { data: await this._pngRGBA(d => { if (w21) for (let i = 0; i < 65536; i++) if (w21[i]) d.set(C.y2021, i * 4); }) };
+          }
+          if (!w21) return { data: await this._pngRGBA(() => {}) };   // 2021 tile unavailable: show nothing rather than a false "2026 only"
+          const proc = this.procTile(z, x, y);
+          return { data: await this._pngRGBA(d => {
+            for (let i = 0; i < 65536; i++) {
+              if (!proc[i]) continue;
+              const a = w21 ? w21[i] : 0, b = codes ? this.isWinterCereal(codes[i]) : false;
+              if (a && b) d.set(C.both, i * 4); else if (b) d.set(C.only2026, i * 4); else if (a && w21) d.set(C.only2021, i * 4);
+            }
+          }) };
+        }
+        const codes = await this.tileCodes(z, x, y, sig);
         if (!codes) {
           this._blank = this._blank || await this._png(null);
           return { data: this._blank.slice(0) };
