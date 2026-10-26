@@ -1,6 +1,6 @@
 {
  "season": "2025-26",
- "generated_utc": "2026-10-26 19:22",
+ "generated_utc": "2026-10-26 20:26",
  "cell_zoom": 9,
  "cell_px": 6656,
  "cell_res": 11.759542813104039,
@@ -262,7 +262,7 @@
    "x": 320,
    "y": 207,
    "file": "cells/z9_320_207.tif",
-   "mb": 2.15,
+   "mb": 2.26,
    "bounds_3857": [
     5009377.085697312,
     3757032.8142729825,
@@ -272,10 +272,23 @@
   },
   {
    "z": 9,
+   "x": 320,
+   "y": 208,
+   "file": "cells/z9_320_208.tif",
+   "mb": 0.15,
+   "bounds_3857": [
+    5009377.085697312,
+    3678761.2973089623,
+    5087648.602661332,
+    3757032.814272983
+   ]
+  },
+  {
+   "z": 9,
    "x": 321,
    "y": 207,
    "file": "cells/z9_321_207.tif",
-   "mb": 3.72,
+   "mb": 4.89,
    "bounds_3857": [
     5087648.60266133,
     3757032.8142729825,
@@ -288,7 +301,7 @@
    "x": 321,
    "y": 208,
    "file": "cells/z9_321_208.tif",
-   "mb": 0.67,
+   "mb": 1.47,
    "bounds_3857": [
     5087648.60266133,
     3678761.2973089623,
@@ -408,7 +421,7 @@
   ],
   "confidence_threshold": 60
  },
- "tiles_finished": 21,
+ "tiles_finished": 22,
  "tiles_planned": 218,
  "license": "CC BY 4.0",
  "attribution": "Crop types: ESA WorldCereal system, run by Iraq Farms Health on Copernicus Data Space. Contains modified Copernicus Sentinel data 2025."

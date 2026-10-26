@@ -1,6 +1,5 @@
 ﻿name,gov,region,cropland_ha,wheat_ha,wheat_ha_sure,barley_ha,barley_ha_sure,processed_km2,planned_km2
 Al-Falluja,Anbar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,4019.3
-Al-Kadhmiyah,Anbar,Federal Iraq (outside Kurdistan Region),1989.0,1041.0,356.6,451.0,152.4,76.5,1582.5
 Al-Kaim,Anbar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,6255.1
 Al-Ramadi,Anbar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,8072.0
 Al-Rutba,Anbar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,38729.4
@@ -9,12 +8,13 @@ Haditha,Anbar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2392.9
 Heet,Anbar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,7181.7
 Al-Hashimiya,Babil,Federal Iraq (outside Kurdistan Region),29395.8,16843.1,8271.9,7798.7,2963.6,1094.8,2057.3
 Al-Hilla,Babil,Federal Iraq (outside Kurdistan Region),15956.6,8860.5,4296.2,4940.8,1960.2,753.2,929.2
-Al-Hindiya,Babil,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,534.6
-Al-Karkh,Babil,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,270.0
 Al-Mahaweel,Babil,Federal Iraq (outside Kurdistan Region),47126.9,26178.2,15370.7,12246.2,4667.7,1323.2,1332.8
-Al-Mahmoudiya,Babil,Federal Iraq (outside Kurdistan Region),3785.9,2545.1,1567.1,755.0,305.8,94.7,1421.7
 Al-Mussyab,Babil,Federal Iraq (outside Kurdistan Region),7338.0,3779.2,1722.3,2331.8,875.4,198.9,1016.3
 Al-Adhamiya,Baghdad,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.3,255.1
+Al-Kadhmiyah,Baghdad,Federal Iraq (outside Kurdistan Region),1989.0,1041.0,356.6,451.0,152.4,76.5,1582.5
+Al-Karkh,Baghdad,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,270.0
+Al-Mada'in,Baghdad,Federal Iraq (outside Kurdistan Region),2354.3,1427.1,581.8,151.9,58.7,91.4,1315.5
+Al-Mahmoudiya,Baghdad,Federal Iraq (outside Kurdistan Region),3785.9,2545.1,1567.1,755.0,305.8,94.7,1421.7
 Al-Risafa,Baghdad,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,173.0
 Al-Thawra,Baghdad,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,78.6
 Abu Al-Khaseeb,Basra,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,469.9
@@ -26,11 +26,10 @@ Al-Zubair,Basra,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,3661.1
 Shat Al-Arab,Basra,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,1844.5
 Al-Chibayish,Dhi Qar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2041.0
 Al-Nasiriya,Dhi Qar,Federal Iraq (outside Kurdistan Region),10245.4,4231.6,1430.9,4724.6,2482.3,496.0,4171.7
-Al-Rifai,Dhi Qar,Federal Iraq (outside Kurdistan Region),862.0,284.0,59.2,476.2,255.2,52.5,3552.9
+Al-Rifai,Dhi Qar,Federal Iraq (outside Kurdistan Region),18486.9,10606.8,4694.1,5369.8,2257.8,541.3,3552.9
 Al-Shatra,Dhi Qar,Federal Iraq (outside Kurdistan Region),26929.8,9409.6,3698.2,15138.0,7818.2,1051.4,1809.8
 Suq Al-Shoyokh,Dhi Qar,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,1210.9
 Al-Khalis,Diyala,Federal Iraq (outside Kurdistan Region),25883.2,8590.7,2914.0,11787.7,4340.2,618.4,2946.6
-Al-Mada'in,Diyala,Federal Iraq (outside Kurdistan Region),2354.3,1427.1,581.8,151.9,58.7,91.4,1315.5
 Al-Muqdadiya,Diyala,Federal Iraq (outside Kurdistan Region),512.1,209.0,43.6,157.8,48.2,54.0,996.1
 Baladruz,Diyala,Federal Iraq (outside Kurdistan Region),1946.9,669.2,141.5,383.9,80.7,287.6,6749.9
 Baquba,Diyala,Federal Iraq (outside Kurdistan Region),16704.6,6524.9,2389.5,6635.0,2568.0,612.2,1820.6
@@ -46,7 +45,9 @@ Koysinjaq,Erbil,Kurdistan Region,67566.5,41506.0,14703.6,951.9,117.6,1395.0,2041
 Makhmour,Erbil,Kurdistan Region,109085.8,70759.4,36206.0,11563.9,2684.9,1312.5,2603.3
 Rawanduz,Erbil,Kurdistan Region,0.0,0,0,0,0,0.0,4336.8
 Shaqlawa,Erbil,Kurdistan Region,1794.4,1526.1,918.5,52.0,7.6,24.5,1782.9
+Halabcha,Halabja,Kurdistan Region,0.0,0,0,0,0,0.0,1383.2
 Ain Al-Tamur,Karbala,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,1846.1
+Al-Hindiya,Karbala,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,534.6
 Kerbela,Karbala,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2672.1
 Al-Hawiga,Kirkuk,Federal Iraq (outside Kurdistan Region),66632.0,37502.4,24154.8,16070.9,5669.5,782.3,2887.6
 Daquq,Kirkuk,Federal Iraq (outside Kurdistan Region),106647.0,43227.9,26055.1,39918.9,15198.2,1411.3,2669.9
@@ -74,7 +75,7 @@ Aqra,Nineveh,Federal Iraq (outside Kurdistan Region),88109.0,63867.5,32718.9,234
 Sinjar,Nineveh,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2982.0
 Telafar,Nineveh,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,4821.6
 Tilkaef,Nineveh,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,1266.9
-Afaq,Qadisiyah,Federal Iraq (outside Kurdistan Region),4720.2,2163.0,1387.3,494.0,233.3,441.1,3837.0
+Afaq,Qadisiyah,Federal Iraq (outside Kurdistan Region),7158.6,3463.5,1706.2,1100.5,401.8,698.1,3837.0
 Al-Diwaniya,Qadisiyah,Federal Iraq (outside Kurdistan Region),2714.5,1548.5,532.9,699.4,249.1,251.2,1267.8
 Al-Hamza,Qadisiyah,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,2380.4
 Al-Shamiya,Qadisiyah,Federal Iraq (outside Kurdistan Region),28003.9,24258.3,18165.0,2745.8,917.6,512.5,948.3
@@ -89,14 +90,13 @@ Al-Sulaymaniyah,Sulaymaniyah,Kurdistan Region,27497.5,17568.0,7778.3,976.1,91.0,
 Chamchamal,Sulaymaniyah,Kurdistan Region,48831.7,18915.0,4130.7,9541.0,1243.3,1087.4,4061.9
 Derbendikhan,Sulaymaniyah,Kurdistan Region,2278.0,1602.0,626.0,34.6,2.7,79.8,529.7
 Dokan,Sulaymaniyah,Kurdistan Region,1732.5,1355.5,427.8,44.9,3.6,96.4,1146.5
-Halabcha,Sulaymaniyah,Kurdistan Region,0.0,0,0,0,0,0.0,1383.2
 Kalar,Sulaymaniyah,Kurdistan Region,1542.7,1064.7,391.1,15.2,0.5,103.2,2145.8
 Panjwin,Sulaymaniyah,Kurdistan Region,0.0,0,0,0,0,0.0,992.1
 Pshdar,Sulaymaniyah,Kurdistan Region,0.0,0,0,0,0,0.0,1368.4
 Rania,Sulaymaniyah,Kurdistan Region,71.7,64.4,19.1,1.4,0.3,0.9,1374.8
 Sharbazher,Sulaymaniyah,Kurdistan Region,0.0,0,0,0,0,0.0,2167.5
-Al-Hai,Wasit,Federal Iraq (outside Kurdistan Region),23865.9,11642.8,4736.0,8734.7,3623.4,770.5,2041.0
+Al-Hai,Wasit,Federal Iraq (outside Kurdistan Region),49439.2,25994.0,11332.4,16876.1,7235.9,1588.8,2041.0
 Al-Kut,Wasit,Federal Iraq (outside Kurdistan Region),53819.6,28296.8,14157.4,18896.4,6742.8,1725.0,5063.9
-Al-Namaniya,Wasit,Federal Iraq (outside Kurdistan Region),65480.5,40265.0,24488.7,16061.2,6938.2,1753.2,2450.9
+Al-Namaniya,Wasit,Federal Iraq (outside Kurdistan Region),66283.8,40796.1,24807.7,16233.0,7014.4,1789.1,2450.9
 Al-Suwaira,Wasit,Federal Iraq (outside Kurdistan Region),100748.7,68289.5,42653.7,19000.1,5969.6,2630.2,4292.9
 Badra,Wasit,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,3148.2
