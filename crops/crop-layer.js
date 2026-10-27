@@ -18,7 +18,10 @@
   const CropLayer = {
     base: "",
     index: null,
-    opts: { show: { wheat: true, barley: true, other: true, nocrop: true }, fadeLess: true, mode: "crops" },
+    // cerealRule "p70": a pixel counts as cereal only when WorldCereal's combined cereal probability is ≥ 70 %
+    // (codes below +200); "top": WorldCereal's default top-crop answer. showDoubtful draws the < 70 % cereal pixels.
+    opts: { show: { wheat: true, barley: true, other: true, nocrop: true }, fadeLess: true, mode: "crops",
+            showDoubtful: false, cerealRule: "p70" },
     // ESA WorldCereal 2021 v100 winter cereals (official product), the same service Iraq Farms Health uses.
     WC21_URL: "https://wmts.terrascope.be/wmts?service=WMTS&request=GetTile&version=1.0.0"
       + "&layer=esa-worldcereal-wintercereals-10m-2021-v1_classification&style=default&format=image%2Fpng"
@@ -63,8 +66,8 @@
     },
 
     describe(code) {
-      if (!code) return { cls: null, less: false };
-      return { cls: this.classes()[(code % LESS) - 1] || null, less: code > LESS };
+      if (!code) return { cls: null, less: false, doubtful: false };
+      return { cls: this.classes()[(code % LESS) - 1] || null, less: code > LESS, doubtful: code > 2 * LESS };
     },
 
     setOptions(o) {
@@ -78,15 +81,16 @@
       const lut = new Uint8ClampedArray(256 * 4);
       const cols = this.colors();
       for (let v = 1; v < 256; v++) {
-        const ci = (v % LESS) - 1;
-        if (ci < 0 || ci >= cols.length || v >= 2 * LESS) continue;
+        const ci = (v % LESS) - 1, f = Math.floor(v / LESS);
+        if (ci < 0 || ci >= cols.length || f > 2) continue;
+        if (f === 2 && !this.opts.showDoubtful) continue;
         const g = this.groupOf(v);
         if (!this.opts.show[g]) continue;
         const h = cols[ci];
         lut[v * 4] = parseInt(h.slice(1, 3), 16);
         lut[v * 4 + 1] = parseInt(h.slice(3, 5), 16);
         lut[v * 4 + 2] = parseInt(h.slice(5, 7), 16);
-        lut[v * 4 + 3] = v > LESS && this.opts.fadeLess ? 115 : (g === "nocrop" ? 150 : 235);
+        lut[v * 4 + 3] = f === 2 ? 80 : (f === 1 && this.opts.fadeLess ? 115 : (g === "nocrop" ? 150 : 235));
       }
       this._lut = lut;
     },
@@ -165,7 +169,9 @@
 
     /** Can the 2021 comparison be shown? Needs the processed footprint in index.json. */
     canCompare() { return !!(this._footprint && this._footprint.length); },
-    isWinterCereal(code) { return !!code && this._winter.has(code % LESS); },
+    isWinterCereal(code) {
+      return !!code && this._winter.has(code % LESS) && (this.opts.cerealRule === "top" || code < 2 * LESS);
+    },
 
     /** ESA WorldCereal 2021 winter cereals for tile z/x/y → Uint8Array (1 = cereal), or null on failure. */
     async wc21Tile(z, x, y, signal) {
@@ -389,11 +395,12 @@
       }
       // colour map: TIFF wants 3 x 256 SHORTs (R..., G..., B...)
       const cmap = new Uint16Array(768), cols = this.colors();
-      for (let v = 1; v < 2 * LESS && v < 256; v++) {
+      for (let v = 1; v < 3 * LESS && v < 256; v++) {
         const ci = (v % LESS) - 1;
         if (ci < 0 || ci >= cols.length) continue;
         let rgb = [1, 3, 5].map(k => parseInt(cols[ci].slice(k, k + 2), 16));
-        if (v > LESS) rgb = rgb.map(c => Math.round(c + (255 - c) * 0.55));
+        const fl = v > 2 * LESS ? 0.8 : v > LESS ? 0.55 : 0;
+        if (fl) rgb = rgb.map(c => Math.round(c + (255 - c) * fl));
         cmap[v] = rgb[0] * 257; cmap[256 + v] = rgb[1] * 257; cmap[512 + v] = rgb[2] * 257;
       }
       const desc = (description || "Iraq crop types (ESA WorldCereal)") + "\0";
