@@ -645,7 +645,7 @@ async function sample2021(lon, lat){
   return m[Math.floor(((R - my) / s - ty) * 256) * 256 + Math.floor(((mx + R) / s - tx) * 256)];
 }
 function zoomHint(){
-  const show = map && CropLayer.opts.mode === "diff" && map.getZoom() < CropLayer.DIFF_MIN_ZOOM - 0.5;   // MapLibre loads z12 tiles from zoom 11.5
+  const show = map && CropLayer.opts.mode === "diff" && map.getZoom() < CropLayer.DIFF_MIN_ZOOM - 1.5;   // 256 px tiles: MapLibre requests tile zoom round(map zoom + 1), so z12 tiles from map zoom 10.5
   const el = $("#zoomhint"); if(el) el.hidden = !show;
 }
 function setView(v){
@@ -658,7 +658,7 @@ function setView(v){
   refreshCrops();
 }
 document.querySelectorAll("input[name=view]").forEach(r => r.onchange = () => setView(r.value));
-$("#zoomhint").onclick = () => map && map.easeTo({zoom:CropLayer.DIFF_MIN_ZOOM, duration:600});
+$("#zoomhint").onclick = () => map && map.easeTo({zoom:CropLayer.DIFF_MIN_ZOOM - 1, duration:600});
 $("#ck-diff").onclick = () => {
   setView("diff"); $("#legend").open = true;
   if(matchMedia("(max-width:820px)").matches) document.getElementById("mapwrap").scrollIntoView({behavior:"smooth"});
