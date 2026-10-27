@@ -272,6 +272,13 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
         </tr></thead><tbody></tbody></table></div>
         <p class="note" id="ck-note"></p>
       </div>
+      <div id="ck-rules" hidden style="display:grid;gap:8px">
+        <h3 data-t="ckRulesT">Does the counting method change the answer?</h3>
+        <p class="note" data-t="ckRulesP">2021 is a yes/no cereal map; 2025-26 picks the most likely of 24 crops. Here 2025-26 cereal is also counted the 2021 way: wheat + barley probability of at least 50%, or at least 70%. Change against 2021:</p>
+        <div class="tablewrap"><table id="ck-rtable"><thead><tr>
+          <th data-t="ckRule">2025-26 rule</th><th class="n" data-t="kri">Kurdistan Region</th><th class="n" data-t="fed">Other governorates</th><th class="n" data-t="ckIraq">All</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
     </section>
 
     <section class="pane" id="pane-about" role="tabpanel" hidden>
@@ -293,7 +300,7 @@ const KRI_NAME = "Kurdistan Region";
 
 /* ------------------------------------------------------------------ text */
 const T = {
- en:{v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
+ en:{ckRulesT:"Does the counting method change the answer?",ckRulesP:"2021 is a yes/no cereal map; 2025-26 picks the most likely of 24 crops. Here 2025-26 cereal is also counted the 2021 way: wheat + barley probability of at least 50%, or at least 70%. Change against 2021:",ckRule:"2025-26 rule",ckIraq:"All",rTop:"Most likely crop (default)",rP50:"Cereal probability ≥ 50%",rP70:"Cereal probability ≥ 70%",v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
   dNote:"Only inside processed areas (dashed outline).",y21:"Winter cereals, 2021 (ESA WorldCereal)",tabCheck:"Check",
   ckTitle:"Is this map right? Check it yourself",
   ckIntro:"Compare our 2025-26 map with ESA's own published WorldCereal map for 2021, over satellite imagery. Same system, different year, so they should agree on where farming happens, and differ only where land use really changed.",
@@ -327,7 +334,7 @@ const T = {
   copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
   view:"Map view",gov:"Governorate",ha:"ha"},
- ar:{v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
+ ar:{ckRulesT:"هل تغيّر طريقة العدّ النتيجة؟",ckRulesP:"خريطة 2021 تجيب بنعم أو لا عن الحبوب؛ أما 2025-26 فتختار المحصول الأرجح من بين 24. هنا تُحسب حبوب 2025-26 أيضاً بطريقة 2021: احتمال القمح + الشعير 50% على الأقل، أو 70% على الأقل. التغيّر مقارنةً بـ 2021:",ckRule:"قاعدة 2025-26",ckIraq:"الكل",rTop:"المحصول الأرجح (الافتراضي)",rP50:"احتمال الحبوب ≥ 50%",rP70:"احتمال الحبوب ≥ 70%",v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
   dNote:"داخل المناطق المعالَجة فقط (الحد المتقطع).",y21:"الحبوب الشتوية 2021 (ESA WorldCereal)",tabCheck:"التحقق",
   ckTitle:"هل الخريطة صحيحة؟ تحقّق بنفسك",
   ckIntro:"قارن خريطتنا لموسم 2025-26 بخريطة WorldCereal الرسمية التي نشرتها وكالة الفضاء الأوروبية لعام 2021، فوق صور الأقمار الصناعية. النظام نفسه وسنة مختلفة، لذا يُفترض أن تتفقا على أماكن الزراعة وأن تختلفا فقط حيث تغيّر استخدام الأرض فعلاً.",
@@ -361,7 +368,7 @@ const T = {
   copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
   view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
- ku:{v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
+ ku:{ckRulesT:"ئایا شێوازی ژماردن ئەنجامەکە دەگۆڕێت؟",ckRulesP:"نەخشەی 2021 بە بەڵێ یان نەخێر وەڵامی دانەوێڵە دەداتەوە؛ 2025-26 ئەگەرترین بەرهەم لە نێوان 24 هەڵدەبژێرێت. لێرەدا دانەوێڵەی 2025-26 بە شێوازی 2021یش دەژمێردرێت: ئەگەری گەنم + جۆ لانیکەم 50%، یان لانیکەم 70%. گۆڕان بەراورد بە 2021:",ckRule:"یاسای 2025-26",ckIraq:"هەموو",rTop:"ئەگەرترین بەرهەم (بنەڕەت)",rP50:"ئەگەری دانەوێڵە ≥ 50%",rP70:"ئەگەری دانەوێڵە ≥ 70%",v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
   dNote:"تەنها لە ناو ناوچە پرۆسێسکراوەکان (سنووری پچڕپچڕ).",y21:"دانەوێڵەی زستانی، 2021 (ESA WorldCereal)",tabCheck:"پشکنین",
   ckTitle:"ئایا ئەم نەخشەیە ڕاستە؟ خۆت بیپشکنە",
   ckIntro:"نەخشەکەمان بۆ وەرزی 2025-26 بەراورد بکە لەگەڵ نەخشەی فەرمیی WorldCereal ی ئاژانسی بۆشایی ئەوروپا بۆ ساڵی 2021، لەسەر وێنەی مانگی دەستکرد. هەمان سیستەم و ساڵێکی جیاواز، بۆیە دەبێت لەسەر شوێنی کشتوکاڵ ڕێک بن و تەنها لەو شوێنانە جیاواز بن کە بەکارهێنانی زەوی بەڕاستی گۆڕاوە.",
@@ -624,7 +631,7 @@ async function sample2021(lon, lat){
   return m[Math.floor(((R - my) / s - ty) * 256) * 256 + Math.floor(((mx + R) / s - tx) * 256)];
 }
 function zoomHint(){
-  const show = map && CropLayer.opts.mode === "diff" && map.getZoom() < CropLayer.DIFF_MIN_ZOOM;
+  const show = map && CropLayer.opts.mode === "diff" && map.getZoom() < CropLayer.DIFF_MIN_ZOOM - 0.5;   // MapLibre loads z12 tiles from zoom 11.5
   const el = $("#zoomhint"); if(el) el.hidden = !show;
 }
 function setView(v){
@@ -659,6 +666,14 @@ function renderCheck(){
     .forEach(g => rows.push(row(govName(gmeta[g.name] || {name:g.name}), g, g.region==="Kurdistan Region"?"kri":"")));
   $("#ck-table tbody").innerHTML = rows.join("");
   $("#ck-note").textContent = t("ckNote",{n:CMP.tiles_processed, f:CMP.total.wc_f1});
+  const R = CMP.total && CMP.total.rule_p50;
+  $("#ck-rules").hidden = !R;
+  if(R){
+    const k = CMP.regions["Kurdistan Region"] || {}, o = CMP.regions["Other governorates"] || {};
+    const cell = (m, r) => m[`rule_${r}`] && m[`rule_${r}`].ratio != null ? "×" + m[`rule_${r}`].ratio : "–";
+    $("#ck-rtable tbody").innerHTML = [["top_crop","rTop"],["p50","rP50"],["p70","rP70"]]
+      .map(([r, lbl]) => `<tr><td>${t(lbl)}</td><td class="n">${cell(k, r)}</td><td class="n">${cell(o, r)}</td><td class="n">${cell(CMP.total, r)}</td></tr>`).join("");
+  }
 }
 
 /* ------------------------------------------------------------------ area of interest */
