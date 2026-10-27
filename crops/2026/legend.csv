@@ -1,50 +1,54 @@
-code,class,less_sure,color
+code,class,flag,color
 0,not cropland / not processed,,
-1,wheat,0,#E3B505
-101,wheat,1,#f2dd8e
-2,barley,0,#C2571A
-102,barley,1,#e3b397
-3,rye,0,#B98B3E
-103,rye,1,#dfcaa8
-4,oats,0,#D8C27A
-104,oats,1,#ede3c3
-5,maize,0,#F08A24
-105,maize,1,#f8ca9c
-6,sorghum,0,#A0522D
-106,sorghum,1,#d4b1a0
-7,rice,0,#5DADE2
-107,rice,1,#b6daf1
-8,other_temporary_crops,0,#8FBC8F
-108,other_temporary_crops,1,#cce0cc
-9,millet,0,#CDAA7D
-109,millet,1,#e8d8c4
-10,vegetables,0,#4F9D69
-110,vegetables,1,#afd2bb
-11,beet,0,#A64D79
-111,beet,1,#d6aec2
-12,dry_pulses_legumes,0,#8E6CB0
-112,dry_pulses_legumes,1,#ccbcdb
-13,sunflower,0,#FFD23F
-113,sunflower,1,#ffeaa8
-14,soy_soybeans,0,#9ACD32
-114,soy_soybeans,1,#d1e8a2
-15,rapeseed_rape,0,#D4D400
-115,rapeseed_rape,1,#ebeb8c
-16,other_oilseed,0,#BDB76B
-116,other_oilseed,1,#e1debc
-17,groundnuts,0,#C68E5E
-117,groundnuts,1,#e5ccb6
-18,fibre_crops,0,#B8B8D8
-118,fibre_crops,1,#dfdfed
-19,potatoes,0,#9C6644
-119,potatoes,1,#d2baaa
-20,cassava,0,#6B8E23
-120,cassava,1,#bccc9c
-21,tobacco,0,#556B2F
-121,tobacco,1,#b2bca1
-22,grass_fodder_crops,0,#7FC97F
-122,grass_fodder_crops,1,#c5e6c5
-23,sugar_cane,0,#3CB371
-123,sugar_cane,1,#a7dcbf
-24,no_crop,0,#9AA0A6
-124,no_crop,1,#d1d4d6
+1,wheat,,#E3B505
+101,wheat,less sure,#f2dd8e
+201,wheat,doubtful cereal (<70%),#f9f0cd
+2,barley,,#C2571A
+102,barley,less sure,#e3b397
+202,barley,doubtful cereal (<70%),#f2ddd1
+3,rye,,#B98B3E
+103,rye,less sure,#dfcaa8
+203,rye,doubtful cereal (<70%),#f1e7d8
+4,oats,,#D8C27A
+104,oats,less sure,#ede3c3
+204,oats,doubtful cereal (<70%),#f7f2e4
+5,maize,,#F08A24
+105,maize,less sure,#f8ca9c
+6,sorghum,,#A0522D
+106,sorghum,less sure,#d4b1a0
+7,rice,,#5DADE2
+107,rice,less sure,#b6daf1
+8,other_temporary_crops,,#8FBC8F
+108,other_temporary_crops,less sure,#cce0cc
+9,millet,,#CDAA7D
+109,millet,less sure,#e8d8c4
+10,vegetables,,#4F9D69
+110,vegetables,less sure,#afd2bb
+11,beet,,#A64D79
+111,beet,less sure,#d6aec2
+12,dry_pulses_legumes,,#8E6CB0
+112,dry_pulses_legumes,less sure,#ccbcdb
+13,sunflower,,#FFD23F
+113,sunflower,less sure,#ffeaa8
+14,soy_soybeans,,#9ACD32
+114,soy_soybeans,less sure,#d1e8a2
+15,rapeseed_rape,,#D4D400
+115,rapeseed_rape,less sure,#ebeb8c
+16,other_oilseed,,#BDB76B
+116,other_oilseed,less sure,#e1debc
+17,groundnuts,,#C68E5E
+117,groundnuts,less sure,#e5ccb6
+18,fibre_crops,,#B8B8D8
+118,fibre_crops,less sure,#dfdfed
+19,potatoes,,#9C6644
+119,potatoes,less sure,#d2baaa
+20,cassava,,#6B8E23
+120,cassava,less sure,#bccc9c
+21,tobacco,,#556B2F
+121,tobacco,less sure,#b2bca1
+22,grass_fodder_crops,,#7FC97F
+122,grass_fodder_crops,less sure,#c5e6c5
+23,sugar_cane,,#3CB371
+123,sugar_cane,less sure,#a7dcbf
+24,no_crop,,#9AA0A6
+124,no_crop,less sure,#d1d4d6

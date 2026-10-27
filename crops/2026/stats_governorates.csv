@@ -1,18 +1,18 @@
-﻿name,name_ar,region,cropland_ha,wheat_ha,wheat_ha_sure,barley_ha,barley_ha_sure,processed_km2,planned_km2
-Kirkuk,كركوك,Federal Iraq (outside Kurdistan Region),464643.2,225261.2,119329.3,94502.2,29465.5,6589.0,10188.4
-Erbil,أربيل,Kurdistan Region,333187.9,230800.4,121255.6,18505.1,4130.7,4727.8,14315.4
-Wasit,واسط,Federal Iraq (outside Kurdistan Region),270291.3,163376.4,92951.1,71005.6,26962.8,7733.0,16996.8
-Nineveh,نينوى,Federal Iraq (outside Kurdistan Region),167810.5,114894.1,55833.7,7567.3,1443.2,2723.9,26539.1
-Salah ad-Din,صلاح الدين,Federal Iraq (outside Kurdistan Region),104029.2,34584.5,15591.6,45127.6,13876.7,1511.6,22539.2
-Babil,بابل,Federal Iraq (outside Kurdistan Region),99817.4,55661.0,29661.2,27317.5,10466.9,3370.1,5335.6
-Sulaymaniyah,السليمانية,Kurdistan Region,81954.1,40569.5,13373.0,10613.3,1341.5,2249.1,16088.8
-Duhok,دهوك,Kurdistan Region,81874.5,34031.6,9004.4,18398.9,1076.6,1592.7,6390.3
-Maysan,ميسان,Federal Iraq (outside Kurdistan Region),77194.6,36860.3,15363.2,29428.9,10142.0,1709.6,16275.1
-Dhi Qar,ذي قار,Federal Iraq (outside Kurdistan Region),55662.1,24248.0,9823.2,25232.4,12558.3,2088.7,12786.4
-Diyala,ديالى,Federal Iraq (outside Kurdistan Region),45126.8,16002.6,5488.6,18998.0,7037.8,1573.0,18667.0
-Qadisiyah,القادسية,Federal Iraq (outside Kurdistan Region),37877.0,29270.3,20404.0,4545.7,1568.5,1461.8,8433.5
-Najaf,النجف,Federal Iraq (outside Kurdistan Region),36368.3,31737.1,25633.5,3313.8,1220.4,763.5,10370.0
-Baghdad,بغداد,Federal Iraq (outside Kurdistan Region),8129.2,5013.1,2505.5,1357.9,517.0,263.0,5096.4
+﻿name,name_ar,region,cropland_ha,wheat_ha,wheat_ha_cereal70,barley_ha,barley_ha_cereal70,processed_km2,planned_km2
+Kirkuk,كركوك,Federal Iraq (outside Kurdistan Region),576235.7,277973.1,216439.0,124362.5,75798.4,8119.3,10188.4
+Nineveh,نينوى,Federal Iraq (outside Kurdistan Region),402931.7,258282.6,166049.6,13606.6,6647.9,5684.3,26539.1
+Erbil,أربيل,Kurdistan Region,333187.9,230800.4,165849.6,18505.1,9239.4,4727.8,14315.4
+Wasit,واسط,Federal Iraq (outside Kurdistan Region),270291.3,163376.4,125091.6,71005.6,48672.9,7733.0,16996.8
+Salah ad-Din,صلاح الدين,Federal Iraq (outside Kurdistan Region),105633.3,35105.7,27469.5,45665.4,27793.8,1581.7,22539.2
+Babil,بابل,Federal Iraq (outside Kurdistan Region),100396.7,55969.1,40891.6,27524.1,18195.5,3386.9,5335.6
+Dhi Qar,ذي قار,Federal Iraq (outside Kurdistan Region),97784.5,45753.4,30216.9,40115.4,30745.0,3641.2,12786.4
+Diyala,ديالى,Federal Iraq (outside Kurdistan Region),92290.6,35591.9,26107.5,37362.2,24389.1,3173.0,18667.0
+Duhok,دهوك,Kurdistan Region,88583.5,38208.3,27855.3,18451.2,11608.5,1829.8,6390.3
+Sulaymaniyah,السليمانية,Kurdistan Region,81954.1,40569.5,25085.1,10613.3,5989.6,2249.1,16088.8
+Maysan,ميسان,Federal Iraq (outside Kurdistan Region),77817.3,37242.7,26531.7,29552.7,20689.3,1757.1,16275.1
+Qadisiyah,القادسية,Federal Iraq (outside Kurdistan Region),75916.9,51023.5,38653.8,15623.4,11061.0,3044.7,8433.5
+Najaf,النجف,Federal Iraq (outside Kurdistan Region),36368.3,31737.1,29392.9,3313.8,2476.1,763.5,10370.0
+Baghdad,بغداد,Federal Iraq (outside Kurdistan Region),8129.2,5013.1,3428.8,1357.9,945.2,263.0,5096.4
 Basra,البصرة,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,10208.1
 Karbala,كربلاء,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,5052.8
 Anbar,الأنبار,Federal Iraq (outside Kurdistan Region),0.0,0,0,0,0,0.0,71874.4
