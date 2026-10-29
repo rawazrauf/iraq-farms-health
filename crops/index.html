@@ -162,7 +162,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
       <label><input type="checkbox" id="lg-other" checked><span class="sw" style="background:var(--c-other)"></span><span data-t="other">Other crops</span></label>
       <label><input type="checkbox" id="lg-nocrop" checked><span class="sw" style="background:var(--c-nocrop)"></span><span data-t="nocrop">Cropland, no crop</span></label>
       <label class="sub"><input type="checkbox" id="lg-fade" checked><span data-t="fade">Fade where WorldCereal is less sure</span></label>
-      <label class="sub"><input type="checkbox" id="lg-doubt"><span data-t="doubt">Show doubtful cereal (probability below 70%)</span></label>
+      <label class="sub"><input type="checkbox" id="lg-doubt"><span data-t="doubt">Show doubtful cereal (below 70%, or specks under 0.1 ha)</span></label>
       </div>
       <div id="lg-diff" hidden>
         <div class="lgrow"><span class="sw" style="background:#2E7D32"></span><span data-t="dBoth">Cereal in both years</span></div>
@@ -171,7 +171,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
         <div class="sub" data-t="dNote">Only inside processed areas (dashed outline).</div>
         <label class="sub" for="lg-rule"><span data-t="ckRule">2025-26 rule</span></label>
         <select id="lg-rule" aria-label="2025-26 rule">
-          <option value="p70" data-t="rP70">Cereal probability ≥ 70% (default)</option>
+          <option value="p70" data-t="rP70">Confident cereal: ≥ 70%, no specks (default)</option>
           <option value="top" data-t="rTop">Most likely crop</option>
         </select>
       </div>
@@ -232,7 +232,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
         <div class="seg"><button class="btn primary" id="dl-go" disabled data-t="dlGo">Download</button></div>
         <div class="progress" id="dl-prog" hidden><i></i></div>
         <div id="dl-result" class="aoi-sum"></div>
-        <p class="note" data-t="dlNote">One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure; +200 = cereal with cereal probability below 70% (doubtful). Opens in QGIS, ArcGIS and GeoLibre.</p>
+        <p class="note" data-t="dlNote">One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure; +200 = doubtful cereal (cereal probability below 70%, or an isolated speck under 0.1 ha). Opens in QGIS, ArcGIS and GeoLibre.</p>
       </div>
       <div class="card" style="display:grid;gap:10px">
         <h2 data-t="qgisTitle">Stream in QGIS (whole country, full detail)</h2>
@@ -306,7 +306,7 @@ const KRI_NAME = "Kurdistan Region";
 
 /* ------------------------------------------------------------------ text */
 const T = {
- en:{ckRulesT:"Does the counting method change the answer?",ckRulesP:"2021 is a yes/no cereal map; 2025-26 picks the most likely of 24 crops. By default this page counts 2025-26 cereal only where WorldCereal's cereal probability is at least 70%. Other ways of counting, compared with 2021:",ckRule:"2025-26 rule",ckIraq:"All",rTop:"Most likely crop (WorldCereal's map)",rP50:"Cereal probability ≥ 50%",rP70:"Cereal probability ≥ 70% (default)",doubt:"Show doubtful cereal (probability below 70%)",doubtPop:"cereal probability below 70%",allPix:"WorldCereal top-crop map",v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
+ en:{ckRulesT:"Does the counting method change the answer?",ckRulesP:"2021 is a yes/no cereal map; 2025-26 picks the most likely of 24 crops. By default this page counts 2025-26 cereal only where WorldCereal's cereal probability is at least 70% and the pixel is part of a patch of at least 0.1 ha. Other ways of counting, compared with 2021:",ckRule:"2025-26 rule",ckIraq:"All",rTop:"Most likely crop (WorldCereal's map)",rP50:"Cereal probability ≥ 50%",rP70:"Confident cereal: ≥ 70%, no specks (default)",rP70all:"Cereal probability ≥ 70%, specks included",doubt:"Show doubtful cereal (below 70%, or specks under 0.1 ha)",doubtPop:"doubtful: cereal probability below 70% or an isolated speck",allPix:"WorldCereal top-crop map",v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
   dNote:"Only inside processed areas (dashed outline).",y21:"Winter cereals, 2021 (ESA WorldCereal)",tabCheck:"Check",
   ckTitle:"Is this map right? Check it yourself",
   ckIntro:"Compare our 2025-26 map with ESA's own published WorldCereal map for 2021, over satellite imagery. Same system, different year, so they should agree on where farming happens, and differ only where land use really changed.",
@@ -328,19 +328,19 @@ const T = {
   provisional:"<b>Provisional.</b> {d} of {p} planned tiles processed so far ({pc}). Totals will rise as the remaining tiles are processed; compare areas only where both show 100%.",
   complete:"All {p} planned tiles processed.",
   csv:"CSV",csvR:"Regions",csvG:"Governorates",csvD:"Districts",
-  statsNote:"Wheat and barley count only pixels where WorldCereal's combined cereal probability (wheat + barley + rye + oats) is at least {c}%, at 10 m. The smaller line is WorldCereal's own top-crop map, which also includes doubtful pixels. Areas outside the processed tiles are not counted. Generated {g} UTC.",
+  statsNote:"Wheat and barley count only confident cereal: WorldCereal's combined cereal probability (wheat + barley + rye + oats) at least {c}%, in patches of at least {m} ha (isolated specks are left out), counted at 10 m. The smaller line is WorldCereal's own top-crop map, which includes the doubtful pixels. Areas outside the processed tiles are not counted. Generated {g} UTC.",
   aoiTitle:"1. Choose an area",aoiDraw:"Draw a box",aoiDrawing:"Drag on the map…",aoiView:"Current map view",aoiGov:"Governorate…",aoiNone:"No area chosen yet.",
   aoiArea:"{name}: {km} km²",dlTitle:"2. Download GeoTIFF",detail:"Detail",dlGo:"Download",dlWorking:"Reading…",
   lvl:"{m} m pixels — about {mb} MB",lvlFull:"Full detail (WorldCereal {m} m) — about {mb} MB",lvlTooBig:"too large for the browser — use QGIS/GDAL",
   dlDone:"Downloaded. In this area (approximate, from the map pixels): wheat {w} ha, barley {b} ha, all cropland {c} ha.",dlFail:"Download failed: {e}",
-  dlNote:"One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure; +200 = cereal with cereal probability below 70% (doubtful). Opens in QGIS, ArcGIS and GeoLibre.",
+  dlNote:"One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure; +200 = doubtful cereal (cereal probability below 70%, or an isolated speck under 0.1 ha). Opens in QGIS, ArcGIS and GeoLibre.",
   qgisTitle:"Stream in QGIS (whole country, full detail)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"Source type: Protocol: HTTP(S), cloud, etc. Paste this link:",
   qgis3:"Then load the colours: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"GDAL command for your area",
   glTitle:"GeoLibre and other COG viewers",glText:"Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:",glCells:"Full 10 m detail is split into blocks; the blocks covering your area:",
   copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
   view:"Map view",gov:"Governorate",ha:"ha"},
- ar:{ckRulesT:"هل تغيّر طريقة العدّ النتيجة؟",ckRulesP:"خريطة 2021 تجيب بنعم أو لا عن الحبوب؛ أما 2025-26 فتختار المحصول الأرجح من بين 24. افتراضياً تعدّ هذه الصفحة حبوب 2025-26 فقط حيث يبلغ احتمال الحبوب لدى WorldCereal 70% على الأقل. طرق عدّ أخرى مقارنةً بـ 2021:",ckRule:"قاعدة 2025-26",ckIraq:"الكل",rTop:"المحصول الأرجح (خريطة WorldCereal)",rP50:"احتمال الحبوب ≥ 50%",rP70:"احتمال الحبوب ≥ 70% (الافتراضي)",doubt:"إظهار الحبوب المشكوك فيها (احتمال أقل من 70%)",doubtPop:"احتمال الحبوب أقل من 70%",allPix:"خريطة المحصول الأرجح لـ WorldCereal",v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
+ ar:{ckRulesT:"هل تغيّر طريقة العدّ النتيجة؟",ckRulesP:"خريطة 2021 تجيب بنعم أو لا عن الحبوب؛ أما 2025-26 فتختار المحصول الأرجح من بين 24. افتراضياً تعدّ هذه الصفحة حبوب 2025-26 فقط حيث يبلغ احتمال الحبوب لدى WorldCereal 70% على الأقل ويكون البكسل جزءاً من رقعة لا تقل عن 0.1 هكتار. طرق عدّ أخرى مقارنةً بـ 2021:",ckRule:"قاعدة 2025-26",ckIraq:"الكل",rTop:"المحصول الأرجح (خريطة WorldCereal)",rP50:"احتمال الحبوب ≥ 50%",rP70:"حبوب مؤكدة: ≥ 70% دون بقع (الافتراضي)",rP70all:"احتمال الحبوب ≥ 70% مع البقع",doubt:"إظهار الحبوب المشكوك فيها (أقل من 70% أو بقع أصغر من 0.1 هكتار)",doubtPop:"مشكوك فيها: احتمال الحبوب أقل من 70% أو بقعة معزولة",allPix:"خريطة المحصول الأرجح لـ WorldCereal",v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
   dNote:"داخل المناطق المعالَجة فقط (الحد المتقطع).",y21:"الحبوب الشتوية 2021 (ESA WorldCereal)",tabCheck:"التحقق",
   ckTitle:"هل الخريطة صحيحة؟ تحقّق بنفسك",
   ckIntro:"قارن خريطتنا لموسم 2025-26 بخريطة WorldCereal الرسمية التي نشرتها وكالة الفضاء الأوروبية لعام 2021، فوق صور الأقمار الصناعية. النظام نفسه وسنة مختلفة، لذا يُفترض أن تتفقا على أماكن الزراعة وأن تختلفا فقط حيث تغيّر استخدام الأرض فعلاً.",
@@ -362,19 +362,19 @@ const T = {
   provisional:"<b>نتائج أولية.</b> عولج {d} من أصل {p} مربعاً مخططاً حتى الآن ({pc}). سترتفع الأرقام مع معالجة البقية؛ قارن بين المناطق فقط حين تبلغ كلتاهما 100%.",
   complete:"عولجت جميع المربعات المخططة ({p}).",
   csv:"CSV",csvR:"الأقاليم",csvG:"المحافظات",csvD:"الأقضية",
-  statsNote:"يُحسب القمح والشعير فقط حيث يبلغ احتمال الحبوب المجمّع لدى WorldCereal (قمح + شعير + شيلم + شوفان) {c}% على الأقل، بدقة 10 م. السطر الأصغر هو خريطة المحصول الأرجح لـ WorldCereal نفسها، وتشمل البكسلات المشكوك فيها. المناطق خارج المربعات المعالَجة غير محسوبة. أُنشئت {g} بالتوقيت العالمي.",
+  statsNote:"يُحسب القمح والشعير من الحبوب المؤكدة فقط: احتمال الحبوب المجمّع لدى WorldCereal (قمح + شعير + شيلم + شوفان) {c}% على الأقل، ضمن رقع لا تقل عن {m} هكتار (تُستبعد البقع المعزولة)، بدقة 10 م. السطر الأصغر هو خريطة المحصول الأرجح لـ WorldCereal نفسها، وتشمل البكسلات المشكوك فيها. المناطق خارج المربعات المعالَجة غير محسوبة. أُنشئت {g} بالتوقيت العالمي.",
   aoiTitle:"١. اختر منطقة",aoiDraw:"ارسم مستطيلاً",aoiDrawing:"اسحب على الخريطة…",aoiView:"عرض الخريطة الحالي",aoiGov:"محافظة…",aoiNone:"لم تُختر منطقة بعد.",
   aoiArea:"{name}: {km} كم²",dlTitle:"٢. تنزيل GeoTIFF",detail:"الدقة",dlGo:"تنزيل",dlWorking:"جارٍ القراءة…",
   lvl:"بكسل {m} م — نحو {mb} م.ب",lvlFull:"الدقة الكاملة (WorldCereal {m} م) — نحو {mb} م.ب",lvlTooBig:"أكبر من أن يعالجه المتصفح — استخدم QGIS/GDAL",
   dlDone:"تم التنزيل. في هذه المنطقة (تقريبياً، من بكسلات الخريطة): قمح {w} هكتار، شعير {b} هكتار، كل الأراضي الزراعية {c} هكتار.",dlFail:"فشل التنزيل: {e}",
-  dlNote:"نطاق واحد مع الألوان. 0 = ليست أرضاً زراعية؛ الرموز 1–24 = أصناف WorldCereal؛ +100 = ثقة أقل؛ +200 = حبوب احتمالها أقل من 70% (مشكوك فيها). يُفتح في QGIS وArcGIS وGeoLibre.",
+  dlNote:"نطاق واحد مع الألوان. 0 = ليست أرضاً زراعية؛ الرموز 1–24 = أصناف WorldCereal؛ +100 = ثقة أقل؛ +200 = حبوب مشكوك فيها (احتمال أقل من 70% أو بقعة معزولة أصغر من 0.1 هكتار). يُفتح في QGIS وArcGIS وGeoLibre.",
   qgisTitle:"البث في QGIS (كل البلاد، دقة كاملة)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"نوع المصدر: Protocol: HTTP(S). الصق هذا الرابط:",
   qgis3:"ثم حمّل الألوان: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"أمر GDAL لمنطقتك",
   glTitle:"GeoLibre وعارضات COG الأخرى",glText:"الصق رابط GeoTIFF محسّن للسحابة. كل البلاد بدقة 76 م:",glCells:"الدقة الكاملة 10 م مقسّمة إلى كتل؛ الكتل التي تغطي منطقتك:",
   copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
   view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
- ku:{ckRulesT:"ئایا شێوازی ژماردن ئەنجامەکە دەگۆڕێت؟",ckRulesP:"نەخشەی 2021 بە بەڵێ یان نەخێر وەڵامی دانەوێڵە دەداتەوە؛ 2025-26 ئەگەرترین بەرهەم لە نێوان 24 هەڵدەبژێرێت. بە بنەڕەت ئەم پەڕەیە دانەوێڵەی 2025-26 تەنها لەو شوێنانە دەژمێرێت کە ئەگەری دانەوێڵەی WorldCereal لانیکەم 70%ە. شێوازەکانی تری ژماردن، بەراورد بە 2021:",ckRule:"یاسای 2025-26",ckIraq:"هەموو",rTop:"ئەگەرترین بەرهەم (نەخشەی WorldCereal)",rP50:"ئەگەری دانەوێڵە ≥ 50%",rP70:"ئەگەری دانەوێڵە ≥ 70% (بنەڕەت)",doubt:"پیشاندانی دانەوێڵەی گوماناوی (ئەگەری کەمتر لە 70%)",doubtPop:"ئەگەری دانەوێڵە کەمتر لە 70%",allPix:"نەخشەی ئەگەرترین بەرهەمی WorldCereal",v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
+ ku:{ckRulesT:"ئایا شێوازی ژماردن ئەنجامەکە دەگۆڕێت؟",ckRulesP:"نەخشەی 2021 بە بەڵێ یان نەخێر وەڵامی دانەوێڵە دەداتەوە؛ 2025-26 ئەگەرترین بەرهەم لە نێوان 24 هەڵدەبژێرێت. بە بنەڕەت ئەم پەڕەیە دانەوێڵەی 2025-26 تەنها لەو شوێنانە دەژمێرێت کە ئەگەری دانەوێڵەی WorldCereal لانیکەم 70%ە و پیکسڵەکە بەشێکە لە پارچەیەکی لانیکەم 0.1 هێکتار. شێوازەکانی تری ژماردن، بەراورد بە 2021:",ckRule:"یاسای 2025-26",ckIraq:"هەموو",rTop:"ئەگەرترین بەرهەم (نەخشەی WorldCereal)",rP50:"ئەگەری دانەوێڵە ≥ 50%",rP70:"دانەوێڵەی دڵنیا: ≥ 70%، بێ پەڵە (بنەڕەت)",rP70all:"ئەگەری دانەوێڵە ≥ 70%، لەگەڵ پەڵەکان",doubt:"پیشاندانی دانەوێڵەی گوماناوی (کەمتر لە 70%، یان پەڵەی بچووکتر لە 0.1 هێکتار)",doubtPop:"گوماناوی: ئەگەری دانەوێڵە کەمتر لە 70% یان پەڵەیەکی تاک",allPix:"نەخشەی ئەگەرترین بەرهەمی WorldCereal",v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
   dNote:"تەنها لە ناو ناوچە پرۆسێسکراوەکان (سنووری پچڕپچڕ).",y21:"دانەوێڵەی زستانی، 2021 (ESA WorldCereal)",tabCheck:"پشکنین",
   ckTitle:"ئایا ئەم نەخشەیە ڕاستە؟ خۆت بیپشکنە",
   ckIntro:"نەخشەکەمان بۆ وەرزی 2025-26 بەراورد بکە لەگەڵ نەخشەی فەرمیی WorldCereal ی ئاژانسی بۆشایی ئەوروپا بۆ ساڵی 2021، لەسەر وێنەی مانگی دەستکرد. هەمان سیستەم و ساڵێکی جیاواز، بۆیە دەبێت لەسەر شوێنی کشتوکاڵ ڕێک بن و تەنها لەو شوێنانە جیاواز بن کە بەکارهێنانی زەوی بەڕاستی گۆڕاوە.",
@@ -396,12 +396,12 @@ const T = {
   provisional:"<b>ئەنجامی سەرەتایی.</b> تا ئێستا {d} لە {p} چوارگۆشەی پلاندانراو پرۆسێس کراوە ({pc}). ژمارەکان زیاد دەکەن کاتێک ئەوانی تر پرۆسێس دەکرێن؛ تەنها کاتێک بەراورد بکە کە هەردووکیان 100% بن.",
   complete:"هەموو {p} چوارگۆشە پلاندانراوەکان پرۆسێس کراون.",
   csv:"CSV",csvR:"هەرێمەکان",csvG:"پارێزگاکان",csvD:"قەزاکان",
-  statsNote:"گەنم و جۆ تەنها ئەو پیکسڵانە دەژمێردرێن کە ئەگەری کۆی دانەوێڵەی WorldCereal (گەنم + جۆ + چاودار + شوفان) لانیکەم {c}%ە، بە وردی 10 م. هێڵە بچووکەکە نەخشەی ئەگەرترین بەرهەمی خودی WorldCereal ـە، کە پیکسڵە گوماناوییەکانیش لەخۆ دەگرێت. ناوچەکانی دەرەوەی چوارگۆشە پرۆسێسکراوەکان نەژمێردراون. دروستکراوە {g} UTC.",
+  statsNote:"گەنم و جۆ تەنها دانەوێڵەی دڵنیا دەژمێردرێن: ئەگەری کۆی دانەوێڵەی WorldCereal (گەنم + جۆ + چاودار + شوفان) لانیکەم {c}%، لە پارچەی لانیکەم {m} هێکتار (پەڵە تاکەکان دەرکراون)، بە وردی 10 م. هێڵە بچووکەکە نەخشەی ئەگەرترین بەرهەمی خودی WorldCereal ـە، کە پیکسڵە گوماناوییەکانیش لەخۆ دەگرێت. ناوچەکانی دەرەوەی چوارگۆشە پرۆسێسکراوەکان نەژمێردراون. دروستکراوە {g} UTC.",
   aoiTitle:"١. ناوچەیەک هەڵبژێرە",aoiDraw:"چوارگۆشەیەک بکێشە",aoiDrawing:"لەسەر نەخشە ڕابکێشە…",aoiView:"دیمەنی ئێستای نەخشە",aoiGov:"پارێزگا…",aoiNone:"هێشتا ناوچە هەڵنەبژێردراوە.",
   aoiArea:"{name}: {km} کم²",dlTitle:"٢. داگرتنی GeoTIFF",detail:"وردی",dlGo:"داگرتن",dlWorking:"خوێندنەوە…",
   lvl:"پیکسڵی {m} م — نزیکەی {mb} MB",lvlFull:"وردی تەواو (WorldCereal {m} م) — نزیکەی {mb} MB",lvlTooBig:"زۆر گەورەیە بۆ وێبگەڕ — QGIS/GDAL بەکاربهێنە",
   dlDone:"داگیرا. لەم ناوچەیەدا (نزیکەیی، لە پیکسڵەکانی نەخشە): گەنم {w} هێکتار، جۆ {b} هێکتار، هەموو زەوی کشتوکاڵی {c} هێکتار.",dlFail:"داگرتن سەرکەوتوو نەبوو: {e}",
-  dlNote:"یەک باند، ڕەنگەکانی تێدایە. 0 = زەوی کشتوکاڵی نییە؛ کۆدەکانی 1–24 = پۆلەکانی WorldCereal؛ +100 = دڵنیایی کەمتر؛ +200 = دانەوێڵە بە ئەگەری کەمتر لە 70% (گوماناوی). لە QGIS و ArcGIS و GeoLibre دەکرێتەوە.",
+  dlNote:"یەک باند، ڕەنگەکانی تێدایە. 0 = زەوی کشتوکاڵی نییە؛ کۆدەکانی 1–24 = پۆلەکانی WorldCereal؛ +100 = دڵنیایی کەمتر؛ +200 = دانەوێڵەی گوماناوی (ئەگەری کەمتر لە 70%، یان پەڵەیەکی تاکی بچووکتر لە 0.1 هێکتار). لە QGIS و ArcGIS و GeoLibre دەکرێتەوە.",
   qgisTitle:"پەخش لە QGIS (هەموو وڵات، وردی تەواو)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"جۆری سەرچاوە: Protocol: HTTP(S). ئەم بەستەرە دابنێ:",
   qgis3:"پاشان ڕەنگەکان باربکە: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"فەرمانی GDAL بۆ ناوچەکەت",
   glTitle:"GeoLibre و بینەرەکانی تری COG",glText:"بەستەری GeoTIFFی گونجاو بۆ هەور دابنێ. هەموو وڵات بە وردی 76 م:",glCells:"وردی تەواوی 10 م دابەشکراوە بۆ بلۆک؛ ئەو بلۆکانەی ناوچەکەت دادەپۆشن:",
@@ -484,7 +484,7 @@ function renderStats(){
   $("#csvlinks").innerHTML = `<span class="note" style="align-self:center">${t("csv")}:</span>` +
     [["stats_regions.csv","csvR"],["stats_governorates.csv","csvG"],["stats_districts.csv","csvD"]]
       .map(([f,k]) => `<a class="btn" href="${DATA}${f}" download>${t(k)}</a>`).join("");
-  $("#statsnote").textContent = t("statsNote",{t:s.confidence_threshold, c:s.cereal_threshold || 70, g:s.generated_utc});
+  $("#statsnote").textContent = t("statsNote",{t:s.confidence_threshold, c:s.cereal_threshold || 70, m:s.min_patch_ha || 0.1, g:s.generated_utc});
 }
 function govRow(g){ return {g, name:govName(g), wheat:cls(g,"wheat").ha, barley:cls(g,"barley").ha, cov: g.planned_km2 ? g.processed_km2/g.planned_km2 : -1}; }
 function renderGovTable(){
@@ -688,7 +688,7 @@ function renderCheck(){
   if(R){
     const k = CMP.regions["Kurdistan Region"] || {}, o = CMP.regions["Other governorates"] || {};
     const cell = (m, r) => m[`rule_${r}`] && m[`rule_${r}`].ratio != null ? "×" + m[`rule_${r}`].ratio : "–";
-    $("#ck-rtable tbody").innerHTML = [["p70","rP70"],["p50","rP50"],["top_crop","rTop"]]
+    $("#ck-rtable tbody").innerHTML = [["p70","rP70"],["p70_all","rP70all"],["p50","rP50"],["top_crop","rTop"]]
       .map(([r, lbl]) => `<tr><td>${t(lbl)}</td><td class="n">${cell(k, r)}</td><td class="n">${cell(o, r)}</td><td class="n">${cell(CMP.total, r)}</td></tr>`).join("");
   }
 }
