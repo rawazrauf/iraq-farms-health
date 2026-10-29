@@ -584,7 +584,7 @@ const DBG = (function(){
   // breaks (see the CORS note in ndviForWindow), a phone screenshot of this log
   // is the fastest route to a diagnosis on a device with no dev tools.
   const on = new URLSearchParams(location.search).get("debug")==="1";
-  if(!on){ const noop = ()=>{}; return {log:noop, err:noop, warn:noop}; }
+  if(!on){ const noop = ()=>{}; return {on:false, log:noop, err:noop, warn:noop, button:noop}; }
   const box = document.createElement("div");
   box.id = "dbg";
   box.style.cssText = "position:fixed;left:6px;right:6px;top:calc(env(safe-area-inset-top,0px) + 6px);"+
@@ -623,7 +623,7 @@ const DBG = (function(){
   window.addEventListener("error", e=>log("UNCAUGHT "+(e.message||e)+" @"+(e.filename||"").split("/").pop()+":"+e.lineno, "err"));
   window.addEventListener("unhandledrejection", e=>log("UNHANDLED "+((e.reason&&(e.reason.stack||e.reason.message))||e.reason), "err"));
   log("debug on · "+navigator.userAgent.replace(/^.*?\(/,"(").slice(0,90));
-  return { log, err:m=>log(m,"err"), warn:m=>log(m,"warn") };
+  return { on:true, log, err:m=>log(m,"err"), warn:m=>log(m,"warn"), button:mk };
 })();
 /* Connectivity probe — runs once on load, sequentially, before the sampler floods.
    no-cors tells us if the host is reachable at all (opaque response = reachable).
@@ -669,7 +669,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.23-t";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.30-c";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -869,9 +869,12 @@ async function wcLoadTile(url){
   return bmp ? {ok:true, bmp} : {ok:false};
 }
 
-async function sampleFieldCereal(f){
+async function sampleFieldCereal(f){ return sampleWcProduct(f, "wintercereals"); }
+const __wcProductCache = {wintercereals: __cerealCache};
+async function sampleWcProduct(f, product){
+  const cache = __wcProductCache[product] || (__wcProductCache[product] = new Map());
   const key = fieldKey(f);
-  if(__cerealCache.has(key)) return __cerealCache.get(key);
+  if(cache.has(key)) return cache.get(key);
 
   const miss = {pct:null};
   const bbox = geomBbox(f.geometry);
@@ -885,7 +888,7 @@ async function sampleFieldCereal(f){
   const nx = tx1 - tx0 + 1, ny = ty1 - ty0 + 1;
   // A field spanning more than 16 tiles at z14 is ~8 km across: not a
   // smallholding, and not worth 16 round trips. Say nothing rather than guess.
-  if(nx * ny > 16){ __cerealCache.set(key, miss); return miss; }
+  if(nx * ny > 16){ cache.set(key, miss); return miss; }
 
   const cvs = document.createElement("canvas");
   cvs.width = nx * 256; cvs.height = ny * 256;
@@ -894,7 +897,7 @@ async function sampleFieldCereal(f){
   let anyOk = false;
   for(let tx = tx0; tx <= tx1; tx++){
     for(let ty = ty0; ty <= ty1; ty++){
-      const url = wcTiles("wintercereals", "#ba7135")
+      const url = wcTiles(product, "#ba7135")
         .replace("{z}", z).replace("{x}", tx).replace("{y}", ty);
       const res = await wcLoadTile(url);
       if(!res.ok) continue;
@@ -933,17 +936,120 @@ async function sampleFieldCereal(f){
   // fall back to the single pixel under its centroid.
   if(inside < 4){
     const c = polyCentroid(f.geometry);
-    if(!c){ __cerealCache.set(key, miss); return miss; }
+    if(!c){ cache.set(key, miss); return miss; }
     const cx = Math.round(lonToPx(c[0], z) - originX);
     const cy = Math.round(latToPx(c[1], z) - originY);
     inside = 1; painted = alphaAt(cx, cy) > 10 ? 1 : 0;
   }
 
   const out = {pct: painted / inside, n: inside};
-  __cerealCache.set(key, out);
-  DBG.log(`cereal ${key}: ${(out.pct*100).toFixed(0)}% of ${out.n} samples`);
+  cache.set(key, out);
+  DBG.log(`${product} ${key}: ${(out.pct*100).toFixed(0)}% of ${out.n} samples`);
   return out;
 }
+
+/* ---------- DEBUG ONLY: 2021 vs 2025-26 crop check per field (?debug=1) ----------
+   Hidden from normal users. With ?debug=1, every field tap writes a "CROP CHECK"
+   block to the debug log: what ESA WorldCereal 2021 recorded on the field and
+   what our 2025-26 crop map (crops/2026, streamed with crops/crop-layer.js) says,
+   pixel by pixel inside the polygon. "copy crops" in the debug bar copies only
+   these blocks; "2026 layer" shows the 2025-26 map on top of the satellite image.
+   Nothing is loaded unless debug is on. */
+const CROPDBG = (function(){
+  if(!DBG.on) return { check: ()=>{} };
+  const DATA = "crops/2026/";
+  const blocks = [];
+  let ready = null;
+  const loadScript = src => new Promise((res, rej) => {
+    const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = () => rej(new Error("load " + src));
+    document.head.appendChild(s);
+  });
+  function init(){
+    if(!ready) ready = (async () => {
+      if(!window.GeoTIFF) await loadScript("https://cdn.jsdelivr.net/npm/geotiff@2.1.3/dist-browser/geotiff.js");
+      if(!window.CropLayer) await loadScript("crops/crop-layer.js?v=" + BUILD);
+      const idx = await CropLayer.init(DATA);
+      DBG.log(`crops26 ready: ${idx.tiles_finished}/${idx.tiles_planned} tiles, data ${idx.generated_utc}`);
+      return idx;
+    })().catch(e => { DBG.err("crops26 init: " + e.message); ready = null; throw e; });
+    return ready;
+  }
+  const pct = (n, d) => d ? (100 * n / d).toFixed(0) + "%" : "–";
+  const inProcessed = (idx, lon, lat) => (idx.processed || []).some(t => pointInRing(lon, lat, t.ring));
+
+  async function check(f){
+    const id = resolveFieldId(f) || "?";
+    const c = polyCentroid(f.geometry);
+    const ha = geomAreaMeters(f.geometry) / 1e4;
+    const L = [];
+    L.push(`=== CROP CHECK ${id} · build ${BUILD}`);
+    if(c) L.push(`loc ${c[1].toFixed(5)},${c[0].toFixed(5)} · ${ha.toFixed(2)} ha · ${location.origin}${location.pathname}?lat=${c[1].toFixed(5)}&lon=${c[0].toFixed(5)}&z=16`);
+    // --- 2021, ESA's official product (no wheat/barley split exists for 2021) ---
+    const [w21, t21] = await Promise.all([sampleWcProduct(f, "wintercereals"), sampleWcProduct(f, "temporarycrops")]);
+    const p21 = r => r && r.pct != null ? (r.pct * 100).toFixed(0) + "%" : "n/a";
+    L.push(`2021 ESA: winter cereals ${p21(w21)} · any annual crop ${p21(t21)} of field  (2021 has no wheat/barley split)`);
+    // --- 2025-26, our map ---
+    try{
+      const idx = await init();
+      if(c && !inProcessed(idx, c[0], c[1])){
+        L.push(`2026 ours: not processed yet (${idx.tiles_finished}/${idx.tiles_planned} tiles done)`);
+      }else{
+        const b = geomBbox(f.geometry);
+        const [x0, y0] = CropLayer.lonLatTo3857(b[0], b[1]), [x1, y1] = CropLayer.lonLatTo3857(b[2], b[3]);
+        const area = CropLayer.maskToPolygon(await CropLayer.readArea([x0, y0, x1, y1], 0), f.geometry);
+        const cl = CropLayer.classes();
+        let n = 0;
+        // maskToPolygon zeroes outside pixels, but 0 is also "not cropland", so mark the inside separately
+        const inside = new Uint8Array(area.data.length);
+        { const probe = {data: new Uint8Array(area.data.length).fill(1), width: area.width, height: area.height, x0: area.x0, y1: area.y1, res: area.res};
+          CropLayer.maskToPolygon(probe, f.geometry); inside.set(probe.data); }
+        const by = {};
+        for(let i = 0; i < area.data.length; i++){
+          if(!inside[i]) continue;
+          n++;
+          const v = area.data[i];
+          const k = v === 0 ? "not cropland" : cl[(v % 100) - 1] + (v > 200 ? " doubtful" : v > 100 ? " less-sure" : " sure");
+          by[k] = (by[k] || 0) + 1;
+        }
+        const parts = Object.entries(by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${pct(v, n)}`);
+        const sum = re => Object.entries(by).filter(([k]) => re.test(k)).reduce((s, [, v]) => s + v, 0);
+        const conf = sum(/^(wheat|barley|rye|oats) (sure|less-sure)$/), top = sum(/^(wheat|barley|rye|oats) /);
+        const cw = sum(/^wheat (sure|less-sure)$/), cb = sum(/^barley (sure|less-sure)$/);
+        const pxHa = (area.res * Math.cos(c[1] * Math.PI / 180)) ** 2 / 1e4;
+        L.push(`2026 ours (${n} px ≈ ${(n * pxHa).toFixed(2)} ha read): ${parts.join(" · ")}`);
+        L.push(`2026 confident cereal (map default) ${pct(conf, n)} → wheat ${pct(cw, n)}, barley ${pct(cb, n)} · WorldCereal top-crop cereal ${pct(top, n)}`);
+        const y21 = w21 && w21.pct != null ? (w21.pct >= 0.5 ? "cereal" : "not cereal") : "n/a";
+        const y26 = n ? (conf / n >= 0.5 ? (cw >= cb ? "wheat" : "barley") : top / n >= 0.5 ? "doubtful cereal" : "not cereal") : "n/a";
+        L.push(`verdict (≥50% of field): 2021 ${y21} · 2026 ${y26}`);
+      }
+    }catch(e){ L.push("2026 ours: error " + e.message); }
+    const text = L.join("\n");
+    blocks.push(text); if(blocks.length > 60) blocks.shift();
+    L.forEach(l => DBG.warn(l));
+  }
+
+  // debug-bar buttons
+  DBG.button("copy crops", () => {
+    const t = blocks.join("\n\n") || "(no field checked yet)";
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).catch(() => prompt("crop checks", t));
+  });
+  let layerOn = false;
+  DBG.button("2026 layer", async () => {
+    try{
+      await init();
+      if(!map.getSource("dbg-crops26")){
+        CropLayer.registerProtocol(maplibregl);
+        map.addSource("dbg-crops26", {type:"raster", tiles:["wcrop://{z}/{x}/{y}"], tileSize:256, minzoom:4, maxzoom:CropLayer.index.max_zoom});
+        map.addLayer({id:"dbg-crops26", type:"raster", source:"dbg-crops26",
+                      paint:{"raster-opacity":0.85, "raster-resampling":"nearest", "raster-fade-duration":0}});
+      }
+      layerOn = !layerOn;
+      map.setLayoutProperty("dbg-crops26", "visibility", layerOn ? "visible" : "none");
+      DBG.log("2026 layer " + (layerOn ? "on (wheat yellow, barley orange; doubtful cereal hidden)" : "off"));
+    }catch(e){ DBG.err("2026 layer: " + e.message); }
+  });
+  return { check: f => { check(f).catch(e => DBG.err("crop check: " + e.message)); } };
+})();
 
 /* ---------- map ---------- */
 let map, lastField=null;
@@ -1689,6 +1795,7 @@ function startFieldLookups(f){
   }).catch(()=>{ f.__cereal = null; });
   // --- 2-year rainfall + temperature (Open-Meteo archive), for report + popup line ---
   sampleRain(f).catch(()=>{});
+  CROPDBG.check(f);   // debug mode only (?debug=1)
 }
 
 async function onFieldTap(e){
