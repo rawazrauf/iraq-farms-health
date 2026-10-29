@@ -42,6 +42,19 @@
 - 2026-10-27: zoom-hint bug fixed. With 256 px tiles, MapLibre requests tile zoom round(map zoom + 1).
 - 2026-10-26: overview bug fixed (MODE resampling now includes 0; cells carry no nodata).
 
+## Credits (CDSE openEO)
+- A standard Copernicus General account gets 10,000 openEO credits on the 1st of every month. The balance is in the Billing tab of the openEO Algorithm Plaza.
+- A 40 km tile costs ~205 credits (estimate × 0.96 after 45 tiles). Failed jobs are charged too; refused jobs (402) are not.
+- Used by 2026-10-29: 9,997 credits for 45 tiles (49% of planned farmland). About 32,000 credits are still needed, roughly November to January or February.
+- `CREDIT_BUDGET` should be ~9,500, below the monthly balance.
+- Options:
+  - Refund for jobs that failed on the provider's side, via CDSE's request form. The 3 batch 1 errors cost 423 credits.
+  - Account upgrade to 20,000 per month, if eligible.
+  - Buying credits through CREODIAS.
+- 2026-10-29: batch 2 ran out of credits after 8 tiles; batch 3 was refused completely.
+  - The batch tool now counts only jobs that ran and failed (error, canceled) as attempts, so refusals keep a tile's retries.
+  - A batch where no job could start is renamed `batch_NN_nostart_*` and the tool stops (NO_START).
+
 ## Validation findings (37 tiles, 5.94 Mha processed, 2026-10-28)
 - Cropland extent: 2.43 Mha in 2021 against 2.45 Mha in 2025-26 (F1 0.61).
 - Change against 2021 under each rule:
