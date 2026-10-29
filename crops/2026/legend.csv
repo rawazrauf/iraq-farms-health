@@ -2,16 +2,16 @@ code,class,flag,color
 0,not cropland / not processed,,
 1,wheat,,#E3B505
 101,wheat,less sure,#f2dd8e
-201,wheat,doubtful cereal (<70%),#f9f0cd
+201,wheat,doubtful cereal (<70% or speck),#f9f0cd
 2,barley,,#C2571A
 102,barley,less sure,#e3b397
-202,barley,doubtful cereal (<70%),#f2ddd1
+202,barley,doubtful cereal (<70% or speck),#f2ddd1
 3,rye,,#B98B3E
 103,rye,less sure,#dfcaa8
-203,rye,doubtful cereal (<70%),#f1e7d8
+203,rye,doubtful cereal (<70% or speck),#f1e7d8
 4,oats,,#D8C27A
 104,oats,less sure,#ede3c3
-204,oats,doubtful cereal (<70%),#f7f2e4
+204,oats,doubtful cereal (<70% or speck),#f7f2e4
 5,maize,,#F08A24
 105,maize,less sure,#f8ca9c
 6,sorghum,,#A0522D
