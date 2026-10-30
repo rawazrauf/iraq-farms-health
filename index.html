@@ -669,7 +669,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.30-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.30-i";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -982,34 +982,29 @@ const CROPDBG = (function(){
     const c = polyCentroid(f.geometry);
     const ha = geomAreaMeters(f.geometry) / 1e4;
     const L = [];
-    DBG.log(`crop check ${id}: started (2021 + 2026 lookups; the block appears below when both finish, 2021 can take 1–3 min)`);
+    DBG.log(`crop check ${id}: started (2021 + 2026 lookups; a 2026 line appears as soon as it is read; the full block follows once 2021 finishes, which can take 1–3 min)`);
     // each part has its own time limit so one slow service can't hold back the whole block
     const limit = (pr, s, what) => Promise.race([pr, new Promise(res => setTimeout(() => res({timeout: what}), s * 1000))]);
     const part21 = limit(Promise.all([sampleWcProduct(f, "wintercereals"), sampleWcProduct(f, "temporarycrops")]), 180, "2021");
     const part26 = limit(read26(f, c), 120, "2026");
     L.push(`=== CROP CHECK ${id} · build ${BUILD}`);
     if(c) L.push(`loc ${c[1].toFixed(5)},${c[0].toFixed(5)} · ${ha.toFixed(2)} ha · ${location.origin}${location.pathname}?lat=${c[1].toFixed(5)}&lon=${c[0].toFixed(5)}&z=16`);
-    // --- 2021, ESA's official product (no wheat/barley split exists for 2021) ---
-    const r21 = await part21;
-    const [w21, t21] = r21.timeout ? [null, null] : r21;
-    const p21 = r => r && r.pct != null ? (r.pct * 100).toFixed(0) + "%" : "n/a";
-    L.push(r21.timeout ? "2021 ESA: no answer within 3 min (ESA's map service slow or unreachable)"
-                       : `2021 ESA: winter cereals ${p21(w21)} · any annual crop ${p21(t21)} of field  (2021 has no wheat/barley split)`);
-    const r26 = await part26;
-    if(r26.timeout) L.push("2026 ours: no answer within 2 min");
-    else if(r26.error) L.push("2026 ours: error " + r26.error);
-    else if(r26.notProcessed) L.push(r26.notProcessed);
+    // 2026 is formatted as soon as it arrives (it is usually fast), so it never waits for 2021
+    let v26 = "n/a";
+    const fmt26 = r26 => { const out = [];
+    if(r26.timeout) out.push("2026 ours: no answer within 2 min");
+    else if(r26.error) out.push("2026 ours: error " + r26.error);
+    else if(r26.notProcessed) out.push(r26.notProcessed);
     else{
       const {n, by, pxHa} = r26;
       const parts = Object.entries(by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${pct(v, n)}`);
       const sum = re => Object.entries(by).filter(([k]) => re.test(k)).reduce((s, [, v]) => s + v, 0);
       const conf = sum(/^(wheat|barley|rye|oats) (sure|less-sure)$/), top = sum(/^(wheat|barley|rye|oats) /);
       const cw = sum(/^wheat (sure|less-sure)$/), cb = sum(/^barley (sure|less-sure)$/);
-      L.push(`2026 ours (${n} px ≈ ${(n * pxHa).toFixed(2)} ha read): ${parts.join(" · ")}`);
-      L.push(`2026 confident cereal (map default) ${pct(conf, n)} → wheat ${pct(cw, n)}, barley ${pct(cb, n)} · WorldCereal top-crop cereal ${pct(top, n)}`);
-      const y21 = w21 && w21.pct != null ? (w21.pct >= 0.5 ? "cereal" : "not cereal") : "n/a";
+      out.push(`2026 ours (${n} px ≈ ${(n * pxHa).toFixed(2)} ha read): ${parts.join(" · ")}`);
+      out.push(`2026 confident cereal (map default) ${pct(conf, n)} → wheat ${pct(cw, n)}, barley ${pct(cb, n)} · WorldCereal top-crop cereal ${pct(top, n)}`);
       const y26 = n ? (conf / n >= 0.5 ? (cw >= cb ? "wheat" : "barley") : top / n >= 0.5 ? "doubtful cereal" : "not cereal") : "n/a";
-      L.push(`verdict (≥50% of field): 2021 ${y21} · 2026 ${y26}`);
+      v26 = y26;
       // short summary for the field sheet and Report (debug mode only)
       const others = Object.entries(by).map(([k, v]) => [k.replace(/ (sure|less-sure|doubtful)$/, ""), v])
         .filter(([k]) => !/^(wheat|barley|rye|oats)$/.test(k))
@@ -1021,6 +1016,23 @@ const CROPDBG = (function(){
                     right: `cereal ${pct(conf, n)}`};
     }
     if(r26.notProcessed) f.__crop26 = {text: "2025-26 map (test): area not processed yet", right: ""};
+      return out; };
+    const early26 = part26.then(r26 => {
+      const out = fmt26(r26);
+      DBG.warn(`crop check ${id} 2026 part: ` + out.join(" | "));
+      if(lastField === f && sheet.classList.contains("open")) renderField(f);
+      return out;
+    });
+    // --- 2021, ESA's official product (no wheat/barley split exists for 2021) ---
+    const r21 = await part21;
+    const [w21, t21] = r21.timeout ? [null, null] : r21;
+    const p21 = r => r && r.pct != null ? (r.pct * 100).toFixed(0) + "%" : "n/a";
+    L.push(r21.timeout ? "2021 ESA: no answer within 3 min (ESA's map service slow or unreachable)"
+                       : `2021 ESA: winter cereals ${p21(w21)} · any annual crop ${p21(t21)} of field  (2021 has no wheat/barley split)`);
+    const l26 = await early26;
+    L.push(...l26);
+    const y21 = w21 && w21.pct != null ? (w21.pct >= 0.5 ? "cereal" : "not cereal") : "n/a";
+    if(l26.length > 1) L.push(`verdict (≥50% of field): 2021 ${y21} · 2026 ${v26}`);
     if(lastField === f && sheet.classList.contains("open")) renderField(f);
     const text = L.join("\n");
     blocks.push(text); if(blocks.length > 60) blocks.shift();
@@ -1075,7 +1087,13 @@ const CROPDBG = (function(){
       DBG.log("2026 layer " + (layerOn ? "on (wheat yellow, barley orange; doubtful cereal hidden)" : "off"));
     }catch(e){ DBG.err("2026 layer: " + e.message); }
   });
-  return { check: f => { check(f).catch(e => DBG.err("crop check: " + e.message)); } };
+  const recent = new Map();   // fieldKey -> time, so one tap firing twice runs one check
+  return { check: f => {
+    const k = fieldKey(f), now = Date.now();
+    if(recent.has(k) && now - recent.get(k) < 5000) return;
+    recent.set(k, now);
+    check(f).catch(e => DBG.err("crop check: " + e.message));
+  } };
 })();
 
 /* ---------- map ---------- */
@@ -3116,9 +3134,14 @@ async function buildFieldReport(f, btn){
     // Month images: only the ones already fetched (never wait here — the share
     // sheet needs the tap's gesture), drawn as a grid of tiles.
     const frameImgs = await collectReportFrames(f);
-    const fCols = 6, fGap = 12, fTile = Math.floor((W - pad*2 - fGap*(fCols-1)) / fCols);
+    // Tiles follow the field's shape: long, thin fields get fewer, wider tiles so
+    // the picture isn't a sliver in the middle of a square.
+    const fAsp = frameImgs.length ? (frameImgs[0].img.naturalWidth || 1) / (frameImgs[0].img.naturalHeight || 1) : 1;
+    const fCols = fAsp > 2.2 ? 3 : fAsp > 1.5 ? 4 : 6, fGap = 12;
+    const fTile = Math.floor((W - pad*2 - fGap*(fCols-1)) / fCols);
+    const fTileH = Math.round(Math.max(0.45, Math.min(1, 1 / fAsp)) * fTile);
     const fRows = Math.ceil(frameImgs.length / fCols);
-    const framesH = frameImgs.length ? 40 + fRows*(fTile + 36 + fGap) + 10 : 0;
+    const framesH = frameImgs.length ? 40 + fRows*(fTileH + 36 + fGap) + 10 : 0;
     const H = pad + 120 + (thumbH+24) + 150 + (220+24) + tableH + framesH + rainStripH + notesH + 50 + 90 + pad;
     const cv = document.createElement("canvas"); cv.width=W; cv.height=H;
     const x = cv.getContext("2d");
@@ -3195,19 +3218,19 @@ async function buildFieldReport(f, btn){
       const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       frameImgs.forEach((fi, k) => {
         const col = k % fCols, row = Math.floor(k / fCols);
-        const tx = pad + col*(fTile + fGap), ty = y + row*(fTile + 36 + fGap);
-        x.fillStyle="#e9e4d6"; roundRectPath(x, tx, ty, fTile, fTile, 10); x.fill();
+        const tx = pad + col*(fTile + fGap), ty = y + row*(fTileH + 36 + fGap);
+        x.fillStyle="#e9e4d6"; roundRectPath(x, tx, ty, fTile, fTileH, 10); x.fill();
         const iw = fi.img.naturalWidth || fi.img.width, ih = fi.img.naturalHeight || fi.img.height;
-        const s = Math.min((fTile-12)/iw, (fTile-12)/ih);
+        const s = Math.min((fTile-12)/iw, (fTileH-12)/ih);
         const dw = iw*s, dh = ih*s;
         x.imageSmoothingEnabled = true;
-        x.drawImage(fi.img, tx + (fTile-dw)/2, ty + (fTile-dh)/2, dw, dh);
-        x.strokeStyle="#D9D2C2"; x.lineWidth=1; roundRectPath(x, tx, ty, fTile, fTile, 10); x.stroke();
+        x.drawImage(fi.img, tx + (fTile-dw)/2, ty + (fTileH-dh)/2, dw, dh);
+        x.strokeStyle="#D9D2C2"; x.lineWidth=1; roundRectPath(x, tx, ty, fTile, fTileH, 10); x.stroke();
         x.textAlign="center"; x.fillStyle="#14261B"; x.font="700 18px system-ui,sans-serif";
-        x.fillText(`${MON[fi.slot.monthIdx]} ${String(fi.slot.year).slice(2)} · ${fi.slot.v.toFixed(2)}`, tx + fTile/2, ty + fTile + 8);
+        x.fillText(`${MON[fi.slot.monthIdx]} ${String(fi.slot.year).slice(2)} · ${fi.slot.v.toFixed(2)}`, tx + fTile/2, ty + fTileH + 8);
       });
       x.textAlign="left";
-      y += fRows*(fTile + 36 + fGap) + 10;
+      y += fRows*(fTileH + 36 + fGap) + 10;
     }
 
     // 2-year rainfall bar strip, aligned to the NDVI table's monthly columns so
