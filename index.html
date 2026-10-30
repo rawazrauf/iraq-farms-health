@@ -669,7 +669,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.30-e";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.30-f";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1010,7 +1010,18 @@ const CROPDBG = (function(){
       const y21 = w21 && w21.pct != null ? (w21.pct >= 0.5 ? "cereal" : "not cereal") : "n/a";
       const y26 = n ? (conf / n >= 0.5 ? (cw >= cb ? "wheat" : "barley") : top / n >= 0.5 ? "doubtful cereal" : "not cereal") : "n/a";
       L.push(`verdict (≥50% of field): 2021 ${y21} · 2026 ${y26}`);
+      // short summary for the field sheet and Report (debug mode only)
+      const others = Object.entries(by).map(([k, v]) => [k.replace(/ (sure|less-sure|doubtful)$/, ""), v])
+        .filter(([k]) => !/^(wheat|barley|rye|oats)$/.test(k))
+        .reduce((m, [k, v]) => (m[k] = (m[k] || 0) + v, m), {});
+      const top3 = Object.entries(others).sort((a, b) => b[1] - a[1]).slice(0, 3)
+        .filter(([, v]) => v / n >= 0.05).map(([k, v]) => `${k.replace(/_/g, " ")} ${pct(v, n)}`);
+      f.__crop26 = {text: `2025-26 map (test): wheat ${pct(cw, n)} · barley ${pct(cb, n)}`
+                        + (top3.length ? ` · ${top3.join(" · ")}` : ""),
+                    right: `cereal ${pct(conf, n)}`};
     }
+    if(r26.notProcessed) f.__crop26 = {text: "2025-26 map (test): area not processed yet", right: ""};
+    if(lastField === f && sheet.classList.contains("open")) renderField(f);
     const text = L.join("\n");
     blocks.push(text); if(blocks.length > 60) blocks.shift();
     L.forEach(l => DBG.warn(l));
@@ -1054,8 +1065,10 @@ const CROPDBG = (function(){
       if(!map.getSource("dbg-crops26")){
         CropLayer.registerProtocol(maplibregl);
         map.addSource("dbg-crops26", {type:"raster", tiles:["wcrop://{z}/{x}/{y}"], tileSize:256, minzoom:4, maxzoom:CropLayer.index.max_zoom});
+        // below the field outlines and the selected-field highlight, so boundaries stay visible
         map.addLayer({id:"dbg-crops26", type:"raster", source:"dbg-crops26",
-                      paint:{"raster-opacity":0.85, "raster-resampling":"nearest", "raster-fade-duration":0}});
+                      paint:{"raster-opacity":0.8, "raster-resampling":"nearest", "raster-fade-duration":0}},
+                     map.getLayer("fields-line") ? "fields-line" : map.getLayer("sel-fill") ? "sel-fill" : undefined);
       }
       layerOn = !layerOn;
       map.setLayoutProperty("dbg-crops26", "visibility", layerOn ? "visible" : "none");
@@ -2773,6 +2786,7 @@ function renderField(f){
       const key = cp >= 0.5 ? "cerealYes" : "cerealPart";
       return `<div class="nbr" id="cereal-line"><span class="nbr-ico">🌾</span> ${t[key]}</div>`;
     })()}
+    ${DBG.on && f.__crop26 ? `<div class="nbr" style="border-style:dashed"><span class="nbr-ico">🧪</span> ${f.__crop26.text}${f.__crop26.right ? " — " + f.__crop26.right : ""}</div>` : ""}
     ${(()=>{
       // Rainfall: this year vs last year (rule and wording in rainSummaryText).
       const r = rainSummaryText(f, t);
@@ -2952,6 +2966,7 @@ function reportNotes(f, t, curV, band){
   const cp = f.__cereal;
   if(cp!=null && cp>=0.15)
     out.push({icon:"🌾", text:t[cp>=0.5 ? "cerealYes" : "cerealPart"], right:`${Math.round(cp*100)}%`});
+  if(DBG.on && f.__crop26) out.push({icon:"🧪", text:f.__crop26.text, right:f.__crop26.right});   // debug mode only
   const nh = neighborStanding(f, curV, __healthCache, e=>e.v);
   if(nh) out.push({icon:"🏞️", text:t["nbrHealth_"+nh]});
   if(f.__moisture!=null){
