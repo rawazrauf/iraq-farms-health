@@ -578,6 +578,10 @@ function showErr(msg){errBox.textContent=msg;errBox.style.display="block";}
    Fixed panel at the top of the screen. Every Planetary Computer request, every
    swallowed stats failure, and any uncaught error/rejection lands here, so an
    iPhone screenshot shows exactly where the NDVI pipeline breaks. */
+/* Debug crop-check summaries by field key (see CROPDBG). Kept outside the field
+   object because each tap builds a new object for the same field. */
+const __crop26ByKey = {};
+function crop26Of(f){ return (f && (f.__crop26 || __crop26ByKey[fieldKey(f)])) || null; }
 const DBG = (function(){
   // Off by default: ?debug=1 shows the on-screen log, ?probe=1 also runs the
   // connectivity probe. Kept in the shipped file because when a third-party API
@@ -669,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.30-i";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.10.30-j";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1011,16 +1015,18 @@ const CROPDBG = (function(){
         .reduce((m, [k, v]) => (m[k] = (m[k] || 0) + v, m), {});
       const top3 = Object.entries(others).sort((a, b) => b[1] - a[1]).slice(0, 3)
         .filter(([, v]) => v / n >= 0.05).map(([k, v]) => `${k.replace(/_/g, " ")} ${pct(v, n)}`);
-      f.__crop26 = {text: `2025-26 map (test): wheat ${pct(cw, n)} · barley ${pct(cb, n)}`
+      f.__crop26 = __crop26ByKey[fieldKey(f)] = {text: `2025-26 map (test): wheat ${pct(cw, n)} · barley ${pct(cb, n)}`
                         + (top3.length ? ` · ${top3.join(" · ")}` : ""),
                     right: `cereal ${pct(conf, n)}`};
     }
-    if(r26.notProcessed) f.__crop26 = {text: "2025-26 map (test): area not processed yet", right: ""};
+    if(r26.notProcessed) f.__crop26 = __crop26ByKey[fieldKey(f)] = {text: "2025-26 map (test): area not processed yet", right: ""};
       return out; };
     const early26 = part26.then(r26 => {
       const out = fmt26(r26);
       DBG.warn(`crop check ${id} 2026 part: ` + out.join(" | "));
-      if(lastField === f && sheet.classList.contains("open")) renderField(f);
+      // The sheet may now hold a newer feature object for the same field (a second tap
+      // or the link opener tapping twice), so match by field, not by object.
+      if(lastField && fieldKey(lastField) === fieldKey(f) && sheet.classList.contains("open")) renderField(lastField);
       return out;
     });
     // --- 2021, ESA's official product (no wheat/barley split exists for 2021) ---
@@ -1843,10 +1849,51 @@ function startFieldLookups(f){
   CROPDBG.check(f);   // debug mode only (?debug=1)
 }
 
+/* A field is only whole if all of it is drawn. stitchFields() joins the pieces
+   MapLibre has rendered, and tiles off the screen are never loaded, so a field
+   running off the edge of the view came back without its off-screen part —
+   a smaller field with a different crop share, NDVI and Report (field 16 read
+   23.5 ha in a narrow window and 27.5 ha on a wide one). So: if the stitched
+   field touches or crosses the screen edge, re-centre on it (zooming out only
+   as far as needed, never below the zoom where fields show), let tiles load,
+   and stitch again. Up to 3 rounds; a field bigger than the screen at the
+   minimum zoom is used as it is, with a debug note. */
+function fieldOffScreen(f){
+  const W = map.getCanvas().clientWidth, H = map.getCanvas().clientHeight, m = 2;
+  const g = f.geometry, polys = g.type==="Polygon" ? [g.coordinates] : g.type==="MultiPolygon" ? g.coordinates : [];
+  for(const poly of polys) for(const ring of poly) for(const c of ring){
+    const p = map.project(c);
+    if(p.x <= m || p.y <= m || p.x >= W-m || p.y >= H-m) return true;
+  }
+  return false;
+}
+function mapIdle(ms){
+  return new Promise(res=>{ let done=false; const fin=()=>{ if(!done){ done=true; res(); } };
+    map.once("idle", fin); setTimeout(fin, ms); });
+}
+async function wholeFieldOnScreen(f, lngLat){
+  for(let round=0; round<3 && f && fieldOffScreen(f); round++){
+    const b = geomBbox(f.geometry);
+    if(!b) break;
+    const cam = map.cameraForBounds([[b[0],b[1]],[b[2],b[3]]], {padding:60});
+    const fitZ = cam && isFinite(cam.zoom) ? cam.zoom - 0.5 : map.getZoom() - 1;  // room for the unseen part
+    const z = Math.max(FTW_MIN_ZOOM + 0.05, Math.min(map.getZoom(), fitZ));
+    map.jumpTo({center:[(b[0]+b[2])/2, (b[1]+b[3])/2], zoom:z});
+    await mapIdle(4000);
+    const g = wholeFieldAt(lngLat, null);
+    if(!g) break;
+    DBG.log(`whole field: round ${round+1}, re-framed at z${z.toFixed(1)}`);
+    f = g;
+  }
+  if(f && fieldOffScreen(f)) DBG.warn("whole field: still touches the screen edge — it may be cut");
+  return f;
+}
+
 async function onFieldTap(e){
   const piece = e.features && e.features[0];
   if(!piece) return;
-  const f = wholeFieldAt(e.lngLat, piece);       // the whole field, not one tile's piece of it
+  let f = wholeFieldAt(e.lngLat, piece);         // the whole field, not one tile's piece of it
+  if(e.lngLat && fieldOffScreen(f)) f = (await wholeFieldOnScreen(f, e.lngLat)) || f;
   DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
   // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
   const selSrc = map.getSource("sel");
@@ -2819,7 +2866,7 @@ function renderField(f){
       const key = cp >= 0.5 ? "cerealYes" : "cerealPart";
       return `<div class="nbr" id="cereal-line"><span class="nbr-ico">🌾</span> ${t[key]}</div>`;
     })()}
-    ${DBG.on && f.__crop26 ? `<div class="nbr" style="border-style:dashed"><span class="nbr-ico">🧪</span> ${f.__crop26.text}${f.__crop26.right ? " — " + f.__crop26.right : ""}</div>` : ""}
+    ${DBG.on && crop26Of(f) ? `<div class="nbr" style="border-style:dashed"><span class="nbr-ico">🧪</span> ${crop26Of(f).text}${crop26Of(f).right ? " — " + crop26Of(f).right : ""}</div>` : ""}
     ${(()=>{
       // Rainfall: this year vs last year (rule and wording in rainSummaryText).
       const r = rainSummaryText(f, t);
@@ -3009,7 +3056,7 @@ function reportNotes(f, t, curV, band){
   const cp = f.__cereal;
   if(cp!=null && cp>=0.15)
     out.push({icon:"🌾", text:t[cp>=0.5 ? "cerealYes" : "cerealPart"], right:`${Math.round(cp*100)}%`});
-  if(DBG.on && f.__crop26) out.push({icon:"🧪", text:f.__crop26.text, right:f.__crop26.right});   // debug mode only
+  { const c26 = DBG.on && crop26Of(f); if(c26) out.push({icon:"🧪", text:c26.text, right:c26.right}); }   // debug mode only
   const nh = neighborStanding(f, curV, __healthCache, e=>e.v);
   if(nh) out.push({icon:"🏞️", text:t["nbrHealth_"+nh]});
   if(f.__moisture!=null){
@@ -4166,10 +4213,13 @@ function flyToField(lon, lat){
   // Keep the link's zoom when it's already close enough to see fields; only
   // zoom in from further out (e.g. a Ranking entry across the country).
   map.flyTo({center:[lon,lat], zoom:Math.max(15, map.getZoom()), duration:800});
+  let tapped = false;      // the interval and the moveend handler used to BOTH tap
   const tryTap = ()=>{
+    if(tapped) return true;
     const pt = map.project([lon,lat]);
     const feats = map.queryRenderedFeatures(pt, {layers:["fields-fill"]});
     if(feats && feats.length){
+      tapped = true;
       onFieldTap({features:[feats[0]], lngLat:{lng:lon, lat:lat}});
       return true;
     }
