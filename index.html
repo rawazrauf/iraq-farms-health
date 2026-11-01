@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.10.30-k";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.01-a";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1919,17 +1919,30 @@ async function wholeFieldFull(f, lngLat){
   return g;
 }
 
+let __sweeping = false;                          // a debug whole-field sweep is moving the map
 async function onFieldTap(e){
   const piece = e.features && e.features[0];
-  if(!piece) return;
+  if(!piece || __sweeping) return;               // ignore taps while a sweep moves the map
   __fieldBusyUntil = Date.now() + 60000;          // health colouring waits (see runHealthSample)
   let f = wholeFieldAt(e.lngLat, piece);         // the whole field, not one tile's piece of it
-  if(e.lngLat && (fieldOffScreen(f) || map.getZoom() < FIELD_READ_ZOOM)) f = (await wholeFieldFull(f, e.lngLat)) || f;
+  // The pan-across sweep (wholeFieldFull) jumps the map through up to 16 views.
+  // It exists for field checks, so it runs in debug mode only (?debug=1). Normal
+  // users get the field as drawn on screen, never a moving map: a field running
+  // off the screen is measured from its visible part and its size shows "≥".
+  const cam = {center:map.getCenter(), zoom:map.getZoom()};
+  if(DBG.on && e.lngLat && geomAreaMeters(f.geometry)/1e4 <= FIELD_MAX_HA &&
+     (fieldOffScreen(f) || map.getZoom() < FIELD_READ_ZOOM)){
+    __sweeping = true;
+    try{ f = (await wholeFieldFull(f, e.lngLat)) || f; } finally { __sweeping = false; }
+  }
+  f.__partial = !DBG.on && fieldOffScreen(f);
   const fieldHa = geomAreaMeters(f.geometry)/1e4;
   if(fieldHa > FIELD_MAX_HA){
     // An FTW outline this big is not one farm field (field 26: 2,412 ha east of
-    // Kut). Reading it would be slow and its numbers meaningless, so refuse it.
+    // Kut). Reading it would be slow and its numbers meaningless, so refuse it,
+    // and put the map back where the user left it.
     DBG.warn(`field refused: ${fieldHa.toFixed(0)} ha is over the ${FIELD_MAX_HA} ha cap`);
+    if(DBG.on) map.jumpTo(cam);
     __fieldBusyUntil = 0; scheduleHealthSample();
     showErr(I18N[lang].tooBig); setTimeout(()=>{ errBox.style.display="none"; }, 5000);
     return;
@@ -3099,7 +3112,8 @@ function reportNotes(f, t, curV, band){
   const areaM2 = geomAreaMeters(f.geometry);
   if(areaM2 > 0){
     const d = areaM2/2500;                       // 1 donum = 2,500 m²
-    out.push({icon:"📐", text:t.sizeLabel, right:`${d>=10 ? Math.round(d) : d.toFixed(1)} ${t.donums}`});
+    // "≥": part of the field is off the screen, so this is the size of the part drawn (see onFieldTap)
+    out.push({icon:"📐", text:t.sizeLabel, right:`${f.__partial ? "≥ " : ""}${d>=10 ? Math.round(d) : d.toFixed(1)} ${t.donums}`});
   }
   // WorldCereal 2021, same rule as the popup: under 15% says nothing rather
   // than a "not wheat" that would only be a silence. The % is the share of the
