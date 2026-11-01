@@ -1,0 +1,2738 @@
+{
+ "season": "2025-26 (season pilot: Nov–Jun)",
+ "generated_utc": "2026-11-01 22:13",
+ "classes": [
+  "wheat",
+  "barley",
+  "rye",
+  "oats",
+  "maize",
+  "sorghum",
+  "rice",
+  "other_temporary_crops",
+  "millet",
+  "vegetables",
+  "beet",
+  "dry_pulses_legumes",
+  "sunflower",
+  "soy_soybeans",
+  "rapeseed_rape",
+  "other_oilseed",
+  "groundnuts",
+  "fibre_crops",
+  "potatoes",
+  "cassava",
+  "tobacco",
+  "grass_fodder_crops",
+  "sugar_cane",
+  "no_crop"
+ ],
+ "confidence_threshold": 60,
+ "cereal_threshold": 70,
+ "min_patch_ha": 0.1,
+ "pixel_size_m": 10.0,
+ "tiles_finished": 4,
+ "tiles_planned": 4,
+ "outside_boundaries_ha": 253.7,
+ "boundaries": "Districts: geoBoundaries gbOpen IRQ ADM2 (CC BY 4.0). Governorate of each district: the one it overlaps most in geoBoundaries ADM1, except these set explicitly (the two layers disagree around Baghdad; Halabja is a governorate since 2025): Al-Hindiya: Babil → Karbala; Al-Kadhmiyah: Salah ad-Din → Baghdad; Al-Mada'in: Diyala → Baghdad; Al-Mahmoudiya: Babil → Baghdad; Halabcha: Sulaymaniyah → Halabja",
+ "district_overrides": [
+  "Al-Hindiya: Babil → Karbala",
+  "Al-Kadhmiyah: Salah ad-Din → Baghdad",
+  "Al-Mada'in: Diyala → Baghdad",
+  "Al-Mahmoudiya: Babil → Baghdad",
+  "Halabcha: Sulaymaniyah → Halabja"
+ ],
+ "region_definition": "Kurdistan Region = Duhok, Erbil, Sulaymaniyah and Halabja governorates as drawn in the boundary file. District rows let readers regroup areas administered differently.",
+ "regions": [
+  {
+   "name": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 364560.8,
+   "classes": {
+    "wheat": {
+     "ha": 215949.8,
+     "ha_sure": 82593.8,
+     "ha_cereal70": 141800.6
+    },
+    "barley": {
+     "ha": 67843.7,
+     "ha_sure": 12139.7,
+     "ha_cereal70": 34179.4
+    },
+    "oats": {
+     "ha": 60.3,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.1
+    },
+    "maize": {
+     "ha": 90.2,
+     "ha_sure": 5.8
+    },
+    "sorghum": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 80.0,
+     "ha_sure": 2.6
+    },
+    "vegetables": {
+     "ha": 5978.5,
+     "ha_sure": 566.1
+    },
+    "beet": {
+     "ha": 0.8,
+     "ha_sure": 0.0
+    },
+    "dry_pulses_legumes": {
+     "ha": 32386.4,
+     "ha_sure": 5963.0
+    },
+    "sunflower": {
+     "ha": 49.6,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 2186.6,
+     "ha_sure": 532.6
+    },
+    "other_oilseed": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 31.2,
+     "ha_sure": 0.2
+    },
+    "potatoes": {
+     "ha": 1073.0,
+     "ha_sure": 242.7
+    },
+    "tobacco": {
+     "ha": 10199.3,
+     "ha_sure": 4414.6
+    },
+    "grass_fodder_crops": {
+     "ha": 198.6,
+     "ha_sure": 8.9
+    },
+    "sugar_cane": {
+     "ha": 2.6,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 28429.6,
+     "ha_sure": 5442.6
+    }
+   },
+   "processed_km2": 5565.9,
+   "planned_km2": 5565.9
+  },
+  {
+   "name": "Kurdistan Region",
+   "cropland_ha": 64118.6,
+   "classes": {
+    "wheat": {
+     "ha": 42912.5,
+     "ha_sure": 17540.4,
+     "ha_cereal70": 26502.5
+    },
+    "barley": {
+     "ha": 8044.8,
+     "ha_sure": 1079.3,
+     "ha_cereal70": 3143.3
+    },
+    "oats": {
+     "ha": 13.6,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 115.2,
+     "ha_sure": 8.2
+    },
+    "sorghum": {
+     "ha": 2.7,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 8.1,
+     "ha_sure": 0.7
+    },
+    "vegetables": {
+     "ha": 1791.9,
+     "ha_sure": 267.3
+    },
+    "dry_pulses_legumes": {
+     "ha": 1509.1,
+     "ha_sure": 87.0
+    },
+    "sunflower": {
+     "ha": 10.4,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 555.2,
+     "ha_sure": 171.2
+    },
+    "other_oilseed": {
+     "ha": 0.9,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 2.0,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 331.5,
+     "ha_sure": 42.4
+    },
+    "tobacco": {
+     "ha": 2937.5,
+     "ha_sure": 901.9
+    },
+    "grass_fodder_crops": {
+     "ha": 172.0,
+     "ha_sure": 1.5
+    },
+    "no_crop": {
+     "ha": 5711.3,
+     "ha_sure": 1055.0
+    }
+   },
+   "processed_km2": 831.9,
+   "planned_km2": 831.9
+  }
+ ],
+ "governorates": [
+  {
+   "name": "Nineveh",
+   "name_ar": "نينوى",
+   "name_ku": "نەینەوا",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 293435.3,
+   "classes": {
+    "wheat": {
+     "ha": 158424.2,
+     "ha_sure": 41058.5,
+     "ha_cereal70": 90276.5
+    },
+    "barley": {
+     "ha": 58461.0,
+     "ha_sure": 9734.4,
+     "ha_cereal70": 27954.2
+    },
+    "oats": {
+     "ha": 60.2,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.1
+    },
+    "maize": {
+     "ha": 69.9,
+     "ha_sure": 5.7
+    },
+    "sorghum": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 78.8,
+     "ha_sure": 2.5
+    },
+    "vegetables": {
+     "ha": 5686.9,
+     "ha_sure": 533.4
+    },
+    "beet": {
+     "ha": 0.8,
+     "ha_sure": 0.0
+    },
+    "dry_pulses_legumes": {
+     "ha": 32328.2,
+     "ha_sure": 5955.9
+    },
+    "sunflower": {
+     "ha": 35.4,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 2173.6,
+     "ha_sure": 530.1
+    },
+    "other_oilseed": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 7.6,
+     "ha_sure": 0.1
+    },
+    "potatoes": {
+     "ha": 1041.3,
+     "ha_sure": 241.9
+    },
+    "tobacco": {
+     "ha": 10197.9,
+     "ha_sure": 4414.5
+    },
+    "grass_fodder_crops": {
+     "ha": 147.9,
+     "ha_sure": 3.0
+    },
+    "sugar_cane": {
+     "ha": 0.6,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 24720.6,
+     "ha_sure": 4633.7
+    }
+   },
+   "processed_km2": 3966.0,
+   "planned_km2": 3966.0
+  },
+  {
+   "name": "Erbil",
+   "name_ar": "أربيل",
+   "name_ku": "هەولێر",
+   "region": "Kurdistan Region",
+   "cropland_ha": 43071.2,
+   "classes": {
+    "wheat": {
+     "ha": 29384.0,
+     "ha_sure": 12444.3,
+     "ha_cereal70": 18526.2
+    },
+    "barley": {
+     "ha": 5550.4,
+     "ha_sure": 855.9,
+     "ha_cereal70": 2340.9
+    },
+    "oats": {
+     "ha": 11.2,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 114.2,
+     "ha_sure": 8.2
+    },
+    "sorghum": {
+     "ha": 2.7,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 1.0,
+     "ha_sure": 0.2
+    },
+    "vegetables": {
+     "ha": 1199.4,
+     "ha_sure": 227.5
+    },
+    "dry_pulses_legumes": {
+     "ha": 1061.0,
+     "ha_sure": 76.2
+    },
+    "sunflower": {
+     "ha": 10.4,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 400.9,
+     "ha_sure": 143.7
+    },
+    "other_oilseed": {
+     "ha": 0.9,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 0.8,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 200.7,
+     "ha_sure": 30.8
+    },
+    "tobacco": {
+     "ha": 1741.1,
+     "ha_sure": 513.8
+    },
+    "grass_fodder_crops": {
+     "ha": 136.2,
+     "ha_sure": 1.2
+    },
+    "no_crop": {
+     "ha": 3256.2,
+     "ha_sure": 636.5
+    }
+   },
+   "processed_km2": 523.1,
+   "planned_km2": 523.1
+  },
+  {
+   "name": "Najaf",
+   "name_ar": "النجف",
+   "name_ku": "نەجەف",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 36399.9,
+   "classes": {
+    "wheat": {
+     "ha": 30603.4,
+     "ha_sure": 23580.5,
+     "ha_cereal70": 28289.8
+    },
+    "barley": {
+     "ha": 4318.5,
+     "ha_sure": 1153.4,
+     "ha_cereal70": 2903.7
+    },
+    "oats": {
+     "ha": 0.0,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 5.4,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 132.1,
+     "ha_sure": 18.1
+    },
+    "dry_pulses_legumes": {
+     "ha": 16.8,
+     "ha_sure": 2.0
+    },
+    "sunflower": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 5.8,
+     "ha_sure": 0.8
+    },
+    "fibre_crops": {
+     "ha": 3.9,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 7.9,
+     "ha_sure": 0.2
+    },
+    "tobacco": {
+     "ha": 0.8,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 9.8,
+     "ha_sure": 1.2
+    },
+    "sugar_cane": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 1294.6,
+     "ha_sure": 331.1
+    }
+   },
+   "processed_km2": 731.9,
+   "planned_km2": 731.9
+  },
+  {
+   "name": "Qadisiyah",
+   "name_ar": "القادسية",
+   "name_ku": "قادسیە",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 31924.3,
+   "classes": {
+    "wheat": {
+     "ha": 25340.3,
+     "ha_sure": 17128.4,
+     "ha_cereal70": 22080.5
+    },
+    "barley": {
+     "ha": 4501.7,
+     "ha_sure": 1099.8,
+     "ha_cereal70": 2993.2
+    },
+    "maize": {
+     "ha": 13.0,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 0.8,
+     "ha_sure": 0.1
+    },
+    "vegetables": {
+     "ha": 126.9,
+     "ha_sure": 12.2
+    },
+    "dry_pulses_legumes": {
+     "ha": 34.0,
+     "ha_sure": 4.1
+    },
+    "sunflower": {
+     "ha": 13.8,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 5.8,
+     "ha_sure": 1.5
+    },
+    "fibre_crops": {
+     "ha": 16.7,
+     "ha_sure": 0.1
+    },
+    "potatoes": {
+     "ha": 18.1,
+     "ha_sure": 0.1
+    },
+    "tobacco": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 31.3,
+     "ha_sure": 3.7
+    },
+    "sugar_cane": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 1821.4,
+     "ha_sure": 358.2
+    }
+   },
+   "processed_km2": 763.7,
+   "planned_km2": 763.7
+  },
+  {
+   "name": "Duhok",
+   "name_ar": "دهوك",
+   "name_ku": "دهۆک",
+   "region": "Kurdistan Region",
+   "cropland_ha": 21047.4,
+   "classes": {
+    "wheat": {
+     "ha": 13528.5,
+     "ha_sure": 5096.0,
+     "ha_cereal70": 7976.3
+    },
+    "barley": {
+     "ha": 2494.5,
+     "ha_sure": 223.4,
+     "ha_cereal70": 802.5
+    },
+    "oats": {
+     "ha": 2.4,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 1.0,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 7.1,
+     "ha_sure": 0.6
+    },
+    "vegetables": {
+     "ha": 592.5,
+     "ha_sure": 39.8
+    },
+    "dry_pulses_legumes": {
+     "ha": 448.0,
+     "ha_sure": 10.7
+    },
+    "rapeseed_rape": {
+     "ha": 154.2,
+     "ha_sure": 27.6
+    },
+    "fibre_crops": {
+     "ha": 1.2,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 130.8,
+     "ha_sure": 11.7
+    },
+    "tobacco": {
+     "ha": 1196.4,
+     "ha_sure": 388.1
+    },
+    "grass_fodder_crops": {
+     "ha": 35.7,
+     "ha_sure": 0.3
+    },
+    "no_crop": {
+     "ha": 2455.1,
+     "ha_sure": 418.5
+    }
+   },
+   "processed_km2": 308.8,
+   "planned_km2": 308.8
+  },
+  {
+   "name": "Babil",
+   "name_ar": "بابل",
+   "name_ku": "بابل",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 2801.2,
+   "classes": {
+    "wheat": {
+     "ha": 1581.9,
+     "ha_sure": 826.4,
+     "ha_cereal70": 1153.8
+    },
+    "barley": {
+     "ha": 562.5,
+     "ha_sure": 152.1,
+     "ha_cereal70": 328.3
+    },
+    "maize": {
+     "ha": 2.0,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 32.6,
+     "ha_sure": 2.4
+    },
+    "dry_pulses_legumes": {
+     "ha": 7.4,
+     "ha_sure": 0.9
+    },
+    "sunflower": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 1.4,
+     "ha_sure": 0.2
+    },
+    "other_oilseed": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 3.0,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 5.8,
+     "ha_sure": 0.6
+    },
+    "tobacco": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 9.5,
+     "ha_sure": 1.0
+    },
+    "sugar_cane": {
+     "ha": 1.3,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 593.1,
+     "ha_sure": 119.7
+    }
+   },
+   "processed_km2": 104.3,
+   "planned_km2": 104.3
+  },
+  {
+   "name": "Basra",
+   "name_ar": "البصرة",
+   "name_ku": "بەسرە",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Karbala",
+   "name_ar": "كربلاء",
+   "name_ku": "کەربەلا",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Baghdad",
+   "name_ar": "بغداد",
+   "name_ku": "بەغدا",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Maysan",
+   "name_ar": "ميسان",
+   "name_ku": "مەیسان",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Dhi Qar",
+   "name_ar": "ذي قار",
+   "name_ku": "زیقار",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Salah ad-Din",
+   "name_ar": "صلاح الدين",
+   "name_ku": "سەلاحەدین",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Anbar",
+   "name_ar": "الأنبار",
+   "name_ku": "ئەنبار",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Wasit",
+   "name_ar": "واسط",
+   "name_ku": "واست",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Kirkuk",
+   "name_ar": "كركوك",
+   "name_ku": "کەرکووک",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Diyala",
+   "name_ar": "ديالى",
+   "name_ku": "دیالە",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Muthanna",
+   "name_ar": "المثنى",
+   "name_ku": "موسەننا",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Sulaymaniyah",
+   "name_ar": "السليمانية",
+   "name_ku": "سلێمانی",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Halabja",
+   "name_ar": "حلبجة",
+   "name_ku": "هەڵەبجە",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  }
+ ],
+ "districts": [
+  {
+   "name": "Al-Falluja",
+   "gov": "Anbar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Kaim",
+   "gov": "Anbar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Ramadi",
+   "gov": "Anbar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Rutba",
+   "gov": "Anbar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Ana",
+   "gov": "Anbar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Haditha",
+   "gov": "Anbar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Heet",
+   "gov": "Anbar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Hashimiya",
+   "gov": "Babil",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 1947.7,
+   "classes": {
+    "wheat": {
+     "ha": 861.1,
+     "ha_sure": 298.4,
+     "ha_cereal70": 490.4
+    },
+    "barley": {
+     "ha": 460.6,
+     "ha_sure": 118.2,
+     "ha_cereal70": 249.6
+    },
+    "maize": {
+     "ha": 1.9,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 27.2,
+     "ha_sure": 1.6
+    },
+    "dry_pulses_legumes": {
+     "ha": 7.3,
+     "ha_sure": 0.9
+    },
+    "sunflower": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 1.4,
+     "ha_sure": 0.2
+    },
+    "other_oilseed": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 3.0,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 5.6,
+     "ha_sure": 0.6
+    },
+    "tobacco": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 8.9,
+     "ha_sure": 1.0
+    },
+    "sugar_cane": {
+     "ha": 1.1,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 568.9,
+     "ha_sure": 115.5
+    }
+   },
+   "processed_km2": 88.8,
+   "planned_km2": 88.8
+  },
+  {
+   "name": "Al-Hilla",
+   "gov": "Babil",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 853.5,
+   "classes": {
+    "wheat": {
+     "ha": 720.8,
+     "ha_sure": 528.0,
+     "ha_cereal70": 663.4
+    },
+    "barley": {
+     "ha": 101.9,
+     "ha_sure": 33.9,
+     "ha_cereal70": 78.7
+    },
+    "maize": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 5.4,
+     "ha_sure": 0.8
+    },
+    "dry_pulses_legumes": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "tobacco": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 0.7,
+     "ha_sure": 0.0
+    },
+    "sugar_cane": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 24.2,
+     "ha_sure": 4.2
+    }
+   },
+   "processed_km2": 15.6,
+   "planned_km2": 15.6
+  },
+  {
+   "name": "Al-Mahaweel",
+   "gov": "Babil",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Mussyab",
+   "gov": "Babil",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Adhamiya",
+   "gov": "Baghdad",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Kadhmiyah",
+   "gov": "Baghdad",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Karkh",
+   "gov": "Baghdad",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Mada'in",
+   "gov": "Baghdad",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Mahmoudiya",
+   "gov": "Baghdad",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Risafa",
+   "gov": "Baghdad",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Thawra",
+   "gov": "Baghdad",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Abu Al-Khaseeb",
+   "gov": "Basra",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Basrah",
+   "gov": "Basra",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Faw",
+   "gov": "Basra",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Midaina",
+   "gov": "Basra",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Qurna",
+   "gov": "Basra",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Zubair",
+   "gov": "Basra",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Shat Al-Arab",
+   "gov": "Basra",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Chibayish",
+   "gov": "Dhi Qar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Nasiriya",
+   "gov": "Dhi Qar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Rifai",
+   "gov": "Dhi Qar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Shatra",
+   "gov": "Dhi Qar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Suq Al-Shoyokh",
+   "gov": "Dhi Qar",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Khalis",
+   "gov": "Diyala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Muqdadiya",
+   "gov": "Diyala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Baladruz",
+   "gov": "Diyala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Baquba",
+   "gov": "Diyala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Khanaqin",
+   "gov": "Diyala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Kifri",
+   "gov": "Diyala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Amadiya",
+   "gov": "Duhok",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Duhok",
+   "gov": "Duhok",
+   "region": "Kurdistan Region",
+   "cropland_ha": 93.5,
+   "classes": {
+    "wheat": {
+     "ha": 14.8,
+     "ha_sure": 0.3,
+     "ha_cereal70": 0.6
+    },
+    "barley": {
+     "ha": 2.9,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "oats": {
+     "ha": 0.1,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "vegetables": {
+     "ha": 4.2,
+     "ha_sure": 0.1
+    },
+    "dry_pulses_legumes": {
+     "ha": 0.5,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 3.6,
+     "ha_sure": 0.8
+    },
+    "potatoes": {
+     "ha": 0.8,
+     "ha_sure": 0.0
+    },
+    "tobacco": {
+     "ha": 6.2,
+     "ha_sure": 0.6
+    },
+    "grass_fodder_crops": {
+     "ha": 1.6,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 58.7,
+     "ha_sure": 5.2
+    }
+   },
+   "processed_km2": 9.7,
+   "planned_km2": 9.7
+  },
+  {
+   "name": "Sumail",
+   "gov": "Duhok",
+   "region": "Kurdistan Region",
+   "cropland_ha": 20954.0,
+   "classes": {
+    "wheat": {
+     "ha": 13513.7,
+     "ha_sure": 5095.7,
+     "ha_cereal70": 7975.7
+    },
+    "barley": {
+     "ha": 2491.5,
+     "ha_sure": 223.4,
+     "ha_cereal70": 802.4
+    },
+    "oats": {
+     "ha": 2.3,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 1.0,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 7.1,
+     "ha_sure": 0.6
+    },
+    "vegetables": {
+     "ha": 588.4,
+     "ha_sure": 39.8
+    },
+    "dry_pulses_legumes": {
+     "ha": 447.5,
+     "ha_sure": 10.7
+    },
+    "rapeseed_rape": {
+     "ha": 150.7,
+     "ha_sure": 26.8
+    },
+    "fibre_crops": {
+     "ha": 1.2,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 130.0,
+     "ha_sure": 11.7
+    },
+    "tobacco": {
+     "ha": 1190.2,
+     "ha_sure": 387.4
+    },
+    "grass_fodder_crops": {
+     "ha": 34.1,
+     "ha_sure": 0.3
+    },
+    "no_crop": {
+     "ha": 2396.3,
+     "ha_sure": 413.3
+    }
+   },
+   "processed_km2": 299.1,
+   "planned_km2": 299.1
+  },
+  {
+   "name": "Zakho",
+   "gov": "Duhok",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Zibar",
+   "gov": "Erbil",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Erbil",
+   "gov": "Erbil",
+   "region": "Kurdistan Region",
+   "cropland_ha": 29743.7,
+   "classes": {
+    "wheat": {
+     "ha": 20561.3,
+     "ha_sure": 8531.8,
+     "ha_cereal70": 12301.9
+    },
+    "barley": {
+     "ha": 3536.2,
+     "ha_sure": 556.3,
+     "ha_cereal70": 1434.9
+    },
+    "oats": {
+     "ha": 8.5,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 98.2,
+     "ha_sure": 8.1
+    },
+    "sorghum": {
+     "ha": 2.5,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 701.6,
+     "ha_sure": 118.8
+    },
+    "dry_pulses_legumes": {
+     "ha": 514.3,
+     "ha_sure": 12.8
+    },
+    "sunflower": {
+     "ha": 5.7,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 281.2,
+     "ha_sure": 105.8
+    },
+    "fibre_crops": {
+     "ha": 0.6,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 168.5,
+     "ha_sure": 27.6
+    },
+    "tobacco": {
+     "ha": 1140.9,
+     "ha_sure": 278.2
+    },
+    "grass_fodder_crops": {
+     "ha": 127.0,
+     "ha_sure": 1.2
+    },
+    "no_crop": {
+     "ha": 2597.3,
+     "ha_sure": 532.5
+    }
+   },
+   "processed_km2": 366.8,
+   "planned_km2": 366.8
+  },
+  {
+   "name": "Koysinjaq",
+   "gov": "Erbil",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Makhmour",
+   "gov": "Erbil",
+   "region": "Kurdistan Region",
+   "cropland_ha": 11363.6,
+   "classes": {
+    "wheat": {
+     "ha": 7246.6,
+     "ha_sure": 3110.9,
+     "ha_cereal70": 5058.2
+    },
+    "barley": {
+     "ha": 1834.2,
+     "ha_sure": 265.6,
+     "ha_cereal70": 821.3
+    },
+    "oats": {
+     "ha": 2.6,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 16.0,
+     "ha_sure": 0.1
+    },
+    "sorghum": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 1.0,
+     "ha_sure": 0.2
+    },
+    "vegetables": {
+     "ha": 464.8,
+     "ha_sure": 107.1
+    },
+    "dry_pulses_legumes": {
+     "ha": 542.4,
+     "ha_sure": 63.4
+    },
+    "sunflower": {
+     "ha": 4.7,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 90.2,
+     "ha_sure": 29.6
+    },
+    "other_oilseed": {
+     "ha": 0.9,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 27.5,
+     "ha_sure": 3.1
+    },
+    "tobacco": {
+     "ha": 506.4,
+     "ha_sure": 208.8
+    },
+    "grass_fodder_crops": {
+     "ha": 9.2,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 616.7,
+     "ha_sure": 99.6
+    }
+   },
+   "processed_km2": 131.8,
+   "planned_km2": 131.8
+  },
+  {
+   "name": "Rawanduz",
+   "gov": "Erbil",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Shaqlawa",
+   "gov": "Erbil",
+   "region": "Kurdistan Region",
+   "cropland_ha": 1963.9,
+   "classes": {
+    "wheat": {
+     "ha": 1576.2,
+     "ha_sure": 801.6,
+     "ha_cereal70": 1166.2
+    },
+    "barley": {
+     "ha": 180.0,
+     "ha_sure": 33.9,
+     "ha_cereal70": 84.7
+    },
+    "vegetables": {
+     "ha": 33.1,
+     "ha_sure": 1.6
+    },
+    "dry_pulses_legumes": {
+     "ha": 4.3,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 29.6,
+     "ha_sure": 8.2
+    },
+    "potatoes": {
+     "ha": 4.8,
+     "ha_sure": 0.1
+    },
+    "tobacco": {
+     "ha": 93.8,
+     "ha_sure": 26.7
+    },
+    "grass_fodder_crops": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 42.2,
+     "ha_sure": 4.4
+    }
+   },
+   "processed_km2": 24.5,
+   "planned_km2": 24.5
+  },
+  {
+   "name": "Halabcha",
+   "gov": "Halabja",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Ain Al-Tamur",
+   "gov": "Karbala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Hindiya",
+   "gov": "Karbala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Kerbela",
+   "gov": "Karbala",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Hawiga",
+   "gov": "Kirkuk",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Daquq",
+   "gov": "Kirkuk",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Dibis",
+   "gov": "Kirkuk",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Kirkuk",
+   "gov": "Kirkuk",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Amara",
+   "gov": "Maysan",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Kahla",
+   "gov": "Maysan",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Maimouna",
+   "gov": "Maysan",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Mejar Al-Kabir",
+   "gov": "Maysan",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Ali Al-Gharbi",
+   "gov": "Maysan",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Qalat Saleh",
+   "gov": "Maysan",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Khidhir",
+   "gov": "Muthanna",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Rumaitha",
+   "gov": "Muthanna",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Salman",
+   "gov": "Muthanna",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Samawa",
+   "gov": "Muthanna",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Kufa",
+   "gov": "Najaf",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 23871.5,
+   "classes": {
+    "wheat": {
+     "ha": 20812.1,
+     "ha_sure": 16311.1,
+     "ha_cereal70": 19428.7
+    },
+    "barley": {
+     "ha": 2374.3,
+     "ha_sure": 721.9,
+     "ha_cereal70": 1642.7
+    },
+    "oats": {
+     "ha": 0.0,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 4.8,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 101.5,
+     "ha_sure": 16.3
+    },
+    "dry_pulses_legumes": {
+     "ha": 9.8,
+     "ha_sure": 1.0
+    },
+    "rapeseed_rape": {
+     "ha": 2.9,
+     "ha_sure": 0.3
+    },
+    "fibre_crops": {
+     "ha": 0.9,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 6.2,
+     "ha_sure": 0.0
+    },
+    "tobacco": {
+     "ha": 0.8,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 8.3,
+     "ha_sure": 1.1
+    },
+    "sugar_cane": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 549.4,
+     "ha_sure": 142.7
+    }
+   },
+   "processed_km2": 470.7,
+   "planned_km2": 470.7
+  },
+  {
+   "name": "Al-Manathera",
+   "gov": "Najaf",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 10746.5,
+   "classes": {
+    "wheat": {
+     "ha": 8864.5,
+     "ha_sure": 6905.4,
+     "ha_cereal70": 8211.6
+    },
+    "barley": {
+     "ha": 1407.7,
+     "ha_sure": 339.3,
+     "ha_cereal70": 947.8
+    },
+    "maize": {
+     "ha": 0.6,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 19.5,
+     "ha_sure": 1.5
+    },
+    "dry_pulses_legumes": {
+     "ha": 4.0,
+     "ha_sure": 0.9
+    },
+    "sunflower": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 2.2,
+     "ha_sure": 0.5
+    },
+    "fibre_crops": {
+     "ha": 1.5,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 1.6,
+     "ha_sure": 0.1
+    },
+    "grass_fodder_crops": {
+     "ha": 1.3,
+     "ha_sure": 0.1
+    },
+    "sugar_cane": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 443.4,
+     "ha_sure": 141.3
+    }
+   },
+   "processed_km2": 198.3,
+   "planned_km2": 198.3
+  },
+  {
+   "name": "Al-Najaf",
+   "gov": "Najaf",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 1781.8,
+   "classes": {
+    "wheat": {
+     "ha": 926.8,
+     "ha_sure": 364.0,
+     "ha_cereal70": 649.4
+    },
+    "barley": {
+     "ha": 536.5,
+     "ha_sure": 92.2,
+     "ha_cereal70": 313.2
+    },
+    "maize": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 11.1,
+     "ha_sure": 0.3
+    },
+    "dry_pulses_legumes": {
+     "ha": 3.0,
+     "ha_sure": 0.2
+    },
+    "rapeseed_rape": {
+     "ha": 0.7,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 1.5,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "tobacco": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "sugar_cane": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 301.8,
+     "ha_sure": 47.1
+    }
+   },
+   "processed_km2": 62.9,
+   "planned_km2": 62.9
+  },
+  {
+   "name": "Al-Baaj",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Hamdaniya",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 36180.7,
+   "classes": {
+    "wheat": {
+     "ha": 20451.0,
+     "ha_sure": 6575.2,
+     "ha_cereal70": 13820.3
+    },
+    "barley": {
+     "ha": 9640.8,
+     "ha_sure": 2076.1,
+     "ha_cereal70": 5032.6
+    },
+    "oats": {
+     "ha": 10.8,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 27.4,
+     "ha_sure": 3.9
+    },
+    "rice": {
+     "ha": 10.2,
+     "ha_sure": 1.0
+    },
+    "vegetables": {
+     "ha": 586.0,
+     "ha_sure": 36.6
+    },
+    "dry_pulses_legumes": {
+     "ha": 1889.8,
+     "ha_sure": 160.7
+    },
+    "sunflower": {
+     "ha": 4.5,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 454.5,
+     "ha_sure": 102.6
+    },
+    "fibre_crops": {
+     "ha": 1.1,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 73.9,
+     "ha_sure": 35.2
+    },
+    "tobacco": {
+     "ha": 1083.3,
+     "ha_sure": 361.3
+    },
+    "grass_fodder_crops": {
+     "ha": 21.0,
+     "ha_sure": 0.3
+    },
+    "sugar_cane": {
+     "ha": 0.3,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 1926.3,
+     "ha_sure": 295.5
+    }
+   },
+   "processed_km2": 500.0,
+   "planned_km2": 500.0
+  },
+  {
+   "name": "Al-Hatra",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Mosul",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 6906.1,
+   "classes": {
+    "wheat": {
+     "ha": 2541.7,
+     "ha_sure": 413.3,
+     "ha_cereal70": 967.8
+    },
+    "barley": {
+     "ha": 1811.8,
+     "ha_sure": 216.1,
+     "ha_cereal70": 562.0
+    },
+    "oats": {
+     "ha": 0.0,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 3.7,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 145.4,
+     "ha_sure": 11.8
+    },
+    "dry_pulses_legumes": {
+     "ha": 327.4,
+     "ha_sure": 17.4
+    },
+    "sunflower": {
+     "ha": 3.7,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 61.9,
+     "ha_sure": 10.5
+    },
+    "fibre_crops": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 16.9,
+     "ha_sure": 0.5
+    },
+    "tobacco": {
+     "ha": 398.5,
+     "ha_sure": 118.5
+    },
+    "grass_fodder_crops": {
+     "ha": 29.0,
+     "ha_sure": 0.4
+    },
+    "no_crop": {
+     "ha": 1566.0,
+     "ha_sure": 214.8
+    }
+   },
+   "processed_km2": 126.9,
+   "planned_km2": 126.9
+  },
+  {
+   "name": "Al-Shikhan",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 126.3,
+   "classes": {
+    "wheat": {
+     "ha": 41.5,
+     "ha_sure": 17.4,
+     "ha_cereal70": 26.0
+    },
+    "barley": {
+     "ha": 12.2,
+     "ha_sure": 0.3,
+     "ha_cereal70": 2.1
+    },
+    "vegetables": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "dry_pulses_legumes": {
+     "ha": 0.9,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 0.5,
+     "ha_sure": 0.0
+    },
+    "tobacco": {
+     "ha": 1.6,
+     "ha_sure": 0.1
+    },
+    "grass_fodder_crops": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 69.3,
+     "ha_sure": 18.5
+    }
+   },
+   "processed_km2": 9.9,
+   "planned_km2": 9.9
+  },
+  {
+   "name": "Aqra",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 28782.9,
+   "classes": {
+    "wheat": {
+     "ha": 15945.9,
+     "ha_sure": 6530.6,
+     "ha_cereal70": 10680.8
+    },
+    "barley": {
+     "ha": 6097.0,
+     "ha_sure": 881.7,
+     "ha_cereal70": 2505.6
+    },
+    "oats": {
+     "ha": 0.9,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 25.2,
+     "ha_sure": 1.8
+    },
+    "rice": {
+     "ha": 0.6,
+     "ha_sure": 0.1
+    },
+    "vegetables": {
+     "ha": 501.4,
+     "ha_sure": 64.6
+    },
+    "dry_pulses_legumes": {
+     "ha": 244.5,
+     "ha_sure": 8.6
+    },
+    "sunflower": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 627.2,
+     "ha_sure": 152.4
+    },
+    "fibre_crops": {
+     "ha": 0.4,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 110.4,
+     "ha_sure": 15.5
+    },
+    "tobacco": {
+     "ha": 1107.1,
+     "ha_sure": 231.3
+    },
+    "grass_fodder_crops": {
+     "ha": 17.0,
+     "ha_sure": 0.1
+    },
+    "sugar_cane": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 4105.0,
+     "ha_sure": 671.6
+    }
+   },
+   "processed_km2": 476.0,
+   "planned_km2": 476.0
+  },
+  {
+   "name": "Sinjar",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 139.0,
+   "classes": {
+    "wheat": {
+     "ha": 128.5,
+     "ha_sure": 33.0,
+     "ha_cereal70": 52.0
+    },
+    "barley": {
+     "ha": 2.9,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.1
+    },
+    "vegetables": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "dry_pulses_legumes": {
+     "ha": 4.9,
+     "ha_sure": 0.2
+    },
+    "no_crop": {
+     "ha": 2.7,
+     "ha_sure": 0.0
+    }
+   },
+   "processed_km2": 1.4,
+   "planned_km2": 1.4
+  },
+  {
+   "name": "Telafar",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 195204.5,
+   "classes": {
+    "wheat": {
+     "ha": 105054.9,
+     "ha_sure": 24603.7,
+     "ha_cereal70": 56477.5
+    },
+    "barley": {
+     "ha": 33109.0,
+     "ha_sure": 4925.7,
+     "ha_cereal70": 15608.7
+    },
+    "oats": {
+     "ha": 43.1,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 12.4,
+     "ha_sure": 0.0
+    },
+    "sorghum": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 61.0,
+     "ha_sure": 1.4
+    },
+    "vegetables": {
+     "ha": 3936.9,
+     "ha_sure": 380.2
+    },
+    "beet": {
+     "ha": 0.8,
+     "ha_sure": 0.0
+    },
+    "dry_pulses_legumes": {
+     "ha": 29115.9,
+     "ha_sure": 5742.1
+    },
+    "sunflower": {
+     "ha": 24.2,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 731.2,
+     "ha_sure": 172.0
+    },
+    "other_oilseed": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 2.2,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 829.9,
+     "ha_sure": 189.4
+    },
+    "tobacco": {
+     "ha": 6280.6,
+     "ha_sure": 3110.0
+    },
+    "grass_fodder_crops": {
+     "ha": 75.8,
+     "ha_sure": 2.2
+    },
+    "sugar_cane": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 15926.2,
+     "ha_sure": 3278.3
+    }
+   },
+   "processed_km2": 2429.2,
+   "planned_km2": 2429.2
+  },
+  {
+   "name": "Tilkaef",
+   "gov": "Nineveh",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 26095.9,
+   "classes": {
+    "wheat": {
+     "ha": 14260.9,
+     "ha_sure": 2885.3,
+     "ha_cereal70": 8252.2
+    },
+    "barley": {
+     "ha": 7787.4,
+     "ha_sure": 1634.5,
+     "ha_cereal70": 4243.2
+    },
+    "oats": {
+     "ha": 5.4,
+     "ha_sure": 0.0,
+     "ha_cereal70": 0.0
+    },
+    "maize": {
+     "ha": 1.1,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 7.0,
+     "ha_sure": 0.1
+    },
+    "vegetables": {
+     "ha": 517.2,
+     "ha_sure": 40.2
+    },
+    "dry_pulses_legumes": {
+     "ha": 744.8,
+     "ha_sure": 26.9
+    },
+    "sunflower": {
+     "ha": 2.8,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 298.7,
+     "ha_sure": 92.7
+    },
+    "other_oilseed": {
+     "ha": 0.0,
+     "ha_sure": 0.0
+    },
+    "fibre_crops": {
+     "ha": 3.8,
+     "ha_sure": 0.1
+    },
+    "potatoes": {
+     "ha": 9.8,
+     "ha_sure": 1.3
+    },
+    "tobacco": {
+     "ha": 1326.8,
+     "ha_sure": 593.3
+    },
+    "grass_fodder_crops": {
+     "ha": 4.9,
+     "ha_sure": 0.1
+    },
+    "sugar_cane": {
+     "ha": 0.3,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 1125.1,
+     "ha_sure": 154.9
+    }
+   },
+   "processed_km2": 422.5,
+   "planned_km2": 422.5
+  },
+  {
+   "name": "Afaq",
+   "gov": "Qadisiyah",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Diwaniya",
+   "gov": "Qadisiyah",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 3061.4,
+   "classes": {
+    "wheat": {
+     "ha": 1381.8,
+     "ha_sure": 333.4,
+     "ha_cereal70": 623.9
+    },
+    "barley": {
+     "ha": 923.7,
+     "ha_sure": 239.3,
+     "ha_cereal70": 524.7
+    },
+    "maize": {
+     "ha": 8.4,
+     "ha_sure": 0.0
+    },
+    "vegetables": {
+     "ha": 51.0,
+     "ha_sure": 3.7
+    },
+    "dry_pulses_legumes": {
+     "ha": 13.2,
+     "ha_sure": 1.3
+    },
+    "sunflower": {
+     "ha": 13.8,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 3.0,
+     "ha_sure": 0.7
+    },
+    "fibre_crops": {
+     "ha": 11.9,
+     "ha_sure": 0.1
+    },
+    "potatoes": {
+     "ha": 13.0,
+     "ha_sure": 0.0
+    },
+    "tobacco": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 23.5,
+     "ha_sure": 2.2
+    },
+    "sugar_cane": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 618.1,
+     "ha_sure": 121.5
+    }
+   },
+   "processed_km2": 251.2,
+   "planned_km2": 251.2
+  },
+  {
+   "name": "Al-Hamza",
+   "gov": "Qadisiyah",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Shamiya",
+   "gov": "Qadisiyah",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 28862.9,
+   "classes": {
+    "wheat": {
+     "ha": 23958.5,
+     "ha_sure": 16795.0,
+     "ha_cereal70": 21456.6
+    },
+    "barley": {
+     "ha": 3577.9,
+     "ha_sure": 860.5,
+     "ha_cereal70": 2468.5
+    },
+    "maize": {
+     "ha": 4.6,
+     "ha_sure": 0.0
+    },
+    "rice": {
+     "ha": 0.8,
+     "ha_sure": 0.1
+    },
+    "vegetables": {
+     "ha": 75.8,
+     "ha_sure": 8.5
+    },
+    "dry_pulses_legumes": {
+     "ha": 20.7,
+     "ha_sure": 2.8
+    },
+    "sunflower": {
+     "ha": 0.1,
+     "ha_sure": 0.0
+    },
+    "rapeseed_rape": {
+     "ha": 2.8,
+     "ha_sure": 0.8
+    },
+    "fibre_crops": {
+     "ha": 4.9,
+     "ha_sure": 0.0
+    },
+    "potatoes": {
+     "ha": 5.1,
+     "ha_sure": 0.0
+    },
+    "tobacco": {
+     "ha": 0.3,
+     "ha_sure": 0.0
+    },
+    "grass_fodder_crops": {
+     "ha": 7.8,
+     "ha_sure": 1.5
+    },
+    "sugar_cane": {
+     "ha": 0.2,
+     "ha_sure": 0.0
+    },
+    "no_crop": {
+     "ha": 1203.3,
+     "ha_sure": 236.7
+    }
+   },
+   "processed_km2": 512.5,
+   "planned_km2": 512.5
+  },
+  {
+   "name": "Al-Daur",
+   "gov": "Salah ad-Din",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Shirqat",
+   "gov": "Salah ad-Din",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Balad",
+   "gov": "Salah ad-Din",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Beygee",
+   "gov": "Salah ad-Din",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Samarra",
+   "gov": "Salah ad-Din",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Tikrit",
+   "gov": "Salah ad-Din",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Tooz Khurmato",
+   "gov": "Salah ad-Din",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Sulaymaniyah",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Chamchamal",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Derbendikhan",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Dokan",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Kalar",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Panjwin",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Pshdar",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Rania",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Sharbazher",
+   "gov": "Sulaymaniyah",
+   "region": "Kurdistan Region",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Hai",
+   "gov": "Wasit",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Kut",
+   "gov": "Wasit",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Namaniya",
+   "gov": "Wasit",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Al-Suwaira",
+   "gov": "Wasit",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  },
+  {
+   "name": "Badra",
+   "gov": "Wasit",
+   "region": "Federal Iraq (outside Kurdistan Region)",
+   "cropland_ha": 0.0,
+   "classes": {},
+   "processed_km2": 0.0,
+   "planned_km2": 0.0
+  }
+ ]
+}
