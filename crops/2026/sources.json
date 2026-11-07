@@ -1,0 +1,785 @@
+{
+ "irq_38N_E0240_N4040_40k": {
+  "run": "iraq_pilot_season_jun",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_pilot_season_jun/compact/irq_38N_E0240_N4040_40k.tif",
+  "season": [
+   "2025-11-01",
+   "2026-06-30"
+  ]
+ },
+ "irq_38N_E0280_N4040_40k": {
+  "run": "iraq_pilot_season_jun",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_pilot_season_jun/compact/irq_38N_E0280_N4040_40k.tif",
+  "season": [
+   "2025-11-01",
+   "2026-06-30"
+  ]
+ },
+ "irq_38N_E0360_N4000_40k": {
+  "run": "iraq_pilot_season_jun",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_pilot_season_jun/compact/irq_38N_E0360_N4000_40k.tif",
+  "season": [
+   "2025-11-01",
+   "2026-06-30"
+  ]
+ },
+ "irq_38N_E0280_N4080_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0280_N4080_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-08-31"
+  ]
+ },
+ "irq_38N_E0320_N4040_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0320_N4040_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0360_N3880_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0360_N3880_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0360_N3960_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0360_N3960_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0360_N4040_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0360_N4040_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3720_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3720_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3880_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3880_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3920_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3920_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3960_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3960_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N4000_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N4000_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3520_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3520_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3560_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3560_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3600_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3600_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3640_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3640_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3720_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3720_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3840_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3840_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3880_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3880_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3920_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3920_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3960_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3960_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3520_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3520_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3560_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3560_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3600_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3600_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3640_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3640_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3720_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3720_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3920_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3920_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3560_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3560_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3880_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3880_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0560_N3520_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0560_N3520_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0560_N3560_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0560_N3560_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0600_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0600_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0600_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0600_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0600_N3560_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0600_N3560_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0680_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0680_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0240_N4080_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0240_N4080_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3600_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3600_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N4040_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N4040_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3600_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3600_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3720_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3720_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0640_N3520_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0640_N3520_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0720_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0720_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0320_N3680_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0320_N3680_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0320_N3800_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0320_N3800_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0360_N3720_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0360_N3720_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0360_N3760_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0360_N3760_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0360_N3800_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0360_N3800_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3560_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3560_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3640_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3640_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3680_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3680_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0400_N3760_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0400_N3760_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3680_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3680_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3760_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3760_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3800_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3800_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3680_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3680_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3760_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3760_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0480_N3800_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0480_N3800_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3400_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3400_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3520_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3520_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3760_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3760_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0520_N3800_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0520_N3800_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0560_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0560_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0560_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0560_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0560_N3600_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0560_N3600_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0560_N3640_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0560_N3640_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0600_N3400_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0600_N3400_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0600_N3520_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0600_N3520_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0600_N3600_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0600_N3600_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0640_N3400_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0640_N3400_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0640_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0640_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0640_N3480_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0640_N3480_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0640_N3560_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0640_N3560_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0680_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0680_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0680_N3520_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0680_N3520_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0720_N3320_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0720_N3320_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0720_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0720_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_37N_E0480_N3640_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_37N_E0480_N3640_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_37N_E0640_N3640_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_37N_E0640_N3640_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0280_N3720_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0280_N3720_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0440_N3440_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0440_N3440_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ },
+ "irq_38N_E0680_N3360_40k": {
+  "run": "iraq_winter2026",
+  "kind": "compact",
+  "path": "/content/drive/MyDrive/iraq-farms-health/worldcereal/iraq_winter2026/compact/irq_38N_E0680_N3360_40k.tif",
+  "season": [
+   "2025-12-01",
+   "2026-05-31"
+  ]
+ }
+}
