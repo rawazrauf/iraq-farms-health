@@ -1,0 +1,30 @@
+$ python estimate.py data/labels_final.csv
+confident cereal             unclear left out       OA 0.940±0.023  UA 0.960±0.039  PA 0.700±0.086  winter-crop area 1,928,106 ± 242,756 ha (map 1,406,717)
+confident cereal             unclear = winter crop  OA 0.936±0.023  UA 0.960±0.039  PA 0.685±0.082  winter-crop area 1,970,260 ± 242,006 ha (map 1,406,717)
+confident cereal             unclear = not          OA 0.941±0.023  UA 0.950±0.043  PA 0.708±0.089  winter-crop area 1,888,733 ± 242,610 ha (map 1,406,717)
+confident + doubtful cereal  unclear left out       OA 0.933±0.023  UA 0.790±0.047  PA 0.863±0.099  winter-crop area 1,928,106 ± 242,756 ha (map 2,106,683)
+confident + doubtful cereal  unclear = winter crop  OA 0.935±0.023  UA 0.805±0.046  PA 0.861±0.097  winter-crop area 1,970,260 ± 242,006 ha (map 2,106,683)
+confident + doubtful cereal  unclear = not          OA 0.929±0.023  UA 0.772±0.047  PA 0.861±0.101  winter-crop area 1,888,733 ± 242,610 ha (map 2,106,683)
+
+Winter crop by map class (unclear left out):
+map class           points  winter crop   share   winter-crop area (ha)
+confident_cereal        99           95     96%               1,349,880
+doubtful_cereal         69           31     45%                 314,477
+other_crop              50           26     52%                  86,727
+no_crop                 48            3      6%                  17,910
+not_cropland           100            2      2%                 159,112
+
+$ python bootstrap.py data/labels_final.csv
+confident cereal
+  UA           estimate 0.960   bootstrap 95% 0.919 - 0.990
+  PA           estimate 0.700   bootstrap 95% 0.616 - 0.781
+  OA           estimate 0.940   bootstrap 95% 0.914 - 0.959
+  ref_area_ha  estimate 1.93 Mha   bootstrap 95% 1.72 Mha - 2.20 Mha
+confident + doubtful cereal
+  UA           estimate 0.790   bootstrap 95% 0.742 - 0.836
+  PA           estimate 0.863   bootstrap 95% 0.765 - 0.949
+  OA           estimate 0.933   bootstrap 95% 0.908 - 0.953
+  ref_area_ha  estimate 1.93 Mha   bootstrap 95% 1.71 Mha - 2.20 Mha
+
+$ python label_rules.py data/curves.json
+Counter({'winter_crop': 148, 'no_crop': 146, 'unclear': 57, 'summer_only': 17, 'perennial': 7})
