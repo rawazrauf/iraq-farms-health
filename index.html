@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.07-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.07-b";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -686,25 +686,40 @@ function guideSeen(){ try{ return localStorage.getItem(TOUR_KEY)==="1"; }catch{ 
 // Stamp the build version so any screenshot self-identifies which deploy it is.
 (function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
-/* NDVI on Sentinel-2 L2A.
-   IMPORTANT: since ESA Processing Baseline 04.00 (Jan 2022), reflectance is
-   stored with a +1000 DN radiometric offset. PC serves RAW DN (offset NOT
-   removed); Copernicus/Sentinel Hub remove it. In a normalized-difference
-   index the shared *scale* cancels but the *additive offset does not* — it
-   inflates the denominator (B08+B04) and squishes NDVI low. All our scenes are
-   post-2022, so we subtract 1000 from each band to match ESA's harmonized
-   values. This is what closed the ~0.2 gap vs Copernicus (0.54 -> ~0.74). */
-/* NDVI on Sentinel-2 L2A, using the STANDARD formula (B08-B04)/(B08+B04) — the
-   same one Copernicus Browser uses. An earlier "offset-corrected" variant
-   (subtracting the PB04.00 +1000 DN offset from each band) was tried to chase an
-   accuracy gap, but a direct cross-check against Copernicus's own Statistical Info
-   showed the standard formula actually MATCHES Copernicus (~0.51-0.56 on a test
-   field) while the offset version diverged (0.79) AND could blow up past NDVI's
-   valid range when the denominator neared zero. So: standard formula. Both bands
-   are positive DN, so the denominator is always well clear of zero — no blowup.
-   A [-1,1] range check remains in code as a belt-and-suspenders safety net. */
-const NDVI_EXPR = "(B08-B04)/(B08+B04)";
-const NDMI_EXPR = "(B08-B11)/(B08+B11)";   // moisture: NIR vs SWIR (water absorbs SWIR)
+/* NDVI and NDMI on Sentinel-2 L2A, with ESA's radiometric offset removed (build 2026.11.07-b).
+   Since processing baseline 04.00 (25 Jan 2022) every L2A band carries a +1000 offset:
+   reflectance = (DN - 1000) / 10000. Planetary Computer serves the DN with the offset
+   still in (Microsoft's own sentinel-2-l2a "baseline-change" notebook says so);
+   Copernicus Browser / Sentinel Hub remove it (harmonizeValues, on by default). In a
+   normalized difference the offset does not cancel: it inflates the denominator and
+   pulls NDVI down, by about 0.2-0.3 on a green crop. Uncorrected, IFH disagreed with
+   its own "Explore in Copernicus" links.
+   Checked 7 Nov 2026 against Copernicus Browser's Statistical Info on two fields:
+   field 154 (Kirkuk, 17 Apr / 18 Mar 2026) and FTW-PP1CC5 (Kufa, 140 clear dates,
+   Sep 2024 - Sep 2026, S2A/S2B/S2C). Corrected: typical gap 0.001, largest 0.026;
+   uncorrected: typical gap 0.078, up to 0.29. Evidence: validation/ndvi_offset/.
+   The correction was first tried in Aug 2026 and dropped because B08+B04-2000 can
+   reach zero over dark pixels (one June field read 210059). Each band is therefore
+   clipped at the offset before subtracting it, as Microsoft's notebook does
+   (numexpr's where(); max/abs are not available), and +1 DN keeps the denominator
+   above zero. The result is always within [-1, 1]. The median, the [-1, 1] check and
+   the bad-scene check below stay as safety nets. Scenes on a baseline before 04.00
+   carry no offset and get the plain formula (exprForItem); none fall inside the
+   app's two-year window today. */
+const OFF = b => `where(${b}>1000,${b}-1000,0)`;
+const normDiff = (a,b) => `(${OFF(a)}-${OFF(b)})/(${OFF(a)}+${OFF(b)}+1)`;
+const NDVI_EXPR = normDiff("B08","B04");
+const NDMI_EXPR = normDiff("B08","B11");   // moisture: NIR vs SWIR (water absorbs SWIR)
+const RAW_EXPR = {[NDVI_EXPR]:"(B08-B04)/(B08+B04)", [NDMI_EXPR]:"(B08-B11)/(B08+B11)"};
+function exprForItem(expr, item){
+  const pb = parseFloat(item && item.properties && item.properties["s2:processing_baseline"]);
+  return (isFinite(pb) && pb < 4 && RAW_EXPR[expr]) ? RAW_EXPR[expr] : expr;
+}
+/* Health bands on the corrected scale (same scale as Copernicus Browser):
+   Poor < 0.30 <= Fair < 0.60 <= Good. Moisture: dry < 0 <= moderate < 0.30 <= good.
+   NDMI 0 is the same on both scales; 0.30 replaces the old 0.20 (on field PP1CC5 an
+   old 0.20 corresponded to about 0.28 corrected). */
+const NDVI_POOR = 0.30, NDVI_GOOD = 0.60, NDMI_MOIST = 0.30;
 /* Scene-quality checks per field (build 2026.11.07-a). A scene is used only if:
    - it covers most of the field (FIELD_MIN_COVER): a field on the edge of a Sentinel-2 tile can be
      only a sliver in one tile's scene (field 28: 8% of 52 ha read 0.62, while the full scene from
@@ -2071,6 +2086,7 @@ async function onFieldTap(e){
       logHistory({id, lon:c[0], lat:c[1], ndvi:cur, band:healthBand(cur),
                   improve: (yoy && typeof yoy.diff==="number") ? yoy.diff : null,
                   improvePct: (yoy && typeof yoy.pct==="number") ? yoy.pct : null});
+      refreshPin(id, healthBand(cur));   // a saved field's colour follows its latest reading
     }
   }catch(err){ console.warn("history:",err.message); }
 }
@@ -2191,7 +2207,7 @@ async function ndviForWindow(geometry, from, to, expr){
     const qs = new URLSearchParams({
       collection:"sentinel-2-l2a",
       item:item.id,
-      expression:expr,
+      expression:exprForItem(expr, item),
       asset_as_band:"true"
     }).toString();
     let stR;
@@ -2287,16 +2303,16 @@ let __play = null;              // {f, frames:[histIdx], pos, idx, state, gen, f
 let __playGen = 0;
 let __bboxRoute = null;         // tiler route confirmed to work: "bbox" | "crop"
 
-// Continuous NDVI ramp built on the house band colours: rust (poor, <0.2),
-// ochre (fair, 0.2–0.45), green (good, ≥0.45), deepening with higher NDVI.
-// The blends straddle the same 0.2 / 0.45 thresholds the cards use.
+// Continuous NDVI ramp built on the house band colours: rust (poor, <0.30),
+// ochre (fair, 0.30–0.60), green (good, ≥0.60), deepening with higher NDVI.
+// The blends straddle the same 0.30 / 0.60 thresholds the cards use.
 const NDVI_STOPS = [
   [-0.20,[122, 58, 34]],
-  [ 0.15,[180, 85, 45]],   // #B4552D poor
-  [ 0.23,[217,164, 65]],   // #D9A441 fair
-  [ 0.40,[217,164, 65]],
-  [ 0.50,[111,163,107]],
-  [ 0.85,[ 30,110, 90]],   // #1E6E5A good
+  [ 0.24,[180, 85, 45]],   // #B4552D poor
+  [ 0.34,[217,164, 65]],   // #D9A441 fair
+  [ 0.54,[217,164, 65]],
+  [ 0.66,[111,163,107]],
+  [ 0.95,[ 30,110, 90]],   // #1E6E5A good
 ];
 function ndviRampRGB(v){
   const S = NDVI_STOPS;
@@ -2312,7 +2328,7 @@ function ndviRampRGB(v){
 // 256-entry lookup: grey byte → colour (byte = (NDVI+1)/2 × 255).
 const NDVI_LUT = Array.from({length:256}, (_,b)=> ndviRampRGB(b/255*2-1));
 function ndviRampCss(){
-  const lo=-0.2, hi=0.85;
+  const lo=-0.2, hi=0.95;
   const dir = document.documentElement.dir==="rtl" ? "270deg" : "90deg";
   return "linear-gradient("+dir+","+NDVI_STOPS.map(([v,c])=>
     `rgb(${c.join(",")}) ${Math.round((v-lo)/(hi-lo)*100)}%`).join(",")+")";
@@ -3000,7 +3016,7 @@ function renderField(f){
     const id = resolveFieldId(f);
     const c = fieldLinkPoint(f.geometry);
     if(!id || !c) return;
-    addPin({id, lon:c[0], lat:c[1], band: healthBand(cur)});
+    addPin({id, lon:c[0], lat:c[1], band: healthBand(cur), scale:NDVI_SCALE});
     saveBtn.textContent = t.saved; saveBtn.classList.add("saved"); saveBtn.disabled = true;
   });
   const shareBtn = document.getElementById("share-field-btn");
@@ -3165,7 +3181,7 @@ function reportNotes(f, t, curV, band){
   const nh = neighborStanding(f, curV, __healthCache, e=>e.v);
   if(nh) out.push({icon:"🏞️", text:t["nbrHealth_"+nh]});
   if(f.__moisture!=null){
-    const mv = f.__moisture, mb = mv>=0.2 ? "moist" : (mv>=0.0 ? "mid" : "dry");
+    const mv = f.__moisture, mb = mv>=NDMI_MOIST ? "moist" : (mv>=0.0 ? "mid" : "dry");
     const mst = neighborStanding(f, mv, __moistCache, e=>e.v);
     out.push({icon:"💧", text:t["moist_"+mb]+(mst ? ` — ${t["nbrMoist_"+mst]}` : ""), right:`NDMI ${mv.toFixed(2)}`});
   }
@@ -3622,11 +3638,11 @@ function computeYoY(hist){
   const color = diff>0.03 ? "var(--canal)" : diff<-0.03 ? "var(--clay)" : "var(--wheat)";
   // Percentages are only meaningful when BOTH years have real vegetation. On a
   // near-bare field last year, dividing by a tiny base explodes the ratio
-  // (e.g. +4,568,031%). So: require a solid base (>=0.20), and even then cap the
+  // (e.g. +4,568,031%). So: require a solid base (at least Fair, NDVI_POOR), and even then cap the
   // displayed percentage — beyond that we show the absolute NDVI change instead,
   // which is always honest.
   const PCT_CAP = 300;
-  const rawPct = lastYr.mean>=0.20 ? Math.round((diff/lastYr.mean)*100) : null;
+  const rawPct = lastYr.mean>=NDVI_POOR ? Math.round((diff/lastYr.mean)*100) : null;
   const usePct = rawPct!=null && Math.abs(rawPct) <= PCT_CAP;
   const pct = usePct ? rawPct : null;
   const magnitude = usePct ? `${pct>0?"+":""}${pct}%`
@@ -3656,7 +3672,7 @@ function drawNdviTable(x, hist, ox, oy, w){
         const val=slot.v;
         x.fillStyle=ndviColorHex(val);
         roundRectPath(x, cx, y, cw, rowH-gap, 8); x.fill();
-        x.fillStyle = (val>=0.2 && val<0.45) ? "#3a2c10" : "#fff";   // contrast on wheat
+        x.fillStyle = (val>=NDVI_POOR && val<NDVI_GOOD) ? "#3a2c10" : "#fff";   // contrast on wheat
         x.font="800 19px system-ui,sans-serif"; x.textAlign="center";
         x.fillText(val.toFixed(2), cx+cw/2, y+rowH/2-16);
       } else {
@@ -3726,10 +3742,10 @@ function drawSparkOnto(ctx, hist, ox, oy, w, h){
   const n = hist.length; if(!n) return;
   const P = 8;
   const x = i => ox + P + (w-2*P)*(i/(n-1));
-  const y = v => oy + h - P - (h-2*P)*Math.max(0,Math.min(1,(v+0.2)/1.0));
+  const y = v => oy + h - P - (h-2*P)*Math.max(0,Math.min(1,(v+0.1)/1.05));
   // gridlines
   ctx.strokeStyle="#E4DCC8"; ctx.lineWidth=1;
-  [0.2,0.45].forEach(g=>{ ctx.beginPath(); ctx.moveTo(ox+P,y(g)); ctx.lineTo(ox+w-P,y(g)); ctx.stroke(); });
+  [NDVI_POOR,NDVI_GOOD].forEach(g=>{ ctx.beginPath(); ctx.moveTo(ox+P,y(g)); ctx.lineTo(ox+w-P,y(g)); ctx.stroke(); });
   // year dividers
   ctx.textAlign="center"; ctx.font="600 14px system-ui,sans-serif";
   for(let i=0;i<n;i++){
@@ -3775,11 +3791,11 @@ function drawSpark(hist){
   ctx.clearRect(0,0,W,H);
   const n = hist.length;
   const x = i => P + (W-2*P)*(i/(n-1));
-  const y = v => H-P - (H-2*P)*Math.max(0,Math.min(1,(v+0.2)/1.0));
+  const y = v => H-P - (H-2*P)*Math.max(0,Math.min(1,(v+0.1)/1.05));
 
-  // faint gridline at NDVI 0.45 (fair/good) and 0.2 (poor/fair)
+  // faint gridlines at the Poor/Fair and Fair/Good thresholds
   ctx.strokeStyle="#E4DCC8"; ctx.lineWidth=1;
-  [0.2,0.45].forEach(g=>{ ctx.beginPath(); ctx.moveTo(P,y(g)); ctx.lineTo(W-P,y(g)); ctx.stroke(); });
+  [NDVI_POOR,NDVI_GOOD].forEach(g=>{ ctx.beginPath(); ctx.moveTo(P,y(g)); ctx.lineTo(W-P,y(g)); ctx.stroke(); });
 
   // Vertical dividers at each January (year boundaries), with the year number.
   ctx.textAlign="center"; ctx.font="600 10px ui-sans-serif,system-ui";
@@ -3854,8 +3870,8 @@ function drawSpark(hist){
   ctx.fillText(t.thisYr, x(Math.max(0,n-8)), P+2); // mid of last 12
 }
 function ndviColorHex(v){
-  if(v<0.2) return "#B4552D";
-  if(v<0.45) return "#D9A441";
+  if(v<NDVI_POOR) return "#B4552D";
+  if(v<NDVI_GOOD) return "#D9A441";
   return "#1E6E5A";
 }
 
@@ -4006,8 +4022,8 @@ function attachSparkHover(hist){
 }
 function healthBand(v){
   if(v==null) return null;
-  if(v<0.2) return "poor";
-  if(v<0.45) return "fair";
+  if(v<NDVI_POOR) return "poor";
+  if(v<NDVI_GOOD) return "fair";
   return "good";
 }
 function geoLabel(f){
@@ -4036,8 +4052,8 @@ function fieldLabel(f){
 }
 function ndviColor(v){
   if(v==null) return "var(--ink)";
-  if(v<0.2) return "var(--clay)";
-  if(v<0.45) return "var(--wheat)";
+  if(v<NDVI_POOR) return "var(--clay)";
+  if(v<NDVI_GOOD) return "var(--wheat)";
   return "var(--canal)";
 }
 /* A point guaranteed to lie INSIDE the field, for anything that reopens a field
@@ -4080,8 +4096,16 @@ function polyCentroid(g){
 
 /* ---------- My Fields (pins) + search ---------- */
 const PINS_KEY = "iraqFarmHealth.pins.v1";
+/* Readings stored before build 2026.11.07-b are on the old, uncorrected NDVI scale
+   (see NDVI_EXPR). Their colours and year-on-year figures are dropped until the
+   field is opened again; the field itself (id, location) is kept. */
+const NDVI_SCALE = 2;
+function onNewScale(e){
+  if(e && e.scale!==NDVI_SCALE){ delete e.band; delete e.ndvi; delete e.improve; delete e.improvePct; }
+  return e;
+}
 function loadPins(){
-  try{ return JSON.parse(localStorage.getItem(PINS_KEY)||"[]"); }catch{ return []; }
+  try{ return JSON.parse(localStorage.getItem(PINS_KEY)||"[]").map(onNewScale); }catch{ return []; }
 }
 function savePins(arr){
   try{ localStorage.setItem(PINS_KEY, JSON.stringify(arr)); }catch{}
@@ -4092,6 +4116,11 @@ function addPin(pin){
   if(!arr.some(p=>p.id===pin.id)){ arr.unshift(pin); savePins(arr); }
   renderPins();
 }
+function refreshPin(id, band){
+  const arr = loadPins(), p = arr.find(x=>x.id===id);
+  if(!p || (p.band===band && p.scale===NDVI_SCALE)) return;
+  p.band = band; p.scale = NDVI_SCALE; savePins(arr); renderPins();
+}
 function removePin(id){
   savePins(loadPins().filter(p=>p.id!==id)); renderPins();
 }
@@ -4100,7 +4129,7 @@ function removePin(id){
 const HIST_KEY = "iraqFarmHealth.history.v1";
 const HIST_MAX = 100;
 function loadHistory(){
-  try{ return JSON.parse(localStorage.getItem(HIST_KEY)||"[]"); }catch{ return []; }
+  try{ return JSON.parse(localStorage.getItem(HIST_KEY)||"[]").map(onNewScale); }catch{ return []; }
 }
 function saveHistory(arr){
   try{ localStorage.setItem(HIST_KEY, JSON.stringify(arr)); }catch{}
@@ -4110,7 +4139,7 @@ function logHistory(entry){
   if(!entry || !entry.id) return;
   let arr = loadHistory();
   arr = arr.filter(e=>e.id!==entry.id);   // de-dupe: keep latest reading
-  entry.when = Date.now();
+  entry.when = Date.now(); entry.scale = NDVI_SCALE;
   arr.unshift(entry);
   if(arr.length>HIST_MAX) arr = arr.slice(0,HIST_MAX);
   saveHistory(arr);

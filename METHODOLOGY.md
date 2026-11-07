@@ -16,19 +16,29 @@ NDVI = (NIR − Red) / (NIR + Red)
 
 where **NIR** is near-infrared light and **Red** is visible red light. Healthy, dense vegetation strongly reflects near-infrared and absorbs red, producing a high NDVI. Bare soil, water, and stressed or sparse vegetation produce low NDVI.
 
+**The Sentinel-2 offset.** Since ESA's processing baseline 04.00 (January 2022), every Sentinel-2 L2A band is stored with an added offset of 1,000: reflectance = (value − 1000) / 10,000. Planetary Computer, where the tool reads its data, serves the values with the offset still in; Copernicus Browser removes it. The offset does not cancel out in NDVI, so the tool removes it from each band first, as ESA and Microsoft describe:
+
+```
+NDVI = (NIR′ − Red′) / (NIR′ + Red′)    where  band′ = band − 1000  (0 if the band is below 1000)
+```
+
+The same is done for NDMI. Before build 2026.11.07-b the tool did not remove the offset, so its NDVI read about 0.2–0.3 too low on green crops. The correction was checked against Copernicus Browser's own statistics on two fields: on 140 clear dates between September 2024 and September 2026, the corrected values were typically within 0.001 of Copernicus Browser's, and never more than 0.026 away. The evidence is in [`validation/ndvi_offset/`](validation/ndvi_offset/README.md).
+
 NDVI ranges from **−1 to +1** in theory. In practice:
 
-- **Below ~0.2** — bare soil, water, built-up land, or very sparse/stressed vegetation.
-- **~0.2 to ~0.45** — moderate vegetation (early growth, partial cover, or some stress).
-- **Above ~0.45** — dense, healthy vegetation.
+- **Below ~0.3** — bare soil, water, built-up land, or very sparse/stressed vegetation.
+- **~0.3 to ~0.6** — moderate vegetation (early growth, partial cover, or some stress).
+- **Above ~0.6** — dense, healthy vegetation.
 
 The tool maps these to three plain-language bands shown to the user:
 
 | NDVI | Health band | Colour |
 |------|-------------|--------|
-| < 0.20 | **Poor** | clay / red |
-| 0.20 – 0.45 | **Fair** | wheat / yellow |
-| ≥ 0.45 | **Good** | green |
+| < 0.30 | **Poor** | clay / red |
+| 0.30 – 0.60 | **Fair** | wheat / yellow |
+| ≥ 0.60 | **Good** | green |
+
+These thresholds are on the same scale as Copernicus Browser. (Until build 2026.11.07-b the tool used 0.20 and 0.45 on its old, uncorrected scale.)
 
 > **Important:** these thresholds are general defaults, not calibrated to specific Iraqi crops, growth stages, or seasons. A "Poor" reading in mid-summer may simply mean the field is between plantings, not that anything is wrong. NDVI reflects *greenness*, which is related to but not the same as crop *health* or *yield*.
 
@@ -40,7 +50,7 @@ Alongside vegetation greenness, the tool reads a field's **NDMI** — the Normal
 NDMI = (NIR − SWIR) / (NIR + SWIR)
 ```
 
-where **SWIR** is short-wave infrared light, which water strongly absorbs. A wetter canopy produces a higher NDMI; a dry or sparse canopy produces a lower one. The tool shows moisture as a plain-language band (roughly: NDMI ≥ 0.2 "good moisture", ≥ 0.0 "moderate", below "low / dry canopy") and, where it can, compares the field's moisture to nearby fields ("wetter" / "drier than most nearby fields"). The same comparison is made for greenness. **Nearby** means fields within about 2 km whose readings the tool has fetched; it needs at least five of them, and if the field is within 0.05 of their median it says "about average" — small differences between similar fields are noise, not a finding.
+where **SWIR** is short-wave infrared light, which water strongly absorbs. A wetter canopy produces a higher NDMI; a dry or sparse canopy produces a lower one. The tool shows moisture as a plain-language band (roughly: NDMI ≥ 0.3 "good moisture", ≥ 0.0 "moderate", below "low / dry canopy") and, where it can, compares the field's moisture to nearby fields ("wetter" / "drier than most nearby fields"). The same comparison is made for greenness. **Nearby** means fields within about 2 km whose readings the tool has fetched; it needs at least five of them, and if the field is within 0.05 of their median it says "about average" — small differences between similar fields are noise, not a finding.
 
 > **Important:** NDMI is an *index of canopy moisture as seen from space*, not a soil-moisture probe or an irrigation gauge. It is affected by how much vegetation is present (a bare field and a wet field can both read low for different reasons), and like NDVI it is a signal, not a measurement. Treat it as a rough comparison, not an instruction to irrigate.
 
@@ -94,7 +104,7 @@ Under the chart, **Watch month by month** plays the field's history on the map. 
 
 - **One real image per month.** Months with no clear scene are skipped, not filled in. The line under the controls shows the actual date of the image being shown.
 - **No invented frames.** The short cross-fade between months is a visual transition only; nothing is interpolated between satellite passes.
-- **Same colours as everywhere else.** Rust is Poor (below 0.2), ochre is Fair (0.2–0.45), green is Good (0.45 and above), with deeper green for higher values. The image is smoothed for display, so it looks finer than the 10 m pixels it is made from.
+- **Same colours as everywhere else.** Rust is Poor (below 0.3), ochre is Fair (0.3–0.6), green is Good (0.6 and above), with deeper green for higher values. The image is smoothed for display, so it looks finer than the 10 m pixels it is made from.
 - **Fetched only when you press play** — up to 24 small images, kept for the rest of the visit.
 
 ### The year-on-year comparison
@@ -102,7 +112,7 @@ Under the chart, **Watch month by month** plays the field's history on the map. 
 To compare this year with last year, the tool computes the **area under the NDVI curve** for the most recent 12 months and for the 12 months before that — essentially, the total "greenness over time" of each year — and compares them. This is more meaningful than comparing a single month to the same month a year earlier, because it captures the whole season rather than one snapshot.
 
 - The comparison is only shown when both years have enough clear months of data to be trustworthy.
-- A **percentage change** is shown only when last year's baseline was high enough (mean NDVI ≥ 0.20) for a percentage to be meaningful, and the result is capped at ±300%. On a nearly-bare field, a tiny change can produce an enormous, misleading percentage — so in those cases the tool shows the absolute NDVI change instead. This is a deliberate guard against nonsense figures.
+- A **percentage change** is shown only when last year's baseline was high enough (mean NDVI ≥ 0.30, i.e. at least Fair) for a percentage to be meaningful, and the result is capped at ±300%. On a nearly-bare field, a tiny change can produce an enormous, misleading percentage — so in those cases the tool shows the absolute NDVI change instead. This is a deliberate guard against nonsense figures.
 
 ### Field size
 
@@ -124,7 +134,7 @@ Colours appear **only inside detected fields** — never over rivers, roads, tow
 
 **You do not have to take the tool's word for anything.** Each reading links out to the **[Copernicus Browser](https://dataspace.copernicus.eu/browser/)** — the European Space Agency's own free tool — opened on the same location. There you can view the raw Sentinel-2 imagery, switch to the NDVI layer, draw the same field, and read the official statistics yourself.
 
-During development, the tool's readings were cross-checked against Copernicus Browser's own NDVI statistics to confirm they agree. This kind of independent verification is the recommended way to use any satellite-derived figure: treat the tool as a fast first look, and confirm anything important against the source.
+The tool's readings were cross-checked against Copernicus Browser's own NDVI statistics on 7 November 2026, on two fields and 140 clear dates; they agree to within a few thousandths (see §1, "The Sentinel-2 offset"). This kind of independent verification is the recommended way to use any satellite-derived figure: treat the tool as a fast first look, and confirm anything important against the source.
 
 ---
 
