@@ -172,7 +172,7 @@ The map was checked in two ways, both described in full in **[validation/](valid
 - **Field checks.** About 200 fields, each read from its own Sentinel-2 greenness curve and monthly images. These showed where and how the map goes wrong, but they are not an accuracy figure, because the fields were not a strict random sample.
 - **A statistical accuracy assessment** of the 67 southern tiles, following Olofsson et al. (2014): 375 randomly drawn pixels across all map classes, each labelled from its own Sentinel-2 history without looking at the map. Where the map says confident cereal, a winter crop grew 96% of the time (95% CI 92–99%); the map catches 70% (61–79%) of the winter-crop area. The reference can say "winter crop" but not "cereal", so these are upper bounds for cereal.
 
-The northern tiles are being re-run with a later season window, after a pilot showed it helps there, and will be assessed the same way. The sample, labels and scripts are published, so the assessment can be repeated independently.
+The northern tiles are being re-run with a later season window, after a pilot showed it helps there, and will be assessed the same way. The north run's season is 1 Nov 2025 to 30 Jun 2026; where WorldCereal's own crop calendar ends a tile's season later (8 far-northern and eastern tiles, ending in July or August), the tile keeps that later end. The sample, labels and scripts are published, so the assessment can be repeated independently.
 
 ---
 

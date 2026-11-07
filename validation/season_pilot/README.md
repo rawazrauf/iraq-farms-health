@@ -53,6 +53,7 @@ Does running WorldCereal with a season of 1 Nov 2025 – 30 Jun 2026 fix the nor
 The pilot fell short of the pre-agreed north rule, but it improved every northern tile and made no field worse. On 2 Nov 2026 the project chose to re-run every tile centred at or north of 34.8°N with the later season, before revisiting the 70% rule.
 
 - **Run folder:** `iraq_winter2026_north`, set with `RUN_MODE = "north"` in the batch notebook.
+- **Season (decided 7 Nov 2026):** 1 Nov 2025 – 30 Jun 2026, as in the pilot. 8 tiles whose WorldCereal calendar season ends later (31 Jul or 31 Aug; the Zakho–Duhok belt, north of Erbil, and the Sulaymaniyah–Shahrazur side) keep that later end, so the latest fields are not cut short (`NORTH_SEASON_END = "later"`). The pilot itself tested only the 30 Jun end.
 - **Publishing:** `tools/worldcereal_publish.ipynb` merges the north run, the pilot (its 3 northern tiles only) and the main run, in that order. It records each tile's run in `crops/2026/sources.json`.
 
 The north will get the same accuracy assessment as the south after that run.
