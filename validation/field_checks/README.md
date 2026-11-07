@@ -1,77 +1,58 @@
-# Sentinel-2 +1000 offset on Planetary Computer
+# Field checks (fields 10–211)
 
-**Status:** resolved on 7 Nov 2026. From build 2026.11.07-b, Iraq Farms Health removes the offset.
+These are field-by-field checks of the 2025-26 crop map. Each field's own Sentinel-2 greenness curve and monthly images were read in Iraq Farms Health's debug mode (`https://iraqfarmshealth.com/?debug=1`). They were done between 29 Oct and 1 Nov 2026.
 
-## The question
-Since ESA processing baseline 04.00 (25 January 2022), every Sentinel-2 L2A band has been stored with an added offset of 1,000. Reflectance = (DN − 1000) / 10,000.
+They are **qualitative evidence**. They are not an accuracy figure. For that, see [`../accuracy_south_2026`](../accuracy_south_2026).
 
-The offset does not cancel in a normalized difference such as NDVI. Instead it inflates the denominator and pulls NDVI towards 0, and the greener the crop, the bigger the effect. Without the offset, NDVI is `(B08−B04)/(B08+B04−2000)`.
+**NDVI scale.** The greenness values in the log were read with app builds before 2026.11.07-b, which did not remove Sentinel-2's +1000 offset, so they are about 0.2–0.3 lower on green crops than Copernicus Browser or the current app (see [`../ndvi_offset`](../ndvi_offset)). They are consistent with each other, and the judgements rest on the shape and timing of each curve, which the offset doesn't change.
 
-Iraq Farms Health (IFH) reads Sentinel-2 from Microsoft Planetary Computer and links every reading to Copernicus Browser for verification. The open question was whether either platform removes the offset.
+## Files
+- `field_checks_log.md`: the full log, one row per field. Each row gives:
+  - coordinates;
+  - what was really there, and how that was judged (greenness curve, month images);
+  - how confident the judgement is;
+  - what the 2025-26 map said (confident-cereal share, WorldCereal top crop);
+  - the ESA 2021 map;
+  - the verdict.
 
-## What the documentation says
-- **ESA:** the offset (`BOA_ADD_OFFSET`) is fixed at −1000 for L2A from processing baseline 04.00, and it must be applied before computing any index.
-  - [ESA STEP forum](https://forum.step.esa.int/t/info-introduction-of-additional-radiometric-offset-in-pb04-00-products/35431)
-  - [CDSE forum](https://forum.dataspace.copernicus.eu/t/ndvi-with-radiometric-offset-of-sentinel-2-l2a/5243)
-- **Microsoft Planetary Computer:** the offset "propagates to the L2A data hosted by the Planetary Computer", so it is **not removed**. Microsoft's own fix is to clip each band at 1000 and subtract 1000.
-  - [baseline-change notebook](https://nbviewer.org/github/microsoft/PlanetaryComputerExamples/blob/main/datasets/sentinel-2-l2a/baseline-change.ipynb)
-- **Sentinel Hub / Copernicus Browser:** `harmonizeValues` is on by default and Copernicus Browser doesn't override it, so the offset **is removed** before NDVI is computed.
-  - [CDSE forum](https://forum.dataspace.copernicus.eu/t/sentinel-2-baseline-04-00-offset-csde-stac-derived-ndvi-doesnt-match-copernicus-browser-ndvi/5417)
-  - [Sentinel Hub forum](https://forum.sentinel-hub.com/t/sentinel-hub-vs-planetary-computer-l2a/5883)
+  Notes and lessons from the checks follow the table.
+- `browser_scripts.md`: the JavaScript used to pick and read fields in the debug page. It needs IFH build 2026.10.30-k or later.
 
-## Measured evidence (7 Nov 2026)
-Copernicus Browser's Statistical Info was exported for two fields. For both, Planetary Computer was read for the same scenes, with and without the offset removed.
+## How a field was chosen
+- **Random draws (most fields):**
+  1. A random cropland pixel was drawn from the processed tiles of `crops/2026/iraq_crops.vrt`.
+  2. The app was opened at that point (`?lat=…&lon=…&z=16&debug=1`).
+  3. The field under the point was read. If there was none, a random field of 1–500 ha in view was read instead.
+- **Picked by hand:** a few early fields (11, 14).
+- **Targeted late-field tests (188–211):** fields were screened for April NDVI ≥ 0.35, May ≥ 0.30 and July ≤ 0.20 before the map was read. These test one hypothesis (late fields are missed) and are reported separately.
 
-**1. Field 154 of the field-check log, near Dibis (Kirkuk), irrigated wheat.** Export: `copernicus_export_field_154.csv`.
+These draws are biased toward larger fields, and they never sample pixels the map calls not cropland. That's why they give no accuracy figure.
 
-| Scene | Copernicus Browser median | Planetary Computer, uncorrected | Planetary Computer, offset removed |
+## How a field was scored
+- **Cereal field:**
+  - Yes if confident cereal ≥ 50% of the field.
+  - Partly if confident < 50% but WorldCereal's top crop is ≥ 50% cereal.
+  - No otherwise.
+- **Not-cereal field:** Yes if confident cereal < 50%.
+- **Not scored** when the curve can't decide. That covers weak growth (thin cereal vs grass), mixed tree cover, merged polygons, and a green-up that only starts in March (late cereal vs spring crop).
+
+## Tally (as logged)
+| | Yes | Partly | No | Not scored | Pending |
+|---|---|---|---|---|---|
+| Random and hand-picked (10–187) | 106 | 33 | 11 | 26 | 2 |
+| Targeted late fields (188–211) | 6 | 10 | 4 | 4 | 0 |
+
+Scored random and hand-picked fields by region (34.8°N):
+
+| Region | Yes | Partly | No |
 |---|---|---|---|
-| 17 Apr 2026 (S2A) | 0.891 | 0.624 | 0.894 |
-| 18 Mar 2026 (S2A) | 0.851 | 0.586 | 0.847 |
+| North | 54 | 28 | 11 |
+| South | 52 | 5 | 0 |
 
-**2. Field FTW-PP1CC5, near Kufa (Najaf), irrigated, a winter crop and then a summer crop.**
-- Copernicus export: `copernicus_export_field_PP1CC5.csv`.
-- Planetary Computer values over the field's outline (`field_PP1CC5_outline.geojson`, 11.74 ha): `comparison_field_PP1CC5.csv`.
-- Coverage: every clear date from Sep 2024 to Sep 2026, 140 dates in all, on Sentinel-2A, 2B and 2C, processing baselines 05.11–05.13.
-
-| | Uncorrected | Offset removed |
-|---|---|---|
-| Median gap from Copernicus Browser (140 dates) | 0.078 | **0.001** |
-| Largest gap | 0.288 | 0.026 |
-| Median gap on green dates (Copernicus ≥ 0.5, n = 45) | 0.219 | **0.007** |
-| Dates where this formula is the closer one | 0 | **140** |
-
-On this field, IFH showed 0.53 for 28 Mar 2026 and 0.52 for 29 Sep 2026. Copernicus Browser gave 0.758 and 0.776. The offset-removed values were 0.765 and 0.776.
-
-**Conclusion:** Copernicus Browser removes the offset and Planetary Computer does not. Before build 2026.11.07-b, IFH's NDVI read 0.2–0.3 too low on green crops and disagreed with its own verification links.
-
-## History
-- **August 2026:** the same gap was found on one field, 0.54 in IFH against 0.74/0.81 in Copernicus Browser.
-- **The correction worked:** with the offset removed, IFH read 0.79.
-- **It was later dropped:** over dark pixels `B08+B04−2000` approaches zero, and one field read 210,059. The expression engine had no `max` or `abs` with which to guard against that.
-- **A comment in the code** then recorded that the plain formula "matched" Copernicus. That comment appears to mix up two separate checks.
-- **7 Nov 2026:** both tests above, plus the documentation, settle it.
-
-## What changed in build 2026.11.07-b
-- **NDVI** = `(B08′ − B04′) / (B08′ + B04′ + 1)`, where `band′ = where(band > 1000, band − 1000, 0)`.
-  - This is Microsoft's clip-and-subtract method. The `+1` keeps the denominator above zero, so the value always stays within [−1, 1].
-  - It was tested on dark targets (Mosul Dam lake, the Tigris in Baghdad): no blow-ups.
-- **NDMI:** the same correction, applied to B08 and B11.
-- **Scenes on a processing baseline before 04.00** keep the plain formula. None fall inside the app's two-year window.
-- **Health bands moved to the corrected scale:**
-  - Poor < 0.30 ≤ Fair < 0.60 ≤ Good. Previously 0.20 / 0.45 on the old scale.
-  - Moisture: dry < 0 ≤ moderate < 0.30 ≤ good. Previously 0.20.
-  - On field PP1CC5, an old 0.20 corresponds to about 0.29 corrected, and an old 0.45 to about 0.62–0.75.
-- **Saved fields and the Ranking list** from older builds lose their colour and year-on-year figure until the field is opened again, because those numbers were on the old scale.
-
-## Reproduce it
-```bash
-python compare_copernicus.py --summary comparison_field_PP1CC5.csv
-python compare_copernicus.py --outline field_PP1CC5_outline.geojson \
-       --copernicus copernicus_export_field_PP1CC5.csv --out my_comparison.csv   # needs internet, requests
-```
-
-To test any other field:
-1. Draw it in Copernicus Browser, open Statistical Info and export the CSV.
-2. Save the field's outline as GeoJSON.
-3. Run the second command on those two files.
+## Main findings
+- Irrigated cereal in the centre and south is reliably mapped.
+- In the rain-fed north:
+  - The 70% confidence rule often leaves a clear cereal field below 50% confident ("Partly").
+  - Some cereal-shaped crops are read as vegetables, pulses or not cropland ("No").
+- Late northern fields are wrong more often: 27 of 36 against 26 of 61 earlier northern cereal fields (Fisher's exact test, p ≈ 0.003). This led to the season pilot ([`../season_pilot`](../season_pilot)).
+- Data-quality issues found along the way (bad scenes, sliver scenes, giant FTW polygons) are listed under "Data-quality notes" in the log. They were fixed in later app builds.
