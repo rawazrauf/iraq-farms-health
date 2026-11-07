@@ -43,6 +43,17 @@ For a full description of the data sources, the NDVI calculation, and the tool's
 
 ---
 
+## Crop map and how it was checked
+
+The site also shows a 2025-26 winter-cereal map of Iraq (`crops/2026/`), made with the ESA WorldCereal models at 10 m resolution. Its accuracy has been checked against each location's own Sentinel-2 history:
+
+- **Southern tiles (67 tiles, 10.5 Mha), stratified random sample of 375 points:** where the map says "confident cereal", a winter crop grew 96% of the time (95% CI 92–99%). The map catches 70% (61–79%) of the winter-crop area. Winter-crop area 1.93 Mha (1.69–2.17), against 1.41 Mha mapped.
+- **Northern tiles:** field checks showed rain-fed cereal is often under-counted. These tiles are being re-run with a later season and will then be assessed the same way.
+
+The method, data and scripts are in **[validation/](validation/README.md)**, so anyone can repeat the checks and get the same results.
+
+---
+
 ## Running it yourself
 
 Because it's a single static file, hosting is trivial:
@@ -61,6 +72,9 @@ This repository is deployed via **GitHub Pages** with a custom domain.
 | `favicon.svg` | Site icon. |
 | `README.md` | This file. |
 | `METHODOLOGY.md` | How the data is derived, and its limitations. |
+| `crops/` | The published crop map layers (map cells, statistics, boundaries). |
+| `tools/` | Notebooks that build and publish the crop map (WorldCereal on CDSE openEO). |
+| `validation/` | How the crop map was checked: method, data, scripts and results. |
 
 The map library (MapLibre GL JS) and PMTiles are loaded from a public CDN (jsDelivr), pinned to specific versions for stability, so they are not committed to this repo.
 
@@ -70,6 +84,7 @@ The map library (MapLibre GL JS) and PMTiles are loaded from a public CDN (jsDel
 
 - **Satellite imagery:** [Copernicus Sentinel-2](https://sentinel.esa.int/web/sentinel/missions/sentinel-2) (European Space Agency), accessed via [Microsoft Planetary Computer](https://planetarycomputer.microsoft.com/).
 - **Field boundaries:** [Fields of the World](https://fieldsofthe.world/) (FTW).
+- **Crop map:** [ESA WorldCereal](https://esa-worldcereal.org/) models, run on the [Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/) (openEO).
 - **Base imagery & reference layers:** [Esri World Imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9).
 - **Independent verification:** [Copernicus Browser](https://dataspace.copernicus.eu/browser/) (ESA / Copernicus Data Space Ecosystem).
 - **Mapping:** [MapLibre GL JS](https://maplibre.org/), [PMTiles](https://protomaps.com/docs/pmtiles).
