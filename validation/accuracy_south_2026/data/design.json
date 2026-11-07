@@ -1,0 +1,17 @@
+{
+ "seed": 20261107,
+ "n": {
+  "confident_cereal": 100,
+  "doubtful_cereal": 75,
+  "other_crop": 50,
+  "no_crop": 50,
+  "not_cropland": 100
+ },
+ "area_ha": {
+  "confident_cereal": 1406717.194355569,
+  "doubtful_cereal": 699965.3976852936,
+  "other_crop": 166783.08694605628,
+  "no_crop": 286559.9615929469,
+  "not_cropland": 7955595.465929209
+ }
+}
