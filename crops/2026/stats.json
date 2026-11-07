@@ -1,6 +1,6 @@
 {
  "season": "2025-26",
- "generated_utc": "2026-11-06 21:55",
+ "generated_utc": "2026-11-07 12:54",
  "classes": [
   "wheat",
   "barley",
@@ -45,6 +45,13 @@
   "Al-Mada'in: Diyala → Baghdad",
   "Al-Mahmoudiya: Babil → Baghdad",
   "Halabcha: Sulaymaniyah → Halabja"
+ ],
+ "district_pinned": [
+  "Al-Shikhan: Nineveh",
+  "Aqra: Nineveh",
+  "Khanaqin: Diyala",
+  "Kifri: Diyala",
+  "Makhmour: Erbil"
  ],
  "region_definition": "Kurdistan Region = Duhok, Erbil, Sulaymaniyah and Halabja governorates as drawn in the boundary file. District rows let readers regroup areas administered differently.",
  "regions": [
@@ -138,7 +145,7 @@
     }
    },
    "processed_km2": 122633.0,
-   "planned_km2": 258845.3
+   "planned_km2": 258364.8
   },
   {
    "name": "Kurdistan Region",
@@ -426,7 +433,7 @@
     }
    },
    "processed_km2": 8563.3,
-   "planned_km2": 26539.1
+   "planned_km2": 26280.0
   },
   {
    "name": "Salah ad-Din",
@@ -1623,7 +1630,7 @@
     }
    },
    "processed_km2": 7552.0,
-   "planned_km2": 71874.4
+   "planned_km2": 71697.2
   },
   {
    "name": "Karbala",
@@ -1784,7 +1791,7 @@
     }
    },
    "processed_km2": 3693.7,
-   "planned_km2": 10208.1
+   "planned_km2": 10163.8
   },
   {
    "name": "Halabja",
@@ -1986,7 +1993,7 @@
     }
    },
    "processed_km2": 2727.8,
-   "planned_km2": 38729.4
+   "planned_km2": 38695.6
   },
   {
    "name": "Ana",
@@ -1995,7 +2002,7 @@
    "cropland_ha": 0.0,
    "classes": {},
    "processed_km2": 0.0,
-   "planned_km2": 5224.0
+   "planned_km2": 5111.6
   },
   {
    "name": "Haditha",
@@ -2004,7 +2011,7 @@
    "cropland_ha": 0.0,
    "classes": {},
    "processed_km2": 0.0,
-   "planned_km2": 2392.9
+   "planned_km2": 2361.9
   },
   {
    "name": "Heet",
@@ -2848,7 +2855,7 @@
    "cropland_ha": 0.0,
    "classes": {},
    "processed_km2": 0.0,
-   "planned_km2": 469.9
+   "planned_km2": 464.7
   },
   {
    "name": "Al-Basrah",
@@ -3069,7 +3076,7 @@
    "cropland_ha": 0.0,
    "classes": {},
    "processed_km2": 0.0,
-   "planned_km2": 1844.5
+   "planned_km2": 1805.3
   },
   {
    "name": "Al-Chibayish",
@@ -5987,7 +5994,7 @@
    "cropland_ha": 0.0,
    "classes": {},
    "processed_km2": 0.0,
-   "planned_km2": 3831.3
+   "planned_km2": 3795.3
   },
   {
    "name": "Al-Hamdaniya",
@@ -6345,7 +6352,7 @@
     }
    },
    "processed_km2": 1.4,
-   "planned_km2": 2982.0
+   "planned_km2": 2834.0
   },
   {
    "name": "Telafar",
@@ -6434,7 +6441,7 @@
     }
    },
    "processed_km2": 2973.1,
-   "planned_km2": 4821.6
+   "planned_km2": 4746.4
   },
   {
    "name": "Tilkaef",
