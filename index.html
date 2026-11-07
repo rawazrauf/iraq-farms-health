@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.07-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.07-c";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1815,7 +1815,7 @@ async function runHealthSample(){
   // newest-first), the sampler could grab last month's clearer scene — colouring
   // the polygon with an older value that disagreed with the sheet's current
   // reading. Restricting to this month keeps the two in sync.
-  const from = new Date(now.getFullYear(), now.getMonth(), 1);
+  const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));  // UTC, as buildMonths() — local midnight + toISOString() slipped to the previous month in UTC+3
   const iso = d=> d.toISOString().slice(0,10);
   const todo = batch.filter(({k})=> !__healthCache.has(k));
   let i = 0;
@@ -2654,7 +2654,7 @@ function updatePlayUI(){
    values arrive. */
 async function sampleMoisture(f){
   const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), 1);
+  const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));  // UTC, as buildMonths() — local midnight + toISOString() slipped to the previous month in UTC+3
   const iso = d=> d.toISOString().slice(0,10);
   const myKey = fieldKey(f);
 
