@@ -153,4 +153,17 @@ The entire tool is a single, commented HTML file. Anyone can read exactly how ev
 
 ---
 
+## 8. The crop map and its validation
+
+The 2025-26 winter-cereal map (`crops/2026/`) is a separate product from the field health readings. It was made with the ESA WorldCereal crop-type models, run tile by tile on the Copernicus Data Space Ecosystem; the notebooks are in `tools/`. By default the map shows a pixel as cereal only when the model gives wheat plus barley a probability of at least 70% ("confident cereal"). Pixels where cereal is the top crop but below that level are kept as "doubtful cereal".
+
+The map was checked in two ways, both described in full in **[validation/](validation/README.md)**:
+
+- **Field checks.** About 200 fields, each read from its own Sentinel-2 greenness curve and monthly images. These showed where and how the map goes wrong, but they are not an accuracy figure, because the fields were not a strict random sample.
+- **A statistical accuracy assessment** of the 67 southern tiles, following Olofsson et al. (2014): 375 randomly drawn pixels across all map classes, each labelled from its own Sentinel-2 history without looking at the map. Where the map says confident cereal, a winter crop grew 96% of the time (95% CI 92–99%); the map catches 70% (61–79%) of the winter-crop area. The reference can say "winter crop" but not "cereal", so these are upper bounds for cereal.
+
+The northern tiles are being re-run with a later season window, after a pilot showed it helps there, and will be assessed the same way. The sample, labels and scripts are published, so the assessment can be repeated independently.
+
+---
+
 *Questions, corrections, or improvements to this methodology are welcome — accuracy and honesty about limitations are the point.*
