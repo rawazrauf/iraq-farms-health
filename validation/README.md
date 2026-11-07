@@ -8,7 +8,7 @@ This folder holds how the 2025-26 winter-cereal map (`crops/2026/`) was checked,
 | [`field_checks`](field_checks) | Where and how does the map go wrong, field by field? | 202 fields read from their Sentinel-2 curves and monthly images |
 | [`season_pilot`](season_pilot) | Does a later season window (to 30 June) fix the northern errors? | Same fields, before and after, against pre-agreed pass rules |
 | [`coverage`](coverage) | How much farmland falls outside the processed tiles? | FTW farmland checked against the tile plan: 99.6% covered |
-| [`ndvi_offset`](ndvi_offset) | Does the app's NDVI need the Sentinel-2 +1000 offset removed? | Open question, with the evidence on both sides and a proposed test |
+| [`ndvi_offset`](ndvi_offset) | Does the app's NDVI need the Sentinel-2 +1000 offset removed? | Yes: Copernicus Browser matched the corrected formula on 140 of 140 dates; fixed in build 2026.11.07-b |
 
 **Related tools elsewhere in the repo:**
 - `tools/worldcereal_compare_2021.ipynb`: agreement with ESA WorldCereal 2021, by governorate.
