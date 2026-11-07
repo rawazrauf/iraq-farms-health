@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.02-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.07-a";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -705,6 +705,19 @@ const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
    A [-1,1] range check remains in code as a belt-and-suspenders safety net. */
 const NDVI_EXPR = "(B08-B04)/(B08+B04)";
 const NDMI_EXPR = "(B08-B11)/(B08+B11)";   // moisture: NIR vs SWIR (water absorbs SWIR)
+/* Scene-quality checks per field (build 2026.11.07-a). A scene is used only if:
+   - it covers most of the field (FIELD_MIN_COVER): a field on the edge of a Sentinel-2 tile can be
+     only a sliver in one tile's scene (field 28: 8% of 52 ha read 0.62, while the full scene from
+     the next tile read 0.34). Free: the NDVI answer already counts its readable pixels.
+   - the field is mostly clear (FIELD_MAX_CLOUD), from Sentinel-2's own scene classification (SCL):
+     1 where a pixel is cloud, cloud shadow, cirrus, snow, saturated or no data. Asked in a SEPARATE
+     request, because adding the 20 m SCL to the NDVI request shifts its pixel grid and changes the
+     reading (0.354 → 0.372 on the same scene). Only asked when the scene as a whole is at least
+     SCL_CHECK_MIN_SCENE_CLOUD % cloudy: most Iraqi scenes are 0%, so this adds few requests. */
+const SCL_BAD_EXPR = "((SCL==0)|(SCL==1)|(SCL==3)|(SCL==8)|(SCL==9)|(SCL==10)|(SCL==11))*1.0";
+const FIELD_MIN_COVER = 0.6;     // readable pixels ÷ the field's 10 m pixels
+const FIELD_MAX_CLOUD = 0.25;    // share of the field's pixels flagged by SCL
+const SCL_CHECK_MIN_SCENE_CLOUD = 1;   // %: below this the scene is treated as clear over the field
 // FTW GLOBAL predictions — wall-to-wall, 195 countries incl. full Iraq, 10m, 2024/2025.
 // Host works over plain HTTP, anonymous read (physically s3 tge-labs/ftw-global-data).
 // Two files exist: 2025 (default) and 2024-with-confidence. We use 2025.
@@ -2091,8 +2104,9 @@ let __pinnedDot = null;    // index of dot with provenance panel pinned open
 /* NDVI mean for a field within a date window.
    A single scene can be cloudy over THIS field even if the month had several
    Sentinel-2 passes, so we fetch multiple candidate scenes (least-cloudy first)
-   and try each until one returns a real, unmasked NDVI. Only if every candidate
-   is masked/cloudy over the field do we report the month as empty. */
+   and try each until one returns a real, unmasked NDVI that covers most of the
+   field with little cloud over it (FIELD_MIN_COVER, FIELD_MAX_CLOUD). Only if
+   every candidate fails do we report the month as empty. */
 
 /* Fetch with a small retry-and-backoff on rate-limit / transient errors.
    Planetary Computer can return 429 ("Too Many Requests") or 503 when we sample
@@ -2169,6 +2183,7 @@ async function ndviForWindow(geometry, from, to, expr){
   const reasons = [];
 
   const feature = {type:"Feature",properties:{},geometry};
+  const expectPx = Math.max(1, geomAreaMeters(geometry) / 100);   // 10 m pixels inside the field
   let triedMasked = 0;
   // Walk candidates clearest-first; return the first that yields real NDVI.
   for(const item of items){
@@ -2215,8 +2230,27 @@ async function ndviForWindow(geometry, from, to, expr){
     if(val!=null && expr===NDVI_EXPR && isFinite(val) && val <= 0.02){
       reasons.push("val="+val.toFixed(3)+" (≤0.02: bad scene)"); triedMasked++; continue;
     }
+    // Coverage and cloud over THIS field (see SCL_BAD_EXPR above).
+    const cover = stats && stats.valid_pixels!=null ? stats.valid_pixels / expectPx : null;
+    if(cover!=null && cover < FIELD_MIN_COVER){
+      reasons.push(`${itemDate} ${(item.id.match(/_T(\w{5})_/)||[])[1]||""} covers ${Math.round(cover*100)}% of field`); triedMasked++; continue;
+    }
+    let fieldCloud = null;
+    const sceneCloud = item.properties && item.properties["eo:cloud_cover"];
+    if(val!=null && isFinite(val) && val>=-bound && val<=bound && (sceneCloud==null || sceneCloud >= SCL_CHECK_MIN_SCENE_CLOUD)){
+      try{
+        const sq2 = new URLSearchParams({collection:"sentinel-2-l2a", item:item.id, expression:SCL_BAD_EXPR, asset_as_band:"true"}).toString();
+        const r2 = await fetchRetry(`${PC}/item/statistics?${sq2}`,{method:"POST", body:new Blob([JSON.stringify(feature)])});
+        if(r2.ok){ const s2 = firstStats(await r2.json()); if(s2 && isFinite(s2.mean)) fieldCloud = s2.mean; }
+      }catch(e){ /* cloud check unavailable: keep the scene, as before this check existed */ }
+      if(fieldCloud!=null && fieldCloud > FIELD_MAX_CLOUD){
+        reasons.push(`${itemDate} cloud ${Math.round(fieldCloud*100)}% over field`); triedMasked++; continue;
+      }
+    }
     if(val!=null && isFinite(val) && val>=-bound && val<=bound){
-      return {value:val, date:itemDate, scene:item.id, cloud:item.properties && item.properties["eo:cloud_cover"], tried:triedMasked+1};
+      if(triedMasked) DBG.log(`${from.slice(0,7)} ${expr===NDVI_EXPR?"NDVI":"NDMI"}: skipped ${triedMasked} scene(s) · ${reasons.join(" | ").slice(0,200)}`);
+      return {value:val, date:itemDate, scene:item.id, cloud:item.properties && item.properties["eo:cloud_cover"],
+              cover, fieldCloud, tried:triedMasked+1};
     }
     reasons.push(stats ? ("val="+val+" keys="+Object.keys(stats).slice(0,6).join(",")) : "nostats");
     triedMasked++;                              // masked / invalid — keep looking
@@ -2839,13 +2873,15 @@ function geomBbox(g){
 
 /* Statistics response is a GeoJSON feature; stats live under
    properties.statistics, keyed by the band/expression name. */
-function firstStats(j){
+function firstStats(j){ return nthStats(j, 0); }
+/* Statistics of the n-th band (expression) in a /statistics answer. */
+function nthStats(j, n){
   let props = j && j.properties && j.properties.statistics;
   if(!props && j && j.features && j.features[0]){
     props = j.features[0].properties && j.features[0].properties.statistics;
   }
   if(!props) return null;
-  const k = Object.keys(props)[0];
+  const k = Object.keys(props)[n];
   return k ? props[k] : null;
 }
 
