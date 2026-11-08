@@ -115,6 +115,7 @@ tbody tr.dist td{font-size:12.5px;color:var(--muted);background:#F7F3EA}
 tbody tr.dist td:first-child{padding-inline-start:22px}
 tr.kri td:first-child{border-inline-start:3px solid var(--wheat)}
 .pct{font-size:12px;color:var(--muted)}
+sup.gap{color:var(--muted);font-weight:700;cursor:help}
 .links{display:flex;flex-wrap:wrap;gap:8px}
 .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;
   padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;color:var(--ink)}
@@ -211,6 +212,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
           <th class="n" data-k="cov" data-t="colCov">Processed</th>
         </tr></thead><tbody></tbody>
       </table></div>
+      <p class="note" id="gapnote"></p>
       <div class="links" id="csvlinks"></div>
       <p class="note" id="statsnote"></p>
     </section>
@@ -328,6 +330,7 @@ const T = {
   provisional:"<b>Provisional.</b> {d} of {p} planned tiles processed so far ({pc}). Totals will rise as the remaining tiles are processed; compare areas only where both show 100%.",
   complete:"All {p} planned tiles processed.",
   csv:"CSV",csvR:"Regions",csvG:"Governorates",csvD:"Districts",
+  gapNote:"† Some farmland in these governorates lies outside every processed tile and is not counted, so their totals may be slightly low. Share of their farmland (Fields of the World) outside the tiles, at most: {list}. Elsewhere it is under 1%; for Iraq as a whole, 0.4%.",gapLink:"How this was checked",gapTip:"Up to {p}% of this governorate's farmland is outside the processed tiles and not counted",
   statsNote:"Wheat and barley count only confident cereal: WorldCereal's wheat + barley probability at least {c}%, in patches of at least {m} ha (isolated specks are left out), counted at 10 m. The smaller line is WorldCereal's own top-crop map, which includes the doubtful pixels. Areas outside the processed tiles are not counted. Generated {g} UTC.",
   aoiTitle:"1. Choose an area",aoiDraw:"Draw a box",aoiDrawing:"Drag on the map…",aoiView:"Current map view",aoiGov:"Governorate…",aoiNone:"No area chosen yet.",
   aoiArea:"{name}: {km} km²",dlTitle:"2. Download GeoTIFF",detail:"Detail",dlGo:"Download",dlWorking:"Reading…",
@@ -362,6 +365,7 @@ const T = {
   provisional:"<b>نتائج أولية.</b> عولج {d} من أصل {p} مربعاً مخططاً حتى الآن ({pc}). سترتفع الأرقام مع معالجة البقية؛ قارن بين المناطق فقط حين تبلغ كلتاهما 100%.",
   complete:"عولجت جميع المربعات المخططة ({p}).",
   csv:"CSV",csvR:"الأقاليم",csvG:"المحافظات",csvD:"الأقضية",
+  gapNote:"† بعض الأراضي الزراعية في هذه المحافظات تقع خارج كل المربعات المعالَجة ولا تُحسب، لذا قد تكون أرقامها أقل قليلاً. نسبة أراضيها الزراعية (Fields of the World) خارج المربعات، في أقصى حد: {list}. وفي المحافظات الأخرى أقل من 1%، وفي العراق ككل 0.4%.",gapLink:"كيف جرى التحقق",gapTip:"حتى {p}% من الأراضي الزراعية في هذه المحافظة خارج المربعات المعالَجة ولا تُحسب",
   statsNote:"يُحسب القمح والشعير من الحبوب المؤكدة فقط: احتمال القمح + الشعير لدى WorldCereal {c}% على الأقل، ضمن رقع لا تقل عن {m} هكتار (تُستبعد البقع المعزولة)، بدقة 10 م. السطر الأصغر هو خريطة المحصول الأرجح لـ WorldCereal نفسها، وتشمل البكسلات المشكوك فيها. المناطق خارج المربعات المعالَجة غير محسوبة. أُنشئت {g} بالتوقيت العالمي.",
   aoiTitle:"١. اختر منطقة",aoiDraw:"ارسم مستطيلاً",aoiDrawing:"اسحب على الخريطة…",aoiView:"عرض الخريطة الحالي",aoiGov:"محافظة…",aoiNone:"لم تُختر منطقة بعد.",
   aoiArea:"{name}: {km} كم²",dlTitle:"٢. تنزيل GeoTIFF",detail:"الدقة",dlGo:"تنزيل",dlWorking:"جارٍ القراءة…",
@@ -396,6 +400,7 @@ const T = {
   provisional:"<b>ئەنجامی سەرەتایی.</b> تا ئێستا {d} لە {p} چوارگۆشەی پلاندانراو پرۆسێس کراوە ({pc}). ژمارەکان زیاد دەکەن کاتێک ئەوانی تر پرۆسێس دەکرێن؛ تەنها کاتێک بەراورد بکە کە هەردووکیان 100% بن.",
   complete:"هەموو {p} چوارگۆشە پلاندانراوەکان پرۆسێس کراون.",
   csv:"CSV",csvR:"هەرێمەکان",csvG:"پارێزگاکان",csvD:"قەزاکان",
+  gapNote:"† هەندێک زەوی کشتوکاڵی لەم پارێزگایانەدا لە دەرەوەی هەموو چوارگۆشە پرۆسێسکراوەکانە و نەژمێردراوە، بۆیە لەوانەیە ژمارەکانیان کەمێک کەمتر بن. ڕێژەی زەوی کشتوکاڵییان (Fields of the World) لە دەرەوەی چوارگۆشەکان، لانی زۆر: {list}. لە پارێزگاکانی تر کەمترە لە 1%، و بۆ هەموو عێراق 0.4%.",gapLink:"چۆن پشکنرا",gapTip:"تا {p}%ی زەوی کشتوکاڵی ئەم پارێزگایە لە دەرەوەی چوارگۆشە پرۆسێسکراوەکانە و نەژمێردراوە",
   statsNote:"گەنم و جۆ تەنها دانەوێڵەی دڵنیا دەژمێردرێن: ئەگەری گەنم + جۆی WorldCereal لانیکەم {c}%، لە پارچەی لانیکەم {m} هێکتار (پەڵە تاکەکان دەرکراون)، بە وردی 10 م. هێڵە بچووکەکە نەخشەی ئەگەرترین بەرهەمی خودی WorldCereal ـە، کە پیکسڵە گوماناوییەکانیش لەخۆ دەگرێت. ناوچەکانی دەرەوەی چوارگۆشە پرۆسێسکراوەکان نەژمێردراون. دروستکراوە {g} UTC.",
   aoiTitle:"١. ناوچەیەک هەڵبژێرە",aoiDraw:"چوارگۆشەیەک بکێشە",aoiDrawing:"لەسەر نەخشە ڕابکێشە…",aoiView:"دیمەنی ئێستای نەخشە",aoiGov:"پارێزگا…",aoiNone:"هێشتا ناوچە هەڵنەبژێردراوە.",
   aoiArea:"{name}: {km} کم²",dlTitle:"٢. داگرتنی GeoTIFF",detail:"وردی",dlGo:"داگرتن",dlWorking:"خوێندنەوە…",
@@ -484,7 +489,21 @@ function renderStats(){
   $("#csvlinks").innerHTML = `<span class="note" style="align-self:center">${t("csv")}:</span>` +
     [["stats_regions.csv","csvR"],["stats_governorates.csv","csvG"],["stats_districts.csv","csvD"]]
       .map(([f,k]) => `<a class="btn" href="${DATA}${f}" download>${t(k)}</a>`).join("");
+  renderGapNote();
   $("#statsnote").textContent = t("statsNote",{t:s.confidence_threshold, c:s.cereal_threshold || 70, m:s.min_patch_ha || 0.1, g:s.generated_utc});
+}
+/* Farmland outside every processed tile, from validation/coverage (7 Nov 2026): share of
+   Fields of the World farmland (confidence >= 0.22) in no tile, an upper bound. Only
+   governorates at 2% or more are marked; the rest are under 1%, Iraq as a whole 0.4%.
+   The north run uses the same tiles, so this does not change when it is merged. */
+const esc = x => String(x).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const COVERAGE_GAP = {Anbar:4.5, Basra:2.2, Muthanna:2.1};
+const COVERAGE_URL = "https://github.com/rawazrauf/iraq-farms-health/tree/main/validation/coverage";
+function renderGapNote(){
+  const gm = Object.fromEntries(STATS.governorates.map(g => [g.name, g]));
+  const sep = LANG==="en" ? ", " : "، ";
+  const list = Object.entries(COVERAGE_GAP).map(([n,p]) => `${govName(gm[n]) || n} ${p}%`).join(sep);
+  $("#gapnote").innerHTML = `${esc(t("gapNote",{list}))} <a href="${COVERAGE_URL}" target="_blank" rel="noopener">${esc(t("gapLink"))}</a>`;
 }
 function govRow(g){ return {g, name:govName(g), wheat:cls(g,"wheat").ha, barley:cls(g,"barley").ha, cov: g.planned_km2 ? g.processed_km2/g.planned_km2 : -1}; }
 function renderGovTable(){
@@ -499,7 +518,7 @@ function renderGovTable(){
   for(const r of rows){
     const kri = r.g.region===KRI_NAME;
     body.push(`<tr class="gov${kri?" kri":""}${openGov===r.g.name?" sel":""}" data-g="${r.g.name}">
-      <td>${r.name}</td><td class="n">${fmt(r.wheat)}</td><td class="n">${fmt(r.barley)}</td>
+      <td>${r.name}${COVERAGE_GAP[r.g.name] ? ` <sup class="gap" title="${esc(t("gapTip",{p:COVERAGE_GAP[r.g.name]}))}">†</sup>` : ""}</td><td class="n">${fmt(r.wheat)}</td><td class="n">${fmt(r.barley)}</td>
       <td class="n pct">${r.cov<0?"–":Math.round(100*r.cov)+"%"}</td></tr>`);
     if(openGov===r.g.name){
       STATS.districts.filter(d => d.gov===r.g.name).sort((a,b)=>cls(b,"wheat").ha-cls(a,"wheat").ha).forEach(d => {

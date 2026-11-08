@@ -42,3 +42,5 @@ The map (`gaps_map.png`) shows farmland inside a tile in green and farmland in n
 - FTW at confidence ≥ 0.22 includes some land that isn't farmed, so 446 km² is an upper bound on the farmland missed.
 
 **Decision:** no extra tiles. The crop map's totals leave out up to 0.4% of FTW farmland nationally. In Al-Anbar that rises to 4.5%, and in Al-Basrah and Al-Muthanna to about 2%. Governorate figures for those three should be read with this in mind.
+
+Since 8 Nov 2026 the crop page's governorate table marks these three with † and gives the shares in a note under the table (English, Arabic, Kurdish).
