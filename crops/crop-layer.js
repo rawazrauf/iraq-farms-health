@@ -30,10 +30,13 @@
     // (codes below +200); "top": WorldCereal's default top-crop answer. showDoubtful draws the < 70 % cereal pixels.
     // single: a "#rrggbb" colour paints every shown pixel that one colour, fully opaque (the app's wheat-or-barley
     // view); null keeps each class's own colour (the crop page).
+    // smooth: with single, passes of a 3 x 3 majority filter on the shown pixels of each tile (display only:
+    // drops lone pixels and pin-holes, as in the ESA WorldCereal 2021 tiles); 0 = off. Applied from web-map zoom
+    // smoothFrom up only: on coarser tiles one pixel is a whole field or more, and the filter would erase real fields.
     // cellsFrom: lowest web-map zoom read from the cells (whose own overviews halve the detail at each zoom step);
     // below it the whole-country overview.tif (~76 m) is used. null = the overview up to its own zoom (crop page).
     opts: { show: { wheat: true, barley: true, other: true, nocrop: true, offseason: true }, fadeLess: true, mode: "crops",
-            showDoubtful: false, cerealRule: "p70", single: null, cellsFrom: null },
+            showDoubtful: false, cerealRule: "p70", single: null, cellsFrom: null, smooth: 0, smoothFrom: 12 },
     // ESA WorldCereal 2021 v100 winter cereals (official product), the same service Iraq Farms Health uses.
     WC21_URL: "https://wmts.terrascope.be/wmts?service=WMTS&request=GetTile&version=1.0.0"
       + "&layer=esa-worldcereal-wintercereals-10m-2021-v1_classification&style=default&format=image%2Fpng"
@@ -253,10 +256,34 @@
       return blob.arrayBuffer();
     },
 
-    async _png(codes) {
+    /** 3 x 3 majority filter on a 256 x 256 0/1 mask, edges padded by repeating the edge pixel. */
+    _majority(m) {
+      const N = 256, out = new Uint8Array(N * N);
+      for (let y = 0; y < N; y++) {
+        const r0 = Math.max(y - 1, 0) * N, r1 = y * N, r2 = Math.min(y + 1, N - 1) * N;
+        for (let x = 0; x < N; x++) {
+          const a = Math.max(x - 1, 0), b = Math.min(x + 1, N - 1);
+          const n = m[r0 + a] + m[r0 + x] + m[r0 + b] + m[r1 + a] + m[r1 + x] + m[r1 + b] + m[r2 + a] + m[r2 + x] + m[r2 + b];
+          out[r1 + x] = n >= 5 ? 1 : 0;
+        }
+      }
+      return out;
+    },
+
+    async _png(codes, z) {
       const c = document.createElement("canvas");
       c.width = c.height = 256;
-      if (codes) {
+      if (codes && this.opts.single && this.opts.smooth > 0 && z >= this.opts.smoothFrom) {
+        // one colour: build the shown/not-shown mask, clean it, paint it
+        const lut = this._lut;
+        let m = new Uint8Array(codes.length);
+        for (let i = 0; i < codes.length; i++) m[i] = lut[codes[i] * 4 + 3] ? 1 : 0;
+        for (let k = 0; k < this.opts.smooth; k++) m = this._majority(m);
+        const h = this.opts.single, R = parseInt(h.slice(1, 3), 16), G = parseInt(h.slice(3, 5), 16), B = parseInt(h.slice(5, 7), 16);
+        const img = new ImageData(256, 256), d = img.data;
+        for (let i = 0; i < m.length; i++) if (m[i]) { d[i * 4] = R; d[i * 4 + 1] = G; d[i * 4 + 2] = B; d[i * 4 + 3] = 255; }
+        c.getContext("2d").putImageData(img, 0, 0);
+      } else if (codes) {
         const img = new ImageData(256, 256), d = img.data, lut = this._lut;
         for (let i = 0; i < codes.length; i++) {
           const v = codes[i] * 4;
@@ -297,7 +324,7 @@
           this._blank = this._blank || await this._png(null);
           return { data: this._blank.slice(0) };
         }
-        return { data: await this._png(codes) };
+        return { data: await this._png(codes, z) };
       });
     },
 

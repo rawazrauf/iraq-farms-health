@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.08-d";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.08-e";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1120,7 +1120,10 @@ const CROPDBG = (function(){
         // transparent (doubtful cereal, other crops, not cropland, summer labels). The tapped field's 🧪 line and
         // the debug log keep the full labels. Debug mode only until Rawaz says to roll it out.
         CropLayer.setOptions({show:{wheat:true, barley:true, other:false, nocrop:false, offseason:false},
-                              showDoubtful:false, cerealRule:"p70", single:"#ba7135", cellsFrom:CropLayer.index.cell_zoom});
+                              showDoubtful:false, cerealRule:"p70", single:"#ba7135", cellsFrom:CropLayer.index.cell_zoom,
+                              smooth:1, smoothFrom:12});
+        // smooth: from zoom 12 a 3 x 3 majority filter drops lone pixels and pin-holes, so fields read as clean
+        // shapes like the ESA 2021 tiles (display only; field percentages still come from the raw map).
         // From the cell zoom (9) up, tiles come from the cells, whose overviews double the detail at each zoom step,
         // instead of one jump from the ~76 m country overview to full detail at zoom 12.
         CropLayer.registerProtocol(maplibregl);
