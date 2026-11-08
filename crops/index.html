@@ -330,6 +330,7 @@ const T = {
   provisional:"<b>Provisional.</b> {d} of {p} planned tiles processed so far ({pc}). Totals will rise as the remaining tiles are processed; compare areas only where both show 100%.",
   complete:"All {p} planned tiles processed.",
   csv:"CSV",csvR:"Regions",csvG:"Governorates",csvD:"Districts",
+  seasonsT:"Season windows",seasonsP:"WorldCereal reads each tile over one season window. Not every tile uses the same window:",seasonsOne:"WorldCereal read every tile over the same season window:",seasonsN:"{n} tiles",seasonsN1:"1 tile",seasonsLate:"Most tiles use the window from WorldCereal's own crop calendar. A later window, from 1 November to at least 30 June, is used for {n} in northern Iraq, because a pilot showed it catches late-harvested fields better there.",seasonsLink:"The season pilot",
   gapNote:"† Some farmland in these governorates lies outside every processed tile and is not counted, so their totals may be slightly low. Share of their farmland (Fields of the World) outside the tiles, at most: {list}. Elsewhere it is under 1%; for Iraq as a whole, 0.4%.",gapLink:"How this was checked",gapTip:"Up to {p}% of this governorate's farmland is outside the processed tiles and not counted",
   statsNote:"Wheat and barley count only confident cereal: WorldCereal's wheat + barley probability at least {c}%, in patches of at least {m} ha (isolated specks are left out), counted at 10 m. The smaller line is WorldCereal's own top-crop map, which includes the doubtful pixels. Areas outside the processed tiles are not counted. Generated {g} UTC.",
   aoiTitle:"1. Choose an area",aoiDraw:"Draw a box",aoiDrawing:"Drag on the map…",aoiView:"Current map view",aoiGov:"Governorate…",aoiNone:"No area chosen yet.",
@@ -365,6 +366,7 @@ const T = {
   provisional:"<b>نتائج أولية.</b> عولج {d} من أصل {p} مربعاً مخططاً حتى الآن ({pc}). سترتفع الأرقام مع معالجة البقية؛ قارن بين المناطق فقط حين تبلغ كلتاهما 100%.",
   complete:"عولجت جميع المربعات المخططة ({p}).",
   csv:"CSV",csvR:"الأقاليم",csvG:"المحافظات",csvD:"الأقضية",
+  seasonsT:"نوافذ الموسم",seasonsP:"يقرأ WorldCereal كل مربع ضمن نافذة موسم واحدة، ولا تستخدم كل المربعات النافذة نفسها:",seasonsOne:"قرأ WorldCereal كل المربعات ضمن نافذة الموسم نفسها:",seasonsN:"{n} مربعاً",seasonsN1:"مربع واحد",seasonsN2:"مربعان",seasonsN3:"{n} مربعات",seasonsLate:"تستخدم معظم المربعات النافذة المأخوذة من تقويم المحاصيل الخاص بـ WorldCereal. وتُستخدم نافذة أطول لـ {n} في شمال العراق، من 1 تشرين الثاني حتى 30 حزيران على الأقل، لأن تجربة أولية أظهرت أنها تلتقط الحقول المتأخرة الحصاد هناك بشكل أفضل.",seasonsLink:"التجربة الأولية للموسم",
   gapNote:"† بعض الأراضي الزراعية في هذه المحافظات تقع خارج كل المربعات المعالَجة ولا تُحسب، لذا قد تكون أرقامها أقل قليلاً. نسبة أراضيها الزراعية (Fields of the World) خارج المربعات، في أقصى حد: {list}. وفي المحافظات الأخرى أقل من 1%، وفي العراق ككل 0.4%.",gapLink:"كيف جرى التحقق",gapTip:"حتى {p}% من الأراضي الزراعية في هذه المحافظة خارج المربعات المعالَجة ولا تُحسب",
   statsNote:"يُحسب القمح والشعير من الحبوب المؤكدة فقط: احتمال القمح + الشعير لدى WorldCereal {c}% على الأقل، ضمن رقع لا تقل عن {m} هكتار (تُستبعد البقع المعزولة)، بدقة 10 م. السطر الأصغر هو خريطة المحصول الأرجح لـ WorldCereal نفسها، وتشمل البكسلات المشكوك فيها. المناطق خارج المربعات المعالَجة غير محسوبة. أُنشئت {g} بالتوقيت العالمي.",
   aoiTitle:"١. اختر منطقة",aoiDraw:"ارسم مستطيلاً",aoiDrawing:"اسحب على الخريطة…",aoiView:"عرض الخريطة الحالي",aoiGov:"محافظة…",aoiNone:"لم تُختر منطقة بعد.",
@@ -400,6 +402,7 @@ const T = {
   provisional:"<b>ئەنجامی سەرەتایی.</b> تا ئێستا {d} لە {p} چوارگۆشەی پلاندانراو پرۆسێس کراوە ({pc}). ژمارەکان زیاد دەکەن کاتێک ئەوانی تر پرۆسێس دەکرێن؛ تەنها کاتێک بەراورد بکە کە هەردووکیان 100% بن.",
   complete:"هەموو {p} چوارگۆشە پلاندانراوەکان پرۆسێس کراون.",
   csv:"CSV",csvR:"هەرێمەکان",csvG:"پارێزگاکان",csvD:"قەزاکان",
+  seasonsT:"پەنجەرەکانی وەرز",seasonsP:"WorldCereal هەر چوارگۆشەیەک لە یەک پەنجەرەی وەرزدا دەخوێنێتەوە، و هەموو چوارگۆشەکان هەمان پەنجەرە بەکارناهێنن:",seasonsOne:"WorldCereal هەموو چوارگۆشەکانی لە هەمان پەنجەرەی وەرزدا خوێندەوە:",seasonsN:"{n} چوارگۆشە",seasonsLate:"زۆربەی چوارگۆشەکان ئەو پەنجەرەیە بەکاردەهێنن کە لە ساڵنامەی بەرهەمی خودی WorldCereal ـەوە هاتووە. {n} لە باکووری عێراق پەنجەرەیەکی درەنگتر بەکاردەهێنن، لە 1ی تشرینی دووەمەوە تا لانیکەم 30ی حوزەیران، چونکە تاقیکردنەوەیەکی سەرەتایی پیشانیدا کە باشتر کێڵگە درەنگ دروێنەکراوەکان دەگرێت لەوێ.",seasonsLink:"تاقیکردنەوەی سەرەتایی وەرز",
   gapNote:"† هەندێک زەوی کشتوکاڵی لەم پارێزگایانەدا لە دەرەوەی هەموو چوارگۆشە پرۆسێسکراوەکانە و نەژمێردراوە، بۆیە لەوانەیە ژمارەکانیان کەمێک کەمتر بن. ڕێژەی زەوی کشتوکاڵییان (Fields of the World) لە دەرەوەی چوارگۆشەکان، لانی زۆر: {list}. لە پارێزگاکانی تر کەمترە لە 1%، و بۆ هەموو عێراق 0.4%.",gapLink:"چۆن پشکنرا",gapTip:"تا {p}%ی زەوی کشتوکاڵی ئەم پارێزگایە لە دەرەوەی چوارگۆشە پرۆسێسکراوەکانە و نەژمێردراوە",
   statsNote:"گەنم و جۆ تەنها دانەوێڵەی دڵنیا دەژمێردرێن: ئەگەری گەنم + جۆی WorldCereal لانیکەم {c}%، لە پارچەی لانیکەم {m} هێکتار (پەڵە تاکەکان دەرکراون)، بە وردی 10 م. هێڵە بچووکەکە نەخشەی ئەگەرترین بەرهەمی خودی WorldCereal ـە، کە پیکسڵە گوماناوییەکانیش لەخۆ دەگرێت. ناوچەکانی دەرەوەی چوارگۆشە پرۆسێسکراوەکان نەژمێردراون. دروستکراوە {g} UTC.",
   aoiTitle:"١. ناوچەیەک هەڵبژێرە",aoiDraw:"چوارگۆشەیەک بکێشە",aoiDrawing:"لەسەر نەخشە ڕابکێشە…",aoiView:"دیمەنی ئێستای نەخشە",aoiGov:"پارێزگا…",aoiNone:"هێشتا ناوچە هەڵنەبژێردراوە.",
@@ -540,6 +543,35 @@ document.querySelectorAll("#govtable th").forEach(th => th.onclick = () => {
 });
 
 /* ------------------------------------------------------------------ about */
+/* Season windows actually used, from index.json "processed" (one entry per tile, with its run
+   and season). Tiles differ: the main run takes each tile's window from WorldCereal's crop
+   calendar; the season pilot and the north run use a later window (from 1 Nov, ending no
+   earlier than 30 Jun; NORTH_SEASON_END "later" keeps a later calendar end). */
+const MAIN_RUN = "iraq_winter2026";
+function tilesN(n){                             // "3 tiles", with Arabic number agreement
+  if(n===1 && T[LANG].seasonsN1) return t("seasonsN1");
+  if(n===2 && T[LANG].seasonsN2) return t("seasonsN2");
+  if(n>=3 && n<=10 && T[LANG].seasonsN3) return t("seasonsN3",{n});
+  return t("seasonsN",{n});
+}
+function seasonsHtml(){
+  const P = (INDEX && INDEX.processed) || [];
+  if(!P.length) return "";
+  const by = new Map();
+  for(const p of P){ const k = (p.season||[]).join("|"); by.set(k, (by.get(k)||0) + 1); }
+  const late = P.filter(p => p.run && p.run !== MAIN_RUN).length;
+  const fmtD = d => LANG==="en"
+    ? new Date(d+"T00:00:00Z").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})
+    : `<bdi dir="ltr">${d}</bdi>`;
+  const rows = [...by.entries()].sort((a,b) => b[1]-a[1]).map(([k,n]) => {
+    const [a,b] = k.split("|");
+    return `<li>${fmtD(a)} – ${fmtD(b)}: ${tilesN(n)}</li>`;
+  }).join("");
+  return `<h3>${esc(t("seasonsT"))}</h3>
+      <p>${esc(t(by.size > 1 ? "seasonsP" : "seasonsOne"))}</p>
+      <ul style="margin:0;padding-inline-start:20px">${rows}</ul>
+      ${late ? `<p>${esc(t("seasonsLate",{n:tilesN(late)}))} <a href="https://github.com/rawazrauf/iraq-farms-health/tree/main/validation/season_pilot" target="_blank" rel="noopener">${esc(t("seasonsLink"))}</a></p>` : ""}`;
+}
 function renderAbout(){
   const i = INDEX, attr = i.attribution;
   const txt = {
@@ -548,6 +580,7 @@ function renderAbout(){
       <p>Which crop grew on each 10 m patch of Iraqi farmland in the winter season ${i.season}: wheat, barley and 22 other crop types, from ESA's open WorldCereal system. It is the crop layer used by <a href="../">Iraq Farms Health</a>, published here so anyone can check it, download it and use it.</p>
       <h2>How it was made</h2>
       <p>Iraq Farms Health ran WorldCereal's own default model, unchanged, on Sentinel-1 radar and Sentinel-2 imagery for the whole season, tile by tile on the Copernicus Data Space. No crop identification is done by Iraq Farms Health itself.</p>
+      ${seasonsHtml()}
       <h2>How sure is it?</h2>
       <p>WorldCereal reports its own confidence for every pixel. “Wheat or barley” is usually reliable; telling wheat from barley is harder. Pixels where WorldCereal was less than ${i.codes.confidence_threshold}% sure are shown faded and coded +100, so you can include or exclude them.</p>
       <h2>Statistics</h2>
@@ -560,6 +593,7 @@ function renderAbout(){
       <p>أيّ محصول نما على كل رقعة بمساحة 10 م من الأراضي الزراعية العراقية في الموسم الشتوي ${i.season}: القمح والشعير و22 محصولاً آخر، من نظام WorldCereal المفتوح التابع لوكالة الفضاء الأوروبية. هذه هي طبقة المحاصيل المستخدمة في <a href="../">صحة مزارع العراق</a>، منشورة هنا ليتحقق منها الجميع وينزّلوها ويستخدموها.</p>
       <h2>كيف أُنتجت</h2>
       <p>شغّل «صحة مزارع العراق» النموذج الافتراضي لـ WorldCereal دون تعديل على صور رادار Sentinel-1 وصور Sentinel-2 للموسم كاملاً، مربعاً بعد مربع على منصة Copernicus Data Space. لا يقوم «صحة مزارع العراق» بنفسه بتحديد المحاصيل.</p>
+      ${seasonsHtml()}
       <h2>ما مدى الدقة؟</h2>
       <p>تُبلغ WorldCereal عن درجة ثقتها لكل بكسل. «قمح أو شعير» موثوق عادةً؛ أما التمييز بين القمح والشعير فأصعب. البكسلات التي كانت ثقة WorldCereal فيها أقل من ${i.codes.confidence_threshold}% تظهر باهتة ورمزها +100، لتتمكن من تضمينها أو استبعادها.</p>
       <h2>الإحصاءات</h2>
@@ -572,6 +606,7 @@ function renderAbout(){
       <p>چ بەرهەمێک لەسەر هەر پارچەیەکی 10 مەتری زەوی کشتوکاڵی عێراق لە وەرزی زستانی ${i.season} ڕواوە: گەنم، جۆ و 22 بەرهەمی تر، لە سیستەمی کراوەی WorldCerealی ئاژانسی بۆشایی ئەوروپا. ئەمە ئەو چینەی بەرهەمەیە کە <a href="../">تەندروستی کێڵگەکانی عێراق</a> بەکاری دەهێنێت، لێرە بڵاوکراوەتەوە بۆ ئەوەی هەموو کەس پشکنینی بکات، دایبگرێت و بەکاری بهێنێت.</p>
       <h2>چۆن دروستکرا</h2>
       <p>تەندروستی کێڵگەکانی عێراق مۆدێلی بنەڕەتی خودی WorldCereal ی بێ گۆڕانکاری لەسەر وێنەکانی ڕاداری Sentinel-1 و Sentinel-2 بۆ هەموو وەرزەکە، چوارگۆشە بە چوارگۆشە لەسەر Copernicus Data Space کارپێکرد. خودی تەندروستی کێڵگەکانی عێراق هیچ ناسینەوەیەکی بەرهەم ناکات.</p>
+      ${seasonsHtml()}
       <h2>چەندە دڵنیایە؟</h2>
       <p>WorldCereal دڵنیایی خۆی بۆ هەر پیکسڵێک ڕادەگەیەنێت. «گەنم یان جۆ» زۆربەی کات جێی متمانەیە؛ جیاکردنەوەی گەنم لە جۆ قورسترە. ئەو پیکسڵانەی WorldCereal تێیاندا کەمتر لە ${i.codes.confidence_threshold}% دڵنیا بووە کاڵ پیشان دەدرێن و کۆدیان +100 ـە، بۆ ئەوەی بتوانیت تێیانبخەیت یان دەریانبهێنیت.</p>
       <h2>ئامارەکان</h2>
