@@ -2,7 +2,10 @@
 Map positive = a set of strata; reference positive = label "winter_crop".
 Unclear points: left out (headline), or all counted as winter crop / as not (bounds).
 
-Usage: python estimate.py [labels csv, default data/labels_final.csv] [--column final_label]"""
+Usage: python estimate.py [labels csv, default data/labels_final.csv] [--column final_label] [--topup [csv]]
+--topup adds the phase-2 not-cropland points (README section 7): data/topup_map_key.csv and their labels
+(default data/topup_labels_final.csv). Within the stratum both phases are uniform random draws, so the
+points are pooled into one sample of that stratum; stratum areas are unchanged."""
 import argparse, csv, json, math, os
 from collections import defaultdict
 
@@ -70,6 +73,17 @@ def load_labels(path, column):
     return {r["id"]: r[column] for r in csv.DictReader(open(path))}
 
 
+def add_topup(labels, path=None, column="final_label"):
+    """Pool the phase-2 points into `key` and `labels` (in place)."""
+    tk = {r["id"]: r for r in csv.DictReader(open(os.path.join(D, "topup_map_key.csv")))}
+    tl = load_labels(path or os.path.join(D, "topup_labels_final.csv"), column)
+    missing = set(tk) - set(tl)
+    if missing:
+        raise SystemExit(f"{len(missing)} top-up points have no label, e.g. {sorted(missing)[:3]}")
+    key.update(tk); labels.update({i: tl[i] for i in tk})
+    return labels
+
+
 PRODUCTS = (("confident cereal", {"confident_cereal"}),
             ("confident + doubtful cereal", {"confident_cereal", "doubtful_cereal"}))
 
@@ -77,8 +91,12 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("labels", nargs="?", default=os.path.join(D, "labels_final.csv"))
     ap.add_argument("--column", default="final_label")
+    ap.add_argument("--topup", nargs="?", const="", default=None, help="pool the phase-2 points")
     a = ap.parse_args()
     labels = load_labels(a.labels, a.column)
+    if a.topup is not None:
+        add_topup(labels, a.topup or None, a.column)
+        print(f"Phase 1 + phase-2 top-up ({sum(1 for i in key if i.startswith('T'))} not-cropland points)\n")
     for name, mp in PRODUCTS:
         for rule, lab in ((None, "unclear left out"), (True, "unclear = winter crop"), (False, "unclear = not")):
             r = run(labels, mp, rule)

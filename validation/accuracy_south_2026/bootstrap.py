@@ -1,6 +1,6 @@
 """Check. Stratified bootstrap of the headline figures: resample points with replacement within each
 stratum (sizes fixed), re-estimate, report the 2.5-97.5 percentiles. Seed fixed for repeatability.
-Usage: python bootstrap.py [labels csv] [--draws 4000]"""
+Usage: python bootstrap.py [labels csv] [--draws 4000] [--topup [csv]]"""
 import argparse, os, random
 import numpy as np
 import estimate as E
@@ -9,8 +9,11 @@ ap = argparse.ArgumentParser()
 ap.add_argument("labels", nargs="?", default=os.path.join(E.D, "labels_final.csv"))
 ap.add_argument("--column", default="final_label")
 ap.add_argument("--draws", type=int, default=4000)
+ap.add_argument("--topup", nargs="?", const="", default=None, help="pool the phase-2 points (estimate.py --topup)")
 a = ap.parse_args()
 labels = E.load_labels(a.labels, a.column)
+if a.topup is not None:
+    E.add_topup(labels, a.topup or None, a.column)
 ids = {h: [i for i, k in E.key.items() if k["stratum"] == h and labels[i] != "unclear"] for h in E.A}
 rnd = random.Random(20261107)
 orig_key = E.key

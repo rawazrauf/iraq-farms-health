@@ -162,6 +162,36 @@ python bootstrap.py data/labels_final.csv
 
 This had not been done when the results were published.
 
+## 7. Top-up of the "not cropland" stratum (phase 2)
+
+**Declared on 8 Nov 2026, before any top-up curve was fetched or labelled.** The points were drawn the same day (the draw uses no labels); nothing below was changed after seeing results.
+
+**Why:**
+- "Not cropland" covers 76% of the southern area but had 100 of the 375 points.
+- 2 of those 100 points were winter crop. Each therefore stands for about 80,000 ha, and these two points drive most of the width of the area and producer's-accuracy intervals.
+- Projection, if the new points look like the old ones: 200 more points in this stratum would narrow the winter-crop area interval from ±0.24 to about ±0.16 Mha, and producer's accuracy from ±0.09 to about ±0.06. Spreading the same effort over all strata would barely help.
+
+**Sample:**
+- 200 extra points, all in the "not cropland" stratum (pixel code 0), in the same population: the 67 southern main-run tiles of the map as published at commit `969b4aa`, clipped to Iraq. The crop cells have not changed since.
+- Same two-step draw as phase 1 (multinomial over map cells by the stratum's area, then uniform pixels), seed `20261108`. Pixels used in phase 1 are left out.
+- `topup_draw.py` writes `data/topup_points.csv` (T001–T200: id, lat, lon only), `data/topup_map_key.csv` and `data/topup_design.json`. Re-running it gives byte-identical files.
+
+**Reference curves:** `fetch_curves.py --points data/topup_points.csv`, with the clipped NDVI formula (see "On the curves" in section 5).
+
+**Labels:**
+- The same rules as section 3, applied by `label_rules.py`.
+- Points the rules call unclear get the same manual look as in phase 1. But every top-up point is "not cropland", so a reviewer who knows a curve is a top-up point is not blind to the map.
+- To keep the review blind, `topup_review.py pack` mixes the rule-unclear top-up curves with the 57 phase-1 rule-unclear curves, shuffles them under new ids (seed `20261109`) and hides which is which. The reviewer labels them all without the key.
+- The phase-1 curves in the pack are an agreement check only. Phase-1 final labels are not changed; the agreement is reported.
+
+**Estimation:**
+- Within the stratum, both phases are independent uniform draws, so the 300 points are pooled as one sample of the stratum (n = 300). The other strata and all stratum areas are unchanged.
+- `estimate.py --topup` and `bootstrap.py --topup` give the pooled figures, with unclear points left out (headline) and counted both ways (bounds), as in section 4.
+- Both sets of figures will be published: phase 1 alone (section 4, unchanged) and phase 1 + top-up. The pooled figures become the headline, whatever they show.
+- No further top-up will be decided from these results. The northern assessment will give "not cropland" more points from the start.
+
+**Status:** points drawn; curves not yet fetched.
+
 ## Limits
 
 - **Winter crop, not cereal.** A Sentinel-2 curve can't separate wheat from barley, or cereal from winter pulses, vegetables or fodder. So:
@@ -184,6 +214,9 @@ This had not been done when the results were published.
 | `label_rules.py` | Step C1: the written labelling rules |
 | `estimate.py` | Step C2: Olofsson et al. (2014) estimators |
 | `bootstrap.py` | Check: stratified bootstrap |
+| `topup_draw.py` | Phase 2: the 200-point "not cropland" top-up (section 7) |
+| `topup_review.py` | Phase 2: rule labels, blind review pack, final labels |
+| `fetch_topup.ipynb` | Phase 2: Colab notebook that runs `fetch_curves.py` on the top-up points |
 | `data/points.csv` | 375 points: id, lat, lon |
 | `data/map_key.csv` | Map stratum, pixel code and cell file of each point |
 | `data/design.json` | Seed, sample sizes, stratum areas |
@@ -191,6 +224,9 @@ This had not been done when the results were published.
 | `data/curves.json` | Archived reference curves (corrected NDVI, Sep 2025 – Aug 2026) |
 | `data/curves_ndvi_corrected.csv` | The same curves as a table |
 | `data/labels_final.csv` | Rule label and reason, final label, manual-review note |
+| `data/topup_points.csv` | 200 top-up points: id, lat, lon |
+| `data/topup_map_key.csv` | Map stratum, pixel code and cell file of each top-up point |
+| `data/topup_design.json` | Top-up seed, size and points per cell |
 | `data/spotcheck_blind.csv` | 38 points for an independent labeller |
 
 **Reference:** Olofsson, P., Foody, G. M., Herold, M., Stehman, S. V., Woodcock, C. E., & Wulder, M. A. (2014). Good practices for estimating area and assessing accuracy of land change. *Remote Sensing of Environment*, 148, 42–57.
