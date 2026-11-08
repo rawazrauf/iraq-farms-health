@@ -103,7 +103,7 @@ p{margin:0;line-height:1.55;font-size:14px}
 .share{font-size:12px;color:var(--muted)}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
 table{border-collapse:collapse;width:100%;font-size:13px}
-th,td{padding:7px 9px;text-align:start;border-bottom:1px solid #E6DFCE;white-space:nowrap}
+th,td{padding:7px 8px;text-align:start;border-bottom:1px solid #E6DFCE;white-space:nowrap}
 th{font-size:12px;color:var(--muted);font-weight:800;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card)}
 th[aria-sort]::after{content:" ▾";opacity:.6}
 th[aria-sort=ascending]::after{content:" ▴"}
@@ -111,6 +111,7 @@ td.n,th.n{text-align:end;font-family:var(--mono);font-variant-numeric:tabular-nu
 tbody tr.gov{cursor:pointer}
 tbody tr.gov:hover{background:#F2ECDD}
 tbody tr.gov.sel{background:#EDE3C8}
+@media (max-width:480px){th,td{padding:7px 4px}table{font-size:12px}th{font-size:11px}}
 tbody tr.dist td{font-size:12.5px;color:var(--muted);background:#F7F3EA}
 tbody tr.dist td:first-child{padding-inline-start:22px}
 tr.kri td:first-child{border-inline-start:3px solid var(--wheat)}
@@ -335,11 +336,11 @@ const T = {
   statsNote:"Wheat and barley count only confident cereal: WorldCereal's wheat + barley probability at least {c}%, in patches of at least {m} ha (isolated specks are left out), counted at 10 m. The smaller line is WorldCereal's own top-crop map, which includes the doubtful pixels. Areas outside the processed tiles are not counted. Generated {g} UTC.",
   aoiTitle:"1. Choose an area",aoiDraw:"Draw a box",aoiDrawing:"Drag on the map…",aoiView:"Current map view",aoiGov:"Governorate…",aoiNone:"No area chosen yet.",
   aoiArea:"{name}: {km} km²",dlTitle:"2. Download GeoTIFF",detail:"Detail",dlGo:"Download",dlWorking:"Reading…",
-  lvl:"{m} m pixels — about {mb} MB",lvlFull:"Full detail (WorldCereal {m} m) — about {mb} MB",lvlTooBig:"too large for the browser — use QGIS/GDAL",
+  lvl:"{m} m pixels — up to {mb} MB",lvlFull:"Full detail (WorldCereal {m} m) — up to {mb} MB",lvlTooBig:"too large for the browser — use QGIS/GDAL",
   dlDone:"Downloaded. In this area (approximate, from the map pixels): wheat {w} ha, barley {b} ha, all cropland {c} ha.",dlFail:"Download failed: {e}",
   dlNote:"One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure; +200 = doubtful cereal (cereal probability below 70%, or an isolated speck under 0.1 ha). Opens in QGIS, ArcGIS and GeoLibre.",
   qgisTitle:"Stream in QGIS (whole country, full detail)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"Source type: Protocol: HTTP(S), cloud, etc. Paste this link:",
-  qgis3:"Then load the colours: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"GDAL command for your area",
+  qgis3:"Then load the colours: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"GDAL command for your area",gdalAll:"No area chosen: this copies the whole country at full detail, a very large file. Choose an area above for a smaller command.",
   glTitle:"GeoLibre and other COG viewers",glText:"Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:",glCells:"Full 10 m detail is split into blocks; the blocks covering your area:",
   copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
@@ -371,11 +372,11 @@ const T = {
   statsNote:"يُحسب القمح والشعير من الحبوب المؤكدة فقط: احتمال القمح + الشعير لدى WorldCereal {c}% على الأقل، ضمن رقع لا تقل عن {m} هكتار (تُستبعد البقع المعزولة)، بدقة 10 م. السطر الأصغر هو خريطة المحصول الأرجح لـ WorldCereal نفسها، وتشمل البكسلات المشكوك فيها. المناطق خارج المربعات المعالَجة غير محسوبة. أُنشئت {g} بالتوقيت العالمي.",
   aoiTitle:"١. اختر منطقة",aoiDraw:"ارسم مستطيلاً",aoiDrawing:"اسحب على الخريطة…",aoiView:"عرض الخريطة الحالي",aoiGov:"محافظة…",aoiNone:"لم تُختر منطقة بعد.",
   aoiArea:"{name}: {km} كم²",dlTitle:"٢. تنزيل GeoTIFF",detail:"الدقة",dlGo:"تنزيل",dlWorking:"جارٍ القراءة…",
-  lvl:"بكسل {m} م — نحو {mb} م.ب",lvlFull:"الدقة الكاملة (WorldCereal {m} م) — نحو {mb} م.ب",lvlTooBig:"أكبر من أن يعالجه المتصفح — استخدم QGIS/GDAL",
+  lvl:"بكسل {m} م — حتى {mb} م.ب",lvlFull:"الدقة الكاملة (WorldCereal {m} م) — حتى {mb} م.ب",lvlTooBig:"أكبر من أن يعالجه المتصفح — استخدم QGIS/GDAL",
   dlDone:"تم التنزيل. في هذه المنطقة (تقريبياً، من بكسلات الخريطة): قمح {w} هكتار، شعير {b} هكتار، كل الأراضي الزراعية {c} هكتار.",dlFail:"فشل التنزيل: {e}",
   dlNote:"نطاق واحد مع الألوان. 0 = ليست أرضاً زراعية؛ الرموز 1–24 = أصناف WorldCereal؛ +100 = ثقة أقل؛ +200 = حبوب مشكوك فيها (احتمال أقل من 70% أو بقعة معزولة أصغر من 0.1 هكتار). يُفتح في QGIS وArcGIS وGeoLibre.",
   qgisTitle:"البث في QGIS (كل البلاد، دقة كاملة)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"نوع المصدر: Protocol: HTTP(S). الصق هذا الرابط:",
-  qgis3:"ثم حمّل الألوان: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"أمر GDAL لمنطقتك",
+  qgis3:"ثم حمّل الألوان: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"أمر GDAL لمنطقتك",gdalAll:"لم تُختر منطقة: هذا ينسخ البلد كله بالدقة الكاملة، وهو ملف كبير جداً. اختر منطقة في الأعلى لأمر أصغر.",
   glTitle:"GeoLibre وعارضات COG الأخرى",glText:"الصق رابط GeoTIFF محسّن للسحابة. كل البلاد بدقة 76 م:",glCells:"الدقة الكاملة 10 م مقسّمة إلى كتل؛ الكتل التي تغطي منطقتك:",
   copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
@@ -407,11 +408,11 @@ const T = {
   statsNote:"گەنم و جۆ تەنها دانەوێڵەی دڵنیا دەژمێردرێن: ئەگەری گەنم + جۆی WorldCereal لانیکەم {c}%، لە پارچەی لانیکەم {m} هێکتار (پەڵە تاکەکان دەرکراون)، بە وردی 10 م. هێڵە بچووکەکە نەخشەی ئەگەرترین بەرهەمی خودی WorldCereal ـە، کە پیکسڵە گوماناوییەکانیش لەخۆ دەگرێت. ناوچەکانی دەرەوەی چوارگۆشە پرۆسێسکراوەکان نەژمێردراون. دروستکراوە {g} UTC.",
   aoiTitle:"١. ناوچەیەک هەڵبژێرە",aoiDraw:"چوارگۆشەیەک بکێشە",aoiDrawing:"لەسەر نەخشە ڕابکێشە…",aoiView:"دیمەنی ئێستای نەخشە",aoiGov:"پارێزگا…",aoiNone:"هێشتا ناوچە هەڵنەبژێردراوە.",
   aoiArea:"{name}: {km} کم²",dlTitle:"٢. داگرتنی GeoTIFF",detail:"وردی",dlGo:"داگرتن",dlWorking:"خوێندنەوە…",
-  lvl:"پیکسڵی {m} م — نزیکەی {mb} MB",lvlFull:"وردی تەواو (WorldCereal {m} م) — نزیکەی {mb} MB",lvlTooBig:"زۆر گەورەیە بۆ وێبگەڕ — QGIS/GDAL بەکاربهێنە",
+  lvl:"پیکسڵی {m} م — تا {mb} MB",lvlFull:"وردی تەواو (WorldCereal {m} م) — تا {mb} MB",lvlTooBig:"زۆر گەورەیە بۆ وێبگەڕ — QGIS/GDAL بەکاربهێنە",
   dlDone:"داگیرا. لەم ناوچەیەدا (نزیکەیی، لە پیکسڵەکانی نەخشە): گەنم {w} هێکتار، جۆ {b} هێکتار، هەموو زەوی کشتوکاڵی {c} هێکتار.",dlFail:"داگرتن سەرکەوتوو نەبوو: {e}",
   dlNote:"یەک باند، ڕەنگەکانی تێدایە. 0 = زەوی کشتوکاڵی نییە؛ کۆدەکانی 1–24 = پۆلەکانی WorldCereal؛ +100 = دڵنیایی کەمتر؛ +200 = دانەوێڵەی گوماناوی (ئەگەری کەمتر لە 70%، یان پەڵەیەکی تاکی بچووکتر لە 0.1 هێکتار). لە QGIS و ArcGIS و GeoLibre دەکرێتەوە.",
   qgisTitle:"پەخش لە QGIS (هەموو وڵات، وردی تەواو)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"جۆری سەرچاوە: Protocol: HTTP(S). ئەم بەستەرە دابنێ:",
-  qgis3:"پاشان ڕەنگەکان باربکە: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"فەرمانی GDAL بۆ ناوچەکەت",
+  qgis3:"پاشان ڕەنگەکان باربکە: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"فەرمانی GDAL بۆ ناوچەکەت",gdalAll:"هیچ ناوچەیەک هەڵنەبژێردراوە: ئەمە هەموو وڵات بە وردی تەواو کۆپی دەکات، فایلێکی زۆر گەورە. ناوچەیەک لە سەرەوە هەڵبژێرە بۆ فەرمانێکی بچووکتر.",
   glTitle:"GeoLibre و بینەرەکانی تری COG",glText:"بەستەری GeoTIFFی گونجاو بۆ هەور دابنێ. هەموو وڵات بە وردی 76 م:",glCells:"وردی تەواوی 10 م دابەشکراوە بۆ بلۆک؛ ئەو بلۆکانەی ناوچەکەت دادەپۆشن:",
   copy:"کۆپی",copied:"کۆپی کرا",chooseArea:"سەرەتا ناوچەیەک هەڵبژێرە.",here:"لێرە",notCrop:"زەوی کشتوکاڵی نییە (یان هێشتا پرۆسێس نەکراوە)",lessSure:"دڵنیایی کەمتر",
   loading:"چینی بەرهەمەکان باردەکرێت…",noData:"چینی بەرهەمەکان هێشتا بڵاو نەکراوەتەوە.",files:"فایلەکان",legendCsv:"ڕێبەری ڕەنگ (CSV)",indexJson:"پێڕست (JSON)",
@@ -782,6 +783,13 @@ function polyKm2(g){ // equal-area approximation, good to ~0.5% at Iraq's size
 }
 const LEVELS = [0,1,2,3,4];
 const MAX_PX = 70e6;
+/* Pixel size on the ground at the area's latitude (Web Mercator pixels shrink by cos(lat)).
+   Used for both the Detail list and the file name, so they agree. The size shown is an
+   upper bound: the file is compressed, usually to a small fraction of it. */
+function groundM(L){
+  const lat = AOI ? (AOI.bbox[1]+AOI.bbox[3])/2 : 33;
+  return Math.round(CropLayer.levelRes(L)*Math.cos(lat*Math.PI/180));
+}
 function updateAoi(){
   const sum = $("#aoi-sum"), lv = $("#dl-level");
   if(!INDEX) return;
@@ -794,7 +802,7 @@ function updateAoi(){
     <a class="btn" href="${DATA}index.json" target="_blank" rel="noopener">${t("indexJson")}</a>`;
   if(!AOI){
     sum.textContent = t("aoiNone"); lv.innerHTML = ""; $("#dl-go").disabled = true;
-    $("#gdal").textContent = `gdal_translate -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  iraq_crops_${INDEX.season}.tif`;
+    $("#gdal").textContent = `# ${t("gdalAll")}\n` + `gdal_translate -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  iraq_crops_${INDEX.season}.tif`;
     $("#cell-links").textContent = "–";
     return;
   }
@@ -805,7 +813,7 @@ function updateAoi(){
   for(const L of LEVELS){
     const r = CropLayer.levelRes(L), px = ((b[2]-b[0])/r)*((b[3]-b[1])/r);
     if(px > MAX_PX) continue;
-    const ground = Math.round(r*Math.cos(((AOI.bbox[1]+AOI.bbox[3])/2)*Math.PI/180));
+    const ground = groundM(L);
     const mb = Math.max(0.1, px*0.06/1e6).toFixed(px*0.06/1e6 < 10 ? 1 : 0);
     opts.push(`<option value="${L}">${L===0 ? t("lvlFull",{m:10,mb}) : t("lvl",{m:ground,mb})}</option>`);
   }
@@ -886,7 +894,7 @@ $("#dl-go").onclick = async () => {
     prog.firstElementChild.style.width = "100%";
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `iraq_crops_${INDEX.season}_${AOI.key}${L?"_"+Math.round(CropLayer.levelRes(L))+"m":""}.tif`;
+    a.download = `iraq_crops_${INDEX.season}_${AOI.key}${L?"_"+groundM(L)+"m":""}.tif`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 60000);
     res.textContent = t("dlDone",{w:fmt(w), b:fmt(b), c:fmt(c)});
