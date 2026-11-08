@@ -4,7 +4,7 @@ This folder holds how the 2025-26 winter-cereal map (`crops/2026/`) was checked,
 
 | Study | What it answers | Kind of evidence |
 |---|---|---|
-| [`accuracy_south_2026`](accuracy_south_2026) | How accurate is the map in the 67 finished southern tiles, and how much winter-crop area is there? | Stratified random sample, 375 pixels, Olofsson et al. (2014) estimators |
+| [`accuracy_south_2026`](accuracy_south_2026) | How accurate is the map in the 67 finished southern tiles, and how much winter-crop area is there? | Stratified random sample, 575 pixels (375 + a 200-point top-up of "not cropland"), Olofsson et al. (2014) estimators |
 | [`field_checks`](field_checks) | Where and how does the map go wrong, field by field? | 202 fields read from their Sentinel-2 curves and monthly images |
 | [`season_pilot`](season_pilot) | Does a later season window (to 30 June) fix the northern errors? | Same fields, before and after, against pre-agreed pass rules |
 | [`coverage`](coverage) | How much farmland falls outside the processed tiles? | FTW farmland checked against the tile plan: 99.6% covered |
@@ -15,8 +15,8 @@ This folder holds how the 2025-26 winter-cereal map (`crops/2026/`) was checked,
 - `tools/worldcereal_coverage_gaps.ipynb`: the notebook behind [`coverage`](coverage).
 - `METHODOLOGY.md`: how the map and the app's field readings are made.
 
-## Main results so far (7 Nov 2026)
-- **South (accuracy assessment).** Where the default map says "confident cereal", a winter crop grew 96% of the time (95% CI 92–99%). The map catches 70% (61–79%) of the winter-crop area. The winter-crop area in the southern tiles is 1.93 Mha (1.69–2.17), against 1.41 Mha mapped. Most of the missing area is in the "doubtful cereal" class (the 70% confidence rule) and in "other crop".
+## Main results so far (8 Nov 2026)
+- **South (accuracy assessment, 575 points).** Where the default map says "confident cereal", a winter crop grew 96% of the time (95% CI 92–99%). The map catches 71% (65–77%) of the winter-crop area. The winter-crop area in the southern tiles is 1.91 Mha (1.75–2.06), against 1.41 Mha mapped. A 200-point top-up of the "not cropland" class (8 Nov) narrowed the intervals by about a third without moving the estimates. Most of the missing area is in the "doubtful cereal" class (the 70% confidence rule) and in "other crop".
 - **North (field checks).** Rain-fed cereal is often under-confident or confused with vegetables or pulses, and late fields are missed more often. A later season helps but doesn't fix it all, so the northern tiles are being re-run with that season. They will then be assessed like the south.
 
 ## Order of events

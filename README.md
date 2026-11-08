@@ -47,7 +47,7 @@ For a full description of the data sources, the NDVI calculation, and the tool's
 
 The site also shows a 2025-26 winter-cereal map of Iraq (`crops/2026/`), made with the ESA WorldCereal models at 10 m resolution. Its accuracy has been checked against each location's own Sentinel-2 history:
 
-- **Southern tiles (67 tiles, 10.5 Mha), stratified random sample of 375 points:** where the map says "confident cereal", a winter crop grew 96% of the time (95% CI 92–99%). The map catches 70% (61–79%) of the winter-crop area. Winter-crop area 1.93 Mha (1.69–2.17), against 1.41 Mha mapped.
+- **Southern tiles (67 tiles, 10.5 Mha), stratified random sample of 575 points:** where the map says "confident cereal", a winter crop grew 96% of the time (95% CI 92–99%). The map catches 71% (65–77%) of the winter-crop area. Winter-crop area 1.91 Mha (1.75–2.06), against 1.41 Mha mapped.
 - **Northern tiles:** field checks showed rain-fed cereal is often under-counted. These tiles are being re-run with a later season and will then be assessed the same way.
 
 The method, data and scripts are in **[validation/](validation/README.md)**, so anyone can repeat the checks and get the same results.
