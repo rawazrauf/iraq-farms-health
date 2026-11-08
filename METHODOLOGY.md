@@ -92,7 +92,7 @@ When you tap a field:
 
 **Why the median and not the average?** A field can contain a few anomalous pixels — a shadow, a building, a patch of water, or a sensor artefact — that would distort a simple average. The median (the middle value) is robust to those outliers and better represents the typical condition of the field. Any value that falls outside the physically possible NDVI range of −1 to +1 is rejected as invalid, and the tool tries the next available scene.
 
-The moisture reading (NDMI) is computed the same way — median over the field's pixels, from a recent clear scene — when a field is opened.
+The moisture reading (NDMI) is computed the same way — median over the field's pixels, from a recent clear scene — when a field is opened. Like the map colour (§4), it comes from the current calendar month, or from last month if the current month has no clear scene yet.
 
 ### The two-year history
 
@@ -124,7 +124,7 @@ The tool reports each field's area in **donums** (1 donum = 2,500 m²). The area
 
 ## 4. The health map overlay
 
-The **Health map** colours whole fields at once. The same button also controls the country-wide greenness layer shown when zoomed out (§2); switched off, the map shows the plain satellite picture at every zoom. When it is on, the tool samples the current-month NDVI for the fields visible on screen (largest first, up to a capped number to limit load) and fills each field polygon with its health colour.
+The **Health map** colours whole fields at once. The same button also controls the country-wide greenness layer shown when zoomed out (§2); switched off, the map shows the plain satellite picture at every zoom. When it is on, the tool samples NDVI for the fields visible on screen (largest first, up to a capped number to limit load) and fills each field polygon with its health colour. It uses the current calendar month; if the current month has no clear scene yet, which is common in the first week or two of a month, it uses last month instead. That is the same reading the field's card shows as current. Nothing older than last month is used for the colour.
 
 Colours appear **only inside detected fields** — never over rivers, roads, towns, or bare land. This is deliberate: it means green outside a field is just the satellite image, not a health reading, and it makes the tappable fields obvious. Fields colour in progressively as their readings return; very small fields, or fields with no recent clear imagery, may remain uncoloured (this is honest — the tool does not guess).
 

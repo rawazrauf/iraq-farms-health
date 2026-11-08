@@ -646,7 +646,7 @@ async function dbgProbe(){
     ["POST search text/plain",H+"/api/stac/v1/search", {method:"POST",headers:{"Content-Type":"text/plain"},
                                  body:JSON.stringify({collections:["sentinel-2-l2a"],bbox:bb.split(",").map(Number),limit:1})}],
     ["GET search sortby",     H+"/api/stac/v1/search?collections=sentinel-2-l2a&bbox="+bb+"&sortby=%2Beo:cloud_cover&limit=2", {}],
-    ["POST stats blob (new)", H+"/api/data/v1/item/statistics?collection=sentinel-2-l2a&item=__probe__&expression=(B08-B04)/(B08%2BB04)&asset_as_band=true",
+    ["POST stats blob (new)", H+"/api/data/v1/item/statistics?collection=sentinel-2-l2a&item=__probe__&expression="+encodeURIComponent(NDVI_EXPR)+"&asset_as_band=true",
                               {method:"POST", body:new Blob([JSON.stringify({type:"Feature",properties:{},geometry:{type:"Polygon",coordinates:[[[43.20,36.22],[43.21,36.22],[43.21,36.23],[43.20,36.23],[43.20,36.22]]]}})])}],
   ];
   DBG.warn("PROBE start");   // only reached via ?probe=1
@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.07-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.08-a";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1778,6 +1778,25 @@ function scheduleHealthSample(){
   clearTimeout(__healthTimer);
   __healthTimer = setTimeout(runHealthSample, 350);   // debounce map settling
 }
+/* Map colour and moisture read the newest of the last two calendar months
+   (build 2026.11.08-a). Until a month's first clear scene arrives, often a week or
+   more into the month, the current month is empty; the field then shows last
+   month's reading, which is the value the card shows as "current" too. The windows
+   are the card's own month buckets (buildMonths, UTC), so the map, the card and the
+   report read the same scene. Nothing older than last month is used: an older
+   colour would look current while it isn't, so the field is left uncoloured. */
+function recentWindows(){
+  return buildMonths(2).reverse();               // [this month, last month]
+}
+async function ndviLatest(geometry, expr){
+  let r = null;
+  for(const w of recentWindows()){
+    r = await ndviForWindow(geometry, w.from, w.to, expr);
+    if(r && r.value!=null){ r.ym = w.ym; return r; }
+  }
+  return r;
+}
+
 async function runHealthSample(){
   const src = map.getSource("health");
   if(!src) return;
@@ -1808,15 +1827,9 @@ async function runHealthSample(){
   // freshly-tapped fields whose sample is still pending).
   pushHealth(out);
 
-  const now = new Date();
-  // Use the CURRENT calendar month only (1st of this month → today), matching
-  // the newest bucket the field-tap uses. Previously this window started on the
-  // 1st of LAST month, and because scenes are picked least-cloudy-first (not
-  // newest-first), the sampler could grab last month's clearer scene — colouring
-  // the polygon with an older value that disagreed with the sheet's current
-  // reading. Restricting to this month keeps the two in sync.
-  const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));  // UTC, as buildMonths() — local midnight + toISOString() slipped to the previous month in UTC+3
-  const iso = d=> d.toISOString().slice(0,10);
+  // Newest of this month and last month, each its own window (recentWindows):
+  // never one window spanning both, because scenes are picked least-cloudy-first
+  // and a clearer older scene would then win over a newer one.
   const todo = batch.filter(({k})=> !__healthCache.has(k));
   let i = 0;
   async function worker(){
@@ -1825,10 +1838,10 @@ async function runHealthSample(){
       if(Date.now() < __fieldBusyUntil){ scheduleHealthSample(); return; }   // a tapped field is loading
       const {f,k} = todo[i++];
       try{
-        const r = await ndviForWindow(f.geometry, iso(from), iso(now));
+        const r = await ndviLatest(f.geometry);
         if(r && r.value!=null){
           const col = ndviColorHex(r.value);
-          __healthCache.set(k, {v:r.value, col});
+          __healthCache.set(k, {v:r.value, col, ym:r.ym});
           out.set(k, healthFeature(f, col));
           if(runId === __healthRunId && (i % 3 === 0 || i === todo.length)) pushHealth(out);
         } else {
@@ -2044,7 +2057,7 @@ async function onFieldTap(e){
       ndviForWindow(f.geometry, cur.from, cur.to).then(r=>{
         if(r && r.value!=null){
           const col = ndviColorHex(r.value);
-          __healthCache.set(k, {v:r.value, col});
+          __healthCache.set(k, {v:r.value, col, ym:cur.ym});
           mergeHealthField(f, col);
           // seed the history slot too, so the loop below skips re-fetching it
           cur.v = r.value; cur.date = r.date; cur.scene = r.scene; cur.cloud = r.cloud; cur.pending = false;
@@ -2072,6 +2085,17 @@ async function onFieldTap(e){
     }catch(err){ slot.v = null; slot.err = err.message; DBG.err(`month ${slot.ym} threw: ${err.stack||err.message}`); }
     slot.pending = false;
     DBG.log(`month ${slot.ym} → ${slot.v!=null ? slot.v.toFixed(3) : "null ("+slot.err+")"}`);
+    // This month or last month (newest first): colour the tapped polygon from the
+    // first that has a reading, as the health map does (recentWindows).
+    if(healthOn && idx >= f.__history.length-2 && slot.v!=null){
+      const k = fieldKey(f), c = __healthCache.get(k);
+      if(!(c && c.v!=null)){
+        const col = ndviColorHex(slot.v);
+        __healthCache.set(k, {v:slot.v, col, ym:slot.ym});
+        mergeHealthField(f, col);
+        DBG.log(`map colour from ${slot.ym} (newest of last two months)`);
+      }
+    }
     if(lastField===f && sheet.classList.contains("open")) renderField(f); // live update
   }
   __fieldBusyUntil = 0; scheduleHealthSample();   // field read: neighbours may colour now
@@ -2653,16 +2677,14 @@ function updatePlayUI(){
    current calendar month, like the health sampler. Re-renders the sheet as
    values arrive. */
 async function sampleMoisture(f){
-  const now = new Date();
-  const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));  // UTC, as buildMonths() — local midnight + toISOString() slipped to the previous month in UTC+3
-  const iso = d=> d.toISOString().slice(0,10);
+  // Newest of this month and last month, as the health map (recentWindows).
   const myKey = fieldKey(f);
 
   // 1) the tapped field's moisture first (its own value)
   if(!__moistCache.has(myKey)){
     try{
-      const r = await ndviForWindow(f.geometry, iso(from), iso(now), NDMI_EXPR);
-      if(r && r.value!=null) __moistCache.set(myKey, {v:r.value});
+      const r = await ndviLatest(f.geometry, NDMI_EXPR);
+      if(r && r.value!=null) __moistCache.set(myKey, {v:r.value, ym:r.ym});
       else __moistCache.set(myKey, {v:null});
     }catch{ __moistCache.set(myKey, {v:null}); }
   }
@@ -2689,8 +2711,8 @@ async function sampleMoisture(f){
       const {f:nf,k} = pick[i++];
       if(__moistCache.has(k)) continue;
       try{
-        const r = await ndviForWindow(nf.geometry, iso(from), iso(now), NDMI_EXPR);
-        __moistCache.set(k, {v:(r && r.value!=null)? r.value : null});
+        const r = await ndviLatest(nf.geometry, NDMI_EXPR);
+        __moistCache.set(k, {v:(r && r.value!=null)? r.value : null, ym:r && r.ym});
       }catch{ __moistCache.set(k, {v:null}); }
       if(lastField===f && sheet.classList.contains("open")) renderField(f);
     }
