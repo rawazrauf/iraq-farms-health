@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.08-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.08-c";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1116,16 +1116,30 @@ const CROPDBG = (function(){
     try{
       await init();
       if(!map.getSource("dbg-crops26")){
+        // The view farmers would get: confident wheat or barley in the Crops button's brown, everything else
+        // transparent (doubtful cereal, other crops, not cropland, summer labels). The tapped field's 🧪 line and
+        // the debug log keep the full labels. Debug mode only until Rawaz says to roll it out.
+        CropLayer.setOptions({show:{wheat:true, barley:true, other:false, nocrop:false, offseason:false},
+                              showDoubtful:false, cerealRule:"p70", single:"#ba7135"});
         CropLayer.registerProtocol(maplibregl);
         map.addSource("dbg-crops26", {type:"raster", tiles:["wcrop://{z}/{x}/{y}"], tileSize:256, minzoom:4, maxzoom:CropLayer.index.max_zoom});
-        // below the field outlines and the selected-field highlight, so boundaries stay visible
+        // below the field outlines and the selected-field highlight, so boundaries stay visible;
+        // fully opaque like the public 2021 layer
         map.addLayer({id:"dbg-crops26", type:"raster", source:"dbg-crops26",
-                      paint:{"raster-opacity":0.8, "raster-resampling":"nearest", "raster-fade-duration":0}},
+                      paint:{"raster-opacity":1, "raster-resampling":"nearest", "raster-fade-duration":0}},
                      map.getLayer("fields-line") ? "fields-line" : map.getLayer("sel-fill") ? "sel-fill" : undefined);
       }
-      layerOn = !layerOn;
+      layerOn = map.getLayoutProperty("dbg-crops26", "visibility") !== "visible";   // the Crops button may have hidden it
       map.setLayoutProperty("dbg-crops26", "visibility", layerOn ? "visible" : "none");
-      DBG.log(`${LAYER} layer ` + (layerOn ? "on (wheat yellow, barley orange; doubtful cereal hidden)" : "off"));
+      // same brown as the public 2021 layer, so switch that one off to keep the two apart
+      let off21 = false;
+      if(layerOn && map.getLayer("wc-wintercereals") && map.getLayoutProperty("wc-wintercereals", "visibility") === "visible"){
+        map.setLayoutProperty("wc-wintercereals", "visibility", "none");
+        document.getElementById("crop-toggle")?.classList.remove("wintercereals");
+        off21 = true;
+      }
+      DBG.log(`${LAYER} layer ` + (layerOn ? "on (confident wheat or barley in brown, everything else transparent)"
+                                            + (off21 ? "; 2021 Crops layer switched off" : "") : "off"));
     }catch(e){ DBG.err("2026 layer: " + e.message); }
   });
   const recent = new Map();   // fieldKey -> time, so one tap firing twice runs one check
@@ -4317,6 +4331,8 @@ if(cropToggle) cropToggle.addEventListener("click",()=>{
   const on = cropToggle.classList.toggle("wintercereals");
   if(map.getLayer("wc-wintercereals"))
     map.setLayoutProperty("wc-wintercereals","visibility", on ? "visible" : "none");
+  // debug mode: the 2026 test layer uses the same brown, so only one shows at a time
+  if(on && map.getLayer("dbg-crops26")) map.setLayoutProperty("dbg-crops26","visibility","none");
   if(on){
     const t = I18N[lang];
     cropSay(t.cropWinter + " · " + t.cropNote, 6000);

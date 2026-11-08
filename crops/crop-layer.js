@@ -28,8 +28,10 @@
     index: null,
     // cerealRule "p70": a pixel counts as cereal only when WorldCereal's combined cereal probability is ≥ 70 %
     // (codes below +200); "top": WorldCereal's default top-crop answer. showDoubtful draws the < 70 % cereal pixels.
+    // single: a "#rrggbb" colour paints every shown pixel that one colour, fully opaque (the app's wheat-or-barley
+    // view); null keeps each class's own colour (the crop page).
     opts: { show: { wheat: true, barley: true, other: true, nocrop: true, offseason: true }, fadeLess: true, mode: "crops",
-            showDoubtful: false, cerealRule: "p70" },
+            showDoubtful: false, cerealRule: "p70", single: null },
     // ESA WorldCereal 2021 v100 winter cereals (official product), the same service Iraq Farms Health uses.
     WC21_URL: "https://wmts.terrascope.be/wmts?service=WMTS&request=GetTile&version=1.0.0"
       + "&layer=esa-worldcereal-wintercereals-10m-2021-v1_classification&style=default&format=image%2Fpng"
@@ -100,11 +102,12 @@
         if (f === 2 && !this.opts.showDoubtful) continue;
         const g = this.groupOf(v);
         if (!this.opts.show[g]) continue;
-        const h = g === "offseason" ? OFF_SEASON_COLOR : cols[ci];
+        const one = this.opts.single;
+        const h = one || (g === "offseason" ? OFF_SEASON_COLOR : cols[ci]);
         lut[v * 4] = parseInt(h.slice(1, 3), 16);
         lut[v * 4 + 1] = parseInt(h.slice(3, 5), 16);
         lut[v * 4 + 2] = parseInt(h.slice(5, 7), 16);
-        lut[v * 4 + 3] = f === 2 ? 80 : (f === 1 && this.opts.fadeLess ? 115 : (g === "nocrop" ? 150 : 235));
+        lut[v * 4 + 3] = one ? 255 : f === 2 ? 80 : (f === 1 && this.opts.fadeLess ? 115 : (g === "nocrop" ? 150 : 235));
       }
       this._lut = lut;
     },
