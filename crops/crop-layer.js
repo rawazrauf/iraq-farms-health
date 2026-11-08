@@ -30,8 +30,10 @@
     // (codes below +200); "top": WorldCereal's default top-crop answer. showDoubtful draws the < 70 % cereal pixels.
     // single: a "#rrggbb" colour paints every shown pixel that one colour, fully opaque (the app's wheat-or-barley
     // view); null keeps each class's own colour (the crop page).
+    // cellsFrom: lowest web-map zoom read from the cells (whose own overviews halve the detail at each zoom step);
+    // below it the whole-country overview.tif (~76 m) is used. null = the overview up to its own zoom (crop page).
     opts: { show: { wheat: true, barley: true, other: true, nocrop: true, offseason: true }, fadeLess: true, mode: "crops",
-            showDoubtful: false, cerealRule: "p70", single: null },
+            showDoubtful: false, cerealRule: "p70", single: null, cellsFrom: null },
     // ESA WorldCereal 2021 v100 winter cereals (official product), the same service Iraq Farms Health uses.
     WC21_URL: "https://wmts.terrascope.be/wmts?service=WMTS&request=GetTile&version=1.0.0"
       + "&layer=esa-worldcereal-wintercereals-10m-2021-v1_classification&style=default&format=image%2Fpng"
@@ -170,7 +172,8 @@
       if (this._codes.has(key)) return this._codes.get(key);
       const idx = this.index, cz = idx.cell_zoom;
       let p;
-      if (z <= idx.overview.zoom) {
+      const from = this.opts.cellsFrom == null ? idx.overview.zoom + 1 : Math.max(cz, this.opts.cellsFrom);
+      if (z < from) {
         p = this._readBox(idx.overview.file, this.tileBounds(z, x, y), 256, 256, signal);
       } else {
         const d = z - cz, cell = this.cellSet.get((x >> d) + "/" + (y >> d));

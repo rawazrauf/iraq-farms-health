@@ -673,7 +673,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.08-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.08-d";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1120,13 +1120,15 @@ const CROPDBG = (function(){
         // transparent (doubtful cereal, other crops, not cropland, summer labels). The tapped field's 🧪 line and
         // the debug log keep the full labels. Debug mode only until Rawaz says to roll it out.
         CropLayer.setOptions({show:{wheat:true, barley:true, other:false, nocrop:false, offseason:false},
-                              showDoubtful:false, cerealRule:"p70", single:"#ba7135"});
+                              showDoubtful:false, cerealRule:"p70", single:"#ba7135", cellsFrom:CropLayer.index.cell_zoom});
+        // From the cell zoom (9) up, tiles come from the cells, whose overviews double the detail at each zoom step,
+        // instead of one jump from the ~76 m country overview to full detail at zoom 12.
         CropLayer.registerProtocol(maplibregl);
         map.addSource("dbg-crops26", {type:"raster", tiles:["wcrop://{z}/{x}/{y}"], tileSize:256, minzoom:4, maxzoom:CropLayer.index.max_zoom});
         // below the field outlines and the selected-field highlight, so boundaries stay visible;
-        // fully opaque like the public 2021 layer
+        // drawn like the public 2021 layer: fully opaque, smooth (linear) scaling, tiles fade in over 200 ms
         map.addLayer({id:"dbg-crops26", type:"raster", source:"dbg-crops26",
-                      paint:{"raster-opacity":1, "raster-resampling":"nearest", "raster-fade-duration":0}},
+                      paint:{"raster-opacity":1, "raster-resampling":"linear", "raster-fade-duration":200}},
                      map.getLayer("fields-line") ? "fields-line" : map.getLayer("sel-fill") ? "sel-fill" : undefined);
       }
       layerOn = map.getLayoutProperty("dbg-crops26", "visibility") !== "visible";   // the Crops button may have hidden it
