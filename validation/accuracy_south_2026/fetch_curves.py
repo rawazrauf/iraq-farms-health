@@ -8,9 +8,17 @@ For each point and month:
   - try up to 4; read B04, B08 and SCL at the point (one 10 m pixel; SCL is 20 m);
   - accept the first whose SCL is 4 vegetation, 5 bare soil, 6 water or 7 unclassified, with B04, B08 > 0;
   - NDVI raw       = (B08 - B04) / (B08 + B04)
-    NDVI corrected = (B08 - B04) / (B08 + B04 - 2*1000) on processing baseline >= 04.00, which adds
-                     +1000 to every band that Planetary Computer does not remove (see validation/ndvi_offset).
+    NDVI corrected, on processing baseline >= 04.00 (which adds +1000 to every band; Planetary
+                     Computer does not remove it, see validation/ndvi_offset): each band is clipped at
+                     the offset before it is removed, as the app does since build 2026.11.07-b,
+                     R = max(B04 - 1000, 0), N = max(B08 - 1000, 0), NDVI = (N - R) / (N + R + 1).
+                     Older baselines have no offset and use the raw formula.
 The labelling rules use the corrected value.
+
+Changed 8 Nov 2026: the archived southern curves (data/curves.json) were fetched with the unclipped
+formula (B08 - B04) / (B08 + B04 - 2000), which goes above 1 when B04 is below the offset. That hit 13
+of 4,498 months; no reference label depends on it (README, "On the curves"). Re-fetching the southern
+points now gives values that differ only in those months, and elsewhere only by a few thousandths (the +1).
 
 This is a line-by-line port of the browser function that produced the published curves
 (it ran in Iraq Farms Health's page on 7 Nov 2026). Planetary Computer can reprocess scenes,
@@ -45,6 +53,15 @@ def get(url, params=None, tries=4):
                 raise
         time.sleep(wait); wait *= 2
     return r
+
+
+def ndvi_cor(b4, b8, off):
+    """Offset-corrected NDVI, as the app computes it: clip each band at the offset, +1 keeps the
+    denominator above zero, so the result stays within [-1, 1]."""
+    if not off:
+        return (b8 - b4) / (b8 + b4)
+    r, n = max(b4 - off, 0), max(b8 - off, 0)
+    return (n - r) / (n + r + 1)
 
 
 def label_point(pid, lon, lat):
@@ -84,7 +101,7 @@ def label_point(pid, lon, lat):
                 off = 1000 if pb >= 4 else 0
                 got = {"d": it["properties"]["datetime"][:10], "scene": it["id"], "baseline": pb,
                        "raw": round((b8 - b4) / (b8 + b4), 3),
-                       "cor": round((b8 - b4) / (b8 + b4 - 2 * off), 3),
+                       "cor": round(ndvi_cor(b4, b8, off), 3),
                        "scl": scl, "b4": b4, "b8": b8, "cloud": it["properties"].get("eo:cloud_cover")}
                 break
         out["months"][m] = got or {"none": True, "tried": tried}

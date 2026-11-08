@@ -146,6 +146,11 @@ python bootstrap.py data/labels_final.csv
 - Planetary Computer can reprocess scenes, so a fresh fetch may differ slightly. `compare_curves.py` reports by how much, and whether any rule label changes.
 - `fetch_curves.py` is a Python port of the browser function that produced the archived curves; see its header.
 - **Port checked 8 Nov 2026:** `fetch_curves.py --only S001,S002,S003,S010` in Colab, then `compare_curves.py`. All 48 months were identical to the archived curves (maximum difference 0.000), and all 4 rule labels were the same.
+- **Out-of-range values (found 8 Nov 2026).** The curves were fetched with an unclipped formula, (B08 − B04) / (B08 + B04 − 2000). When the red band is near or below the 1,000 offset, that gives values near or above 1, which is not physical.
+  - In `data/curves.json`, 13 of 4,498 months read above 0.95, and 8 of those above 1.0: S003, S037, S047, S077, S124, S151, S166 (2 months), S275, S338, S345 (2 months) and S351.
+  - **Effect on the labels:** none. Capping those months at 1.0 or at 0.95 gives exactly the same rule labels for all 375 points.
+  - **Effect if the months are dropped instead:** one label changes. S166 (map: not cropland) goes from perennial to unclear. With unclear points left out, overall accuracy goes from 0.940 to 0.939, the winter-crop area from 1.928 to 1.930 Mha, and user's and producer's accuracy are unchanged at 0.96 and 0.70.
+  - **The published results therefore stand.** Since 8 Nov, `fetch_curves.py` clips each band at the offset before removing it, as the app does: NDVI = (N − R) / (N + R + 1) with R = max(B04 − 1000, 0) and N = max(B08 − 1000, 0). A fresh fetch of the southern points will differ from the archive in those 13 months, and elsewhere only by a few thousandths (from the +1 in the denominator). Later assessments, including the north, use the clipped formula.
 
 ## 6. Independent check
 
