@@ -2,14 +2,16 @@
 
 A stratified random accuracy assessment of the Iraq Farms Health winter-cereal map for the 2025-26 season, following Olofsson et al. (2014). The protocol was written down before any point was labelled. This folder holds everything needed to repeat it: the sample, the reference curves, the labels with their reasons, and the scripts.
 
-**Headline (95% intervals, unclear points left out):**
+**Headline (575 points: the 375 of phase 1 plus a 200-point top-up of the "not cropland" stratum, section 7; 95% intervals, unclear points left out):**
 
 | Map product | Map area | User's accuracy (winter crop) | Producer's accuracy | Overall accuracy |
 |---|---|---|---|---|
-| Confident cereal (the map's default) | 1.41 Mha | **0.96** (0.92–0.99) | **0.70** (0.61–0.79) | 0.94 |
-| Confident + doubtful cereal ("top crop") | 2.11 Mha | 0.79 (0.74–0.84) | 0.86 (0.76–0.96) | 0.93 |
+| Confident cereal (the map's default) | 1.41 Mha | **0.96** (0.92–0.99) | **0.71** (0.65–0.77) | 0.94 |
+| Confident + doubtful cereal ("top crop") | 2.11 Mha | 0.79 (0.74–0.84) | 0.87 (0.82–0.93) | 0.93 |
 
-**Winter-crop area in the southern tiles:** 1.93 Mha (95% CI 1.69–2.17 Mha). For comparison, the map has 1.41 Mha of confident cereal there.
+**Winter-crop area in the southern tiles:** 1.91 Mha (95% CI 1.75–2.06 Mha). For comparison, the map has 1.41 Mha of confident cereal there.
+
+Phase 1 alone (375 points, published 7 Nov 2026) gave the same picture with wider intervals: producer's accuracy 0.70 (0.61–0.79) and an area of 1.93 Mha (1.69–2.17). See sections 4 and 7.
 
 The reference label is *winter crop*, not *cereal*. Because of that, the user's accuracy is an upper bound for cereal, and so is the area figure (see [Limits](#limits)).
 
@@ -91,9 +93,11 @@ Each point is labelled from its own Sentinel-2 L2A history, read as a single 10 
 
 ## 4. Estimation
 
+*This section gives the phase-1 results (375 points), as published on 7 Nov 2026. The headline at the top now pools them with the phase-2 top-up; see section 7.*
+
 - Uses the Olofsson et al. (2014) estimators for a stratified sample, with the stratum area weights from `data/design.json`.
 - Reports overall accuracy, user's and producer's accuracy, and the error-adjusted winter-crop area with 95% confidence intervals. In every case the map side is "confident cereal" (or confident + doubtful) and the reference side is "winter crop".
-- Unclear points are left out of the headline. They are also counted all one way and all the other way, as bounds. Doing so changes no figure by more than 0.02 or 42,000 ha.
+- Unclear points are left out of the headline. They are also counted all one way and all the other way, as bounds. In phase 1, doing so changes no figure by more than 0.02 or 42,000 ha (the pooled bounds are wider; section 7).
 - As a check, a 4,000-draw stratified bootstrap (`bootstrap.py`, seed 20261107) agrees with the analytic intervals.
 
 **Winter crop by map class (unclear left out):**
@@ -134,6 +138,13 @@ python compare_curves.py data/curves_fetched.json        # against the archived 
 python label_rules.py data/curves.json                  # archived curves -> same 318 rule labels
 python estimate.py data/labels_final.csv
 python bootstrap.py data/labels_final.csv
+
+# D. Phase 2: the not-cropland top-up (section 7)
+python topup_draw.py                                     # same 200 points, byte for byte
+python fetch_curves.py --points data/topup_points.csv --out data/topup_curves_new.json   # or fetch_topup.ipynb
+python topup_review.py final                             # final labels from the archived blind review
+python estimate.py --topup
+python bootstrap.py --topup
 ```
 
 **Expected outputs:**
@@ -190,7 +201,31 @@ This had not been done when the results were published.
 - Both sets of figures will be published: phase 1 alone (section 4, unchanged) and phase 1 + top-up. The pooled figures become the headline, whatever they show.
 - No further top-up will be decided from these results. The northern assessment will give "not cropland" more points from the start.
 
-**Status:** points drawn; curves not yet fetched.
+**Results (8 Nov 2026):**
+- **Curves:** all 200 points fetched (Colab, `fetch_topup.ipynb`); 198 with 12 clear months, 2 with 11. Saved as `data/topup_curves.json`.
+- **Rule labels:** 168 no crop, 7 perennial, 5 water, 3 summer only, 2 winter crop, 15 unclear (`data/topup_labels_rule.csv`).
+- **Blind review:** the 15 unclear top-up curves were shuffled with the 57 phase-1 unclear curves (72 in all). The criteria were written down before the pack was opened (`data/review_criteria.txt`). Outcome for the top-up curves: 5 no crop, 1 perennial, 1 winter crop, 8 still unclear.
+- **Final top-up labels:** 173 no crop, 8 perennial, 5 water, 3 summer only, 3 winter crop, 8 unclear (`data/topup_labels_final.csv`).
+- **The stratum, pooled:** 5 of 292 labelled "not cropland" points are winter crop (1.7%), against 2 of 100 in phase 1.
+
+**Pooled estimates** (`estimate.py --topup`; the analytic intervals and a 4,000-draw bootstrap agree):
+
+| | Phase 1 (375 points) | Pooled (575 points) |
+|---|---|---|
+| Overall accuracy (confident cereal) | 0.940 ± 0.023 | 0.942 ± 0.015 |
+| User's accuracy (confident cereal) | 0.960 ± 0.039 | 0.960 ± 0.039 |
+| Producer's accuracy (confident cereal) | 0.700 ± 0.086 | 0.709 ± 0.056 |
+| Producer's accuracy (confident + doubtful) | 0.863 ± 0.099 | 0.874 ± 0.057 |
+| Winter-crop area | 1.93 ± 0.24 Mha | 1.91 ± 0.16 Mha |
+
+The intervals narrowed by about a third, as projected; the estimates hardly moved.
+
+**Unclear points.** 8 top-up points stay unclear, and in this stratum each stands for about 26,500 ha. Counted all as winter crop, the area would be 2.16 Mha and producer's accuracy 0.63; counted all as not, 1.86 Mha and 0.72. The bounds are wider than in phase 1 for that reason.
+
+**Agreement of the re-review with phase 1.** The 57 phase-1 curves in the pack got the same label as in phase 1 in 31 cases (54%). Most differences are between "summer only" and "unclear", which doesn't matter here. For the winter-crop question, 6 of 57 differ, all in one direction: S005, S102, S172, S289, S305 and S345 were not winter crop (or unclear) in phase 1 and are winter crop in the re-review.
+- As declared, the phase-1 labels are not changed.
+- **Sensitivity:** with the re-review labels for those 57 points, the pooled producer's accuracy would be 0.685 and the area 1.97 Mha. Both are inside the intervals above.
+- **What it means:** the manual look at borderline curves is the least repeatable step in this assessment. The rules themselves are deterministic. An independent labeller (section 6) is the way to measure this properly.
 
 ## Limits
 
@@ -199,6 +234,7 @@ This had not been done when the results were published.
   - The winter-crop area is an upper bound on the cereal area.
 - Turning these into cereal figures needs very-high-resolution imagery or field visits on a subsample.
 - **One labeller.** The labels were made by one labeller, Claude, working for the project. The rules are written so that someone else can apply them; section 6 is the test of that.
+- **The manual look is not very repeatable.** In the phase-2 blind re-review, the same labeller agreed with his own phase-1 labels on 54% of the borderline curves, and on 51 of 57 for the winter-crop question (section 7). The rule labels, which cover 85% of all points, are fully repeatable.
 - **South only.** The northern tiles are being re-run with a later season; see [`../season_pilot`](../season_pilot). They will be assessed the same way after that run.
 - **One pixel per point.** At 10 m, a pixel on a field edge mixes neighbours. This affects the map and the reference alike.
 
@@ -227,6 +263,12 @@ This had not been done when the results were published.
 | `data/topup_points.csv` | 200 top-up points: id, lat, lon |
 | `data/topup_map_key.csv` | Map stratum, pixel code and cell file of each top-up point |
 | `data/topup_design.json` | Top-up seed, size and points per cell |
+| `data/topup_curves.json` | Top-up reference curves (clipped corrected NDVI, Sep 2025 – Aug 2026, with raw bands and scene ids) |
+| `data/topup_labels_rule.csv` | Rule label and reason for each top-up point |
+| `data/review_criteria.txt` | Criteria for the manual look, written before the blind pack was opened |
+| `data/review_blind.csv` | The blind review pack: anonymous curves with the reviewer's labels and notes |
+| `data/review_key.csv` | Which point each anonymous curve belongs to |
+| `data/topup_labels_final.csv` | Final top-up labels (rule label, or the blind review where the rules said unclear) |
 | `data/spotcheck_blind.csv` | 38 points for an independent labeller |
 
 **Reference:** Olofsson, P., Foody, G. M., Herold, M., Stehman, S. V., Woodcock, C. E., & Wulder, M. A. (2014). Good practices for estimating area and assessing accuracy of land change. *Remote Sensing of Environment*, 148, 42–57.

@@ -28,3 +28,33 @@ confident + doubtful cereal
 
 $ python label_rules.py data/curves.json
 Counter({'winter_crop': 148, 'no_crop': 146, 'unclear': 57, 'summer_only': 17, 'perennial': 7})
+
+$ python estimate.py data/labels_final.csv --topup
+Phase 1 + phase-2 top-up (200 not-cropland points)
+
+confident cereal             unclear left out       OA 0.942±0.015  UA 0.960±0.039  PA 0.709±0.056  winter-crop area 1,905,220 ± 157,658 ha (map 1,406,717)
+confident cereal             unclear = winter crop  OA 0.918±0.020  UA 0.960±0.039  PA 0.626±0.060  winter-crop area 2,155,890 ± 210,097 ha (map 1,406,717)
+confident cereal             unclear = not          OA 0.943±0.015  UA 0.950±0.043  PA 0.718±0.056  winter-crop area 1,862,214 ± 155,080 ha (map 1,406,717)
+confident + doubtful cereal  unclear left out       OA 0.935±0.015  UA 0.790±0.047  PA 0.874±0.057  winter-crop area 1,905,220 ± 157,658 ha (map 2,106,683)
+confident + doubtful cereal  unclear = winter crop  OA 0.917±0.020  UA 0.805±0.046  PA 0.787±0.069  winter-crop area 2,155,890 ± 210,097 ha (map 2,106,683)
+confident + doubtful cereal  unclear = not          OA 0.932±0.015  UA 0.772±0.047  PA 0.873±0.056  winter-crop area 1,862,214 ± 155,080 ha (map 2,106,683)
+
+Winter crop by map class (unclear left out):
+map class           points  winter crop   share   winter-crop area (ha)
+confident_cereal        99           95     96%               1,349,880
+doubtful_cereal         69           31     45%                 314,477
+other_crop              50           26     52%                  86,727
+no_crop                 48            3      6%                  17,910
+not_cropland           292            5      2%                 136,226
+
+$ python bootstrap.py data/labels_final.csv --topup
+confident cereal
+  UA           estimate 0.960   bootstrap 95% 0.919 - 0.990
+  PA           estimate 0.709   bootstrap 95% 0.653 - 0.767
+  OA           estimate 0.942   bootstrap 95% 0.926 - 0.956
+  ref_area_ha  estimate 1.91 Mha   bootstrap 95% 1.75 Mha - 2.07 Mha
+confident + doubtful cereal
+  UA           estimate 0.790   bootstrap 95% 0.743 - 0.837
+  PA           estimate 0.874   bootstrap 95% 0.818 - 0.927
+  OA           estimate 0.935   bootstrap 95% 0.920 - 0.949
+  ref_area_ha  estimate 1.91 Mha   bootstrap 95% 1.75 Mha - 2.07 Mha

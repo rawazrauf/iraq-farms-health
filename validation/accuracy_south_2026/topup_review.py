@@ -21,11 +21,15 @@ LABELS = {"winter_crop", "summer_only", "perennial", "no_crop", "water", "unclea
 
 
 def curve(rec):
-    return ",".join(str(round(rec["months"][m]["cor"] * 1000)) if "cor" in rec["months"].get(m, {}) else ""
+    # capped at 1000: phase-1 curves (unclipped formula) can exceed 1, which would give away their origin
+    return ",".join(str(min(1000, round(rec["months"][m]["cor"] * 1000))) if "cor" in rec["months"].get(m, {}) else ""
                     for m in MON)
 
 
 if sys.argv[1:2] == ["pack"]:
+    rb = os.path.join(D, "review_blind.csv")
+    if os.path.exists(rb) and any(r["your_label"] for r in csv.DictReader(open(rb))) and "--force" not in sys.argv:
+        raise SystemExit("data/review_blind.csv already holds review labels; re-packing would erase them (use --force).")
     new = json.load(open(sys.argv[2])); old = json.load(open(os.path.join(D, "curves.json")))
     ids = [r["id"] for r in csv.DictReader(open(os.path.join(D, "topup_points.csv")))]
     rows = []

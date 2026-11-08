@@ -1,0 +1,8 @@
+Manual-look criteria (written 8 Nov 2026 15:12, before viewing the pack). Months Sep..Aug, values x1000.
+- winter_crop: one clear seasonal rise and fall with its peak in Dec-Apr: peak >= 350, rising at least 150 above the
+  autumn level before it and falling back at least half way after it (a single-month spike does not count).
+- summer_only: the clear rise and fall peaks in May-Oct (>= 350) and Dec-Apr stays low (< 300).
+- perennial: >= 300 in most months (9+) without a winter rise-and-fall that meets the winter_crop test.
+- no_crop: max < 330, or only an isolated single-month spike.
+- water: mostly negative.
+- unclear: anything else (two competing seasons of similar size, gaps that hide the peak, weak 300-350 winter peak).
