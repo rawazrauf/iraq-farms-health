@@ -1,4 +1,4 @@
-# Field checks (fields 10–211)
+# Field checks (fields 10–212)
 
 These are field-by-field checks of the 2025-26 crop map. Each field's own Sentinel-2 greenness curve and monthly images were read in Iraq Farms Health's debug mode (`https://iraqfarmshealth.com/?debug=1`). They were done between 29 Oct and 1 Nov 2026.
 
@@ -41,6 +41,8 @@ These draws are biased toward larger fields, and they never sample pixels the ma
 |---|---|---|---|---|---|
 | Random and hand-picked (10–187) | 106 | 33 | 11 | 26 | 2 |
 | Targeted late fields (188–211) | 6 | 10 | 4 | 4 | 0 |
+
+Field 212 (8 Nov 2026) is a single case, not part of either set: the "rice" near Lake Hamrin, which turned out to be lake shore flooded in April. It is the evidence for showing summer-crop labels as "not a winter crop" on the crop page.
 
 Scored random and hand-picked fields by region (34.8°N):
 

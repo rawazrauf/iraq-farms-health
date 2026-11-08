@@ -14,13 +14,21 @@
   "use strict";
   const R = 20037508.342789244;
   const LESS = 100;
+  /* Labels that don't fit a winter-season map of Iraq (Nov 2026). The data keep WorldCereal's codes; only what is
+     shown changes. OFF_SEASON: crops Iraq grows only in summer, so the label cannot be right in this map (at Lake
+     Hamrin the "rice" was flooded shore on 17 Apr 2026, field check 212). UNRELIABLE: possible in winter, but the
+     field checks found the label on winter cereal and the area is far larger than Iraq grows. */
+  const OFF_SEASON = new Set(["rice", "maize", "sorghum", "millet", "sunflower", "soy_soybeans", "groundnuts",
+                              "cassava", "sugar_cane", "fibre_crops"]);
+  const UNRELIABLE = new Set(["tobacco", "rapeseed_rape"]);
+  const OFF_SEASON_COLOR = "#6F86B5";
 
   const CropLayer = {
     base: "",
     index: null,
     // cerealRule "p70": a pixel counts as cereal only when WorldCereal's combined cereal probability is ≥ 70 %
     // (codes below +200); "top": WorldCereal's default top-crop answer. showDoubtful draws the < 70 % cereal pixels.
-    opts: { show: { wheat: true, barley: true, other: true, nocrop: true }, fadeLess: true, mode: "crops",
+    opts: { show: { wheat: true, barley: true, other: true, nocrop: true, offseason: true }, fadeLess: true, mode: "crops",
             showDoubtful: false, cerealRule: "p70" },
     // ESA WorldCereal 2021 v100 winter cereals (official product), the same service Iraq Farms Health uses.
     WC21_URL: "https://wmts.terrascope.be/wmts?service=WMTS&request=GetTile&version=1.0.0"
@@ -62,12 +70,18 @@
       if (c === "wheat") return "wheat";
       if (c === "barley") return "barley";
       if (c === "no_crop") return "nocrop";
+      if (OFF_SEASON.has(c)) return "offseason";
       return "other";
     },
 
+    /** "offseason" (label can't be right in a winter map), "unreliable" (label often wrong here) or null. */
+    labelNote(cls) { return OFF_SEASON.has(cls) ? "offseason" : UNRELIABLE.has(cls) ? "unreliable" : null; },
+    OFF_SEASON_COLOR,
+
     describe(code) {
-      if (!code) return { cls: null, less: false, doubtful: false };
-      return { cls: this.classes()[(code % LESS) - 1] || null, less: code > LESS, doubtful: code > 2 * LESS };
+      if (!code) return { cls: null, less: false, doubtful: false, note: null };
+      const cls = this.classes()[(code % LESS) - 1] || null;
+      return { cls, less: code > LESS, doubtful: code > 2 * LESS, note: cls ? this.labelNote(cls) : null };
     },
 
     setOptions(o) {
@@ -86,7 +100,7 @@
         if (f === 2 && !this.opts.showDoubtful) continue;
         const g = this.groupOf(v);
         if (!this.opts.show[g]) continue;
-        const h = cols[ci];
+        const h = g === "offseason" ? OFF_SEASON_COLOR : cols[ci];
         lut[v * 4] = parseInt(h.slice(1, 3), 16);
         lut[v * 4 + 1] = parseInt(h.slice(3, 5), 16);
         lut[v * 4 + 2] = parseInt(h.slice(5, 7), 16);

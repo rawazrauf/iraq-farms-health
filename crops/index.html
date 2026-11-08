@@ -15,7 +15,7 @@
 :root{
   --ink:#14261B; --paper:#F3EFE4; --card:#FBF9F3; --clay:#B4552D; --canal:#1E6E5A; --wheat:#D9A441;
   --line:#C9BFA8; --muted:#5E6B60; --panel:rgba(243,239,228,.95); --shadow:0 2px 14px rgba(20,38,27,.18);
-  --c-wheat:#E3B505; --c-barley:#C2571A; --c-other:#4F9D69; --c-nocrop:#9AA0A6;
+  --c-wheat:#E3B505; --c-barley:#C2571A; --c-other:#4F9D69; --c-nocrop:#9AA0A6; --c-off:#6F86B5;
   --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
   --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
   --font:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;
@@ -162,6 +162,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
       <label><input type="checkbox" id="lg-wheat" checked><span class="sw" style="background:var(--c-wheat)"></span><span data-t="wheat">Wheat</span></label>
       <label><input type="checkbox" id="lg-barley" checked><span class="sw" style="background:var(--c-barley)"></span><span data-t="barley">Barley</span></label>
       <label><input type="checkbox" id="lg-other" checked><span class="sw" style="background:var(--c-other)"></span><span data-t="other">Other crops</span></label>
+      <label><input type="checkbox" id="lg-offseason" checked><span class="sw" style="background:var(--c-off)"></span><span data-t="offseason">Summer-crop label (not a winter crop)</span></label>
       <label><input type="checkbox" id="lg-nocrop" checked><span class="sw" style="background:var(--c-nocrop)"></span><span data-t="nocrop">Cropland, no crop</span></label>
       <label class="sub"><input type="checkbox" id="lg-fade" checked><span data-t="fade">Fade where WorldCereal is less sure</span></label>
       <label class="sub"><input type="checkbox" id="lg-doubt"><span data-t="doubt">Show doubtful cereal (below 70%, or specks under 0.1 ha)</span></label>
@@ -309,7 +310,7 @@ const KRI_NAME = "Kurdistan Region";
 
 /* ------------------------------------------------------------------ text */
 const T = {
- en:{ckRulesT:"Does the counting method change the answer?",ckRulesP:"2021 is a yes/no cereal map; 2025-26 picks the most likely of 24 crops. By default this page counts 2025-26 cereal only where WorldCereal's cereal probability is at least 70% and the pixel is part of a patch of at least 0.1 ha. Other ways of counting, compared with 2021:",ckRule:"2025-26 rule",ckIraq:"All",rTop:"Most likely crop (WorldCereal's map)",rP50:"Cereal probability ≥ 50%",rP70:"Confident cereal: ≥ 70%, no specks (default)",rP70all:"Cereal probability ≥ 70%, specks included",doubt:"Show doubtful cereal (below 70%, or specks under 0.1 ha)",doubtPop:"doubtful: cereal probability below 70% or an isolated speck",allPix:"WorldCereal top-crop map",v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
+ en:{offseason:"Summer-crop label (not a winter crop)",offPop:"Not a winter crop",offWhy:"WorldCereal's label: {c}. Iraq grows it only in summer, so it can't be right in this winter map.",offRice:"Likely flooded or wet ground.",unrelPop:"Other crop",unrelWhy:"WorldCereal's label: {c}. This label is often wrong in this map.",ckOff:"Slate blue means WorldCereal gave a summer crop's name, such as rice, in this winter map. On lake and marsh shores it is usually ground that flooded and then greened up, not rice.",ckRulesT:"Does the counting method change the answer?",ckRulesP:"2021 is a yes/no cereal map; 2025-26 picks the most likely of 24 crops. By default this page counts 2025-26 cereal only where WorldCereal's cereal probability is at least 70% and the pixel is part of a patch of at least 0.1 ha. Other ways of counting, compared with 2021:",ckRule:"2025-26 rule",ckIraq:"All",rTop:"Most likely crop (WorldCereal's map)",rP50:"Cereal probability ≥ 50%",rP70:"Confident cereal: ≥ 70%, no specks (default)",rP70all:"Cereal probability ≥ 70%, specks included",doubt:"Show doubtful cereal (below 70%, or specks under 0.1 ha)",doubtPop:"doubtful: cereal probability below 70% or an isolated speck",allPix:"WorldCereal top-crop map",v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
   dNote:"Only inside processed areas (dashed outline).",y21:"Winter cereals, 2021 (ESA WorldCereal)",tabCheck:"Check",
   ckTitle:"Is this map right? Check it yourself",
   ckIntro:"Compare our 2025-26 map with ESA's own published WorldCereal map for 2021, over satellite imagery. Same system, different year, so they should agree on where farming happens, and differ only where land use really changed.",
@@ -345,7 +346,7 @@ const T = {
   copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
   view:"Map view",gov:"Governorate",ha:"ha"},
- ar:{ckRulesT:"هل تغيّر طريقة العدّ النتيجة؟",ckRulesP:"خريطة 2021 تجيب بنعم أو لا عن الحبوب؛ أما 2025-26 فتختار المحصول الأرجح من بين 24. افتراضياً تعدّ هذه الصفحة حبوب 2025-26 فقط حيث يبلغ احتمال الحبوب لدى WorldCereal 70% على الأقل ويكون البكسل جزءاً من رقعة لا تقل عن 0.1 هكتار. طرق عدّ أخرى مقارنةً بـ 2021:",ckRule:"قاعدة 2025-26",ckIraq:"الكل",rTop:"المحصول الأرجح (خريطة WorldCereal)",rP50:"احتمال الحبوب ≥ 50%",rP70:"حبوب مؤكدة: ≥ 70% دون بقع (الافتراضي)",rP70all:"احتمال الحبوب ≥ 70% مع البقع",doubt:"إظهار الحبوب المشكوك فيها (أقل من 70% أو بقع أصغر من 0.1 هكتار)",doubtPop:"مشكوك فيها: احتمال الحبوب أقل من 70% أو بقعة معزولة",allPix:"خريطة المحصول الأرجح لـ WorldCereal",v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
+ ar:{offseason:"تسمية محصول صيفي (ليس محصولاً شتوياً)",offPop:"ليس محصولاً شتوياً",offWhy:"تسمية WorldCereal: {c}. يُزرع في العراق صيفاً فقط، فلا يمكن أن تكون صحيحة في هذه الخريطة الشتوية.",offRice:"على الأرجح أرض غُمرت بالماء أو رطبة.",unrelPop:"محصول آخر",unrelWhy:"تسمية WorldCereal: {c}، وكثيراً ما تكون هذه التسمية خاطئة في هذه الخريطة.",ckOff:"اللون الرمادي المزرق يعني أن WorldCereal أعطى اسم محصول صيفي، مثل الرز، في هذه الخريطة الشتوية. على شواطئ البحيرات والأهوار يكون هذا غالباً أرضاً غُمرت ثم اخضرّت، وليس رزاً.",ckRulesT:"هل تغيّر طريقة العدّ النتيجة؟",ckRulesP:"خريطة 2021 تجيب بنعم أو لا عن الحبوب؛ أما 2025-26 فتختار المحصول الأرجح من بين 24. افتراضياً تعدّ هذه الصفحة حبوب 2025-26 فقط حيث يبلغ احتمال الحبوب لدى WorldCereal 70% على الأقل ويكون البكسل جزءاً من رقعة لا تقل عن 0.1 هكتار. طرق عدّ أخرى مقارنةً بـ 2021:",ckRule:"قاعدة 2025-26",ckIraq:"الكل",rTop:"المحصول الأرجح (خريطة WorldCereal)",rP50:"احتمال الحبوب ≥ 50%",rP70:"حبوب مؤكدة: ≥ 70% دون بقع (الافتراضي)",rP70all:"احتمال الحبوب ≥ 70% مع البقع",doubt:"إظهار الحبوب المشكوك فيها (أقل من 70% أو بقع أصغر من 0.1 هكتار)",doubtPop:"مشكوك فيها: احتمال الحبوب أقل من 70% أو بقعة معزولة",allPix:"خريطة المحصول الأرجح لـ WorldCereal",v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
   dNote:"داخل المناطق المعالَجة فقط (الحد المتقطع).",y21:"الحبوب الشتوية 2021 (ESA WorldCereal)",tabCheck:"التحقق",
   ckTitle:"هل الخريطة صحيحة؟ تحقّق بنفسك",
   ckIntro:"قارن خريطتنا لموسم 2025-26 بخريطة WorldCereal الرسمية التي نشرتها وكالة الفضاء الأوروبية لعام 2021، فوق صور الأقمار الصناعية. النظام نفسه وسنة مختلفة، لذا يُفترض أن تتفقا على أماكن الزراعة وأن تختلفا فقط حيث تغيّر استخدام الأرض فعلاً.",
@@ -381,7 +382,7 @@ const T = {
   copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
   view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
- ku:{ckRulesT:"ئایا شێوازی ژماردن ئەنجامەکە دەگۆڕێت؟",ckRulesP:"نەخشەی 2021 بە بەڵێ یان نەخێر وەڵامی دانەوێڵە دەداتەوە؛ 2025-26 ئەگەرترین بەرهەم لە نێوان 24 هەڵدەبژێرێت. بە بنەڕەت ئەم پەڕەیە دانەوێڵەی 2025-26 تەنها لەو شوێنانە دەژمێرێت کە ئەگەری دانەوێڵەی WorldCereal لانیکەم 70%ە و پیکسڵەکە بەشێکە لە پارچەیەکی لانیکەم 0.1 هێکتار. شێوازەکانی تری ژماردن، بەراورد بە 2021:",ckRule:"یاسای 2025-26",ckIraq:"هەموو",rTop:"ئەگەرترین بەرهەم (نەخشەی WorldCereal)",rP50:"ئەگەری دانەوێڵە ≥ 50%",rP70:"دانەوێڵەی دڵنیا: ≥ 70%، بێ پەڵە (بنەڕەت)",rP70all:"ئەگەری دانەوێڵە ≥ 70%، لەگەڵ پەڵەکان",doubt:"پیشاندانی دانەوێڵەی گوماناوی (کەمتر لە 70%، یان پەڵەی بچووکتر لە 0.1 هێکتار)",doubtPop:"گوماناوی: ئەگەری دانەوێڵە کەمتر لە 70% یان پەڵەیەکی تاک",allPix:"نەخشەی ئەگەرترین بەرهەمی WorldCereal",v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
+ ku:{offseason:"ناوی بەرهەمی هاوینە (بەرهەمی زستانە نییە)",offPop:"بەرهەمی زستانە نییە",offWhy:"ناوی WorldCereal: {c}. لە عێراق تەنها لە هاویندا دەچێنرێت، بۆیە لەم نەخشە زستانەیەدا ناتوانێت ڕاست بێت.",offRice:"بە ئەگەری زۆر زەوییەکی ئاو لێهاتوو یان شێدارە.",unrelPop:"بەرهەمی تر",unrelWhy:"ناوی WorldCereal: {c}، کە زۆرجار لەم نەخشەیەدا هەڵەیە.",ckOff:"ڕەنگی خۆڵەمێشی-شین واتە WorldCereal ناوی بەرهەمێکی هاوینەی، وەک برنج، لەم نەخشە زستانەیەدا داناوە. لە کەناری دەریاچە و هۆڕەکان ئەمە زۆرجار زەوییەکە کە ئاوی لێهاتووە و پاشان سەوز بووە، نەک برنج.",ckRulesT:"ئایا شێوازی ژماردن ئەنجامەکە دەگۆڕێت؟",ckRulesP:"نەخشەی 2021 بە بەڵێ یان نەخێر وەڵامی دانەوێڵە دەداتەوە؛ 2025-26 ئەگەرترین بەرهەم لە نێوان 24 هەڵدەبژێرێت. بە بنەڕەت ئەم پەڕەیە دانەوێڵەی 2025-26 تەنها لەو شوێنانە دەژمێرێت کە ئەگەری دانەوێڵەی WorldCereal لانیکەم 70%ە و پیکسڵەکە بەشێکە لە پارچەیەکی لانیکەم 0.1 هێکتار. شێوازەکانی تری ژماردن، بەراورد بە 2021:",ckRule:"یاسای 2025-26",ckIraq:"هەموو",rTop:"ئەگەرترین بەرهەم (نەخشەی WorldCereal)",rP50:"ئەگەری دانەوێڵە ≥ 50%",rP70:"دانەوێڵەی دڵنیا: ≥ 70%، بێ پەڵە (بنەڕەت)",rP70all:"ئەگەری دانەوێڵە ≥ 70%، لەگەڵ پەڵەکان",doubt:"پیشاندانی دانەوێڵەی گوماناوی (کەمتر لە 70%، یان پەڵەی بچووکتر لە 0.1 هێکتار)",doubtPop:"گوماناوی: ئەگەری دانەوێڵە کەمتر لە 70% یان پەڵەیەکی تاک",allPix:"نەخشەی ئەگەرترین بەرهەمی WorldCereal",v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
   dNote:"تەنها لە ناو ناوچە پرۆسێسکراوەکان (سنووری پچڕپچڕ).",y21:"دانەوێڵەی زستانی، 2021 (ESA WorldCereal)",tabCheck:"پشکنین",
   ckTitle:"ئایا ئەم نەخشەیە ڕاستە؟ خۆت بیپشکنە",
   ckIntro:"نەخشەکەمان بۆ وەرزی 2025-26 بەراورد بکە لەگەڵ نەخشەی فەرمیی WorldCereal ی ئاژانسی بۆشایی ئەوروپا بۆ ساڵی 2021، لەسەر وێنەی مانگی دەستکرد. هەمان سیستەم و ساڵێکی جیاواز، بۆیە دەبێت لەسەر شوێنی کشتوکاڵ ڕێک بن و تەنها لەو شوێنانە جیاواز بن کە بەکارهێنانی زەوی بەڕاستی گۆڕاوە.",
@@ -671,7 +672,11 @@ function initMap(){
       const f = map.queryRenderedFeatures(e.point,{layers:["gov-fill"]})[0];
       if(f) gov = govName(f.properties);
     }
-    const what = d.cls ? `<b>${clsName(d.cls)}</b>${d.doubtful ? ` <span class="pct">(${t("doubtPop")})</span>` : d.less ? ` <span class="pct">(${t("lessSure")})</span>` : ""}` : t("notCrop");
+    // Labels that don't fit a winter map (crop-layer.js labelNote): name what WorldCereal said, but don't present it as a detection.
+    const what = !d.cls ? t("notCrop")
+      : d.note === "offseason" ? `<b>${t("offPop")}</b><div class="pct" style="margin-top:2px">${t("offWhy",{c:clsName(d.cls)})}${d.cls==="rice" ? " " + t("offRice") : ""}</div>`
+      : d.note === "unreliable" ? `<b>${t("unrelPop")}</b><div class="pct" style="margin-top:2px">${t("unrelWhy",{c:clsName(d.cls)})}</div>`
+      : `<b>${clsName(d.cls)}</b>${d.doubtful ? ` <span class="pct">(${t("doubtPop")})</span>` : d.less ? ` <span class="pct">(${t("lessSure")})</span>` : ""}`;
     let y21 = "";
     if(CropLayer.opts.mode !== "crops"){
       const v = await sample2021(e.lngLat.lng, e.lngLat.lat);
@@ -686,7 +691,7 @@ function refreshCrops(){
   CropLayer.version = (CropLayer.version||0)+1;
   s.setTiles(["wcrop://{z}/{x}/{y}?v="+CropLayer.version]);
 }
-["wheat","barley","other","nocrop"].forEach(k => $("#lg-"+k).onchange = e => { CropLayer.setOptions({show:{[k]:e.target.checked}}); refreshCrops(); });
+["wheat","barley","other","nocrop","offseason"].forEach(k => $("#lg-"+k).onchange = e => { CropLayer.setOptions({show:{[k]:e.target.checked}}); refreshCrops(); });
 $("#lg-fade").onchange = e => { CropLayer.setOptions({fadeLess:e.target.checked}); refreshCrops(); };
 $("#lg-doubt").onchange = e => { CropLayer.setOptions({showDoubtful:e.target.checked}); refreshCrops(); };
 $("#lg-rule").onchange = e => { CropLayer.setOptions({cerealRule:e.target.value}); refreshCrops(); renderCheck(); };
@@ -720,7 +725,7 @@ $("#ck-diff").onclick = () => {
 };
 let CMP = null;
 function renderCheck(){
-  $("#ck-list").innerHTML = ["ck1","ck2","ck3","ck4","ck5"].map(k => `<li>${t(k)}</li>`).join("");
+  $("#ck-list").innerHTML = ["ck1","ck2","ck3","ckOff","ck4","ck5"].map(k => `<li>${t(k)}</li>`).join("");
   const can = CropLayer.canCompare();
   $("#ck-unavail").hidden = can; $("#ck-diff").disabled = !can;
   document.querySelector("input[name=view][value=diff]").disabled = !can;
