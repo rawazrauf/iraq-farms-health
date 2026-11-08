@@ -145,6 +145,7 @@ python bootstrap.py data/labels_final.csv
 - Raw NDVI, scene dates and SCL values were not archived for this run. A fresh `fetch_curves.py` run records all of them.
 - Planetary Computer can reprocess scenes, so a fresh fetch may differ slightly. `compare_curves.py` reports by how much, and whether any rule label changes.
 - `fetch_curves.py` is a Python port of the browser function that produced the archived curves; see its header.
+- **Port checked 8 Nov 2026:** `fetch_curves.py --only S001,S002,S003,S010` in Colab, then `compare_curves.py`. All 48 months were identical to the archived curves (maximum difference 0.000), and all 4 rule labels were the same.
 
 ## 6. Independent check
 
