@@ -165,7 +165,7 @@ The entire tool is a single, commented HTML file. Anyone can read exactly how ev
 
 ## 8. The crop map and its validation
 
-The 2025-26 winter-cereal map (`crops/2026/`) is a separate product from the field health readings. It was made with the ESA WorldCereal crop-type models, run tile by tile on the Copernicus Data Space Ecosystem; the notebooks are in `tools/`. By default the map shows a pixel as cereal only when the model gives wheat plus barley a probability of at least 70% ("confident cereal"). Pixels where cereal is the top crop but below that level are kept as "doubtful cereal".
+The 2025-26 winter-cereal map (`crops/2026/`) is a separate product from the field health readings. It was made with the ESA WorldCereal crop-type models, run tile by tile on the Copernicus Data Space Ecosystem; the notebooks are in `tools/`. By default the map shows a pixel as cereal only when the model gives wheat plus barley a probability of at least 70% ("confident cereal"). Pixels where cereal is the top crop but below that level are kept as "doubtful cereal". Some of WorldCereal's 24 crop names do not fit a winter map of Iraq. Crops grown here only in summer (rice, maize, sorghum, sunflower, cotton and others, about 3,200 ha in all) are shown as "not a winter crop" rather than by name; the "rice" at Lake Hamrin, for example, was lake shore flooded in April 2026. Tobacco and rapeseed are shown as "other crop", because the field checks found those names on winter cereal. The data files keep WorldCereal's original codes.
 
 The map was checked in two ways, both described in full in **[validation/](validation/README.md)**:
 
