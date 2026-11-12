@@ -688,7 +688,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.12-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.12-b";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -3398,9 +3398,15 @@ async function collectReportFrames(f){
   }
   return out;
 }
+let __reportBusy = false;   // a report is being built or its share sheet is open
 async function buildFieldReport(f, btn){
   const t = I18N[lang];
   if(!__reportReady) return;                 // shouldn't happen — button is disabled
+  /* One report at a time. A second tap while the first was still building made a second image, and
+     the browser refuses a second share sheet while one is open, so the second image fell through to
+     a plain download: the same report delivered twice. */
+  if(__reportBusy) return;
+  __reportBusy = true;
   try{
     // Data is already loaded (the button only enabled once it was), so this is
     // fast and stays within the tap's gesture window → iOS shows the share sheet.
@@ -3550,6 +3556,8 @@ async function buildFieldReport(f, btn){
   }catch(err){
     console.warn("report:", err.message);
     alert("Could not build the report image.");
+  }finally{
+    __reportBusy = false;
   }
 }
 /* Collect the tapped field plus nearby fields (for the report's context panel),
@@ -3704,24 +3712,37 @@ async function drawReferenceTiles(ctx, subject, ox, oy, w, h){
   }
 }
 function roundRectPath(x,rx,ry,w,h,r){ x.beginPath(); x.moveTo(rx+r,ry); x.arcTo(rx+w,ry,rx+w,ry+h,r); x.arcTo(rx+w,ry+h,rx,ry+h,r); x.arcTo(rx,ry+h,rx,ry,r); x.arcTo(rx,ry,rx+w,ry,r); x.closePath(); }
+/* Phones and tablets get the native share sheet; computers get a plain download.
+   The share sheet is the right tool on a phone ("Save Image" straight to Photos, WhatsApp, Messages).
+   On a computer it is a small system pop-up that is poor for saving a file, and its "Copy" puts the
+   image on the clipboard twice (Chrome, Nov 2026); a download to the Downloads folder is what people
+   expect there. */
+function isPhoneOrTablet(){
+  const ua = navigator.userAgent || "";
+  if(navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean" && navigator.userAgentData.mobile) return true;
+  if(/Android|iPhone|iPad|iPod/i.test(ua)) return true;
+  return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;   // iPadOS reports itself as a Mac
+}
 async function shareOrDownloadImage(blob, filename){
   const file = new File([blob], filename, {type:"image/png"});
-  // Prefer the native share sheet — it offers "Save Image" (straight to Photos,
+  // Prefer the native share sheet on phones — it offers "Save Image" (straight to Photos,
   // easy to find) plus WhatsApp/Messages/Mail. Only fall back to a plain download
   // when file-sharing genuinely isn't supported. Critically, if the user OPENS
   // the share sheet and cancels it (AbortError), we do NOT fall back — that would
   // wrongly trigger a second download prompt.
-  const canShareFiles = !!(navigator.canShare && navigator.canShare({files:[file]}));
+  const canShareFiles = isPhoneOrTablet() && !!(navigator.canShare && navigator.canShare({files:[file]}));
   if(canShareFiles){
     try{
-      await navigator.share({ files:[file], title:"Iraq Farms Health" });
+      // The file only, no title: with a title some apps receive two items, the picture and the text.
+      await navigator.share({ files:[file] });
       return;                                  // shared (or handled) — done
     }catch(e){
       if(e && e.name === "AbortError") return;  // user dismissed — respect that, no download
+      if(e && e.name === "InvalidStateError") return;   // a share sheet is already open: do not also download
       // any other error: sharing failed for real → fall through to download
     }
   }
-  // Fallback: direct download (Files app). Used only when sharing is unavailable.
+  // Direct download: computers, and phones where sharing a file is unavailable.
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a);
   a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 4000);
