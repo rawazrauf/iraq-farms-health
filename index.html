@@ -714,7 +714,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.12-g";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.12-k";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2207,6 +2207,7 @@ async function onFieldTap(e){
   if(myTap !== __tapGen) return;
   DBG.log(`history: ${f.__history.length} months in ${((performance.now()-tFill)/1000).toFixed(1)} s · `
         + (byMonth ? `one search, ${byMonth.total} scenes` : "month-by-month searches") + ` · ${HISTORY_WORKERS} at a time`);
+  { const sr = fieldSeason(f); if(sr) DBG.log(`season ${sr.season}: ${sr.label} · ${sr.why}`); }
   __fieldBusyUntil = 0; scheduleHealthSample();   // field read: neighbours may colour now
   // Reading complete — log this field to history (ranked later by improvement).
   try{
@@ -2226,6 +2227,82 @@ async function onFieldTap(e){
 
 /* Build n calendar months ending with the current month; oldest first.
    Each entry: {label:"Jul", ym:"2026-07", from, to} as YYYY-MM-DD strings. */
+/* ---------- Season label from a field's own curve (port of validation/accuracy_south_2026/label_rules.py) ----------
+   The rules that labelled the reference points of the accuracy assessment, applied to one season of monthly
+   NDVI: September to August. Input: `get(ym)` returns that month's NDVI (offset-corrected, as everywhere in
+   the app) or null when the month has no clear reading. Returns {label, why, W, S, B, peakYm}:
+     winter_crop | summer_only | perennial | no_crop | water | unclear.
+   Kept identical to the Python: tested to give the same label on all 575 archived curves (see
+   validation/accuracy_south_2026). "winter_crop" means a crop that grew in winter and came off; the curve
+   cannot say which crop. */
+function seasonMonths(endYear){            // Sep (endYear-1) … Aug (endYear), as "YYYY-MM"
+  const out = [];
+  for(let m = 9; m <= 12; m++) out.push(`${endYear-1}-${String(m).padStart(2,"0")}`);
+  for(let m = 1; m <= 8; m++)  out.push(`${endYear}-${String(m).padStart(2,"0")}`);
+  return out;
+}
+function seasonLabel(endYear, get){
+  const y0 = endYear - 1, y1 = endYear, ym = (y, m) => `${y}-${String(m).padStart(2,"0")}`;
+  const MON = seasonMonths(endYear);
+  const WIN = [ym(y0,12), ym(y1,1), ym(y1,2), ym(y1,3), ym(y1,4)];
+  const SUM = [ym(y1,6), ym(y1,7), ym(y1,8), ym(y0,9)];
+  const EARLY = [ym(y0,9), ym(y0,10), ym(y0,11), ym(y0,12)];
+  const LATE = [ym(y1,4), ym(y1,5), ym(y1,6), ym(y1,7)];
+  const v = {};
+  for(const m of MON){ const x = get(m); if(x != null && isFinite(x)) v[m] = x; }
+  const vals = MON.filter(m => m in v).map(m => v[m]);
+  if(vals.length < 6) return {label:"unclear", why:"fewer than 6 clear months"};
+  if(vals.filter(x => x < 0).length >= vals.length / 2) return {label:"water", why:"NDVI < 0 in half the months"};
+  const B = Math.min(...vals);
+  if(vals.filter(x => x >= 0.35).length >= 10 && B >= 0.25) return {label:"perennial", why:"green all year", B};
+  const winM = WIN.filter(m => m in v);
+  const W = winM.length ? Math.max(...winM.map(m => v[m])) : null;
+  const sumV = SUM.filter(m => m in v).map(m => v[m]);
+  const S = sumV.length ? Math.max(...sumV) : null;
+  const missingWin = WIN.filter(m => !(m in v)).length;
+  if(W !== null && W >= 0.40 && W - B >= 0.25){
+    const pk = winM.find(m => v[m] === W);                       // first month at the winter maximum
+    const earlyOk = EARLY.some(m => m in v && v[m] <= W - 0.20 && m < pk);
+    const lateOk  = LATE.some(m => m in v && m > pk && v[m] <= B + 0.5 * (W - B));
+    if(earlyOk && lateOk) return {label:"winter_crop", why:`peak ${W.toFixed(2)} in ${pk}, low ${B.toFixed(2)}`, W, S, B, peakYm:pk};
+  }
+  if((W === null || W < 0.30) && S !== null && S >= 0.40) return {label:"summer_only", why:`summer peak ${S.toFixed(2)}`, W, S, B};
+  if(Math.max(...vals) < 0.30) return {label:"no_crop", why:`max ${Math.max(...vals).toFixed(2)}`, W, S, B};
+  if(missingWin >= 2) return {label:"unclear", why:`${missingWin} winter months missing`, W, S, B};
+  return {label:"unclear", why:"no clear pattern", W, S, B};
+}
+/* The newest September–August season that has finished. In November 2026 that is 2025–26: the season now
+   being sown has no curve yet, so the line names the season it describes and never says "this season". */
+function latestCompleteSeason(){
+  const now = new Date(), y = now.getUTCFullYear(), m = now.getUTCMonth() + 1;
+  return m >= 9 ? y : y - 1;
+}
+/* Season label for an opened field, from the monthly readings already loaded (field medians).
+   null until the history is complete, or if the season is not inside the 24 loaded months. */
+function fieldSeason(f){
+  const h = f && f.__history || [];
+  if(!h.length || h.some(s => s.pending)) return null;
+  const Y = latestCompleteSeason(), by = {};
+  for(const s of h) by[s.ym] = s.v;
+  if(!seasonMonths(Y).every(m => m in by)) return null;
+  const r = seasonLabel(Y, m => by[m]);
+  r.season = `${Y-1}–${String(Y).slice(2)}`;
+  return r;
+}
+// Debug-mode wording (English only until this is shown to farmers).
+function seasonText(r){
+  const mon = ym => ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+ym.slice(5) - 1];
+  const what = {
+    winter_crop: () => `a winter crop grew (peak ${r.W.toFixed(2)} in ${mon(r.peakYm)})`,
+    summer_only: () => `a summer crop only (peak ${r.S.toFixed(2)})`,
+    perennial:   () => "green all year (orchard, palms or fodder)",
+    no_crop:     () => `no crop (${r.why})`,
+    water:       () => "water",
+    unclear:     () => `unclear pattern (${r.why})`
+  }[r.label]();
+  return `${r.season} season, from this field's curve: ${what}`;
+}
+
 function buildMonths(n){
   const out = [];
   const now = new Date();
@@ -3228,6 +3305,8 @@ function renderField(f){
       return `<div class="nbr" id="cereal-line"><span class="nbr-ico">🌾</span> ${t[key]}</div>`;
     })()}
     ${DBG.on && crop26Of(f) ? `<div class="nbr" style="border-style:dashed"><span class="nbr-ico">🧪</span> ${crop26Of(f).text}${crop26Of(f).right ? " — " + crop26Of(f).right : ""}</div>` : ""}
+    ${(()=>{ const sr = DBG.on && fieldSeason(f);      // debug mode only: season label from the curve
+             return sr ? `<div class="nbr" style="border-style:dashed" id="season-line"><span class="nbr-ico">🧪</span> ${seasonText(sr)}</div>` : ""; })()}
     ${(()=>{
       // Rainfall: this year vs last year (rule and wording in rainSummaryText).
       const r = rainSummaryText(f, t);
@@ -3453,6 +3532,7 @@ function reportNotes(f, t, curV, band){
   if(cp!=null && cp>=0.15)
     out.push({icon:"🌾", text:t[cp>=0.5 ? "cerealYes" : "cerealPart"], right:`${Math.round(cp*100)}%`});
   { const c26 = DBG.on && crop26Of(f); if(c26) out.push({icon:"🧪", text:c26.text, right:c26.right}); }   // debug mode only
+  { const sr = DBG.on && fieldSeason(f); if(sr) out.push({icon:"🧪", text:seasonText(sr)}); }               // debug mode only
   const nh = neighborStanding(f, curV, __healthCache, e=>e.v);
   if(nh) out.push({icon:"🏞️", text:t["nbrHealth_"+nh]});
   if(f.__moisture!=null){
