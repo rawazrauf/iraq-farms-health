@@ -16,11 +16,15 @@ Tap any field on the map to see how healthy its crops are right now, view a two-
 - **Year-on-year comparison.** See at a glance whether this season is greener or drier than the last.
 - **Moisture reading.** Alongside vegetation health, the tool reads the field's canopy moisture (NDMI) and tells you whether it's wetter or drier than nearby fields.
 - **Field size.** Each field's area is shown in donums.
-- **Watch it grow.** Play the field's last two years on the map, month by month — the field coloured by its NDVI (greenness) in each month's satellite image, from the same scene as that month's reading.
+- **Watch it grow.** When a field's data has loaded, its last 12 months play once on the map by themselves (about 5 seconds), ending on today. **Watch month by month** plays the full two years, with pause and a chart you can drag along. Each frame is the field coloured by its NDVI (greenness) in that month's satellite image, from the same scene as that month's reading.
+- **Rainfall.** The field's rainfall over the last 12 months against the 12 before, from Open-Meteo's weather archive, with a month-by-month strip in the report.
 - **Health map overlay.** Colour every visible field by its current health at once — green for healthy, red for stressed — to spot problems across a whole area.
 - **See where it's green, country-wide.** Zoomed out, a NASA MODIS greenness layer shows where vegetation is growing across Iraq right now; zoom in and individual fields take over. The Health map button switches both on and off.
+- **Where wheat or barley grew (🌾 Crops).** Shows the European Space Agency's WorldCereal 2021 map of winter cereals in magenta, and a field's card says whether wheat or barley grew there in 2021. It is a past record, not this season.
+- **Rivers, lakes and marshes.** A water layer shows how often each place has been under water since 1984 (EU Joint Research Centre), for orientation.
 - **Save & rank your fields.** Bookmark fields you care about, and see which of your fields improved most since last year.
-- **Shareable field report.** Generate a clean image report for any field — its health, trend, moisture, size, and a small map with roads and place names for context — to save or share.
+- **Share a field.** On a phone, Share opens the phone's share sheet (WhatsApp, Messages…); on a computer it copies a link to the field.
+- **Shareable field report.** One image with everything about the field — health, two-year chart, monthly readings, the last 12 months' images, rainfall, moisture, size, how it compares with nearby fields, and a small map with roads and place names. On a phone it opens the share sheet (Save Image, WhatsApp…); on a computer it downloads.
 - **Verify anything.** Each reading links out to the free Copernicus Browser, opened on the same field and date, so you can check the numbers yourself.
 
 ## Who it's for
@@ -37,6 +41,9 @@ The app is a **single, self-contained HTML file**. It runs entirely in the brows
 - **Field boundaries:** Fields of the World (FTW) global field polygons, served as [PMTiles](https://protomaps.com/docs/pmtiles).
 - **Vegetation & moisture data:** Sentinel-2 L2A imagery via Microsoft's [Planetary Computer](https://planetarycomputer.microsoft.com/), which computes NDVI and NDMI statistics per field.
 - **Country-wide greenness (low zoom):** NASA MODIS Terra 8-day NDVI via NASA GIBS, shown until individual fields appear.
+- **Rainfall:** [Open-Meteo](https://open-meteo.com/)'s historical weather archive (ECMWF's ERA5 and ERA5-Land reanalyses and IFS model, grids of about 9–25 km), one request per field.
+- **Winter cereals 2021 (🌾 Crops):** ESA WorldCereal 2021 winter-cereals product, served as map tiles by VITO's Terrascope.
+- **Surface water:** JRC Global Surface Water occurrence tiles (EU Joint Research Centre / Google).
 - **Map rendering:** [MapLibre GL JS](https://maplibre.org/).
 
 For a full description of the data sources, the NDVI calculation, and the tool's limitations, see **[METHODOLOGY.md](METHODOLOGY.md)**.
@@ -70,6 +77,9 @@ This repository is deployed via **GitHub Pages** with a custom domain.
 | `index.html` | The entire application — commented source and what the site serves. |
 | `robots.txt`, `sitemap.xml` | Search-engine crawler files. |
 | `favicon.svg` | Site icon. |
+| `preview.jpg` | The picture shown when a link to the site is shared (WhatsApp, Facebook, X). |
+| `CNAME` | The custom domain for GitHub Pages (iraqfarmshealth.com). |
+| `LICENSE` | MIT licence for the code. |
 | `README.md` | This file. |
 | `METHODOLOGY.md` | How the data is derived, and its limitations. |
 | `crops/` | The published crop map layers (map cells, statistics, boundaries). |
@@ -82,20 +92,34 @@ The map library (MapLibre GL JS) and PMTiles are loaded from a public CDN (jsDel
 
 ## Data sources & credits
 
-- **Satellite imagery:** [Copernicus Sentinel-2](https://sentinel.esa.int/web/sentinel/missions/sentinel-2) (European Space Agency), accessed via [Microsoft Planetary Computer](https://planetarycomputer.microsoft.com/).
+- **Satellite imagery:** [Copernicus Sentinel-2](https://sentinel.esa.int/web/sentinel/missions/sentinel-2) (European Space Agency), accessed via [Microsoft Planetary Computer](https://planetarycomputer.microsoft.com/). Contains modified Copernicus Sentinel data 2024–2026.
 - **Field boundaries:** [Fields of the World](https://fieldsofthe.world/) (FTW).
-- **Crop map:** [ESA WorldCereal](https://esa-worldcereal.org/) models, run on the [Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/) (openEO).
-- **Base imagery & reference layers:** [Esri World Imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9).
+- **Crop map 2025-26:** [ESA WorldCereal](https://esa-worldcereal.org/) models, run on the [Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/) (openEO).
+- **Winter cereals 2021 (🌾 Crops):** [ESA WorldCereal 2021](https://esa-worldcereal.org/) products (CC BY 4.0), served by [VITO Terrascope](https://terrascope.be/).
+- **Rainfall:** [Open-Meteo](https://open-meteo.com/) historical weather API (CC BY 4.0), built on ECMWF's ERA5 / ERA5-Land reanalyses and IFS model. Generated using Copernicus Climate Change Service information.
+- **Surface water:** [JRC Global Surface Water](https://global-surface-water.appspot.com/) (EC Joint Research Centre / Google).
+- **Country-wide greenness:** NASA MODIS Terra NDVI via [NASA GIBS](https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api).
+- **Base imagery & reference layers:** [Esri World Imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9) (Esri, Maxar, Earthstar Geographics) and Esri reference layers.
+- **District boundaries (crop page statistics):** [geoBoundaries](https://www.geoboundaries.org/) (CC BY 4.0).
 - **Independent verification:** [Copernicus Browser](https://dataspace.copernicus.eu/browser/) (ESA / Copernicus Data Space Ecosystem).
 - **Mapping:** [MapLibre GL JS](https://maplibre.org/), [PMTiles](https://protomaps.com/docs/pmtiles).
 
+The map lists the credits for what is on screen under its ⓘ button, and the field report names its sources in its footer.
+
 ## Privacy
 
-The tool has no login and collects no personal data. Saved fields and history stay on your device (browser local storage). The site uses Microsoft Clarity for anonymous, aggregated usage analytics (to understand how the tool is used and improve it).
+- **No account, no personal details.** The tool has no login and asks for no name, phone number or email.
+- **On your device.** Saved fields, your ranking list and your language choice are kept in your browser's local storage, on your device only.
+- **"My location"** is used only to move the map to where you are. It is not stored or sent anywhere by the tool, but, like any position on the map, it ends up in the page address (see below).
+- **What the data services see.** To read a field, the browser sends that field's outline to Microsoft Planetary Computer (satellite readings), its centre point to Open-Meteo (rainfall), and asks Terrascope for the 2021 crop-map tiles around it. Map pictures come from Esri, NASA and Google; fonts from Google; the map library from jsDelivr. These services see the request and your internet address, as with any website.
+- **Usage analytics.** The site uses [Microsoft Clarity](https://clarity.microsoft.com/) to see how the tool is used, so it can be improved. Clarity records each visit — taps, scrolling and the page address — without a name, but with a random visitor ID, rough location from the internet address, and the device type. The page address includes the map position (`lat`, `lon`) and, when a field is open, that field's position, so Clarity sees which area of the map was looked at. Clarity's own terms are in the [Microsoft Privacy Statement](https://privacy.microsoft.com/privacystatement).
 
 ## License & use
 
-This is a civic, public-good project. The satellite data and field boundaries are provided under the licenses of their respective sources (see links above); please respect those terms. Attribution to the underlying data providers (ESA/Copernicus, Esri, Fields of the World) is required and is shown in the app.
+- **Code** (`index.html`, `crops/`, `tools/`, `validation/` scripts): [MIT](LICENSE).
+- **Crop map data** (`crops/2026/`, `crops/2026p/`): CC BY 4.0. Credit: "Crop types: ESA WorldCereal system, run by Iraq Farms Health on Copernicus Data Space. Contains modified Copernicus Sentinel data 2025."
+- **Validation data** (`validation/`): CC BY 4.0. Credit: "Iraq Farms Health".
+- **Third-party data** shown in the app (Esri imagery, Fields of the World, WorldCereal 2021, JRC water, NASA GIBS, Open-Meteo) stays under its providers' own terms; follow the links above.
 
 ---
 
