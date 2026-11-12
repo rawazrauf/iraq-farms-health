@@ -92,8 +92,11 @@
     },
 
     setOptions(o) {
+      // Merge `show` with the groups already set: Object.assign alone replaced the whole `show` object, so
+      // unticking one legend box on the crop page hid every other group too.
+      const show = o && o.show ? Object.assign({}, this.opts.show, o.show) : this.opts.show;
       Object.assign(this.opts, o);
-      if (o && o.show) this.opts.show = Object.assign({}, this.opts.show, o.show);
+      this.opts.show = show;
       this._buildLut();
     },
 
