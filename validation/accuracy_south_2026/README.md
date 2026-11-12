@@ -251,7 +251,7 @@ The map misses about 0.56 Mha of the winter crop (29% of 1.91 Mha). Where that a
   | Confident cereal only (default) | 96% (92–99%) | 71% (65–77%) |
   | Confident + doubtful cereal | 79% (74–84%) | 87% (82–93%) |
 
-  The default favours being right where the map says cereal; the other setting favours finding more of the crop. Neither is "the accuracy of the map" on its own. Which to use depends on the purpose: showing a farmer "wheat or barley grew here" calls for the first; estimating area calls for the error-adjusted estimate (1.91 Mha), which does not depend on the setting.
+  The default favours being right where the map says cereal; the other setting favours finding more of the crop. Neither is "the accuracy of the map" on its own. Which to use depends on the purpose: showing a farmer "wheat or barley grew here" calls for the first; estimating area calls for the error-adjusted estimate (1.91 Mha), which uses every map stratum (doubtful cereal is a stratum of its own in the sample) and so does not depend on where the display threshold is drawn.
 - **The "not cropland" figure rests on 5 points**, each standing for about 27,000 ha, so it is the least certain line of the table.
 - The rule itself will be revisited once the north is assessed.
 
@@ -270,7 +270,7 @@ The manual look at borderline curves is the least repeatable step (section 7). `
   | Overall accuracy | 0.942 | 0.936 (0.929–0.943) | 0.918–0.952 |
   | Winter-crop area | 1.91 Mha | 1.94 Mha (1.87–2.02) | 1.77–2.14 Mha |
 
-- **Reading.** Label noise shifts the estimates a little, towards more winter crop and a slightly lower producer's accuracy (0.69 against 0.71), because curves first called unclear or "not" were more often called winter crop the second time than the reverse. It widens the intervals modestly: the area interval becomes 1.77–2.14 Mha against 1.75–2.06. No conclusion changes. The headline keeps the declared labels and intervals; these figures are the fuller statement of uncertainty.
+- **Reading.** Label noise shifts the estimates a little, towards more winter crop and a slightly lower producer's accuracy (0.69 against 0.71), because curves first called unclear or "not" were more often called winter crop the second time than the reverse (6 moved into winter crop, none out of it). The headline uses the round-1 labels; pooling both rounds therefore adds winter crop relative to it. It widens the intervals modestly: the area interval becomes 1.77–2.14 Mha against 1.75–2.06. No conclusion changes. The headline keeps the declared labels and intervals; these figures are the fuller statement of uncertainty.
 - **What it does not cover.** Both rounds were by the same labeller, so this measures repeatability, not correctness. An independent labeller (section 6) and independent imagery (Limits) are still needed.
 
 ## Limits
@@ -282,7 +282,7 @@ The manual look at borderline curves is the least repeatable step (section 7). `
   - The winter-crop area is an upper bound on the cereal area.
 - Turning these into cereal figures needs very-high-resolution imagery or field visits on a subsample.
 - **One labeller.** The labels were made by one labeller, Claude, working for the project. The rules are written so that someone else can apply them; section 6 is the test of that.
-- **The manual look is not very repeatable.** In the phase-2 blind re-review, the same labeller agreed with his own phase-1 labels on 54% of the borderline curves, and on 51 of 57 for the winter-crop question (section 7). The rule labels, which cover 85% of all points, are fully repeatable. Section 9 puts numbers on what this could do to the estimates.
+- **The manual look is not very repeatable.** In the phase-2 blind re-review, the same labeller agreed with his own phase-1 labels on 54% of the borderline curves, and on 51 of 57 for the winter-crop question (section 7). The rule labels, which cover 503 of the 575 points (87.5%; 85% in phase 1), are fully repeatable. Section 9 puts numbers on what this could do to the estimates.
 - **Fodder cut several times a winter is counted as a winter crop.** The rules look at one reading per month, which cannot show the repeated cuts of berseem clover. Alfalfa mostly falls under "perennial". How much fodder is inside the winter-crop figure is not known; reading every clear scene (every 5 days) on a subsample would show it.
 - **South only.** The northern tiles are being re-run with a later season; see [`../season_pilot`](../season_pilot). They will be assessed the same way after that run.
 - **One pixel per point.** At 10 m, a pixel on a field edge mixes neighbours. This affects the map and the reference alike.
