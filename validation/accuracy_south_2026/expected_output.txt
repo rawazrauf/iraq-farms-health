@@ -58,3 +58,22 @@ confident + doubtful cereal
   PA           estimate 0.874   bootstrap 95% 0.818 - 0.927
   OA           estimate 0.935   bootstrap 95% 0.920 - 0.949
   ref_area_ha  estimate 1.91 Mha   bootstrap 95% 1.75 Mha - 2.07 Mha
+
+$ python label_noise.py
+57 curves labelled twice; same state both times: 32
+round 1 -> round 2: {'not->not': 21, 'winter->winter': 9, 'not->unclear': 17, 'unclear->winter': 5, 'unclear->not': 2, 'unclear->unclear': 2, 'not->winter': 1}
+  a curve labelled winter   is redrawn as: not 4%, unclear 21%, winter 75%
+  a curve labelled not      is redrawn as: not 68%, unclear 31%, winter 2%
+  a curve labelled unclear  is redrawn as: not 68%, unclear 14%, winter 18%
+72 hand-labelled points of 575
+
+confident cereal
+  UA           headline 0.960   label noise only: median 0.950, 95% 0.940 - 0.960   with sampling: 95% 0.908 - 0.990
+  PA           headline 0.709   label noise only: median 0.690, 95% 0.663 - 0.714   with sampling: 95% 0.629 - 0.751
+  OA           headline 0.942   label noise only: median 0.936, 95% 0.929 - 0.943   with sampling: 95% 0.918 - 0.952
+  ref_area_ha  headline 1.91 Mha   label noise only: median 1.94 Mha, 95% 1.87 Mha - 2.02 Mha   with sampling: 95% 1.77 Mha - 2.14 Mha
+confident + doubtful cereal
+  UA           headline 0.790   label noise only: median 0.788, 95% 0.773 - 0.804   with sampling: 95% 0.737 - 0.838
+  PA           headline 0.874   label noise only: median 0.857, 95% 0.823 - 0.883   with sampling: 95% 0.785 - 0.917
+  OA           headline 0.935   label noise only: median 0.931, 95% 0.923 - 0.937   with sampling: 95% 0.912 - 0.947
+  ref_area_ha  headline 1.91 Mha   label noise only: median 1.94 Mha, 95% 1.87 Mha - 2.02 Mha   with sampling: 95% 1.77 Mha - 2.14 Mha

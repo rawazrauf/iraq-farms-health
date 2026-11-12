@@ -15,6 +15,10 @@ Phase 1 alone (375 points, published 7 Nov 2026) gave the same picture with wide
 
 The reference label is *winter crop*, not *cereal*. Because of that, the user's accuracy is an upper bound for cereal, and so is the area figure (see [Limits](#limits)).
 
+Two things to keep in mind when reading these figures, both set out below:
+- **The reference comes from the same satellite as the map.** The labels are read from each point's Sentinel-2 curve; the map is made from Sentinel-2 (with Sentinel-1 and weather data). They are not independent, so agreement may be somewhat overstated (see [Limits](#limits)).
+- **The two rows are two settings of one map, not two maps.** The 70% confidence rule trades missed crop for wrong crop (section 8).
+
 ---
 
 ## 1. What was assessed
@@ -145,10 +149,11 @@ python fetch_curves.py --points data/topup_points.csv --out data/topup_curves_ne
 python topup_review.py final                             # final labels from the archived blind review
 python estimate.py --topup
 python bootstrap.py --topup
+python label_noise.py                        # section 9: effect of the hand labels' repeatability
 ```
 
 **Expected outputs:**
-- `expected_output.txt` holds the expected output of `estimate.py` and `bootstrap.py`.
+- `expected_output.txt` holds the expected output of `estimate.py`, `bootstrap.py` and `label_noise.py`.
 - Step A reproduces the sample byte for byte. This was checked on 7 Nov 2026.
 
 **On the curves:**
@@ -227,14 +232,58 @@ The intervals narrowed by about a third, as projected; the estimates hardly move
 - **Sensitivity:** with the re-review labels for those 57 points, the pooled producer's accuracy would be 0.685 and the area 1.97 Mha. Both are inside the intervals above.
 - **What it means:** the manual look at borderline curves is the least repeatable step in this assessment. The rules themselves are deterministic. An independent labeller (section 6) is the way to measure this properly.
 
+## 8. The 70% rule is a choice between two kinds of error
+
+The map misses about 0.56 Mha of the winter crop (29% of 1.91 Mha). Where that area sits, from the pooled sample (`estimate.py --topup`):
+
+| Map class of the missed winter crop | Points with a winter crop | Area |
+|---|---|---|
+| doubtful cereal (cereal is the top crop, but below the 70% rule) | 31 of 69 | 0.31 Mha |
+| not cropland | 5 of 292 | 0.14 Mha |
+| other crop | 26 of 50 | 0.09 Mha |
+| no crop | 3 of 48 | 0.02 Mha |
+
+- **More than half of the missed area was seen by the model and set aside by the 70% rule.** It is in the data files as "doubtful cereal" (code +200) and can be switched on in the crop page's legend.
+- **The rule moves the map along one trade-off:**
+
+  | Setting | Of what the map marks, a winter crop grew on | Of the winter crop, the map marks |
+  |---|---|---|
+  | Confident cereal only (default) | 96% (92–99%) | 71% (65–77%) |
+  | Confident + doubtful cereal | 79% (74–84%) | 87% (82–93%) |
+
+  The default favours being right where the map says cereal; the other setting favours finding more of the crop. Neither is "the accuracy of the map" on its own. Which to use depends on the purpose: showing a farmer "wheat or barley grew here" calls for the first; estimating area calls for the error-adjusted estimate (1.91 Mha), which does not depend on the setting.
+- **The "not cropland" figure rests on 5 points**, each standing for about 27,000 ha, so it is the least certain line of the table.
+- The rule itself will be revisited once the north is assessed.
+
+## 9. How much could the hand labels move the results?
+
+The manual look at borderline curves is the least repeatable step (section 7). `label_noise.py` measures what that could do to the estimates.
+
+- **What it does.** 72 of the 575 points were labelled by hand. The 57 that were labelled twice give a table of how often a curve put in one state (winter crop / not / unclear) was put in another the second time. The script redraws every hand label from that table (both rounds pooled, so neither is treated as the truth), re-estimates, and repeats 10,000 times. The 503 rule labels never change. A second pass also resamples the points, to combine label noise with sampling error.
+- **The table** (57 curves, round 1 → round 2): not → not 21, not → unclear 17, winter → winter 9, unclear → winter 5, unclear → not 2, unclear → unclear 2, not → winter 1. Between the two definite answers there is 1 change in 57; the rest move in or out of "unclear".
+- **Result** (confident cereal):
+
+  | | Headline | Label noise only (median, 95%) | Label noise + sampling (95%) |
+  |---|---|---|---|
+  | User's accuracy | 0.960 | 0.950 (0.940–0.960) | 0.908–0.990 |
+  | Producer's accuracy | 0.709 | 0.690 (0.663–0.714) | 0.629–0.751 |
+  | Overall accuracy | 0.942 | 0.936 (0.929–0.943) | 0.918–0.952 |
+  | Winter-crop area | 1.91 Mha | 1.94 Mha (1.87–2.02) | 1.77–2.14 Mha |
+
+- **Reading.** Label noise shifts the estimates a little, towards more winter crop and a slightly lower producer's accuracy (0.69 against 0.71), because curves first called unclear or "not" were more often called winter crop the second time than the reverse. It widens the intervals modestly: the area interval becomes 1.77–2.14 Mha against 1.75–2.06. No conclusion changes. The headline keeps the declared labels and intervals; these figures are the fuller statement of uncertainty.
+- **What it does not cover.** Both rounds were by the same labeller, so this measures repeatability, not correctness. An independent labeller (section 6) and independent imagery (Limits) are still needed.
+
 ## Limits
+
+- **The reference is not independent of the map.** Olofsson et al. (2014) ask for reference data of higher quality than the map and independent of it. Here the reference labels are read from Sentinel-2 curves, and the map is WorldCereal's model run on Sentinel-2 (with Sentinel-1 radar and weather data). The method differs: a person and written rules reading a whole year, including the months after the season, against a model. But the sensor is shared, so anything that distorts Sentinel-2 at a point (dust, a cloud gap in a key month, an unusual season) can push the map and the label the same way, and agreement may be overstated. What would fix it: checking a subsample against very-high-resolution imagery, and comparing the area estimates with official statistics by governorate. Sentinel-1 would not help, because the map already uses it.
 
 - **Winter crop, not cereal.** A Sentinel-2 curve can't separate wheat from barley, or cereal from winter pulses, vegetables or fodder. So:
   - User's accuracy against "winter crop" is an upper bound on user's accuracy for cereal.
   - The winter-crop area is an upper bound on the cereal area.
 - Turning these into cereal figures needs very-high-resolution imagery or field visits on a subsample.
 - **One labeller.** The labels were made by one labeller, Claude, working for the project. The rules are written so that someone else can apply them; section 6 is the test of that.
-- **The manual look is not very repeatable.** In the phase-2 blind re-review, the same labeller agreed with his own phase-1 labels on 54% of the borderline curves, and on 51 of 57 for the winter-crop question (section 7). The rule labels, which cover 85% of all points, are fully repeatable.
+- **The manual look is not very repeatable.** In the phase-2 blind re-review, the same labeller agreed with his own phase-1 labels on 54% of the borderline curves, and on 51 of 57 for the winter-crop question (section 7). The rule labels, which cover 85% of all points, are fully repeatable. Section 9 puts numbers on what this could do to the estimates.
+- **Fodder cut several times a winter is counted as a winter crop.** The rules look at one reading per month, which cannot show the repeated cuts of berseem clover. Alfalfa mostly falls under "perennial". How much fodder is inside the winter-crop figure is not known; reading every clear scene (every 5 days) on a subsample would show it.
 - **South only.** The northern tiles are being re-run with a later season; see [`../season_pilot`](../season_pilot). They will be assessed the same way after that run.
 - **One pixel per point.** At 10 m, a pixel on a field edge mixes neighbours. This affects the map and the reference alike.
 
@@ -250,6 +299,7 @@ The intervals narrowed by about a third, as projected; the estimates hardly move
 | `label_rules.py` | Step C1: the written labelling rules |
 | `estimate.py` | Step C2: Olofsson et al. (2014) estimators |
 | `bootstrap.py` | Check: stratified bootstrap |
+| `label_noise.py` | Check: effect of the hand labels' repeatability on the estimates (section 9) |
 | `topup_draw.py` | Phase 2: the 200-point "not cropland" top-up (section 7) |
 | `topup_review.py` | Phase 2: rule labels, blind review pack, final labels |
 | `fetch_topup.ipynb` | Phase 2: Colab notebook that runs `fetch_curves.py` on the top-up points |
