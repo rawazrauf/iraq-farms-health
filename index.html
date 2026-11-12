@@ -688,7 +688,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.12-b";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.12-c";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2104,6 +2104,7 @@ async function onFieldTap(e){
           mergeHealthField(f, col);
           // seed the history slot too, so the loop below skips re-fetching it
           cur.v = r.value; cur.date = r.date; cur.scene = r.scene; cur.cloud = r.cloud; cur.pending = false;
+          kickReportFrame(f, f.__history.length-1);
           if(lastField===f && sheet.classList.contains("open")) renderField(f);
         }
         DBG.log(`current-month quick: ${r && r.value!=null ? r.value.toFixed(3)+" "+r.date : "null "+(r&&r.err)}`);
@@ -2142,6 +2143,7 @@ async function onFieldTap(e){
       slot.scene = r.scene; slot.cloud = r.cloud;
     }catch(err){ slot.v = null; slot.err = err.message; DBG.err(`month ${slot.ym} threw: ${err.stack||err.message}`); }
     slot.pending = false;
+    kickReportFrame(f, idx);                       // its Report image starts now, not after all 24 months
     DBG.log(`month ${slot.ym} → ${slot.v!=null ? slot.v.toFixed(3) : "null ("+slot.err+")"}`);
     // This month or last month: colour the tapped polygon from the newest that has a reading, as
     // the health map does (recentWindows). Months now finish in any order, so a reading from this
@@ -2603,6 +2605,16 @@ const REPORT_FRAMES = 12;
 function reportFrameSlots(f){
   const h = f.__history || [];
   return playFrames(f).slice(-REPORT_FRAMES).map(i => h[i]);
+}
+/* Start one month's image as soon as its reading (and so its scene) is known, without waiting for
+   the other months. Only the newest REPORT_FRAMES months: those are the Report's images when every
+   month has a reading, and they load first. prefetchReportFrames() still runs once the history is
+   complete and fetches any that are missing (frameFor keeps one copy per scene, so nothing is
+   fetched twice). */
+function kickReportFrame(f, idx){
+  const h = f.__history || [], slot = h[idx];
+  if(!slot || slot.v==null || !slot.scene || idx < h.length - REPORT_FRAMES) return;
+  try{ frameFor(f, slot).catch(()=>{}); }catch{}
 }
 function prefetchReportFrames(f){
   if(f.__framesKick) return;
@@ -3230,29 +3242,39 @@ function waitForHistory(f, timeoutMs){
 let __reportReady = false;
 let __reportReadyField = null;   // which field the current readiness applies to
 let __reportMonitor = null;
+let __reportFrameWatch = null;
+const REPORT_EXTRAS_WAIT_MS = 8000;    // after the readings are complete, wait this long at most for images, neighbours, rain
+const REPORT_MAX_WAIT_MS   = 60000;    // after the tap, never keep the button waiting longer than this
 
 /* Enable the Report button once this field's history and a reasonable share of
    neighbour colours are ready, so tapping it can build+share quickly (keeping
    the iOS gesture alive for the share sheet). Falls back to enabling after a
    timeout so the button never stays stuck on "Preparing…". */
 function monitorReportReady(f){
-  clearInterval(__reportMonitor);
+  /* renderField() calls this on every redraw of the card, and the card redraws as each month
+     arrives. It used to start over each time: the button went back to "Preparing…", the safety
+     limit restarted, and another once-a-second timer was added. Now a redraw of the SAME field
+     keeps the monitor that is already running (or the "ready" it already reached). */
+  if(__reportReadyField === f && (__reportReady || __reportMonitor)){ setReportReadyState(); return; }
+  clearInterval(__reportMonitor); clearInterval(__reportFrameWatch);
   __reportReady = false; __reportReadyField = f;
   setReportReadyState();
   const start = Date.now();
+  let historyDoneAt = 0;
   // Month images for the Report: fetched once this field's history is complete,
   // even if the readiness check below has already given up waiting.
-  const fw = setInterval(()=>{
+  const fw = __reportFrameWatch = setInterval(()=>{
     const h = f.__history||[];
     if(lastField!==f || Date.now()-start > 180000){ clearInterval(fw); return; }
     if(h.length>0 && !h.some(s=>s.pending)){ prefetchReportFrames(f); clearInterval(fw); }
   }, 1000);
   // kick neighbour sampling so colours populate
   try{ if(typeof scheduleHealthSample==="function") scheduleHealthSample(); }catch{}
-  __reportMonitor = setInterval(()=>{
-    if(lastField!==f){ clearInterval(__reportMonitor); return; }   // moved to another field
+  const mon = __reportMonitor = setInterval(()=>{
+    if(lastField!==f){ clearInterval(mon); if(__reportMonitor===mon) __reportMonitor = null; return; }   // moved to another field
     const h = f.__history||[];
     const historyDone = h.length>0 && !h.some(s=>s.pending);
+    if(historyDone && !historyDoneAt) historyDoneAt = Date.now();
     let coloured=0,total=0;
     try{
       const seen=new Set();
@@ -3263,9 +3285,14 @@ function monitorReportReady(f){
     }catch{}
     const coloursReady = total===0 || coloured>=Math.min(8, Math.ceil(total*0.5));
     // Rainfall is the report's primary new feature, so wait for its one fetch to
-    // resolve (data or empty). Cache-present = done; the 12s timeout backstops it.
+    // resolve (data or empty). Cache-present = done; the time limit backstops it.
     const rainResolved = __rainCache.has(fieldKey(f));
-    const timedOut = Date.now()-start > 12000;
+    /* Safety limit, so the button never stays on "Preparing…": REPORT_EXTRAS_WAIT_MS after the
+       readings are complete (the extras below may still be loading; the Report is built with what
+       has arrived), or REPORT_MAX_WAIT_MS after the tap whatever has loaded. The first limit runs
+       from the end of the readings, not from the tap, so a slow connection is never handed a Report
+       with months still missing from its chart. */
+    const timedOut = (historyDoneAt && Date.now()-historyDoneAt > REPORT_EXTRAS_WAIT_MS) || Date.now()-start > REPORT_MAX_WAIT_MS;
     // Wheat/barley and moisture appear only in the Report now, so wait for
     // those lookups to resolve too (data or none).
     const extrasResolved = f.__cereal!==undefined && __moistCache.has(fieldKey(f));
@@ -3274,7 +3301,9 @@ function monitorReportReady(f){
     const framesResolved = !!f.__framesDone;
     if((historyDone && coloursReady && rainResolved && extrasResolved && framesResolved) || timedOut){
       __reportReady = true; setReportReadyState();
-      clearInterval(__reportMonitor);
+      clearInterval(mon); if(__reportMonitor===mon) __reportMonitor = null;
+      DBG.log(`report ready ${((Date.now()-start)/1000).toFixed(1)} s after tap` + (historyDoneAt ? `, ${((Date.now()-historyDoneAt)/1000).toFixed(1)} s after the readings` : "")
+            + (timedOut ? ` (time limit: colours ${coloured}/${total}, rain ${rainResolved}, extras ${extrasResolved}, images ${framesResolved})` : ""));
     }
   }, 300);
 }
