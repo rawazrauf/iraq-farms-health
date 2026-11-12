@@ -105,7 +105,8 @@ Under the chart, **Watch month by month** plays the field's history on the map. 
 - **One real image per month.** Months with no clear scene are skipped, not filled in. The line under the controls shows the actual date of the image being shown.
 - **No invented frames.** The short cross-fade between months is a visual transition only; nothing is interpolated between satellite passes.
 - **Same colours as everywhere else.** Rust is Poor (below 0.3), ochre is Fair (0.3–0.6), green is Good (0.6 and above), with deeper green for higher values. The image is smoothed for display, so it looks finer than the 10 m pixels it is made from.
-- **Fetched only when you press play** — up to 24 small images, kept for the rest of the visit.
+- **A short preview plays by itself.** When a field's data has loaded, its last 12 months play once on the map (about 5 seconds), with the month named in a small label on the map and marked on the chart; it then fades back to the field's current health colour. It uses the 12 images already fetched for the Report. There is no preview for people whose device asks for reduced motion, during the guide, or a second time for the same field in one visit. Tap the month label to stop it.
+- **The full two years are fetched only when you press play** — up to 24 small images in all, kept for the rest of the visit.
 
 ### The year-on-year comparison
 

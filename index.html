@@ -363,6 +363,8 @@ html,body{margin:0;height:100%;background:var(--ink);
 /* Compact sheet while a playback is open: keep the field line, the chart and the
    play controls; everything else steps aside so the map has the room. */
 #sheet.compact #stat,#sheet.compact .nbr,#sheet.compact .msg,#sheet.compact .pv-save{display:none}
+.play-tag{position:fixed;left:50%;transform:translateX(-50%);z-index:6;background:rgba(20,38,27,.88);color:#F3EFE4;font:800 13px/1 ui-sans-serif,system-ui,"Noto Sans Arabic",sans-serif;
+  padding:6px 10px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer}
 #play-row{display:flex;gap:8px;align-items:stretch}
 #play-btn{flex:1;border:0;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:15px;font-weight:800;
   background:var(--canal);color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -702,7 +704,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.12-e";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.12-f";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2445,7 +2447,17 @@ async function ndviForWindow(geometry, from, to, expr, scenes){
 const PLAY_FRAME_MS = 450;      // time each month stays on screen (was 900: two years took ~22 s, too long for a glance)
 const PLAY_FADE_MS  = 150;      // cross-fade between months (a third of the frame, as before)
 const __frameCache = new Map(); // fieldKey|scene -> Promise<{url, coords}>
-let __play = null;              // {f, frames:[histIdx], pos, idx, state, gen, front, shownAny, failStreak}
+let __play = null;              // {f, frames:[histIdx], pos, idx, state, gen, front, shownAny, failStreak, preview}
+/* Preview (build 2026.11.12-f): when a field's data is ready, its last 12 months play once on the map
+   by themselves, so the farmer sees the season without pressing anything. It uses the 12 images the
+   Report has already fetched (no extra data), leaves the card as it is (verdict and buttons stay, the
+   map does not zoom), marks the month on the chart and in a small label above the card, and ends by
+   fading back to the field's current health colour. "Watch month by month" still plays the full two
+   years with pause and drag. No preview: during the guide, for people who ask for reduced motion, a
+   second time for the same field in one visit, or with fewer than 3 images. */
+const PREVIEW_HOLD_MS = 900;    // the newest month stays this long before the preview fades out
+const __previewed = new Set();  // fieldKey of fields already previewed in this visit
+let __previewTag = null;        // label naming the month on screen during a preview
 let __playGen = 0;
 let __bboxRoute = null;         // tiler route confirmed to work: "bbox" | "crop"
 
@@ -2634,7 +2646,7 @@ function prefetchReportFrames(f){
   if(f.__framesKick) return;
   f.__framesKick = true;
   const slots = reportFrameSlots(f);
-  Promise.allSettled(slots.map(s => frameFor(f, s))).then(() => { f.__framesDone = true; });
+  Promise.allSettled(slots.map(s => frameFor(f, s))).then(() => { f.__framesDone = true; maybeAutoPreview(f); });
 }
 
 function playFrames(f){
@@ -2677,13 +2689,58 @@ async function runPlay(){
       if(P.pos < P.frames.length) await sleep(Math.max(0, PLAY_FRAME_MS-(performance.now()-t0)));
     }else{
       P.failStreak = (P.failStreak||0)+1;
-      if(!P.shownAny && P.failStreak>=3){ P.state = "error"; updatePlayUI(); return; }
+      if(!P.shownAny && P.failStreak>=3){
+        if(P.preview){ stopPlay(true); return; }   // a preview that cannot load just does not happen
+        P.state = "error"; updatePlayUI(); return;
+      }
     }
   }
-  if(g===__playGen && __play===P){ P.state = P.shownAny ? "done" : "error"; updatePlayUI(); }
+  if(g!==__playGen || __play!==P) return;
+  if(P.preview){
+    // hold the newest month, then fade back to the field's current health colour
+    await sleep(PREVIEW_HOLD_MS);
+    if(g===__playGen && __play===P){ stopPlay(true); updatePlayUI(); DBG.log("preview: done"); }
+    return;
+  }
+  P.state = P.shownAny ? "done" : "error"; updatePlayUI();
+}
+
+function maybeAutoPreview(f){
+  try{
+    const k = fieldKey(f);
+    if(__previewed.has(k)) return;
+    if(lastField!==f || !sheet.classList.contains("open") || __play) return;
+    if(typeof tourActive!=="undefined" && tourActive) return;
+    if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if(document.visibilityState && document.visibilityState!=="visible") return;
+    const frames = playFrames(f).slice(-REPORT_FRAMES);
+    if(frames.length < 3) return;
+    __previewed.add(k);
+    __play = {f, frames, pos:0, idx:null, state:"loading", gen:0, front:"a", shownAny:false, failStreak:0, preview:true};
+    DBG.log(`preview: last ${frames.length} months`);
+    runPlay();
+  }catch(e){ DBG.warn("preview: "+e.message); }
+}
+/* The month on screen during a preview, in a small label that sits just above the card (tap it to
+   stop the preview). It is fixed to the screen, not to the field: a label on the field's top edge was
+   off the screen for tall fields, because the field is centred in the strip of map above the card. */
+function setPreviewTag(P){
+  if(!P || !P.preview || P.idx==null){
+    if(__previewTag){ __previewTag.remove(); __previewTag = null; }
+    return;
+  }
+  if(!__previewTag){
+    const el = document.createElement("div"); el.className = "play-tag";
+    el.addEventListener("click", ev=>{ ev.stopPropagation(); if(__play && __play.preview){ stopPlay(true); updatePlayUI(); } });
+    document.body.appendChild(el);
+    __previewTag = el;
+  }
+  __previewTag.textContent = playMonthName(P.f.__history[P.idx]);
+  __previewTag.style.top = Math.max(64, sheet.getBoundingClientRect().top - 40) + "px";
 }
 
 function startPlay(f){
+  if(__play && __play.preview) stopPlay(true);   // pressing the button during the preview starts the full playback
   if(__play && __play.f===f){
     const P = __play;
     if(P.state==="playing" || P.state==="loading"){ P.state = "paused"; __playGen++; updatePlayUI(); return; }
@@ -2737,6 +2794,7 @@ function stopPlay(silent){
   __playGen++;
   const f = __play && __play.f;
   __play = null;
+  setPreviewTag(null);
   sheet.classList.remove("compact");
   // Hide → the full card is back and taller; keep the field visible above it.
   if(!silent && f && f===lastField) panFieldAboveSheet(f);
@@ -2760,7 +2818,7 @@ function playRowHtml(f){
   const loading = hist.some(h=>h.pending);
   const n = playFrames(f).length;
   if(!loading && n<2) return `<div id="play-wrap"></div>`;
-  const P = (__play && __play.f===f) ? __play : null;
+  const P = (__play && __play.f===f && !__play.preview) ? __play : null;   // a preview keeps the plain button
   if(!P){
     // While the history loads the button says so, with a live count — a bare
     // grey button with "…" read as broken.
@@ -2798,6 +2856,13 @@ function wirePlayRow(f){
 }
 function updatePlayUI(){
   if(!lastField || !sheet.classList.contains("open")) return;
+  if(__play && __play.preview){
+    // Preview: only the chart's month marker and the map label move. The button is left alone:
+    // replacing it on every frame could swallow a press that lands mid-swap.
+    setPreviewTag(__play);
+    if(lastField.__history) drawSpark(lastField.__history);
+    return;
+  }
   const w = document.getElementById("play-wrap");
   if(w){ w.outerHTML = playRowHtml(lastField); wirePlayRow(lastField); }
   if(lastField.__history) drawSpark(lastField.__history);
