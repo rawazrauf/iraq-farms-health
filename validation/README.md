@@ -5,7 +5,7 @@ This folder holds how the 2025-26 winter-cereal map (`crops/2026/`) was checked,
 | Study | What it answers | Kind of evidence |
 |---|---|---|
 | [`accuracy_south_2026`](accuracy_south_2026) | How accurate is the map in the 67 finished southern tiles, and how much winter-crop area is there? | Stratified random sample, 575 pixels (375 + a 200-point top-up of "not cropland"), Olofsson et al. (2014) estimators |
-| [`field_checks`](field_checks) | Where and how does the map go wrong, field by field? | 202 fields read from their Sentinel-2 curves and monthly images |
+| [`field_checks`](field_checks) | Where and how does the map go wrong, field by field? | 203 fields read from their Sentinel-2 curves and monthly images (202 in two sets, plus field 212 as a single case) |
 | [`season_pilot`](season_pilot) | Does a later season window (to 30 June) fix the northern errors? | Same fields, before and after, against pre-agreed pass rules |
 | [`coverage`](coverage) | How much farmland falls outside the processed tiles? | FTW farmland checked against the tile plan: 99.6% covered |
 | [`ndvi_offset`](ndvi_offset) | Does the app's NDVI need the Sentinel-2 +1000 offset removed? | Yes: Copernicus Browser matched the corrected formula on 140 of 140 dates; fixed in build 2026.11.07-b |

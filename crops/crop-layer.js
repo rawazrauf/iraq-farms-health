@@ -8,7 +8,9 @@
  * Needs geotiff.js loaded first (global `GeoTIFF`).
  *
  * Pixel codes: 0 = not cropland / not processed; 1 + WorldCereal class index;
- * +100 when WorldCereal's own confidence was below the threshold ("less sure").
+ * +100 when WorldCereal's own confidence was below the threshold ("less sure", 60%);
+ * +200 for "doubtful cereal": a cereal pixel whose wheat + barley probability is below 70%,
+ * or a speck under 0.1 ha (index.json `codes` holds these thresholds).
  */
 (function (global) {
   "use strict";

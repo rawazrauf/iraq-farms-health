@@ -76,6 +76,18 @@ When you are zoomed out too far to see individual fields, the map shows where la
 
 > **Important:** this layer is a regional picture of greenness, not a reading of any field — a 250 m pixel can cover several fields, roads and villages at once. Field readings always come from Sentinel-2 at 10 m (§3). The **Health map** button turns this layer and the per-field colours on and off together.
 
+### Rainfall — ERA5 via Open-Meteo
+
+Rainfall comes from the free [Open-Meteo](https://open-meteo.com/) historical weather archive (CC BY 4.0). By default it combines ECMWF's **ERA5** and **ERA5-Land** reanalyses (Copernicus Climate Change Service) with ECMWF's **IFS** model, on grids of about 9–25 km. So the figure describes the field's area, not the field itself; rain varies smoothly enough for that to be useful. See §3 for how it is used.
+
+### Winter cereals in 2021 — ESA WorldCereal
+
+The 🌾 **Crops** button and the line "Wheat or barley grew here in 2021" use the European Space Agency's **WorldCereal 2021 winter-cereals** map (10 m, CC BY 4.0), served as map tiles by VITO's Terrascope. It is a record of the 2020-21 season, not this one, and it does not separate wheat from barley. It is separate from the 2025-26 crop map in §8, which is still being checked and is not shown in the app yet.
+
+### Surface water — JRC Global Surface Water
+
+Rivers, lakes, marshes and reservoirs are shown from the **JRC Global Surface Water** occurrence layer (EU Joint Research Centre / Google): each 30 m pixel is coloured by how often it was water between 1984 and 2021, from pale pink (rarely) to blue (always). It is always on, for orientation; it is not a reading of any field.
+
 ### Base map & reference layers — Esri
 
 The satellite base map and the roads / place-name / boundary reference layers are **Esri World Imagery** and Esri reference services. The same reference layers (roads and place names) are also composited into the shareable field report so the small map there carries geographic context.
@@ -107,6 +119,24 @@ Under the chart, **Watch month by month** plays the field's history on the map. 
 - **Same colours as everywhere else.** Rust is Poor (below 0.3), ochre is Fair (0.3–0.6), green is Good (0.6 and above), with deeper green for higher values. The image is smoothed for display, so it looks finer than the 10 m pixels it is made from.
 - **A short preview plays by itself.** When a field's data has loaded, its last 12 months play once on the map (about 5 seconds), with the month named in a small label on the map and marked on the chart; it then fades back to the field's current health colour. It uses the 12 images already fetched for the Report. There is no preview for people whose device asks for reduced motion, during the guide, or a second time for the same field in one visit. Tap the month label to stop it.
 - **The full two years are fetched only when you press play** — up to 24 small images in all, kept for the rest of the visit.
+
+### Rainfall
+
+When a field is opened, one request fetches the daily rainfall at the field's centre for the same 24 months as the chart, and adds it up by month. The last nine days are left out, because the archive takes about a week to fill in.
+
+- The card compares the **last 12 months with the 12 before**: "this year … mm · last year … mm", then "wetter", "drier" or "about the same" (within 15 mm). It is shown only if both years have at least 11 months of data.
+- The Report adds a **month-by-month rainfall strip** for the two years.
+- Because the grid is 9–25 km, neighbouring fields usually get the same figure. It describes the area's rain, not irrigation.
+
+### Wheat or barley in 2021
+
+When a field is opened, the tool reads the WorldCereal 2021 winter-cereals tiles over it (at map zoom 14, about 8 m per pixel, close to the map's own 10 m) at up to about 40 × 40 points inside the field, and counts how many fall on mapped winter cereal.
+
+- **50% or more:** "Wheat or barley grew here in 2021".
+- **15% to 50%:** "Part of this field was wheat or barley in 2021".
+- **Under 15%: nothing is shown.** A field missing from the 2021 map could be another crop, an orchard, fallow, a crop the map does not cover, or simply missed, so "not wheat" would read as a finding when it is only a silence.
+
+The **🌾 Crops** button draws the same 2021 map over the satellite picture, in magenta (a colour the health colours do not use), with its own key under the health key.
 
 ### The year-on-year comparison
 
@@ -152,6 +182,8 @@ Being clear about limitations is part of being trustworthy. In summary:
 - **"Current" is not live.** Satellites revisit every few days, and cloud-free imagery may be older still. Readings reflect the most recent usable pass, not today.
 - **The month-by-month images show clouds as they are.** The clearest scene of the month is used, but a patch of thin cloud or shadow over the field shows up as a low-NDVI blotch — the same pixels that pull that month's number down.
 - **Resolution is 10 metres.** Very small plots may be represented by few pixels, making their readings noisier and less reliable.
+- **Rainfall is regional.** It comes from a grid of about 9–25 km, so it describes the area's rain, not the field's, and says nothing about irrigation.
+- **The crop record is from 2021.** "Wheat or barley grew here in 2021" describes the 2020-21 season, a drought year; crops rotate, so it says little about what grows there now.
 - **Mixed pixels at edges.** Pixels along a field's boundary may include roads, canals, or neighbouring fields, slightly affecting the statistics.
 
 None of these make the tool useless — they define the conditions under which its signal is strong (clear skies, larger fields, seasonal trends) versus weak (cloudy days, tiny plots, single-day precision). Used with that understanding, and verified against the source, it is a genuinely useful window on how Iraq's farmland is doing.
