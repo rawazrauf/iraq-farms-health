@@ -2,7 +2,7 @@
 
 **A free, trilingual satellite tool that shows the vegetation health of farm fields across Iraq — designed for smallholder farmers to use on a phone.**
 
-🌐 Live at **[www.iraqfarmshealth.com](https://www.iraqfarmshealth.com)**
+🌐 Live at **[iraqfarmshealth.com](https://iraqfarmshealth.com)**
 
 Tap any field on the map to see how healthy its crops are right now, view a two-year trend, and compare this season to last year. Works in **English**, **Arabic (العربية)**, and **Kurdish (کوردی)**. Every reading can be independently verified against the European Space Agency's Copernicus Browser.
 
@@ -16,7 +16,7 @@ Tap any field on the map to see how healthy its crops are right now, view a two-
 - **Year-on-year comparison.** See at a glance whether this season is greener or drier than the last.
 - **Moisture reading.** Alongside vegetation health, the tool reads the field's canopy moisture (NDMI) and tells you whether it's wetter or drier than nearby fields.
 - **Field size.** Each field's area is shown in donums.
-- **Watch it grow.** Play the field's last two years on the map, month by month — the actual satellite NDVI image of the field for each month, from the same scene as that month's reading.
+- **Watch it grow.** Play the field's last two years on the map, month by month — the field coloured by its NDVI (greenness) in each month's satellite image, from the same scene as that month's reading.
 - **Health map overlay.** Colour every visible field by its current health at once — green for healthy, red for stressed — to spot problems across a whole area.
 - **See where it's green, country-wide.** Zoomed out, a NASA MODIS greenness layer shows where vegetation is growing across Iraq right now; zoom in and individual fields take over. The Health map button switches both on and off.
 - **Save & rank your fields.** Bookmark fields you care about, and see which of your fields improved most since last year.
