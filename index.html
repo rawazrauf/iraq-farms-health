@@ -688,7 +688,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.09-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.12-a";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2096,6 +2096,7 @@ async function onFieldTap(e){
       mergeHealthField(f, cached.col);            // already known — instant
     }else{
       const cur = f.__history[f.__history.length-1];
+      cur.quick = true;                            // being fetched here: the fill below takes it last
       ndviForWindow(f.geometry, cur.from, cur.to).then(r=>{
         if(r && r.value!=null){
           const col = ndviColorHex(r.value);
@@ -2114,24 +2115,40 @@ async function onFieldTap(e){
   // Guard with a tap generation: if the user taps a DIFFERENT field, this loop
   // stops immediately instead of running all 24 months in the background and
   // clogging the request pipe (which made later taps stall).
+  /* Speed (build 2026.11.12-a). Until now the months loaded strictly one after another, each with
+     its own scene search: about 1 s per month, ~20 s for the two years. Now:
+     - ONE search lists every scene of the two years (scenesByMonth), instead of 24 searches;
+     - HISTORY_WORKERS months are read at the same time, still newest first.
+     The readings are unchanged: each month tries the same scenes in the same order with the same
+     checks. If the single search fails, each month searches for itself as before. Four at a time is
+     what the health map already uses (runHealthSample); neighbours' colouring still waits for the
+     tapped field (__fieldBusyUntil), and the request breaker in fetchRetry still applies. */
   const myTap = ++__tapGen;
-  const order = [...f.__history.keys()].reverse();
-  for(const idx of order){
-    if(myTap !== __tapGen) return;                 // a newer tap superseded us
+  const tFill = performance.now();
+  let byMonth = null;
+  try{ byMonth = await scenesByMonth(f.geometry, months); }
+  catch(err){ DBG.warn("two-year scene search failed, searching month by month: " + err.message); }
+  if(myTap !== __tapGen) return;                   // a newer tap superseded us
+  const queue = [...f.__history.keys()].reverse();
+  // the current month is already being read by the quick call above: take it last, and only if that failed
+  if(f.__history[queue[0]].quick) queue.push(queue.shift());
+  const fillMonth = async idx => {
     const slot = f.__history[idx];
-    if(slot.v!=null && !slot.pending) continue;   // already seeded (e.g. current month)
+    if(slot.v!=null && !slot.pending) return;      // already seeded (e.g. current month)
     try{
-      const r = await ndviForWindow(f.geometry, slot.from, slot.to);
+      const r = await ndviForWindow(f.geometry, slot.from, slot.to, null, byMonth ? (byMonth.get(slot.ym) || []) : undefined);
+      if(slot.v!=null && !slot.pending) return;    // the quick call got there first
       slot.v = r.value; slot.date = r.date; slot.err = r.err;
       slot.scene = r.scene; slot.cloud = r.cloud;
     }catch(err){ slot.v = null; slot.err = err.message; DBG.err(`month ${slot.ym} threw: ${err.stack||err.message}`); }
     slot.pending = false;
     DBG.log(`month ${slot.ym} → ${slot.v!=null ? slot.v.toFixed(3) : "null ("+slot.err+")"}`);
-    // This month or last month (newest first): colour the tapped polygon from the
-    // first that has a reading, as the health map does (recentWindows).
+    // This month or last month: colour the tapped polygon from the newest that has a reading, as
+    // the health map does (recentWindows). Months now finish in any order, so a reading from this
+    // month replaces a colour that came from last month.
     if(healthOn && idx >= f.__history.length-2 && slot.v!=null){
       const k = fieldKey(f), c = __healthCache.get(k);
-      if(!(c && c.v!=null)){
+      if(!(c && c.v!=null) || (c.ym && c.ym < slot.ym)){
         const col = ndviColorHex(slot.v);
         __healthCache.set(k, {v:slot.v, col, ym:slot.ym});
         mergeHealthField(f, col);
@@ -2139,7 +2156,17 @@ async function onFieldTap(e){
       }
     }
     if(lastField===f && sheet.classList.contains("open")) renderField(f); // live update
-  }
+  };
+  const fillWorker = async () => {
+    while(queue.length){
+      if(myTap !== __tapGen) return;               // a newer tap superseded us
+      await fillMonth(queue.shift());
+    }
+  };
+  await Promise.all(Array.from({length:HISTORY_WORKERS}, fillWorker));
+  if(myTap !== __tapGen) return;
+  DBG.log(`history: ${f.__history.length} months in ${((performance.now()-tFill)/1000).toFixed(1)} s · `
+        + (byMonth ? `one search, ${byMonth.total} scenes` : "month-by-month searches") + ` · ${HISTORY_WORKERS} at a time`);
   __fieldBusyUntil = 0; scheduleHealthSample();   // field read: neighbours may colour now
   // Reading complete — log this field to history (ranked later by improvement).
   try{
@@ -2178,6 +2205,7 @@ function buildMonths(n){
 }
 
 const historyCache = new Map();
+const HISTORY_WORKERS = 4;   // months of a tapped field's history read at the same time
 let __tapGen = 0;   // increments each field tap; supersedes older tap loads
 let __sparkDots = [];      // {i,cx,cy,v,label,year,date,thisYear} per rendered dot
 let __hoverDot = null;     // index of currently highlighted dot
@@ -2233,7 +2261,39 @@ async function fetchRetry(url, opts, tries=3, timeoutMs=20000){
 }
 function sleep(ms){ return new Promise(res=>setTimeout(res, ms)); }
 
-async function ndviForWindow(geometry, from, to, expr){
+/* Only what the reading needs from each scene: its id, date, cloud cover and processing baseline.
+   A full scene record is ~10 KB (asset links, footprint); with this list it is ~0.2 KB, so a month's
+   search is a few KB instead of ~120 KB, and two years of scenes fit in one ~30 KB answer. */
+const STAC_FIELDS = "id,properties.datetime,properties.eo:cloud_cover,properties.s2:processing_baseline,"
+                  + "-assets,-links,-geometry,-bbox,-collection,-stac_extensions,-stac_version,-type";
+/* All Sentinel-2 scenes over a field for a run of months, in ONE search, grouped by month ("YYYY-MM")
+   and clearest first within each month: the same candidates the per-month search returns, without
+   asking 24 times. Returns null if the answer is cut short or the search fails; the caller then
+   searches month by month as before. */
+async function scenesByMonth(geometry, months){
+  const bbox = geomBbox(geometry);
+  if(!bbox || !months.length) return null;
+  const LIMIT = 500;                         // ~165 scenes per tile over two years; 2 overlapping tiles ≈ 330
+  const sq = new URLSearchParams({
+    collections:"sentinel-2-l2a", bbox:bbox.join(","),
+    datetime:`${months[0].from}T00:00:00Z/${months[months.length-1].to}T23:59:59Z`,
+    sortby:"+eo:cloud_cover", limit:String(LIMIT), fields:STAC_FIELDS
+  }).toString();
+  const r = await fetchRetry(`https://planetarycomputer.microsoft.com/api/stac/v1/search?${sq}`,{method:"GET"});
+  if(!r.ok) return null;
+  const feats = (await r.json()).features || [];
+  if(feats.length >= LIMIT) return null;     // may be cut short: do not trust it
+  const by = new Map(months.map(m => [m.ym, []]));
+  for(const it of feats){
+    const ym = (it.properties && it.properties.datetime || "").slice(0,7);
+    if(by.has(ym)) by.get(ym).push(it);      // order kept: clearest first
+  }
+  by.total = feats.length;
+  return by;
+}
+/* `scenes` (optional): this window's scenes, clearest first, already fetched by scenesByMonth();
+   without it the window is searched here. */
+async function ndviForWindow(geometry, from, to, expr, scenes){
   expr = expr || NDVI_EXPR;
   // Physical bounds of the index, used to reject blown-up pixel math (near-zero
   // denominators / dark pixels). NDVI and NDMI are both bounded to [-1,1].
@@ -2247,18 +2307,22 @@ async function ndviForWindow(geometry, from, to, expr){
      with only safelisted headers needs no preflight and goes straight through.
      The `query` extension has no GET equivalent, so the cloud-cover ceiling is
      applied client-side below; `sortby` still orders clearest-scene-first. */
-  const sq = new URLSearchParams({
-    collections:"sentinel-2-l2a",
-    bbox:bbox.join(","),
-    datetime:`${from}T00:00:00Z/${to}T23:59:59Z`,
-    sortby:"+eo:cloud_cover",
-    limit:"12"
-  }).toString();
-  const sr = await fetchRetry(`https://planetarycomputer.microsoft.com/api/stac/v1/search?${sq}`,{method:"GET"});
-  if(!sr.ok) return {value:null, err:"search "+sr.status};
-  const sj = await sr.json();
-  // Cloud ceiling, formerly the server-side query filter (see above).
-  const items = (sj.features||[])
+  let found = scenes;
+  if(!found){
+    const sq = new URLSearchParams({
+      collections:"sentinel-2-l2a",
+      bbox:bbox.join(","),
+      datetime:`${from}T00:00:00Z/${to}T23:59:59Z`,
+      sortby:"+eo:cloud_cover",
+      limit:"12",
+      fields:STAC_FIELDS
+    }).toString();
+    const sr = await fetchRetry(`https://planetarycomputer.microsoft.com/api/stac/v1/search?${sq}`,{method:"GET"});
+    if(!sr.ok) return {value:null, err:"search "+sr.status};
+    found = (await sr.json()).features || [];
+  }
+  // Cloud ceiling, formerly the server-side query filter (see above). The 12 clearest, as the search's limit.
+  const items = found.slice(0,12)
     .filter(it => { const c = it.properties && it.properties["eo:cloud_cover"]; return c==null || c < 60; })
     .slice(0,8);
   if(!items.length){ DBG.warn(`no scene ${from}..${to} expr=${expr}`); return {value:null, err:"no scene"}; }
