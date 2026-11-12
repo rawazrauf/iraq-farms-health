@@ -702,7 +702,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.12-d";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.12-e";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2442,8 +2442,8 @@ async function ndviForWindow(geometry, from, to, expr, scenes){
    −1…1 → 0…255 in grey + alpha; it is recoloured client-side with the same
    palette as the cards and chart, upscaled with smoothing, then clipped to the
    exact polygon so the image edge sits under the outline. */
-const PLAY_FRAME_MS = 900;      // time each month stays on screen
-const PLAY_FADE_MS  = 300;      // cross-fade between months
+const PLAY_FRAME_MS = 450;      // time each month stays on screen (was 900: two years took ~22 s, too long for a glance)
+const PLAY_FADE_MS  = 150;      // cross-fade between months (a third of the frame, as before)
 const __frameCache = new Map(); // fieldKey|scene -> Promise<{url, coords}>
 let __play = null;              // {f, frames:[histIdx], pos, idx, state, gen, front, shownAny, failStreak}
 let __playGen = 0;
