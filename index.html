@@ -342,9 +342,23 @@ html,body{margin:0;height:100%;background:var(--ink);
 #sheet .share-btn{display:inline-block;font-size:13px;font-weight:800;cursor:pointer;
   color:var(--ink);background:transparent;border:1.5px solid var(--ink);
   border-radius:8px;padding:7px 12px}
+/* Report button while its data loads: a small turning ring before the word, so "Preparing…" reads as
+   work in progress, not a dead button. The card is redrawn as data arrives, which recreates the button;
+   --spin-sync (a negative delay set from the clock) keeps the ring turning smoothly through that
+   instead of jumping back to its start. People who ask for reduced motion get a slow fade instead. */
+#sheet .share-btn.loading{display:inline-flex;align-items:center;gap:7px;cursor:progress;opacity:.8}
+#sheet .share-btn.loading::before{content:"";flex:none;width:11px;height:11px;border-radius:50%;
+  border:2px solid currentColor;border-inline-end-color:transparent;
+  animation:prepspin .8s linear infinite;animation-delay:var(--spin-sync,0ms)}
+@keyframes prepspin{to{transform:rotate(360deg)}}
+@keyframes preppulse{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){
+  #sheet .share-btn.loading::before{animation:preppulse 1.6s ease-in-out infinite;border-inline-end-color:currentColor}
+}
 #sheet .save-btn{display:inline-block;font-size:13px;font-weight:800;cursor:pointer;
   color:var(--ink);background:var(--wheat);border:0;border-radius:8px;padding:7px 12px}
 #sheet .save-btn.saved{background:var(--canal);color:#fff}
+#sheet .share-btn.copied{border-color:var(--canal);color:var(--canal)}
 #play-wrap{margin:10px 0 4px}
 /* Compact sheet while a playback is open: keep the field line, the chart and the
    play controls; everything else steps aside so the map has the room. */
@@ -688,7 +702,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.12-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.12-d";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -3146,7 +3160,7 @@ function renderField(f){
       const already = id && pinExists(id);
       return `<button class="save-btn ${already?'saved':''}" id="save-field-btn" ${already?'disabled':''}>${already?t.saved:t.save}</button>`+
              `<button class="share-btn" id="share-field-btn">${t.share} ↗</button>`+
-             `<button class="share-btn ${__reportReady?'':'loading'}" id="report-field-btn" ${__reportReady?'':'disabled'}>${__reportReady?(t.report+' ↓'):(t.preparing||'Preparing…')}</button>`;
+             `<button class="share-btn ${__reportReady?'':'loading'}" id="report-field-btn" ${__reportReady?'':`disabled aria-busy="true" style="--spin-sync:-${Date.now()%800}ms"`}>${__reportReady?(t.report+' ↓'):(t.preparing||'Preparing…')}</button>`;
     })()}</div>`;
   drawSpark(hist);
   attachSparkHover(hist);
@@ -3181,16 +3195,32 @@ function shareField(f, btn){
   // IMPORTANT: share ONLY the URL. Including a `text`/title makes iOS append it
   // after the link ("...&z=16 Iraq Farms Health — FTW-..."), which breaks the URL
   // when a user pastes it. The clean link alone is what we want on the clipboard.
-  if(navigator.share){
+  /* Phones and tablets: the native share sheet (WhatsApp, Messages…). Computers: copy the link and
+     say so on the button, which is what a Share button does on desktop sites; the system share pop-up
+     that Chrome opens there is unfamiliar and slower than a paste. */
+  if(isPhoneOrTablet() && navigator.share){
     navigator.share({ url }).catch(()=>{});
   } else if(navigator.clipboard){
-    navigator.clipboard.writeText(url).then(()=>{
-      const old = btn.textContent; btn.textContent = t.copied;
-      setTimeout(()=>{ btn.textContent = old; }, 1600);
-    }).catch(()=>{ prompt(t.share, url); });
+    navigator.clipboard.writeText(url).then(()=> shareCopied(t.copied))
+      .catch(()=>{ prompt(t.share, url); });
   } else {
     prompt(t.share, url);
   }
+}
+/* "Link copied ✓" on the Share button for two seconds. The card may be redrawn meanwhile (data still
+   arriving), which recreates the button, so the button is looked up again each time. */
+let __shareCopiedUntil = 0, __shareCopiedTimer = null;
+function shareCopied(msg){
+  __shareCopiedUntil = Date.now() + 2000;
+  const paint = () => {
+    const b = document.getElementById("share-field-btn"); if(!b) return;
+    const on = Date.now() < __shareCopiedUntil;
+    b.textContent = on ? msg : (I18N[lang].share + " ↗");
+    b.classList.toggle("copied", on);
+  };
+  paint();
+  clearInterval(__shareCopiedTimer);
+  __shareCopiedTimer = setInterval(()=>{ paint(); if(Date.now() >= __shareCopiedUntil) clearInterval(__shareCopiedTimer); }, 150);
 }
 
 /* Build a shareable PNG report of the field: map thumbnail, health, 2-year chart,
@@ -3311,8 +3341,9 @@ function setReportReadyState(){
   const b = document.getElementById("report-field-btn");
   if(!b) return;
   const t = I18N[lang];
-  if(__reportReady){ b.textContent=(t.report||"Report")+" ↓"; b.disabled=false; b.classList.remove("loading"); }
-  else { b.textContent=t.preparing||"Preparing…"; b.disabled=true; b.classList.add("loading"); }
+  if(__reportReady){ b.textContent=(t.report||"Report")+" ↓"; b.disabled=false; b.classList.remove("loading"); b.removeAttribute("aria-busy"); }
+  else { b.textContent=t.preparing||"Preparing…"; b.disabled=true; b.setAttribute("aria-busy","true");
+         if(!b.classList.contains("loading")){ b.style.setProperty("--spin-sync", `-${Date.now()%800}ms`); b.classList.add("loading"); } }
 }
 
 /* The Report's "field notes": the health verdict, then every per-field fact.
