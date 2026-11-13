@@ -150,10 +150,15 @@ python topup_review.py final                             # final labels from the
 python estimate.py --topup
 python bootstrap.py --topup
 python label_noise.py                        # section 9: effect of the hand labels' repeatability
+
+# E. Forage test (section 10)
+python forage_draw.py                        # same 62 points
+python fetch_dense.py                        # optional re-fetch, about 1 h; writes data/forage_series_fetched.json
+python forage_test.py                        # from the archived data/forage_series.json
 ```
 
 **Expected outputs:**
-- `expected_output.txt` holds the expected output of `estimate.py`, `bootstrap.py` and `label_noise.py`.
+- `expected_output.txt` holds the expected output of `estimate.py`, `bootstrap.py`, `label_noise.py` and `forage_test.py`.
 - Step A reproduces the sample byte for byte. This was checked on 7 Nov 2026.
 
 **On the curves:**
@@ -273,6 +278,30 @@ The manual look at borderline curves is the least repeatable step (section 7). `
 - **Reading.** Label noise shifts the estimates a little, towards more winter crop and a slightly lower producer's accuracy (0.69 against 0.71), because curves first called unclear or "not" were more often called winter crop the second time than the reverse (6 moved into winter crop, none out of it). The headline uses the round-1 labels; pooling both rounds therefore adds winter crop relative to it. It widens the intervals modestly: the area interval becomes 1.77–2.14 Mha against 1.75–2.06. No conclusion changes. The headline keeps the declared labels and intervals; these figures are the fuller statement of uncertainty.
 - **What it does not cover.** Both rounds were by the same labeller, so this measures repeatability, not correctness. An independent labeller (section 6) and independent imagery (Limits) are still needed.
 
+## 10. Is fodder hiding inside "winter crop"?
+
+The reference labels use one reading a month, which cannot show a crop that is cut and grows back (berseem clover, alfalfa, green-cut barley). `forage_test.py` looks for that with every clear Sentinel-2 date, about one every 5 days.
+
+- **Sample.** 50 points drawn at random (seed 20261113) from the 157 phase-1 points labelled winter crop, plus all 12 "perennial" points as a control: fodder such as alfalfa is expected there, so a working test should find cuts.
+- **Data.** Every scene from 1 Nov 2025 to 15 Jun 2026, the point's own pixel, kept when the scene classification is clear: 34 to 77 dates per point (`data/forage_series.json`).
+- **Rules** (in full in the script header). A cut is a fall of 0.20 or more within 15 days from 0.45 or more, with low readings spanning at least 5 days, followed by regrowth. A green harvest is a fall of 0.35 or more within 10 days before 1 April with no regrowth. The same fall from 1 April on is a "fast end", which NDVI cannot tell apart from quick ripening in hot weather, and is not counted as forage. One-date outliers are removed first.
+- **Result, 50 winter-crop points.**
+
+  | | Points | Share (95% upper limit) |
+  |---|---|---|
+  | Cut and regrowth | 1 (S366) | 2% (11%) |
+  | Green harvest before 1 April | 1 (S066) | |
+  | Either | 2 | 4% (14%) |
+  | Fast end from 1 April, not counted | 6 | |
+  | A single rise and fall | 42 | |
+
+- **By eye.** Reading the flagged series by eye adds one point, S085, with three shallow cycles of about 0.2 that are too brief for the rule's 5-day span. With it: 3 of 50, 6% (upper limit 17%).
+- **The control shows the test can see cuts.** 8 of the 12 perennial points show cut-and-regrowth cycles, up to five in the season.
+- **A haze episode would have been counted without the 5-day span.** On 4–5 April 2026, 15 of the 62 points show a one-scene dip of 0.15 or more that the scene classification did not flag, most likely dust. The first version of the rule counted several of them as cuts.
+- **Where the two flagged points sit.** S366 and S066 are both "doubtful cereal" on the map, which the 70% rule already leaves out of the default cereal class. S085 is "confident cereal".
+- **Reading.** On this sample, fodder that is cut green is a small part of the winter-crop reference, a few percent, and under 20% at the upper limit. It does not turn "winter crop" into "cereal": pulses, vegetables and barley cut once at the end of the season look like cereal here.
+- **Limits of this test.** 50 points, one pixel each. The thresholds were set after a first look at the series, so they are not blind, and the by-eye reading is by the same labeller as the reference. Four of the six fast ends are north of 34°N between 25 April and 15 May. The archived series come from the browser run of 13 Nov 2026; `fetch_dense.py` is its Python port and has not yet been run against the archive (the port of `fetch_curves.py`, which it reuses, was checked on 8 Nov).
+
 ## Limits
 
 - **The reference is not independent of the map.** Olofsson et al. (2014) ask for reference data of higher quality than the map and independent of it. Here the reference labels are read from Sentinel-2 curves, and the map is WorldCereal's model run on Sentinel-2 (with Sentinel-1 radar and weather data). The method differs: a person and written rules reading a whole year, including the months after the season, against a model. But the sensor is shared, so anything that distorts Sentinel-2 at a point (dust, a cloud gap in a key month, an unusual season) can push the map and the label the same way, and agreement may be overstated. What would fix it: checking a subsample against very-high-resolution imagery, and comparing the area estimates with official statistics by governorate. Sentinel-1 would not help, because the map already uses it.
@@ -283,7 +312,7 @@ The manual look at borderline curves is the least repeatable step (section 7). `
 - Turning these into cereal figures needs very-high-resolution imagery or field visits on a subsample.
 - **One labeller.** The labels were made by one labeller, Claude, working for the project. The rules are written so that someone else can apply them; section 6 is the test of that.
 - **The manual look is not very repeatable.** In the phase-2 blind re-review, the same labeller agreed with his own phase-1 labels on 54% of the borderline curves, and on 51 of 57 for the winter-crop question (section 7). The rule labels, which cover 503 of the 575 points (87.5%; 85% in phase 1), are fully repeatable. Section 9 puts numbers on what this could do to the estimates.
-- **Fodder cut several times a winter is counted as a winter crop.** The rules look at one reading per month, which cannot show the repeated cuts of berseem clover. Alfalfa mostly falls under "perennial". How much fodder is inside the winter-crop figure is not known; reading every clear scene (every 5 days) on a subsample would show it.
+- **Fodder cut several times a winter is counted as a winter crop.** The rules look at one reading per month, which cannot show the repeated cuts of berseem clover. Alfalfa mostly falls under "perennial". A test with every clear scene on 50 winter-crop points found cut or green-harvested crops on 2 to 3 of them (section 10).
 - **South only.** The northern tiles are being re-run with a later season; see [`../season_pilot`](../season_pilot). They will be assessed the same way after that run.
 - **One pixel per point.** At 10 m, a pixel on a field edge mixes neighbours. This affects the map and the reference alike.
 
@@ -300,6 +329,8 @@ The manual look at borderline curves is the least repeatable step (section 7). `
 | `estimate.py` | Step C2: Olofsson et al. (2014) estimators |
 | `bootstrap.py` | Check: stratified bootstrap |
 | `label_noise.py` | Check: effect of the hand labels' repeatability on the estimates (section 9) |
+| `forage_draw.py`, `fetch_dense.py`, `forage_test.py` | Forage test: sample, every clear scene per point, cut-and-regrowth rules (section 10) |
+| `data/forage_sample.csv`, `data/forage_series.json` | Forage test: the 62 points and their archived series (date, corrected NDVI) |
 | `topup_draw.py` | Phase 2: the 200-point "not cropland" top-up (section 7) |
 | `topup_review.py` | Phase 2: rule labels, blind review pack, final labels |
 | `fetch_topup.ipynb` | Phase 2: Colab notebook that runs `fetch_curves.py` on the top-up points |

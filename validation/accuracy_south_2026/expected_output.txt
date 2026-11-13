@@ -77,3 +77,18 @@ confident + doubtful cereal
   PA           headline 0.874   label noise only: median 0.857, 95% 0.823 - 0.883   with sampling: 95% 0.785 - 0.917
   OA           headline 0.935   label noise only: median 0.931, 95% 0.923 - 0.937   with sampling: 95% 0.912 - 0.947
   ref_area_ha  headline 1.91 Mha   label noise only: median 1.94 Mha, 95% 1.87 Mha - 2.02 Mha   with sampling: 95% 1.77 Mha - 2.14 Mha
+
+$ python forage_test.py
+winter-crop points: 50; clear dates per point 34-72, median 41; one-date outliers removed: 37
+  cut and regrowth: 1 of 50 (2%, 95% upper limit 11%)  S366x2
+  green harvest before 1 April, no regrowth: 1  S066
+  cut or green harvest: 2 of 50 (4%, 95% upper limit 14%)
+  fast end from 1 April (not counted as forage): 6  S132 S139 S177 S213 S330 S339
+  none of these: 42
+perennial points (control): 12; clear dates per point 37-77, median 70; one-date outliers removed: 13
+  cut and regrowth: 8 of 12 (67%, 95% upper limit 90%)  S067x1 S133x2 S148x2 S166x5 S207x1 S275x1 S284x3 S355x3
+  green harvest before 1 April, no regrowth: 0  
+  cut or green harvest: 8 of 12 (67%, 95% upper limit 90%)
+  fast end from 1 April (not counted as forage): 1  S088
+  none of these: 3
+haze episode of 4-5 April 2026 (one-scene dip of 0.15 or more): 15 points  S045 S089 S099 S164 S206 S238 S271 S282 S285 S307 S330 S339 S356 S133 S148
