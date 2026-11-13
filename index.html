@@ -210,25 +210,15 @@ html,body{margin:0;height:100%;background:var(--ink);
 #pins-toggle{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
   box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
   border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px}
-#pins-toggle #pins-count{opacity:.6;font-weight:700}
-#help-btn{display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;
-  font:800 20px/1 ui-sans-serif,system-ui,"Noto Sans Arabic",sans-serif;-webkit-tap-highlight-color:transparent}
-#help-btn:active{background-color:rgba(20,38,27,.1)}
-#health-toggle{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
-  box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
-  border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px;opacity:.55}
-#health-toggle.on{opacity:1;background:var(--ink);color:var(--paper)}
+
+
 /* Crop-type toggle. Tints to the layer's own colour when on, so the button
    doubles as the legend. */
 /* Random farm: always "on"-looking (it is an action, not a layer switch), in the field-green ink. */
-#random-farm{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
-  box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
-  border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px}
-#random-farm:active{background:var(--ink);color:var(--paper)}
-#crop-toggle{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
-  box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
-  border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px;opacity:.55}
-#crop-toggle.wintercereals{opacity:1;background:#A8187C;color:#fff;border-color:#A8187C}
+
+
+
+
 #hist-toggle{pointer-events:auto;border:1px solid var(--line);background:var(--panel);
   box-shadow:var(--shadow);font:inherit;font-weight:800;font-size:12px;color:var(--ink);
   border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px}
@@ -397,6 +387,165 @@ html,body{margin:0;height:100%;background:var(--ink);
 #play-leg .pll{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:#6B6350;margin-top:3px}
 /* RTL: labels run right-to-left, so the colour ramps must too (poor end on the right). */
 html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(--canal))}
+
+/* ===== Layout of 13 Nov 2026 (build 13-i): one top bar, layers sheet, compact legend, ©. =====
+   Computer: [title][search] ............ [Layers | My fields | Ranking][EN عربي کوردی]
+   Phone (≤640 px): [search · language] with an icon rail under its end; Random farm and
+   My location bottom-right; legend chip and © bottom-left; no +/- (pinch), no ⓘ, no ?. */
+#bar{gap:10px}
+#search-wrap{height:44px;box-sizing:border-box;border-radius:22px;align-items:center;
+  padding:0 4px 0 14px;gap:6px}
+#search-wrap .s-ico{width:18px;height:18px;flex:none;color:var(--ink);opacity:.75}
+#search-input{font-size:15px;width:min(28vw,300px);padding:5px 2px}
+#search-go{border-radius:16px;padding:8px 13px}
+#lang-chip{display:none}
+#rail{pointer-events:auto;margin-inline-start:auto;display:flex;align-items:center;gap:2px;height:44px;
+  box-sizing:border-box;padding:3px;background:var(--panel);border:1px solid var(--line);
+  border-radius:22px;box-shadow:var(--shadow)}
+#rail > button{position:relative;border:0;background:transparent;box-shadow:none;height:36px;
+  border-radius:18px;padding:0 12px;display:flex;align-items:center;gap:7px;font:inherit;
+  font-weight:700;font-size:13px;color:var(--ink);cursor:pointer;opacity:1}
+#rail > button:hover{background:rgba(20,38,27,.07)}
+#rail > button[aria-expanded="true"]{background:var(--ink);color:var(--paper)}
+#rail svg{width:20px;height:20px;flex:none}
+#pins-count:empty,#hist-count:empty{display:none}
+#pins-count{min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;
+  background:var(--canal);color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center;opacity:1}
+#hist-count{display:none}
+#lang{margin-inline-start:0;height:44px;box-sizing:border-box;align-items:center;border-radius:22px}
+#lang button{border-radius:16px;padding:7px 11px}
+#tour-hole{transition:all .25s}
+
+/* layers panel */
+#layers-panel[hidden]{display:none}
+#layers-panel{position:absolute;z-index:8;top:calc(var(--safe-t) + 60px);inset-inline-end:8px;width:340px;
+  max-height:calc(100% - 80px);overflow:auto;box-sizing:border-box;background:var(--paper);
+  border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 32px rgba(20,38,27,.3);
+  padding:12px 14px 14px;display:flex;flex-direction:column;gap:12px;animation:lpin .22s ease}
+@keyframes lpin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+#layers-panel .lp-head{display:flex;align-items:center;justify-content:space-between;font-size:17px;font-weight:800}
+#lp-close{width:34px;height:34px;border:0;border-radius:17px;background:rgba(20,38,27,.07);color:var(--ink);
+  font-size:20px;line-height:1;cursor:pointer}
+#layers-panel .lp-card{display:flex;flex-direction:column;background:#FBF9F3;border:1px solid #E4DCC8;border-radius:14px}
+#layers-panel .lp-card > * + *{border-top:1px solid #E4DCC8}
+#layers-panel .lp-row{display:flex;align-items:center;gap:12px;padding:12px;border:0;background:transparent;
+  box-shadow:none;border-radius:0;font:inherit;color:var(--ink);text-align:start;cursor:pointer;opacity:1;width:100%}
+#layers-panel .lp-sw{width:36px;height:36px;flex:none;border-radius:9px}
+#layers-panel .lp-sw-h{background:linear-gradient(135deg,var(--clay),#E8C15A,var(--canal))}
+#layers-panel .lp-sw-c{background:#D6249F}
+#layers-panel .lp-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#layers-panel .lp-txt b{font-size:14px;font-weight:800}
+#layers-panel .lp-txt small{font-size:12px;font-weight:600;opacity:.65}
+#layers-panel .lp-tog{width:42px;height:24px;flex:none;border-radius:12px;background:#C9BFA8;position:relative;transition:background .2s}
+#layers-panel .lp-tog::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:9px;
+  background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:inset-inline-start .2s}
+#health-toggle.on .lp-tog,#crop-toggle.wintercereals .lp-tog{background:var(--canal)}
+#health-toggle.on .lp-tog::after,#crop-toggle.wintercereals .lp-tog::after{inset-inline-start:21px}
+#layers-panel .lp-lang{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:#E9E2D2;border-radius:14px}
+#layers-panel .lp-lang button{height:38px;border:0;border-radius:10px;background:transparent;color:var(--ink);font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+#layers-panel .lp-lang button.on{background:var(--ink);color:var(--paper)}
+#layers-panel .lp-link{display:flex;align-items:center;gap:12px;padding:13px 12px;border:0;background:transparent;font:inherit;
+  font-size:14px;font-weight:700;color:var(--ink);text-decoration:none;text-align:start;cursor:pointer;width:100%}
+#layers-panel .lp-link svg{width:20px;height:20px;flex:none}
+#layers-panel .lp-foot{font:600 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.5;direction:ltr;text-align:center}
+#layers-panel .lp-foot a{color:inherit}
+
+/* legend: one slim chip, bottom-left beside the © button; tap opens Layers */
+#legend{top:auto;bottom:calc(var(--safe-b) + 10px);inset-inline-start:auto;left:46px;right:auto;direction:inherit;
+  display:flex;align-items:center;gap:10px;height:36px;box-sizing:border-box;padding:0 12px;border-radius:18px;
+  max-width:calc(100vw - 150px);cursor:pointer;font-weight:700;white-space:nowrap}
+#legend[hidden]{display:none}
+#lg-health{display:flex;align-items:center;gap:7px}
+#legend .lbl{margin:0}
+#legend .lbl-s,#legend .ends,#lg-crop .src{display:none}
+#ramp{width:34px;height:8px;flex:none}
+#lg-health:not([hidden]) + #lg-crop:not([hidden]){border-top:0;margin-top:0;padding-top:0;
+  border-inline-start:1px solid var(--line);padding-inline-start:10px}
+#lg-crop{max-width:none}
+#lg-crop .row{align-items:center;font-weight:700;line-height:1}
+#lg-crop .sw{margin-top:0;width:10px;height:10px}
+#lg-crop .row br,#lg-crop .row [data-t="cropKeyT"]{display:none}
+#lg-crop .sub{font-weight:700}
+
+/* © credits: MapLibre's compact attribution, bottom-left, drawn as a plain © */
+.maplibregl-ctrl-bottom-left{direction:ltr}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);
+  color:var(--ink);font:600 11px/1.45 ui-sans-serif,system-ui,sans-serif;max-width:calc(100vw - 30px);margin:0 0 calc(var(--safe-b) + 10px) 8px}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib a{color:var(--ink)}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib.maplibregl-compact{min-height:30px;border-radius:15px;padding:5px 10px 5px 34px}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show){padding:0;width:30px;height:30px}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib-button{width:30px;height:30px;left:0;top:0;background-image:none !important;
+  background-color:transparent !important;display:flex;align-items:center;justify-content:center}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib-button::after{content:"©";font:700 15px/1 ui-sans-serif,system-ui,sans-serif;color:var(--ink)}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl-attrib.maplibregl-compact-show ~ *{display:none}
+/* credits open: they sit above everything at the bottom until closed again */
+body:has(.maplibregl-compact-show) #legend{display:none}
+.maplibregl-ctrl-bottom-left:has(.maplibregl-compact-show){z-index:6}
+
+/* Random farm: a labelled pill on computers, a round green button on phones */
+#random-farm{display:flex;align-items:center;gap:9px;height:48px;padding:0 18px;border:0;border-radius:24px;
+  background:var(--canal);color:#fff;font:800 14px/1 ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;cursor:pointer;
+  box-shadow:0 4px 16px rgba(20,38,27,.35)}
+#random-farm svg{width:22px;height:22px;flex:none}
+#random-farm:active{transform:scale(.96)}
+.maplibregl-ctrl.random-ctrl{background:transparent;box-shadow:none;border:0}
+
+/* diagnostics box and its coordinates: debug mode only */
+body:not(.dbg) #diag{display:none}
+body.dbg #diag{bottom:calc(var(--safe-b) + 54px)}
+
+/* tap feedback: ripple at the tap, then the field's outline draws itself */
+.tapfx-ripple{position:absolute;z-index:3;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;
+  background:rgba(255,255,255,.55);pointer-events:none;animation:tapripple .6s ease-out forwards}
+@keyframes tapripple{from{transform:scale(.2);opacity:1}to{transform:scale(4);opacity:0}}
+.tapfx-outline{position:absolute;inset:0;z-index:3;pointer-events:none;transition:opacity .25s}
+.tapfx-outline path{fill:rgba(255,255,255,0);stroke:#fff;stroke-width:3;stroke-linejoin:round;
+  transition:stroke-dashoffset .5s ease-out,fill .4s ease}
+
+/* My fields and Ranking open above the "zoom in" bubble, like Layers; one close button style */
+#hist-panel,#pins-panel{z-index:8}
+#hist-close{border:0;background:transparent;font-size:20px;line-height:1;color:var(--ink);
+  opacity:.5;cursor:pointer;padding:2px 6px;box-shadow:none}
+#title{white-space:nowrap}
+
+/* Tablets and small laptops (641-1180 px): the three buttons show icons only (names in tooltips);
+   below 900 px the title goes and the language buttons fold into one chip, as on phones. */
+@media (min-width:641px) and (max-width:1180px){
+  #rail .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  #rail > button{padding:0 11px}
+  #search-input{width:min(24vw,240px)}
+}
+@media (min-width:641px) and (max-width:900px){
+  #title,#lang{display:none}
+  #search-wrap{flex:1;min-width:0}
+  #search-input{width:auto;flex:1;min-width:0}
+  #lang-chip{display:block;height:34px;padding:0 13px;border:0;border-radius:17px;background:var(--ink);color:var(--paper);
+    font:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}
+}
+@media (max-width:640px){
+  #title,#lang{display:none}
+  #search-wrap{flex:1;min-width:0;height:48px;border-radius:24px}
+  #search-input{width:auto;flex:1;min-width:0;font-size:16px}
+  #search-go{display:none}
+  #lang-chip{display:block;height:38px;padding:0 13px;border:0;border-radius:19px;background:var(--ink);color:var(--paper);
+    font:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}
+  #rail{position:absolute;top:58px;inset-inline-end:0;flex-direction:column;height:auto;width:50px;padding:2px;border-radius:16px;gap:0}
+  #rail > button{width:44px;height:44px;padding:0;justify-content:center;border-radius:12px}
+  #rail > button + button{margin-top:2px}
+  #rail .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  #pins-count{position:absolute;top:5px;inset-inline-end:3px;min-width:16px;height:16px;line-height:16px;font-size:10px;padding:0 4px}
+  .maplibregl-ctrl-group:has(.maplibregl-ctrl-zoom-in){display:none}
+  #random-farm{width:58px;height:58px;padding:0;justify-content:center;border-radius:29px}
+  #random-farm svg{width:27px;height:27px}
+  #random-farm .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #legend .lbl{display:none}
+  #legend .lbl-s{display:inline}
+  #layers-panel{top:auto;bottom:0;left:0;right:0;inset-inline-end:0;width:auto;max-height:86%;
+    border-radius:22px 22px 0 0;border-bottom:0;padding:12px 16px calc(var(--safe-b) + 18px);animation:lpup .28s cubic-bezier(.2,.9,.25,1)}
+  @keyframes lpup{from{transform:translateY(100%)}to{transform:none}}
+  #hist-panel,#pins-panel{inset-inline-end:66px}
+}
+@media (prefers-reduced-motion: reduce){.tapfx-ripple,.tapfx-outline{display:none}#layers-panel{animation:none}}
 </style>
 
 <!-- Microsoft Clarity (anonymous session analytics + heatmaps) -->
@@ -451,6 +600,18 @@ html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(
 
 <div id="bar">
   <div id="title"><span class="dot"></span><span data-t="title">Iraq Farms Health</span></div>
+  <div id="search-wrap">
+    <svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+    <input id="search-input" type="text" enterkeyhint="search" autocomplete="off" aria-label="Search"
+           data-t-ph="searchPh" placeholder="Field ID or lat, lon" />
+    <button id="search-go" data-t="go">Go</button>
+    <button id="lang-chip" type="button" aria-label="Language">EN</button>
+  </div>
+  <div id="rail">
+    <button id="layers-btn" type="button" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/></svg><span class="lbl" data-t="layers">Layers</span></button>
+    <button id="pins-toggle" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17.3l-5.5 3 1.1-6.2L3 9.7l6.2-.9L12 3l2.8 5.8 6.2.9-4.6 4.4 1.1 6.2z"/></svg><span class="lbl" data-t="myFields">My fields</span><span id="pins-count"></span></button>
+    <button id="hist-toggle" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 7H4a3 3 0 0 0 3 4M17 7h3a3 3 0 0 1-3 4"/></svg><span class="lbl" data-t="history">Ranking</span><span id="hist-count"></span></button>
+  </div>
   <div id="lang">
     <button data-lang="en" class="on">EN</button>
     <button data-lang="ar">عربي</button>
@@ -458,17 +619,24 @@ html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(
   </div>
 </div>
 
-<div id="tools">
-  <div id="search-wrap">
-    <input id="search-input" type="text" autocomplete="off"
-           data-t-ph="searchPh" placeholder="Field ID or lat, lon" />
-    <button id="search-go" data-t="go">Go</button>
+<!-- Layers and settings: the two map layers, language, the guide, credits and privacy.
+     A bottom sheet on phones, a small card under the toolbar on computers. -->
+<div id="layers-panel" hidden>
+  <div class="lp-head"><span data-t="layers">Layers</span><button id="lp-close" type="button" aria-label="Close">×</button></div>
+  <div class="lp-card">
+    <button id="health-toggle" class="on lp-row" type="button" aria-pressed="true"><span class="lp-sw lp-sw-h"></span><span class="lp-txt"><b data-t="healthMap">Health map</b><small data-t="legend">Vegetation health</small></span><span class="lp-tog" aria-hidden="true"></span></button>
+    <button id="crop-toggle" class="wintercereals lp-row" type="button" aria-pressed="true"><span class="lp-sw lp-sw-c"></span><span class="lp-txt"><b data-t="cropWinter">Winter cereals — wheat or barley</b><small data-t="cropSrc21">ESA WorldCereal map, 2021</small></span><span class="lp-tog" aria-hidden="true"></span></button>
   </div>
-  <button id="pins-toggle" title="My fields">★ <span data-t="myFields">My fields</span> <span id="pins-count"></span></button>
-  <button id="hist-toggle" title="History">🏆 <span data-t="history">History</span> <span id="hist-count"></span></button>
-  <button id="health-toggle" class="on" aria-pressed="true" title="Vegetation health overlay">🌱 <span data-t="healthMap">Health map</span></button>
-  <button id="crop-toggle" class="wintercereals" aria-pressed="true" title="Winter cereals — wheat or barley (ESA WorldCereal 2021)">🌾 <span data-t="cropMap">Crops</span></button>
-  <button id="random-farm" title="Random farm">🎲 <span data-t="randomFarm">Random farm</span></button>
+  <div class="lp-lang" role="group" aria-label="Language">
+    <button data-lang="en" class="on" type="button">English</button>
+    <button data-lang="ar" type="button">عربي</button>
+    <button data-lang="ku" type="button">کوردی</button>
+  </div>
+  <div class="lp-card">
+    <button id="help-btn" class="lp-link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14"/><circle cx="12" cy="17" r=".7" fill="currentColor"/></svg><span data-t="guide">How to use the map</span></button>
+    <a id="lp-privacy" class="lp-link" href="/privacy/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/></svg><span data-t="privacy">Data sources and privacy</span></a>
+  </div>
+  <div class="lp-foot"><span id="lp-build">build —</span> · <a href="https://github.com/rawazrauf/iraq-farms-health" target="_blank" rel="noopener">source code on GitHub</a></div>
 </div>
 
 <div id="hist-panel" hidden>
@@ -500,7 +668,7 @@ html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(
 <div id="legend">
   <div id="lg-health">
     <div class="lbl" data-t="legend">Vegetation health</div>
-    <div id="ramp"></div>
+    <div id="ramp"></div><span class="lbl-s" data-t="health">Health</span>
     <div class="ends"><span data-t="low">Low</span><span data-t="high">High</span></div>
   </div>
   <div id="lg-crop" hidden>
@@ -520,11 +688,11 @@ html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(
 <div id="err"></div>
 <div id="zoom-hint" hidden><span data-t="zoomHint">Zoom in to see and tap fields</span></div>
 <div id="locate-toast" hidden></div>
+<button id="random-farm" type="button" title="Random farm" aria-label="Random farm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></svg><span class="lbl" data-t="randomFarm">Random farm</span></button>
 <button id="locate-fab" type="button" title="Find my location" aria-label="Find my location">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.4 2.6 2.9 10.4c-.8.3-.7 1.4.1 1.6l7.6 1.9 1.9 7.6c.2.8 1.3.9 1.6.1l7.8-18.5c.3-.6-.3-1.2-.9-.9z" fill="currentColor"/></svg>
 </button>
 
-<button id="help-btn" type="button" title="Guide" aria-label="Guide">?</button>
 <div id="sheet">
   <span class="close" id="sheet-close">×</span>
   <div class="grip"></div>
@@ -540,7 +708,7 @@ html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      playPrep:"Loading months…",tPlayWait:"This field's two-year satellite history is still loading — {n} of {total} months so far. The button turns green when it's ready; then tap it.",playBtn:"▶ Watch month by month",playPause:"❚❚ Pause",playResume:"▶ Continue",playReplay:"↻ Watch again",playHide:"Hide",playLoading:"Loading images…",playFail:"Images unavailable right now",playScene:"image",playMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Two map layers: 🌱 Health map shows how green the land is — the whole country when zoomed out, each field when zoomed in (green is healthy, red is stressed). Tap it off for the plain satellite picture. 🌾 Crops shows where wheat or barley grew in 2021.",tCrop:"🌾 This line says the field grew wheat or barley in 2021, from the European Space Agency's crop map. It's a past record, not this season.",tPlay:"Now tap ▶ Watch month by month to see how green this field was, month by month, over two years.",tPlay2:"Each frame is your field coloured by how green it was that month, from that month's satellite image — green is growing, rust is bare soil or water. Pause, or drag along the chart to pick a month. Tap Next when you're done.",tReport:"Tap Report to download a picture with everything about this field — every month's reading, rainfall, moisture, crop history and how it compares with nearby fields. Keep it, or send it to anyone.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place.",tHelp:"Tap ? any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropSrc21:"ESA WorldCereal map, 2021",cropKeyT:"Winter cereals",cropKeyS:"wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",monthImgs:"Field images, month by month (last 12 months) — green is growing, rust is bare soil or water",copied:"Link copied ✓",tooBig:"This outline is too large to be one field (over 2,000 donums). Zoom in and tap a smaller field.",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",randomFarm:"Random farm",
+      playPrep:"Loading months…",tPlayWait:"This field's two-year satellite history is still loading — {n} of {total} months so far. The button turns green when it's ready; then tap it.",playBtn:"▶ Watch month by month",playPause:"❚❚ Pause",playResume:"▶ Continue",playReplay:"↻ Watch again",playHide:"Hide",playLoading:"Loading images…",playFail:"Images unavailable right now",playScene:"image",playMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Two map layers: 🌱 Health map shows how green the land is — the whole country when zoomed out, each field when zoomed in (green is healthy, red is stressed). Tap it off for the plain satellite picture. 🌾 Crops shows where wheat or barley grew in 2021. Both switches are under Layers.",tCrop:"🌾 This line says the field grew wheat or barley in 2021, from the European Space Agency's crop map. It's a past record, not this season.",tPlay:"Now tap ▶ Watch month by month to see how green this field was, month by month, over two years.",tPlay2:"Each frame is your field coloured by how green it was that month, from that month's satellite image — green is growing, rust is bare soil or water. Pause, or drag along the chart to pick a month. Tap Next when you're done.",tReport:"Tap Report to download a picture with everything about this field — every month's reading, rainfall, moisture, crop history and how it compares with nearby fields. Keep it, or send it to anyone.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place.",tHelp:"Open Layers any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropSrc21:"ESA WorldCereal map, 2021",cropKeyT:"Winter cereals",cropKeyS:"wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",monthImgs:"Field images, month by month (last 12 months) — green is growing, rust is bare soil or water",copied:"Link copied ✓",tooBig:"This outline is too large to be one field (over 2,000 donums). Zoom in and tap a smaller field.",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",layers:"Layers",guide:"How to use the map",privacy:"Data sources and privacy",randomFarm:"Random farm",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -549,7 +717,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      playPrep:"جارٍ تحميل الأشهر…",tPlayWait:"ما زال تاريخ هذا الحقل لسنتين من صور الأقمار الصناعية قيد التحميل — {n} من {total} شهراً حتى الآن. يصبح الزر أخضر عندما يجهز، ثم انقر عليه.",playBtn:"▶ شاهد شهراً بشهر",playPause:"❚❚ إيقاف مؤقت",playResume:"▶ متابعة",playReplay:"↻ شاهد مجدداً",playHide:"إخفاء",playLoading:"جارٍ تحميل الصور…",playFail:"الصور غير متاحة حالياً",playScene:"صورة",playMonths:["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"طبقتان على الخريطة: 🌱 خريطة الصحة تُظهر مدى اخضرار الأرض — البلد كله عند التصغير، وكل حقل عند التكبير (الأخضر صحي والأحمر مُجهَد). أطفئها لرؤية صورة القمر الصناعي وحدها. 🌾 المحاصيل تُظهر أين زُرع القمح أو الشعير عام 2021.",tCrop:"🌾 يشير هذا السطر إلى أن الحقل زُرع قمحاً أو شعيراً عام 2021، وفق خريطة المحاصيل لوكالة الفضاء الأوروبية. إنه سجلّ سابق، وليس هذا الموسم.",tPlay:"الآن انقر ▶ شاهد شهراً بشهر لترى مدى اخضرار هذا الحقل، شهراً بعد شهر، على مدى سنتين.",tPlay2:"كل لقطة تُظهر حقلك ملوّناً حسب درجة اخضراره في ذلك الشهر، من صورة القمر الصناعي لذلك الشهر — الأخضر نموّ، والبنّي تربة عارية أو ماء. يمكنك الإيقاف المؤقت، أو السحب على الرسم لاختيار شهر. انقر التالي عند الانتهاء.",tReport:"انقر تقرير لتنزيل صورة فيها كل شيء عن هذا الحقل — قراءة كل شهر والأمطار والرطوبة وسجلّ المحصول ومقارنته بالحقول القريبة. احتفظ بها أو أرسلها لمن تشاء.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان.",tHelp:"انقر ؟ في أي وقت لرؤية هذا الدليل.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropSrc21:"خريطة ESA WorldCereal، 2021",cropKeyT:"حبوب شتوية",cropKeyS:"قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",monthImgs:"صور الحقل شهراً بشهر (آخر 12 شهراً) — الأخضر نموّ، والبنّي تربة عارية أو ماء",copied:"تم نسخ الرابط ✓",tooBig:"هذا الحدّ كبير جداً ليكون حقلاً واحداً (أكثر من 2000 دونم). قرّب الخريطة وانقر على حقل أصغر.",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",randomFarm:"مزرعة عشوائية",
+      playPrep:"جارٍ تحميل الأشهر…",tPlayWait:"ما زال تاريخ هذا الحقل لسنتين من صور الأقمار الصناعية قيد التحميل — {n} من {total} شهراً حتى الآن. يصبح الزر أخضر عندما يجهز، ثم انقر عليه.",playBtn:"▶ شاهد شهراً بشهر",playPause:"❚❚ إيقاف مؤقت",playResume:"▶ متابعة",playReplay:"↻ شاهد مجدداً",playHide:"إخفاء",playLoading:"جارٍ تحميل الصور…",playFail:"الصور غير متاحة حالياً",playScene:"صورة",playMonths:["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"طبقتان على الخريطة: 🌱 خريطة الصحة تُظهر مدى اخضرار الأرض — البلد كله عند التصغير، وكل حقل عند التكبير (الأخضر صحي والأحمر مُجهَد). أطفئها لرؤية صورة القمر الصناعي وحدها. 🌾 المحاصيل تُظهر أين زُرع القمح أو الشعير عام 2021. كلا المفتاحين تحت زر الطبقات.",tCrop:"🌾 يشير هذا السطر إلى أن الحقل زُرع قمحاً أو شعيراً عام 2021، وفق خريطة المحاصيل لوكالة الفضاء الأوروبية. إنه سجلّ سابق، وليس هذا الموسم.",tPlay:"الآن انقر ▶ شاهد شهراً بشهر لترى مدى اخضرار هذا الحقل، شهراً بعد شهر، على مدى سنتين.",tPlay2:"كل لقطة تُظهر حقلك ملوّناً حسب درجة اخضراره في ذلك الشهر، من صورة القمر الصناعي لذلك الشهر — الأخضر نموّ، والبنّي تربة عارية أو ماء. يمكنك الإيقاف المؤقت، أو السحب على الرسم لاختيار شهر. انقر التالي عند الانتهاء.",tReport:"انقر تقرير لتنزيل صورة فيها كل شيء عن هذا الحقل — قراءة كل شهر والأمطار والرطوبة وسجلّ المحصول ومقارنته بالحقول القريبة. احتفظ بها أو أرسلها لمن تشاء.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان.",tHelp:"افتح الطبقات في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropSrc21:"خريطة ESA WorldCereal، 2021",cropKeyT:"حبوب شتوية",cropKeyS:"قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",monthImgs:"صور الحقل شهراً بشهر (آخر 12 شهراً) — الأخضر نموّ، والبنّي تربة عارية أو ماء",copied:"تم نسخ الرابط ✓",tooBig:"هذا الحدّ كبير جداً ليكون حقلاً واحداً (أكثر من 2000 دونم). قرّب الخريطة وانقر على حقل أصغر.",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",layers:"الطبقات",guide:"كيفية استخدام الخريطة",privacy:"مصادر البيانات والخصوصية",randomFarm:"مزرعة عشوائية",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -558,7 +726,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      playPrep:"مانگەکان بار دەبن…",tPlayWait:"مێژووی دوو ساڵەی وێنەی سەتەلایتی ئەم کێڵگەیە هێشتا بار دەبێت — تا ئێستا {n} لە {total} مانگ. دوگمەکە سەوز دەبێت کە ئامادە بوو، ئینجا دەستی لێ بنێ.",playBtn:"▶ مانگ بە مانگ ببینە",playPause:"❚❚ ڕاگرتن",playResume:"▶ بەردەوامبە",playReplay:"↻ دووبارە ببینە",playHide:"شاردنەوە",playLoading:"وێنەکان بار دەبن…",playFail:"وێنەکان ئێستا بەردەست نین",playScene:"وێنە",playMonths:["کانوونی دووەم","شوبات","ئازار","نیسان","ئایار","حوزەیران","تەممووز","ئاب","ئەیلوول","تشرینی یەکەم","تشرینی دووەم","کانوونی یەکەم"],latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دوو چینی نەخشە: 🌱 نەخشەی تەندروستی پیشانی دەدات زەوی چەند سەوزە — هەموو وڵات کە دووردەخەیتەوە، هەر کێڵگەیەک کە نزیکدەخەیتەوە (سەوز تەندروستە، سوور لاوازە). بیکوژێنەوە بۆ بینینی تەنها وێنەی سەتەلایت. 🌾 دانەوێڵە پیشانی دەدات لە ٢٠٢١ لە کوێ گەنم یان جۆ چێندراوە.",tCrop:"🌾 ئەم دێڕە دەڵێت لە ساڵی ٢٠٢١ گەنم یان جۆ لەم کێڵگەیە چێندراوە، بەپێی نەخشەی دانەوێڵەی ئاژانسی بۆشایی ئاسمانی ئەوروپا. ئەمە تۆمارێکی ڕابردووە، نەک ئەم وەرزە.",tPlay:"ئێستا دەست بنێ لە ▶ مانگ بە مانگ ببینە بۆ ئەوەی ببینیت ئەم کێڵگەیە چەند سەوز بووە، مانگ بە مانگ، لە ماوەی دوو ساڵدا.",tPlay2:"هەر وێنەیەک کێڵگەکەت پیشان دەدات بە ڕەنگی سەوزاییەکەی لەو مانگەدا، لە وێنەی سەتەلایتی ئەو مانگەوە — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو. دەتوانیت ڕایبگریت، یان بەسەر هێڵکارییەکەدا ڕابکێشیت بۆ هەڵبژاردنی مانگێک. کە تەواو بوویت دەست بنێ لە دواتر.",tReport:"دەست بنێ لە ڕاپۆرت بۆ داگرتنی وێنەیەک کە هەموو شتێکی ئەم کێڵگەیەی تێدایە — خوێندنەوەی هەر مانگێک، باران، شێداری، مێژووی دانەوێڵە و بەراوردی لەگەڵ کێڵگە نزیکەکان. هەڵیبگرە، یان بۆ هەر کەسێک بینێرە.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ.",tHelp:"دەست بنێ لە ؟ بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropSrc21:"نەخشەی ESA WorldCereal، ٢٠٢١",cropKeyT:"دانەوێڵەی زستانە",cropKeyS:"گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",monthImgs:"وێنەکانی کێڵگە، مانگ بە مانگ (دوایین ١٢ مانگ) — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو",copied:"لینک کۆپی کرا ✓",tooBig:"ئەم سنوورە زۆر گەورەیە بۆ ئەوەی یەک کێڵگە بێت (زیاتر لە ٢٠٠٠ دۆنم). نزیک ببەرەوە و دەست لە کێڵگەیەکی بچووکتر بنێ.",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",randomFarm:"کێڵگەیەکی هەڕەمەکی",
+      playPrep:"مانگەکان بار دەبن…",tPlayWait:"مێژووی دوو ساڵەی وێنەی سەتەلایتی ئەم کێڵگەیە هێشتا بار دەبێت — تا ئێستا {n} لە {total} مانگ. دوگمەکە سەوز دەبێت کە ئامادە بوو، ئینجا دەستی لێ بنێ.",playBtn:"▶ مانگ بە مانگ ببینە",playPause:"❚❚ ڕاگرتن",playResume:"▶ بەردەوامبە",playReplay:"↻ دووبارە ببینە",playHide:"شاردنەوە",playLoading:"وێنەکان بار دەبن…",playFail:"وێنەکان ئێستا بەردەست نین",playScene:"وێنە",playMonths:["کانوونی دووەم","شوبات","ئازار","نیسان","ئایار","حوزەیران","تەممووز","ئاب","ئەیلوول","تشرینی یەکەم","تشرینی دووەم","کانوونی یەکەم"],latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دوو چینی نەخشە: 🌱 نەخشەی تەندروستی پیشانی دەدات زەوی چەند سەوزە — هەموو وڵات کە دووردەخەیتەوە، هەر کێڵگەیەک کە نزیکدەخەیتەوە (سەوز تەندروستە، سوور لاوازە). بیکوژێنەوە بۆ بینینی تەنها وێنەی سەتەلایت. 🌾 دانەوێڵە پیشانی دەدات لە ٢٠٢١ لە کوێ گەنم یان جۆ چێندراوە. هەردوو کلیلەکە لە ژێر چینەکاندان.",tCrop:"🌾 ئەم دێڕە دەڵێت لە ساڵی ٢٠٢١ گەنم یان جۆ لەم کێڵگەیە چێندراوە، بەپێی نەخشەی دانەوێڵەی ئاژانسی بۆشایی ئاسمانی ئەوروپا. ئەمە تۆمارێکی ڕابردووە، نەک ئەم وەرزە.",tPlay:"ئێستا دەست بنێ لە ▶ مانگ بە مانگ ببینە بۆ ئەوەی ببینیت ئەم کێڵگەیە چەند سەوز بووە، مانگ بە مانگ، لە ماوەی دوو ساڵدا.",tPlay2:"هەر وێنەیەک کێڵگەکەت پیشان دەدات بە ڕەنگی سەوزاییەکەی لەو مانگەدا، لە وێنەی سەتەلایتی ئەو مانگەوە — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو. دەتوانیت ڕایبگریت، یان بەسەر هێڵکارییەکەدا ڕابکێشیت بۆ هەڵبژاردنی مانگێک. کە تەواو بوویت دەست بنێ لە دواتر.",tReport:"دەست بنێ لە ڕاپۆرت بۆ داگرتنی وێنەیەک کە هەموو شتێکی ئەم کێڵگەیەی تێدایە — خوێندنەوەی هەر مانگێک، باران، شێداری، مێژووی دانەوێڵە و بەراوردی لەگەڵ کێڵگە نزیکەکان. هەڵیبگرە، یان بۆ هەر کەسێک بینێرە.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ.",tHelp:"هەر کاتێک چینەکان بکەرەوە بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropSrc21:"نەخشەی ESA WorldCereal، ٢٠٢١",cropKeyT:"دانەوێڵەی زستانە",cropKeyS:"گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",monthImgs:"وێنەکانی کێڵگە، مانگ بە مانگ (دوایین ١٢ مانگ) — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو",copied:"لینک کۆپی کرا ✓",tooBig:"ئەم سنوورە زۆر گەورەیە بۆ ئەوەی یەک کێڵگە بێت (زیاتر لە ٢٠٠٠ دۆنم). نزیک ببەرەوە و دەست لە کێڵگەیەکی بچووکتر بنێ.",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",layers:"چینەکان",guide:"چۆنیەتی بەکارهێنانی نەخشەکە",privacy:"سەرچاوەی داتا و تایبەتێتی",randomFarm:"کێڵگەیەکی هەڕەمەکی",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -592,16 +760,18 @@ function applyLang(L){
   }catch{}
   document.documentElement.lang = L;
   document.documentElement.dir = t.dir;
-  { const hb = document.getElementById("help-btn");
-    if(hb){ const name = String(t.helpBtn||"Guide").replace(/^[?؟]\s*/,"");
-            hb.textContent = t.dir==="rtl" ? "؟" : "?"; hb.title = name; hb.setAttribute("aria-label", name); } }
+  { const chip = document.getElementById("lang-chip");
+    if(chip){ chip.textContent = {en:"EN", ar:"عربي", ku:"کوردی"}[L] || "EN"; chip.setAttribute("aria-label", t.layers || "Language"); }
+    const pv = document.getElementById("lp-privacy"); if(pv) pv.href = "/privacy/?lang=" + L;
+    for(const [id, k] of [["layers-btn","layers"],["pins-toggle","myFields"],["hist-toggle","history"],["random-farm","randomFarm"]]){
+      const b = document.getElementById(id); if(b && t[k]){ b.title = t[k]; b.setAttribute("aria-label", t[k]); } } }
   document.querySelectorAll("[data-t]").forEach(el=>{
     const k = el.getAttribute("data-t"); if(t[k]) el.textContent = t[k];
   });
   document.querySelectorAll("[data-t-ph]").forEach(el=>{
     const k = el.getAttribute("data-t-ph"); if(t[k]) el.setAttribute("placeholder", t[k]);
   });
-  document.querySelectorAll("#lang button").forEach(b=>
+  document.querySelectorAll("button[data-lang]").forEach(b=>
     b.classList.toggle("on", b.dataset.lang===L));
   try{ if(map && map.getLayer("osm-places")) map.setLayoutProperty("osm-places", "icon-image", placeIconExpr()); }catch{}
   try{ updateLegend(); }catch{}   // crop key source line (set here, not by data-t: debug mode shows the 2026 season)
@@ -610,7 +780,7 @@ function applyLang(L){
   // refresh open sheet copy
   if(sheet.classList.contains("open") && lastField) renderField(lastField, true);
 }
-document.querySelectorAll("#lang button").forEach(b=>
+document.querySelectorAll("button[data-lang]").forEach(b=>
   b.addEventListener("click",()=>applyLang(b.dataset.lang)));
 
 /* ---------- diagnostics ---------- */
@@ -721,7 +891,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.13-h";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.13-i";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -732,7 +902,8 @@ const TOUR_ZOOM = 16;
 const COUNTRY_VIEW = {lon:43.76422, lat:34.13001, zoom:5.1};
 function guideSeen(){ try{ return localStorage.getItem(TOUR_KEY)==="1"; }catch{ return false; } }
 // Stamp the build version so any screenshot self-identifies which deploy it is.
-(function(){ const b=document.getElementById("d-build-v"); if(b) b.textContent = "build "+BUILD; })();
+(function(){ for(const id of ["d-build-v","lp-build"]){ const b=document.getElementById(id); if(b) b.textContent = "build "+BUILD; }
+  if(DBG.on) document.body.classList.add("dbg"); })();   // the diagnostics box shows in debug mode only
 const PC = "https://planetarycomputer.microsoft.com/api/data/v1";
 /* NDVI and NDMI on Sentinel-2 L2A, with ESA's radiometric offset removed (build 2026.11.07-b).
    Since processing baseline 04.00 (25 Jan 2022) every L2A band carries a +1000 offset:
@@ -1274,10 +1445,11 @@ try{
              const b = document.getElementById("locate-fab"); if(b) c.appendChild(b); return c; },
     onRemove(){}
   }, "bottom-right");
-  // Guide button: a plain "?" square on top of the stack (added last = on top).
+  // Random farm on top of the stack (added last = on top): a round green button on phones,
+  // a labelled pill on computers. The guide (?) moved into the Layers panel (build 13-i).
   map.addControl({
-    onAdd(){ const c = document.createElement("div"); c.className = "maplibregl-ctrl maplibregl-ctrl-group help-ctrl";
-             const b = document.getElementById("help-btn"); if(b) c.appendChild(b); return c; },
+    onAdd(){ const c = document.createElement("div"); c.className = "maplibregl-ctrl random-ctrl";
+             const b = document.getElementById("random-farm"); if(b) c.appendChild(b); return c; },
     onRemove(){}
   }, "bottom-right");
   /* Data credits: MapLibre's compact ⓘ on top of the control stack (added last = on top, clear of
@@ -1288,7 +1460,8 @@ try{
     'Fields: <a href="https://fieldsofthe.world/" target="_blank" rel="noopener">Fields of the World</a>'
     + ' · Sentinel-2: <a href="https://www.copernicus.eu/" target="_blank" rel="noopener">Copernicus</a>/ESA via '
     + '<a href="https://planetarycomputer.microsoft.com/" target="_blank" rel="noopener">Microsoft Planetary Computer</a>'
-    + ' · Weather: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)'}), "bottom-right");
+    + ' · Weather: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0)'
+    + ' · <a href="https://github.com/rawazrauf/iraq-farms-health" target="_blank" rel="noopener">Source code on GitHub</a>'}), "bottom-left");   // a small © bottom-left (13-i)
   { const fold = () => { const a = document.querySelector(".maplibregl-ctrl-attrib");
                          if(a){ a.classList.remove("maplibregl-compact-show"); a.removeAttribute("open"); } };
     fold(); map.once("load", fold); }
@@ -2023,6 +2196,33 @@ async function runHealthSample(){
 /* Pan the field into the strip still visible above the sheet (see onFieldTap).
    Also called when the sheet changes height, e.g. leaving the compact
    playback card. */
+/* Tap feedback (13-i): a ripple where the finger landed, then the field's outline draws itself in
+   white for half a second before the map glides the field above the card. Two short-lived DOM
+   elements, removed after 1 s or as soon as the map moves; nothing changes while the map moves.
+   Returns how long to wait before panning (0 = no effect: reduced motion, or no tap point). */
+function tapFx(f, ll){
+  try{
+    if(!ll || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return 0;
+    const box = map.getContainer().parentNode, pt = map.project([ll.lng, ll.lat]);
+    const rip = document.createElement("div"); rip.className = "tapfx-ripple";
+    rip.style.left = pt.x + "px"; rip.style.top = pt.y + "px"; box.appendChild(rip);
+    const NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "tapfx-outline"); svg.setAttribute("width", "100%"); svg.setAttribute("height", "100%");
+    let d = "";
+    for(const poly of geomPolys(f.geometry)){
+      const ring = poly[0]; if(!ring || ring.length < 3) continue;
+      d += "M" + ring.map(c => { const q = map.project(c); return q.x.toFixed(1) + " " + q.y.toFixed(1); }).join(" L") + " Z ";
+    }
+    const path = document.createElementNS(NS, "path"); path.setAttribute("d", d); svg.appendChild(path); box.appendChild(svg);
+    const len = Math.ceil(path.getTotalLength ? path.getTotalLength() : 2000) + 2;
+    path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
+    requestAnimationFrame(() => requestAnimationFrame(() => { path.style.strokeDashoffset = 0; path.style.fill = "rgba(255,255,255,.18)"; }));
+    const done = () => { svg.style.opacity = 0; setTimeout(() => { svg.remove(); rip.remove(); }, 260); };
+    setTimeout(() => map.once("movestart", done), 50);
+    setTimeout(done, 1000);
+    return 420;
+  }catch{ return 0; }
+}
 function panFieldAboveSheet(f){
   requestAnimationFrame(()=>{
     try{
@@ -2164,6 +2364,7 @@ async function onFieldTap(e){
     {type:"Feature",properties:{k:"line"},geometry:{type:"MultiLineString",coordinates:fieldOutline(f.geometry, f.__cuts)}}]});
   if(__play) stopPlay(true);
   lastField = f;
+  const fxMs = tapFx(f, e.lngLat);
   sheet.classList.add("open");
   if(window.__syncUrl) window.__syncUrl();
   // Pan the tapped field into the area still visible ABOVE the sheet, so the
@@ -2172,7 +2373,7 @@ async function onFieldTap(e){
   // MapLibre then frames the field in the remaining viewport above the sheet,
   // not the full screen. Measured after the sheet lays out (rAF), and only
   // nudged if the field centroid actually falls under the sheet.
-  panFieldAboveSheet(f);
+  if(fxMs) setTimeout(() => { if(lastField === f) panFieldAboveSheet(f); }, fxMs); else panFieldAboveSheet(f);
   // If the interactive tour is waiting for the user to tap a field, advance it.
   if(typeof window.__onTourFieldTap==="function") window.__onTourFieldTap();
 
@@ -2182,7 +2383,9 @@ async function onFieldTap(e){
   if(historyCache.has(cacheKey)){
     const cached = historyCache.get(cacheKey);
     const done = cached.filter(s=>!s.pending).length;
-    if(done >= cached.length - 2){               // essentially complete
+    // essentially complete, AND holding at least one reading: a run where every month failed
+    // (Planetary Computer paused, network down) is retried instead of shown empty again (13-i)
+    if(done >= cached.length - 2 && cached.some(s => s.v != null)){
       f.__history = cached;
       startFieldLookups(f);
       renderField(f);
@@ -4627,7 +4830,7 @@ document.getElementById("pins-close").addEventListener("click",()=>pinsPanel.hid
 
 function renderPins(){
   const arr = loadPins();
-  pinsCount.textContent = arr.length ? `(${arr.length})` : "";
+  pinsCount.textContent = arr.length ? String(arr.length) : "";   // a badge on the ★ button
   if(!pinsList) return;
   pinsList.innerHTML = "";
   pinsEmpty.style.display = arr.length ? "none" : "block";
@@ -4660,6 +4863,30 @@ document.getElementById("hist-toggle").addEventListener("click",()=>{
   if(!histPanel.hidden) renderHistory();
 });
 document.getElementById("hist-close").addEventListener("click",()=>histPanel.hidden=true);
+
+/* Layers panel (13-i): Health map and Crops switches, language, guide, credits and privacy.
+   Opened by the Layers button, the legend chip and (on phones) the language chip in the search
+   bar. Only one of Layers / My fields / Ranking is open at a time. */
+const layersPanel = document.getElementById("layers-panel");
+const layersBtn = document.getElementById("layers-btn");
+function setLayersOpen(open){
+  layersPanel.hidden = !open;
+  layersBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  if(open){ pinsPanel.hidden = true; histPanel.hidden = true; }
+}
+layersBtn.addEventListener("click", () => setLayersOpen(layersPanel.hidden));
+document.getElementById("lp-close").addEventListener("click", () => setLayersOpen(false));
+document.getElementById("lang-chip").addEventListener("click", () => setLayersOpen(true));
+document.getElementById("legend").addEventListener("click", () => setLayersOpen(true));
+document.getElementById("pins-toggle").addEventListener("click", () => setLayersOpen(false));
+document.getElementById("hist-toggle").addEventListener("click", () => setLayersOpen(false));
+try{ map.on("click", () => { if(!layersPanel.hidden) setLayersOpen(false); }); }catch{}
+// Esc closes whichever of Layers / My fields / Ranking is open (keyboards and screen readers)
+document.addEventListener("keydown", e => {
+  if(e.key !== "Escape" || e.target === searchInput) return;
+  if(!layersPanel.hidden){ setLayersOpen(false); layersBtn.focus(); }
+  pinsPanel.hidden = true; histPanel.hidden = true;
+});
 
 // Toggle the field-only vegetation-health colouring on/off.
 const healthToggle = document.getElementById("health-toggle");
@@ -4860,7 +5087,7 @@ if(cropToggle) cropToggle.addEventListener("click",()=>{
 function renderHistory(){
   const t = I18N[lang];
   const arr = loadHistory();
-  histCount.textContent = arr.length ? `(${arr.length})` : "";
+  histCount.textContent = arr.length ? String(arr.length) : "";
   if(!histList) return;
   // Rank: fields with a real improvement value first (biggest gain -> top),
   // then fields whose improvement couldn't be computed, by recency.
@@ -4930,14 +5157,21 @@ function flyToField(lon, lat){
 /* Search: accept "lat, lon" or a field id (FTW-XXXXXX). */
 const searchInput = document.getElementById("search-input");
 function doSearch(){
-  const q = (searchInput.value||"").trim();
+  // Arabic and Kurdish keyboards type ٠-٩ (or ۰-۹), "٫" for the decimal point and "،" for the
+  // comma: read them as 0-9 "." "," so "٣٥٫٥٦، ٤٥٫٤٣" works like "35.56, 45.43" (13-i).
+  const q = (searchInput.value||"").replace(/[\u0660-\u0669]/g, c => c.charCodeAt(0) - 0x660)
+            .replace(/[\u06F0-\u06F9]/g, c => c.charCodeAt(0) - 0x6F0)
+            .replace(/\u066B/g, ".").replace(/[\u060C\u066C]/g, ",").trim();
   if(!q) return;
   // Coordinate form "lat, lon" (matching Google Maps / OSM order and how the app
   // now displays coordinates everywhere). Accepts comma or space separated.
   const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
   if(m){
-    const lat=parseFloat(m[1]), lon=parseFloat(m[2]);
-    if(isFinite(lat)&&isFinite(lon)){ flyToField(lon, lat); return; }
+    let lat=parseFloat(m[1]), lon=parseFloat(m[2]);
+    // typed the other way round ("lon, lat")? In Iraq longitude is 38-49 and latitude 29-38,
+    // so a first number that only makes sense as a longitude means the pair is swapped
+    if(lat > 38.5 && lat < 49 && lon > 29 && lon < 38.5){ const t = lat; lat = lon; lon = t; }
+    if(isFinite(lat)&&isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){ flyToField(lon, lat); return; }
   }
   // Field-id form. The FTW code is a one-way hash of the centroid, so it can
   // only be resolved for fields we've already stored: saved pins OR history
@@ -4949,7 +5183,7 @@ function doSearch(){
   setTimeout(()=>{ errBox.style.display="none"; }, 4500);
 }
 document.getElementById("search-go").addEventListener("click", doSearch);
-searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
+searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter"){ doSearch(); searchInput.blur(); } });
 
 /* ---------- first-run interactive tour ----------
    Gated flow: the user must actually TAP a field to proceed, then watches the
@@ -4979,9 +5213,9 @@ const TOUR_STEPS = [
   {key:"t4", target:"#spark-wrap", gate:"chart"},
   {key:"tPlay", target:"#play-btn", gate:"play", waitFor:"#play-btn:not([disabled])", maxWait:90000, waitText:"tPlayWait"},
   {key:"tReport", target:"#report-field-btn", before:"stopPlay"},
-  {key:"t5", target:["#health-toggle","#crop-toggle"]},
-  {key:"t6", target:"#tools"},
-  {key:"tHelp", target:"#help-btn", before:"closeSheet"}
+  {key:"t5", target:"#layers-btn"},
+  {key:"t6", target:"#rail"},
+  {key:"tHelp", target:"#layers-btn", before:"closeSheet"}
 ];
 
 function startTour(){
@@ -5204,7 +5438,7 @@ tourNextBtn.addEventListener("click",()=>{
 });
 tourSkipBtn.addEventListener("click", endTour);
 document.getElementById("help-btn").addEventListener("click", ()=>{
-  pinsPanel.hidden = true; startTour();
+  pinsPanel.hidden = true; setLayersOpen(false); startTour();
 });
 window.addEventListener("resize",()=>{
   if(tourActive && tourEl.dataset.mode!=="lang" && tourEl.dataset.mode!=="watch") placeTour();
