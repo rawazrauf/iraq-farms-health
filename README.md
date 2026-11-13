@@ -117,7 +117,7 @@ The map lists the credits for what is on screen under its ⓘ button, and the fi
 ## License & use
 
 - **Code** (`index.html`, `crops/`, `tools/`, `validation/` scripts): [MIT](LICENSE).
-- **Crop map data** (`crops/2026/`, `crops/2026p/`): CC BY 4.0. Credit: "Crop types: ESA WorldCereal system, run by Iraq Farms Health on Copernicus Data Space. Contains modified Copernicus Sentinel data 2025."
+- **Crop map data** (`crops/2026/`, `crops/2026p/`): CC BY 4.0. Credit: "Crop types: ESA WorldCereal system, run by Iraq Farms Health on Copernicus Data Space. Contains modified Copernicus Sentinel data 2025–2026."
 - **Validation data** (`validation/`): CC BY 4.0. Credit: "Iraq Farms Health".
 - **Third-party data** shown in the app (Esri imagery, Fields of the World, WorldCereal 2021, JRC water, NASA GIBS, Open-Meteo) stays under its providers' own terms; follow the links above.
 

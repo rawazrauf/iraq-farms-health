@@ -38,7 +38,7 @@
 - **Publishing merges the runs**: north > pilot > main for each tile. `sources.json` records which run each tile came from.
 
 ## Status
-- **Published 7 Nov 2026 12:54 UTC** (repo commit `969b4aa`; the map assessed in `validation/accuracy_south_2026/`): 87 of 218 tiles, 84 from the main run and 3 from the pilot. 67 cells, 178 MB.
+- **Published 7 Nov 2026** (generated 12:54 UTC, repo commit `969b4aa` at 14:41 UTC; the map assessed in `validation/accuracy_south_2026/`, kept as the release `crops-2026-assessed` with the zip attached): 87 of 218 tiles, 84 from the main run and 3 from the pilot. 67 cells, 178 MB.
   - The 84 main-run tiles are the 67 southern tiles that were assessed plus 17 northern tiles finished before northern tiles were held back.
   - Southern tiles not yet in the published layer: 83 of the 150 planned south of 34.8°N (main run; to be confirmed against the run folder's status).
 - 8 Nov: `overview.tif` rewritten with nodata 0 and a colour table (same pixels); `iraq_crops.qml` labels escaped (`&lt;`), so QGIS loads it.

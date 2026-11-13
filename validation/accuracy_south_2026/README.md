@@ -23,9 +23,10 @@ Two things to keep in mind when reading these figures, both set out below:
 
 ## 1. What was assessed
 
-- **Map:** `crops/2026/` exactly as published on 7 Nov 2026 at 12:54 UTC, which is repository commit `969b4aa`.
-  - Later publishes change `crops/2026/`. The north re-run, for example, replaces northern tiles.
-  - To reproduce the results, first run `git checkout 969b4aa -- crops/2026`.
+- **Map:** `crops/2026/` as generated on 7 Nov 2026 at 12:54 UTC (`index.json`) and committed at 14:41 UTC as repository commit `969b4aa`.
+  - A fixed copy is attached to the release [`crops-2026-assessed`](https://github.com/rawazrauf/iraq-farms-health/releases/tag/crops-2026-assessed): `crops-2026-assessed.zip`, 84 files, SHA-256 `48d453a987435f74d3925508f9bd7405a73d7bd7c575eaef06f4ca8eeab86a23`. The SHA-256 of every file is in `data/assessed_map_sha256.txt`.
+  - Later publishes change `crops/2026/`. The north re-run, for example, replaces northern tiles. Use the release copy to reproduce the results.
+  - The release tag sits on a later commit than `969b4aa`; the zip, not the tag, is the assessed copy. All 67 crop cells are byte-identical in both.
 - **Population:** every map pixel in the finished tiles of the main run (`iraq_winter2026`) whose centre lies south of 34.8°N, clipped to Iraq's boundary (`boundaries.geojson`).
   - A tile's centre is the middle of its bounding box.
   - That gives 67 tiles and 10,515,621 ha.
@@ -127,11 +128,15 @@ Each point is labelled from its own Sentinel-2 L2A history, read as a single 10 
 The commands below run from this folder.
 
 ```bash
-git checkout 969b4aa -- ../../crops/2026      # the map that was assessed (restore later with: git checkout HEAD -- ../../crops/2026)
+# The map that was assessed, from the release (189 MB), checked against the published checksums
+curl -LO https://github.com/rawazrauf/iraq-farms-health/releases/download/crops-2026-assessed/crops-2026-assessed.zip
+unzip -q crops-2026-assessed.zip
+(cd crops-2026-assessed && sha256sum -c ../data/assessed_map_sha256.txt)   # on macOS: shasum -a 256 -c
+MAP=crops-2026-assessed      # every script below that reads the map takes --crops $MAP
 
 # A. Sample: rebuilds data/strata_area.json, points.csv, map_key.csv, design.json (about 2 min)
-python strata_area.py --out /tmp/redo
-python draw_sample.py --out /tmp/redo
+python strata_area.py --crops $MAP --out /tmp/redo
+python draw_sample.py --crops $MAP --out /tmp/redo
 cmp /tmp/redo/points.csv data/points.csv && cmp /tmp/redo/map_key.csv data/map_key.csv   # identical
 
 # B. Reference curves from Planetary Computer (blind: reads points.csv only; about 1 h for 375 points)
@@ -144,7 +149,7 @@ python estimate.py data/labels_final.csv
 python bootstrap.py data/labels_final.csv
 
 # D. Phase 2: the not-cropland top-up (section 7)
-python topup_draw.py                                     # same 200 points, byte for byte
+python topup_draw.py --crops $MAP --out /tmp/redo       # same 200 points, byte for byte
 python fetch_curves.py --points data/topup_points.csv --out data/topup_curves_new.json   # or fetch_topup.ipynb
 python topup_review.py final                             # final labels from the archived blind review
 python estimate.py --topup
@@ -196,7 +201,7 @@ This had not been done when the results were published.
 - Projection, if the new points look like the old ones: 200 more points in this stratum would narrow the winter-crop area interval from ±0.24 to about ±0.16 Mha, and producer's accuracy from ±0.09 to about ±0.06. Spreading the same effort over all strata would barely help.
 
 **Sample:**
-- 200 extra points, all in the "not cropland" stratum (pixel code 0), in the same population: the 67 southern main-run tiles of the map as published at commit `969b4aa`, clipped to Iraq. The crop cells have not changed since.
+- 200 extra points, all in the "not cropland" stratum (pixel code 0), in the same population: the 67 southern main-run tiles of the map as published at commit `969b4aa` (the release copy, section 1), clipped to Iraq.
 - Same two-step draw as phase 1 (multinomial over map cells by the stratum's area, then uniform pixels), seed `20261108`. Pixels used in phase 1 are left out.
 - `topup_draw.py` writes `data/topup_points.csv` (T001–T200: id, lat, lon only), `data/topup_map_key.csv` and `data/topup_design.json`. Re-running it gives byte-identical files.
 
@@ -364,6 +369,7 @@ The reference labels come from the same satellite as the map (Limits). `vhr_chec
 | `data/points.csv` | 375 points: id, lat, lon |
 | `data/map_key.csv` | Map stratum, pixel code and cell file of each point |
 | `data/design.json` | Seed, sample sizes, stratum areas |
+| `data/assessed_map_sha256.txt` | SHA-256 of each of the 84 files of the assessed map (release `crops-2026-assessed`) |
 | `data/strata_area.json` | Stratum areas per map cell (input to the draw) |
 | `data/curves.json` | Archived reference curves (corrected NDVI, Sep 2025 – Aug 2026) |
 | `data/curves_ndvi_corrected.csv` | The same curves as a table |
