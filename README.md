@@ -45,6 +45,7 @@ The app is a **single, self-contained HTML file**. It runs entirely in the brows
 - **Winter cereals 2021 (🌾 Crops):** ESA WorldCereal 2021 winter-cereals product, served as map tiles by VITO's Terrascope.
 - **Surface water:** JRC Global Surface Water occurrence tiles (EU Joint Research Centre / Google).
 - **Village and town names:** [OpenStreetMap](https://www.openstreetmap.org/) place names (about 12,700 cities, towns, villages, hamlets and suburbs) in the visitor's language: Arabic, Sorani Kurdish where tagged (otherwise the local name), or English. Built by `tools/places_build.py` into `places/iraq_places.pmtiles` (1.8 MB; a phone fetches only the tiles in view). Cities from zoom 6–7, towns 8–9, villages 10, hamlets 11.
+- **Place search:** the search box suggests villages, towns and neighbourhoods as you type, from the same OpenStreetMap extract: `tools/places_search_build.py` writes `places/iraq_places_search.json` (0.96 MB, about 300 KB compressed), loaded the first time someone uses the search box. Arabic, Sorani and Latin spellings are matched to each other. Only when nothing matches and Enter is pressed is the text sent to OpenStreetMap's [Nominatim](https://nominatim.org/) search, once per search, within its [usage policy](https://operations.osmfoundation.org/policies/nominatim/).
 - **Map rendering:** [MapLibre GL JS](https://maplibre.org/).
 
 For a full description of the data sources, the NDVI calculation, and the tool's limitations, see **[METHODOLOGY.md](METHODOLOGY.md)**.
@@ -101,7 +102,7 @@ The map library (MapLibre GL JS) and PMTiles are loaded from a public CDN (jsDel
 - **Surface water:** [JRC Global Surface Water](https://global-surface-water.appspot.com/) (EC Joint Research Centre / Google).
 - **Country-wide greenness:** NASA MODIS Terra NDVI via [NASA GIBS](https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api).
 - **Base imagery & reference layers:** [Esri World Imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9) (Esri, Maxar, Earthstar Geographics) and Esri reference layers.
-- **Village and town names:** © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) (ODbL 1.0). Extract of 13 Nov 2026; `places/iraq_places.pmtiles` is available under the same licence.
+- **Village and town names:** © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) (ODbL 1.0). Extract of 13 Nov 2026; `places/iraq_places.pmtiles` and `places/iraq_places_search.json` are available under the same licence. Search fallback: [Nominatim](https://nominatim.openstreetmap.org/) (OpenStreetMap Foundation).
 - **District boundaries (crop page statistics):** [geoBoundaries](https://www.geoboundaries.org/) (CC BY 4.0).
 - **Independent verification:** [Copernicus Browser](https://dataspace.copernicus.eu/browser/) (ESA / Copernicus Data Space Ecosystem).
 - **Mapping:** [MapLibre GL JS](https://maplibre.org/), [PMTiles](https://protomaps.com/docs/pmtiles).
