@@ -92,3 +92,29 @@ perennial points (control): 12; clear dates per point 37-77, median 70; one-date
   fast end from 1 April (not counted as forage): 1  S088
   none of these: 3
 haze episode of 4-5 April 2026 (one-scene dip of 0.15 or more): 15 points  S045 S089 S099 S164 S206 S238 S271 S282 S285 S307 S330 S339 S356 S133 S148
+
+$ python vhr_check.py
+76 points; image years: 2018 x2, 2019 x6, 2020 x4, 2021 x14, 2022 x13, 2023 x14, 2024 x10, 2025 x13
+latest image 2025-04-09; in the 2025-26 season (Sep-Aug): 0; taken in December-April of any year: 32
+
+reference label    F   T   E   U   B   W    n
+winter_crop        9   0   2   0   3   0   14
+summer_only       10   2   1   1   1   0   15
+perennial          4   1   0   0   0   1    6
+no_crop           10   2   2   1   5   4   24
+unclear            7   2   1   2   5   0   17
+
+crop labels (winter, summer, perennial) on fields, orchards or their edges: 29 of 35
+crop labels on other land:
+  S061 winter_crop  land B  map confident_cereal image 2025-02-25
+  S062 summer_only  land U  map doubtful_cereal  image 2022-09-19
+  S079 summer_only  land B  map doubtful_cereal  image 2018-01-28
+  S220 perennial    land W  map not_cropland     image 2024-07-15
+  S276 winter_crop  land B  map doubtful_cereal  image 2025-02-23
+  T138 winter_crop  land B  map not_cropland     image 2024-07-27
+map "not cropland", reference winter crop:
+  S103 land E  image 2021-07-20
+  S211 land F  image 2021-05-05
+  T064 land F  image 2023-01-12
+  T138 land B  image 2024-07-27
+  T180 land F  image 2025-03-17
