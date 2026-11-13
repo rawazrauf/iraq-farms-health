@@ -714,7 +714,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.12-k";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.13-a";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2279,10 +2279,19 @@ function latestCompleteSeason(){
 }
 /* Season label for an opened field, from the monthly readings already loaded (field medians).
    null until the history is complete, or if the season is not inside the 24 loaded months. */
+/* Above SEASON_MAX_HA no season label is given. Test of 13 Nov 2026 (56 outlines under validation
+   points, read in full): on outlines up to 30 ha the field median gave the validation label for 19 of
+   23 winter-crop points; above 30 ha for 5 of 10, because those outlines are blocks of mixed cropped
+   and fallow land and the median describes the block (winter peak 0.64 at the point, 0.44 for the
+   outline). 30 ha is a working number from a small sample, not a tuned one. */
+const SEASON_MAX_HA = 30;
 function fieldSeason(f){
   const h = f && f.__history || [];
   if(!h.length || h.some(s => s.pending)) return null;
   const Y = latestCompleteSeason(), by = {};
+  const ha = f.geometry ? geomAreaMeters(f.geometry) / 1e4 : 0;
+  if(ha > SEASON_MAX_HA)
+    return {label:"too_large", why:`outline ${Math.round(ha)} ha, over ${SEASON_MAX_HA} ha`, season:`${Y-1}–${String(Y).slice(2)}`};
   for(const s of h) by[s.ym] = s.v;
   if(!seasonMonths(Y).every(m => m in by)) return null;
   const r = seasonLabel(Y, m => by[m]);
@@ -2298,7 +2307,8 @@ function seasonText(r){
     perennial:   () => "green all year (orchard, palms or fodder)",
     no_crop:     () => `no crop (${r.why})`,
     water:       () => "water",
-    unclear:     () => `unclear pattern (${r.why})`
+    unclear:     () => `unclear pattern (${r.why})`,
+    too_large:   () => `no label, this outline is too large to be one field (${r.why})`
   }[r.label]();
   return `${r.season} season, from this field's curve: ${what}`;
 }
