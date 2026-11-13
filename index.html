@@ -462,7 +462,7 @@ html[dir="rtl"] #ramp{background:linear-gradient(270deg,var(--clay),#E8C15A,var(
   <button id="pins-toggle" title="My fields">★ <span data-t="myFields">My fields</span> <span id="pins-count"></span></button>
   <button id="hist-toggle" title="History">🏆 <span data-t="history">History</span> <span id="hist-count"></span></button>
   <button id="health-toggle" class="on" aria-pressed="true" title="Vegetation health overlay">🌱 <span data-t="healthMap">Health map</span></button>
-  <button id="crop-toggle" title="Winter cereals — wheat or barley (ESA WorldCereal 2021)">🌾 <span data-t="cropMap">Crops</span></button>
+  <button id="crop-toggle" class="wintercereals" aria-pressed="true" title="Winter cereals — wheat or barley (ESA WorldCereal 2021)">🌾 <span data-t="cropMap">Crops</span></button>
 </div>
 
 <div id="hist-panel" hidden>
@@ -714,7 +714,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.13-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.13-b";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1186,6 +1186,7 @@ const CROPDBG = (function(){
       if(layerOn && map.getLayer("wc-wintercereals") && map.getLayoutProperty("wc-wintercereals", "visibility") === "visible"){
         map.setLayoutProperty("wc-wintercereals", "visibility", "none");
         document.getElementById("crop-toggle")?.classList.remove("wintercereals");
+        document.getElementById("crop-toggle")?.setAttribute("aria-pressed", "false");
         off21 = true;
       }
       updateLegend();
@@ -1364,7 +1365,9 @@ function onMapLoad(){
     map.addLayer({
       id:"wc-wintercereals", type:"raster", source:"wc-wintercereals",
       minzoom:3,
-      layout:{visibility:"none"},
+      // On from the start (Rawaz, 13 Nov 2026); the 🌾 Crops button starts pressed to match.
+      // The 2025-26 test layer stays debug-only.
+      layout:{visibility:"visible"},
       // Fully opaque. At partial opacity the mask blended with whatever
       // terrain lay beneath it — green fields, pale desert, dark basalt — and
       // the same crop class read as a different colour in every landscape,
@@ -1374,6 +1377,7 @@ function onMapLoad(){
       // user this is an overlay.
       paint:{"raster-opacity":1,"raster-fade-duration":200}
     }, map.getLayer("roads") ? "roads" : undefined);
+    updateLegend();   // show the crop key from the start
   }catch(e){ console.warn("worldcereal layer:",e.message); }
 
   // --- field-only health colouring ---
@@ -4689,6 +4693,7 @@ function cropSay(msg, ms){
 const cropToggle = document.getElementById("crop-toggle");
 if(cropToggle) cropToggle.addEventListener("click",()=>{
   const on = cropToggle.classList.toggle("wintercereals");
+  cropToggle.setAttribute("aria-pressed", on ? "true" : "false");
   if(map.getLayer("wc-wintercereals"))
     map.setLayoutProperty("wc-wintercereals","visibility", on ? "visible" : "none");
   // debug mode: the 2026 test layer uses the same colour, so only one shows at a time
