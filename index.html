@@ -715,7 +715,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.13-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.13-g";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1302,29 +1302,49 @@ function placeIconExpr(){ return ["concat", "pl|", ["to-string", ["get", "r"]], 
    places the images. MapLibre's own text engine cannot join Sorani letters (ە ڵ ێ ڕ have no joined
    forms in its glyph method), so "سەروو" came out in broken pieces; the browser shapes Kurdish and
    Arabic correctly, and no glyph or right-to-left plugin downloads are needed. Image id: "pl|rank|name". */
+const __plCanvas = document.createElement("canvas");
+const __plCtx = __plCanvas.getContext("2d", {willReadFrequently: true});   // CPU canvas: fast pixel reads
+const __plDpr = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
 function drawPlaceLabel(e){
   const id = e && e.id;
   if(!id || id.slice(0, 3) !== "pl|" || map.hasImage(id)) return;
   try{
-    const r = +id.charAt(3), text = id.slice(5);
-    const dpr = 2, fs = ({1:17, 2:15, 3:13, 4:12})[r] || 12;
-    const font = `700 ${fs * dpr}px "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif`;
-    const c = document.createElement("canvas"), x = c.getContext("2d");
+    // One shared canvas, reused for every label: measured 0.05 ms a label, against 0.7 ms with a
+    // new canvas each time (13 Nov, desktop Chrome).
+    const r = +id.charAt(3), text = id.slice(5), d = __plDpr, x = __plCtx;
+    const fs = ({1:17, 2:15, 3:13, 4:12})[r] || 12;
+    const font = `700 ${fs * d}px "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif`;
     x.font = font;
-    const w = Math.max(2, Math.ceil(x.measureText(text).width) + 8 * dpr), h = Math.ceil(fs * 1.6 * dpr);
-    c.width = w; c.height = h;
+    const w = Math.max(2, Math.ceil(x.measureText(text).width) + 6 * d), h = Math.ceil(fs * 1.5 * d);
+    if(__plCanvas.width < w || __plCanvas.height < h){
+      __plCanvas.width = Math.max(__plCanvas.width, w); __plCanvas.height = Math.max(__plCanvas.height, h);
+    }
+    x.clearRect(0, 0, w, h);
     x.font = font; x.textAlign = "center"; x.textBaseline = "middle";
     x.direction = /[\u0600-\u06FF]/.test(text) ? "rtl" : "ltr";
-    x.lineJoin = "round"; x.lineWidth = 3.2 * dpr; x.strokeStyle = "rgba(20,38,27,0.9)";
+    x.lineJoin = "round"; x.lineWidth = 3 * d; x.strokeStyle = "rgba(20,38,27,0.9)";
     x.strokeText(text, w / 2, h / 2);
     x.fillStyle = "#FFFFFF"; x.fillText(text, w / 2, h / 2);
-    map.addImage(id, x.getImageData(0, 0, w, h), {pixelRatio: dpr});
+    map.addImage(id, x.getImageData(0, 0, w, h), {pixelRatio: d});
+  }catch{}
+}
+/* Label images pile up as the visitor moves around the country (each tile draws all its names).
+   Past 1,500, drop the ones not on screen when the map stops; any still needed are redrawn. */
+function prunePlaceLabels(){
+  try{
+    const ids = map.listImages().filter(i => i.slice(0, 3) === "pl|");
+    if(ids.length <= 1500) return;
+    const k = placeNameKey(), keep = new Set();
+    for(const f of map.queryRenderedFeatures({layers: ["osm-places"]}))
+      keep.add("pl|" + f.properties.r + "|" + f.properties[k]);
+    for(const id of ids) if(!keep.has(id)) map.removeImage(id);
   }catch{}
 }
 async function addPlaceLabels(){
   try{
     if(map.getLayer("osm-places")) return;
     map.on("styleimagemissing", drawPlaceLabel);
+    map.on("moveend", prunePlaceLabels);
     // draw with the page's Arabic font, not a fallback (wait at most 2 s for it)
     try{ await Promise.race([document.fonts.load('700 13px "Noto Sans Arabic"'), new Promise(r => setTimeout(r, 2000))]); }catch{}
     map.addSource("osm-places", {type:"vector", url:"pmtiles://" + new URL(PLACES_PMTILES, location.href).href,
