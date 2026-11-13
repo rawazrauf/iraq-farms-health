@@ -597,6 +597,7 @@ function applyLang(L){
   });
   document.querySelectorAll("#lang button").forEach(b=>
     b.classList.toggle("on", b.dataset.lang===L));
+  try{ if(map && map.getLayer("osm-places")) map.setLayoutProperty("osm-places", "icon-image", placeIconExpr()); }catch{}
   try{ updateLegend(); }catch{}   // crop key source line (set here, not by data-t: debug mode shows the 2026 season)
   if(typeof renderPins==="function") renderPins();
   if(typeof renderHistory==="function" && !document.getElementById("hist-panel").hidden) renderHistory();
@@ -714,7 +715,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.13-d";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.13-f";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -782,6 +783,10 @@ const SCL_CHECK_MIN_SCENE_CLOUD = 1;   // %: below this the scene is treated as 
 // NOTE: the per-polygon `confidence` column is NULL across almost all of Iraq
 // (the confidence layer covers mainly the 24 FTW training countries), so we do NOT
 // style or filter by confidence here — it would blank out real Iraqi fields.
+/* Place names (cities, towns, villages, hamlets, localities) from OpenStreetMap, in the visitor's
+   language: built by tools/places_build.py from an Overpass extract. Small vector tiles (about 0.5 KB
+   each), so a phone fetches only the few around the view. */
+const PLACES_PMTILES = "/places/iraq_places.pmtiles";
 const FTW_PMTILES = "https://data.source.coop/ftw/global-data/predictions/vectors/alpha/global.pmtiles";
 const FTW_SRC_LAYER = "field-2025-01-01 00:00:00";
 const FTW_MIN_ZOOM = 13; // only show field outlines when zoomed to farm scale;
@@ -1287,6 +1292,53 @@ try{
   map.on("load", onMapLoad);
 }catch(e){ showErr("Map failed to start: "+e.message); }
 
+/* Village and town names from OpenStreetMap, on top of everything. Esri's labels show only large
+   towns until zoomed in close, so people looking for their village had nothing to go by.
+   Cities from zoom 6-7, towns 8-9, villages 10, hamlets 11, suburbs 12 (minzoom set per
+   feature in the tiles); where labels collide, the bigger place wins (symbol-sort-key). */
+function placeNameKey(){ return lang === "ar" ? "ar" : lang === "ku" ? "ku" : "en"; }
+function placeIconExpr(){ return ["concat", "pl|", ["to-string", ["get", "r"]], "|", ["get", placeNameKey()]]; }
+/* Each label is drawn once by the browser into a small image (white text, dark outline) and the map
+   places the images. MapLibre's own text engine cannot join Sorani letters (ە ڵ ێ ڕ have no joined
+   forms in its glyph method), so "سەروو" came out in broken pieces; the browser shapes Kurdish and
+   Arabic correctly, and no glyph or right-to-left plugin downloads are needed. Image id: "pl|rank|name". */
+function drawPlaceLabel(e){
+  const id = e && e.id;
+  if(!id || id.slice(0, 3) !== "pl|" || map.hasImage(id)) return;
+  try{
+    const r = +id.charAt(3), text = id.slice(5);
+    const dpr = 2, fs = ({1:17, 2:15, 3:13, 4:12})[r] || 12;
+    const font = `700 ${fs * dpr}px "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif`;
+    const c = document.createElement("canvas"), x = c.getContext("2d");
+    x.font = font;
+    const w = Math.max(2, Math.ceil(x.measureText(text).width) + 8 * dpr), h = Math.ceil(fs * 1.6 * dpr);
+    c.width = w; c.height = h;
+    x.font = font; x.textAlign = "center"; x.textBaseline = "middle";
+    x.direction = /[\u0600-\u06FF]/.test(text) ? "rtl" : "ltr";
+    x.lineJoin = "round"; x.lineWidth = 3.2 * dpr; x.strokeStyle = "rgba(20,38,27,0.9)";
+    x.strokeText(text, w / 2, h / 2);
+    x.fillStyle = "#FFFFFF"; x.fillText(text, w / 2, h / 2);
+    map.addImage(id, x.getImageData(0, 0, w, h), {pixelRatio: dpr});
+  }catch{}
+}
+async function addPlaceLabels(){
+  try{
+    if(map.getLayer("osm-places")) return;
+    map.on("styleimagemissing", drawPlaceLabel);
+    // draw with the page's Arabic font, not a fallback (wait at most 2 s for it)
+    try{ await Promise.race([document.fonts.load('700 13px "Noto Sans Arabic"'), new Promise(r => setTimeout(r, 2000))]); }catch{}
+    map.addSource("osm-places", {type:"vector", url:"pmtiles://" + new URL(PLACES_PMTILES, location.href).href,
+                                 attribution:'Place names: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>'});
+    map.addLayer({id:"osm-places", type:"symbol", source:"osm-places", "source-layer":"places",
+      layout:{
+        "icon-image": placeIconExpr(),
+        "icon-size": ["interpolate", ["linear"], ["zoom"], 6, 0.85, 10, 1, 14, 1.15],
+        "symbol-sort-key": ["get", "r"],     // where labels collide, the bigger place wins
+        "icon-padding": 4
+      }});
+  }catch(e){ console.warn("place labels:", e.message); }
+}
+
 function onMapLoad(){
   // --- place-name + road labels overlay (transparent, no polygons) ---
   // Sits above imagery for orientation; NDVI is inserted beneath it and the
@@ -1563,6 +1615,8 @@ function onMapLoad(){
       setTimeout(()=>flyToField(lo, la), 700);
     }
   }catch{}
+
+  addPlaceLabels();
 
   // Everything (map, sel source, field layers) now exists — safe to auto-run the
   // first-time tour. Must be here, not at top-level, or startTour runs before
