@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Privacy — Iraq Farms Health</title>
+<meta name="description" content="What Iraq Farms Health records and why: no account, saved fields stay on your device, visits are recorded with Microsoft Clarity to find and fix problems." />
+<link rel="canonical" href="https://iraqfarmshealth.com/privacy/" />
+<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;800&display=swap" rel="stylesheet" />
+<style>
+/* Same visual identity as Iraq Farms Health: dry-soil paper, field green-black ink. */
+:root{
+  --ink:#14261B; --paper:#F3EFE4; --card:#FBF9F3; --canal:#1E6E5A; --wheat:#D9A441; --line:#C9BFA8; --muted:#5E6B60;
+  --safe-t:env(safe-area-inset-top,0px);
+  --font:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font)}
+a{color:var(--canal)}
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:calc(10px + var(--safe-t)) 14px 10px;
+  background:var(--ink);color:var(--paper)}
+header h1{font-size:16px;margin:0;font-weight:800;display:flex;align-items:center;gap:8px}
+header h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--wheat)}
+header .back{color:var(--paper);opacity:.85;font-size:13px;font-weight:700;text-decoration:none;margin-inline-start:auto}
+header .back:hover{opacity:1;text-decoration:underline}
+#lang{display:flex;gap:2px;background:rgba(243,239,228,.12);border-radius:10px;padding:3px}
+#lang button{border:0;background:transparent;color:var(--paper);font:inherit;font-weight:700;font-size:13px;padding:5px 9px;border-radius:7px;opacity:.6;cursor:pointer}
+#lang button.on{opacity:1;background:var(--paper);color:var(--ink)}
+main{max-width:720px;margin:0 auto;padding:18px 16px 48px;line-height:1.65;font-size:16px}
+main h2{font-size:22px;margin:6px 0 4px}
+main h3{font-size:17px;margin:26px 0 6px}
+main .upd{color:var(--muted);font-size:13px;margin:0 0 14px}
+main .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+main ul{padding-inline-start:22px;margin:6px 0}
+main li{margin:3px 0}
+bdi{unicode-bidi:isolate}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="dot"></span><span>Iraq Farms Health</span></h1>
+  <div id="lang">
+    <button data-lang="en">EN</button>
+    <button data-lang="ar">عربي</button>
+    <button data-lang="ku">کوردی</button>
+  </div>
+  <a class="back" id="back" href="/">← Map</a>
+</header>
+<main id="body"></main>
+
+<script>
+/* One page, three languages: ?lang= wins, then the language chosen in the app (same
+   storage key), then English. The Kurdish and Arabic texts are checked by Rawaz. */
+const T = {
+en:{dir:"ltr", back:"← Back to the map", html:`
+<h2>Privacy</h2>
+<p class="upd">Last updated 13 November 2026</p>
+<div class="box">In short: there is no account and the app never asks for your name. Your saved fields stay on your phone.
+Visits are recorded with Microsoft Clarity, including the map and fields you look at, so we can see where people get stuck and fix it.</div>
+
+<h3>Kept on your device</h3>
+<p>Your saved fields, your ranking list and your language choice are kept in your browser on your own device. They are not sent to us.</p>
+
+<h3>Recordings of visits (Microsoft Clarity)</h3>
+<p>When you use the app, <a href="https://clarity.microsoft.com/" target="_blank" rel="noopener">Microsoft Clarity</a> records the visit:</p>
+<ul>
+<li>what the app showed: the map position (latitude, longitude and zoom), the fields you open with their position, size and readings, and the messages the app showed;</li>
+<li>your taps and scrolling, and which buttons you pressed (for example Report, Share, Watch month by month, Crops);</li>
+<li>a random visitor ID, your approximate location worked out from your internet address, and your device and browser type.</li>
+</ul>
+<p>It does not record your name. Text you type in the search box is hidden from the recording.</p>
+<p><b>Why:</b> to see whether people can find their field and use the app, and to fix the places where they get stuck.</p>
+<p><b>Who sees it:</b> the person who runs Iraq Farms Health, and Microsoft, which provides Clarity under the
+<a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Microsoft Privacy Statement</a>.
+Recordings are available for up to 30 days. We do not sell this information or use it for advertising.</p>
+<p><b>If you prefer not to be recorded:</b> a browser setting or add-on that blocks trackers (blocking clarity.ms) stops the recordings. The app works the same without them.</p>
+
+<h3>"My location"</h3>
+<p>Your phone's location is used only to move the map to where you are. The app does not store it, but the map position you then see is part of the recording and of the page address.</p>
+
+<h3>Services that provide the data</h3>
+<p>To show a field, your browser asks other services for data: Microsoft Planetary Computer (satellite readings for the field's outline), Open-Meteo (rainfall at the field's centre), Terrascope (the 2021 crop map), Esri, NASA and Google (map pictures), Google (fonts) and jsDelivr (the map software). Like any website, they see the request and your internet address.</p>
+
+<h3>Questions</h3>
+<p>Open an issue on <a href="https://github.com/rawazrauf/iraq-farms-health/issues" target="_blank" rel="noopener">GitHub</a>.</p>`},
+
+ar:{dir:"rtl", back:"← العودة إلى الخريطة", html:`
+<h2>الخصوصية</h2>
+<p class="upd">آخر تحديث: 13 تشرين الثاني 2026</p>
+<div class="box">باختصار: لا يوجد حساب، ولا يطلب التطبيق اسمك أبداً. حقولك المحفوظة تبقى على هاتفك.
+تُسجَّل الزيارات باستخدام Microsoft Clarity، بما في ذلك الخريطة والحقول التي تنظر إليها، لنعرف أين يواجه الناس صعوبة ونصلحها.</div>
+
+<h3>ما يبقى على جهازك</h3>
+<p>حقولك المحفوظة وقائمة الترتيب واختيار اللغة تُحفظ في متصفحك على جهازك فقط، ولا تُرسَل إلينا.</p>
+
+<h3>تسجيل الزيارات (Microsoft Clarity)</h3>
+<p>عند استخدام التطبيق، تسجّل <a href="https://clarity.microsoft.com/" target="_blank" rel="noopener">Microsoft Clarity</a> الزيارة:</p>
+<ul>
+<li>ما عرضه التطبيق: موقع الخريطة (خط العرض وخط الطول ودرجة التكبير)، والحقول التي تفتحها مع موقعها ومساحتها وقراءاتها، والرسائل التي ظهرت؛</li>
+<li>نقراتك وتمريرك، والأزرار التي ضغطتها (مثل تقرير، مشاركة، شاهد شهراً بشهر، المحاصيل)؛</li>
+<li>معرّفاً عشوائياً للزائر، وموقعك التقريبي المستنتج من عنوان الإنترنت، ونوع جهازك ومتصفحك.</li>
+</ul>
+<p>لا يُسجَّل اسمك. والنص الذي تكتبه في مربع البحث مخفي عن التسجيل.</p>
+<p><b>لماذا:</b> لنرى هل يستطيع الناس العثور على حقولهم واستخدام التطبيق، ولنصلح المواضع التي يتعثرون فيها.</p>
+<p><b>من يطّلع عليها:</b> الشخص الذي يدير Iraq Farms Health، وشركة Microsoft التي تقدّم Clarity وفق
+<a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">بيان الخصوصية من Microsoft</a>.
+تبقى التسجيلات متاحة لمدة أقصاها 30 يوماً. لا نبيع هذه المعلومات ولا نستخدمها للإعلانات.</p>
+<p><b>إن كنت لا تريد أن تُسجَّل زيارتك:</b> إعداد في المتصفح أو إضافة تحجب أدوات التتبّع (بحجب clarity.ms) يوقف التسجيل، ويعمل التطبيق كما هو من دونه.</p>
+
+<h3>«موقعي»</h3>
+<p>يُستخدم موقع هاتفك فقط لتحريك الخريطة إلى مكانك. لا يحفظه التطبيق، لكن موقع الخريطة الذي تراه بعدها يصبح جزءاً من التسجيل ومن عنوان الصفحة.</p>
+
+<h3>الخدمات التي توفّر البيانات</h3>
+<p>لعرض حقل، يطلب متصفحك بيانات من خدمات أخرى: Microsoft Planetary Computer (قراءات الأقمار الصناعية لحدود الحقل)، وOpen-Meteo (الأمطار عند مركز الحقل)، وTerrascope (خريطة المحاصيل لعام 2021)، وEsri وNASA وGoogle (صور الخريطة)، وGoogle (الخطوط)، وjsDelivr (برنامج الخريطة). وكأي موقع على الإنترنت، ترى هذه الخدمات الطلب وعنوان الإنترنت الخاص بك.</p>
+
+<h3>أسئلة</h3>
+<p>افتح موضوعاً (issue) على <a href="https://github.com/rawazrauf/iraq-farms-health/issues" target="_blank" rel="noopener">GitHub</a>.</p>`},
+
+ku:{dir:"rtl", back:"← گەڕانەوە بۆ نەخشە", html:`
+<h2>تایبەتێتی</h2>
+<p class="upd">دوایین نوێکردنەوە: ١٣ی تشرینی دووەمی ٢٠٢٦</p>
+<div class="box">بە کورتی: هیچ هەژمارێک نییە و ئەپەکە هەرگیز ناوت داوا ناکات. کێڵگە پاشەکەوتکراوەکانت لەسەر مۆبایلەکەت دەمێننەوە.
+سەردانەکان بە Microsoft Clarity تۆمار دەکرێن، لەوانە ئەو نەخشە و کێڵگانەی سەیریان دەکەیت، بۆ ئەوەی بزانین خەڵک لە کوێ گیر دەخۆن و چاکی بکەینەوە.</div>
+
+<h3>ئەوەی لەسەر ئامێرەکەت دەمێنێتەوە</h3>
+<p>کێڵگە پاشەکەوتکراوەکانت، لیستی ڕیزبەندی و زمانی هەڵبژێردراوت لە وێبگەڕەکەتدا لەسەر ئامێرەکەی خۆت هەڵدەگیرێن و بۆ ئێمە نانێردرێن.</p>
+
+<h3>تۆمارکردنی سەردانەکان (Microsoft Clarity)</h3>
+<p>کاتێک ئەپەکە بەکاردەهێنیت، <a href="https://clarity.microsoft.com/" target="_blank" rel="noopener">Microsoft Clarity</a> سەردانەکە تۆمار دەکات:</p>
+<ul>
+<li>ئەوەی ئەپەکە پیشانی دا: شوێنی نەخشە (هێڵی پانی، هێڵی درێژی و ئاستی نزیککردنەوە)، ئەو کێڵگانەی دەیانکەیتەوە لەگەڵ شوێن و ڕووبەر و خوێندنەوەکانیان، و ئەو پەیامانەی دەرکەوتن؛</li>
+<li>دەستلێدان و هەڵسوڕاندنەکانت، و ئەو دوگمانەی لێیان داوە (بۆ نموونە ڕاپۆرت، هاوبەشکردن، مانگ بە مانگ ببینە، دانەوێڵە)؛</li>
+<li>ناسنامەیەکی هەڕەمەکی بۆ سەردانکەر، شوێنی نزیکەیی تۆ کە لە ناونیشانی ئینتەرنێتەکەتەوە دەزانرێت، و جۆری ئامێر و وێبگەڕەکەت.</li>
+</ul>
+<p>ناوت تۆمار ناکرێت. ئەو دەقەی لە سندوقی گەڕاندا دەینووسیت لە تۆمارەکەدا دەشاردرێتەوە.</p>
+<p><b>بۆچی:</b> بۆ ئەوەی ببینین خەڵک دەتوانن کێڵگەکەیان بدۆزنەوە و ئەپەکە بەکاربهێنن، و ئەو شوێنانە چاک بکەینەوە کە تێیدا گیر دەخۆن.</p>
+<p><b>کێ دەیبینێت:</b> ئەو کەسەی Iraq Farms Health بەڕێوە دەبات، و Microsoft کە Clarity پێشکەش دەکات بەپێی
+<a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">بەیاننامەی تایبەتێتی Microsoft</a>.
+تۆمارەکان تا ٣٠ ڕۆژ بەردەستن. ئێمە ئەم زانیارییانە نافرۆشین و بۆ ڕیکلام بەکاریان ناهێنین.</p>
+<p><b>ئەگەر ناتەوێت تۆمار بکرێیت:</b> ڕێکخستنێکی وێبگەڕ یان زیادکراوێک کە ئامرازەکانی شوێنکەوتن دەگرێت (بە گرتنی clarity.ms) تۆمارکردن ڕادەگرێت. ئەپەکە بەبێ ئەوانیش هەروەک خۆی کار دەکات.</p>
+
+<h3>«شوێنی من»</h3>
+<p>شوێنی مۆبایلەکەت تەنها بۆ بردنی نەخشە بۆ شوێنەکەت بەکاردێت. ئەپەکە هەڵیناگرێت، بەڵام ئەو شوێنەی نەخشە کە دواتر دەیبینیت دەبێتە بەشێک لە تۆمارەکە و لە ناونیشانی پەڕەکە.</p>
+
+<h3>ئەو خزمەتگوزارییانەی داتا دابین دەکەن</h3>
+<p>بۆ پیشاندانی کێڵگەیەک، وێبگەڕەکەت داتا لە خزمەتگوزاری تر داوا دەکات: Microsoft Planetary Computer (خوێندنەوەی سەتەلایت بۆ سنووری کێڵگەکە)، Open-Meteo (باران لە ناوەڕاستی کێڵگەکە)، Terrascope (نەخشەی دانەوێڵەی ٢٠٢١)، Esri و NASA و Google (وێنەکانی نەخشە)، Google (فۆنتەکان) و jsDelivr (نەرمەکاڵای نەخشە). وەک هەر ماڵپەڕێک، ئەوان داواکارییەکە و ناونیشانی ئینتەرنێتەکەت دەبینن.</p>
+
+<h3>پرسیار</h3>
+<p>بابەتێک (issue) لە <a href="https://github.com/rawazrauf/iraq-farms-health/issues" target="_blank" rel="noopener">GitHub</a> بکەرەوە.</p>`}
+};
+
+function pick(){
+  try{ const q = new URLSearchParams(location.search).get("lang"); if(T[q]) return q; }catch{}
+  try{ const s = localStorage.getItem("ifh.lang"); if(T[s]) return s; }catch{}
+  return "en";
+}
+function show(L){
+  const t = T[L];
+  document.documentElement.lang = L;
+  document.documentElement.dir = t.dir;
+  document.getElementById("body").innerHTML = t.html;
+  const back = document.getElementById("back");
+  back.textContent = t.back; back.href = "/?lang=" + L;
+  document.querySelectorAll("#lang button").forEach(b => b.classList.toggle("on", b.dataset.lang === L));
+  try{ const p = new URLSearchParams(location.search); p.set("lang", L); history.replaceState(null, "", location.pathname + "?" + p); }catch{}
+}
+document.querySelectorAll("#lang button").forEach(b => b.addEventListener("click", () => show(b.dataset.lang)));
+show(pick());
+</script>
+</body>
+</html>
