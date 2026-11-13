@@ -155,10 +155,13 @@ python label_noise.py                        # section 9: effect of the hand lab
 python forage_draw.py                        # same 62 points
 python fetch_dense.py                        # optional re-fetch, about 1 h; writes data/forage_series_fetched.json
 python forage_test.py                        # from the archived data/forage_series.json
+
+# F. Land-use check against very-high-resolution imagery (section 11)
+python vhr_check.py                          # from the archived data/vhr_landuse.csv
 ```
 
 **Expected outputs:**
-- `expected_output.txt` holds the expected output of `estimate.py`, `bootstrap.py`, `label_noise.py` and `forage_test.py`.
+- `expected_output.txt` holds the expected output of `estimate.py`, `bootstrap.py`, `label_noise.py`, `forage_test.py` and `vhr_check.py`.
 - Step A reproduces the sample byte for byte. This was checked on 7 Nov 2026.
 
 **On the curves:**
@@ -302,9 +305,32 @@ The reference labels use one reading a month, which cannot show a crop that is c
 - **Reading.** On this sample, fodder that is cut green is a small part of the winter-crop reference, a few percent, and under 20% at the upper limit. It does not turn "winter crop" into "cereal": pulses, vegetables and barley cut once at the end of the season look like cereal here.
 - **Limits of this test.** 50 points, one pixel each. The thresholds were set after a first look at the series, so they are not blind, and the by-eye reading is by the same labeller as the reference. Four of the six fast ends are north of 34°N between 25 April and 15 May. The archived series come from the browser run of 13 Nov 2026; `fetch_dense.py` is its Python port and has not yet been run against the archive (the port of `fetch_curves.py`, which it reuses, was checked on 8 Nov).
 
+## 11. A first look at very-high-resolution imagery
+
+The reference labels come from the same satellite as the map (Limits). `vhr_check.py` reports a first check against sharper, independent imagery. It is a check of land use only.
+
+- **Points (76).** The 72 hand-reviewed points, and the 5 points where the map says "not cropland" and the reference says winter crop (one point is in both groups).
+- **Imagery.** Esri World Imagery, 0.3–0.5 m (Vantor mosaics; the app's basemap). The image date of each point was read from the service. **None of the 76 images is from the 2025-26 season:** they run from 2018 to 9 April 2025, and 32 were taken in December–April of some year. So the imagery shows what kind of land a point is, not what grew there in 2025-26.
+- **Reading.** Each point was viewed in a 250 m window and given one class by eye: field parcels (F), trees or orchard (T), field edge or canal bank (E), farmstead or built (U), bare or natural land with no parcels (B), marsh or water (W). The classes and dates are in `data/vhr_landuse.csv`.
+
+  | Reference label | F | T | E | U | B | W | n |
+  |---|---|---|---|---|---|---|---|
+  | winter crop | 9 | 0 | 2 | 0 | 3 | 0 | 14 |
+  | summer only | 10 | 2 | 1 | 1 | 1 | 0 | 15 |
+  | perennial | 4 | 1 | 0 | 0 | 0 | 1 | 6 |
+  | no crop | 10 | 2 | 2 | 1 | 5 | 4 | 24 |
+  | unclear | 7 | 2 | 1 | 2 | 5 | 0 | 17 |
+
+- **Crop labels mostly sit on farmland.** 29 of the 35 points labelled winter crop, summer only or perennial are on fields, orchards or their edges.
+- **Three winter-crop labels are on land that does not look farmed:** S061 (map: confident cereal; bare eroded land, February 2025), S276 (doubtful cereal; shrub steppe) and T138 (not cropland; a pale wash). Either rain-fed cereal was sown on open land in 2025-26, or natural greening was read as a crop. Imagery from another year cannot say which.
+- **The points the map left out.** Of the 5 points mapped "not cropland" with a winter-crop reference, 3 are plainly farmland (S211, T064, T180), 1 is on the edge of a tilled plot (S103) and 1 is T138 above. Each stands for about 27,000 ha in the area estimate.
+- **"Perennial" is mostly not orchards.** 1 of 6 shows trees; 4 are ordinary field parcels, two of which show repeated cuts in the forage test (section 10).
+- **Limits of this check.** It cannot confirm any 2025-26 label or separate cereal from other crops. The images were read from screenshots at about 1.6 m per pixel, coarser than the source, by the same labeller as the reference, who could see the labels. The basemap is updated over time, so the dates may change; `vhr_check.py --dates` re-reads them (not yet run).
+- **Still to do.** Imagery dated in the season itself, on a subsample, planned together with the northern assessment.
+
 ## Limits
 
-- **The reference is not independent of the map.** Olofsson et al. (2014) ask for reference data of higher quality than the map and independent of it. Here the reference labels are read from Sentinel-2 curves, and the map is WorldCereal's model run on Sentinel-2 (with Sentinel-1 radar and weather data). The method differs: a person and written rules reading a whole year, including the months after the season, against a model. But the sensor is shared, so anything that distorts Sentinel-2 at a point (dust, a cloud gap in a key month, an unusual season) can push the map and the label the same way, and agreement may be overstated. What would fix it: checking a subsample against very-high-resolution imagery, and comparing the area estimates with official statistics by governorate. Sentinel-1 would not help, because the map already uses it.
+- **The reference is not independent of the map.** Olofsson et al. (2014) ask for reference data of higher quality than the map and independent of it. Here the reference labels are read from Sentinel-2 curves, and the map is WorldCereal's model run on Sentinel-2 (with Sentinel-1 radar and weather data). The method differs: a person and written rules reading a whole year, including the months after the season, against a model. But the sensor is shared, so anything that distorts Sentinel-2 at a point (dust, a cloud gap in a key month, an unusual season) can push the map and the label the same way, and agreement may be overstated. What would fix it: checking a subsample against very-high-resolution imagery from the season itself, and comparing the area estimates with official statistics by governorate. A first look with imagery from other years (section 11) checks land use only. Sentinel-1 would not help, because the map already uses it.
 
 - **Winter crop, not cereal.** A Sentinel-2 curve can't separate wheat from barley, or cereal from winter pulses, vegetables or fodder. So:
   - User's accuracy against "winter crop" is an upper bound on user's accuracy for cereal.
@@ -331,6 +357,7 @@ The reference labels use one reading a month, which cannot show a crop that is c
 | `label_noise.py` | Check: effect of the hand labels' repeatability on the estimates (section 9) |
 | `forage_draw.py`, `fetch_dense.py`, `forage_test.py` | Forage test: sample, every clear scene per point, cut-and-regrowth rules (section 10) |
 | `data/forage_sample.csv`, `data/forage_series.json` | Forage test: the 62 points and their archived series (date, corrected NDVI) |
+| `vhr_check.py`, `data/vhr_landuse.csv` | Land-use check against very-high-resolution imagery: image date and land class of 76 points (section 11) |
 | `topup_draw.py` | Phase 2: the 200-point "not cropland" top-up (section 7) |
 | `topup_review.py` | Phase 2: rule labels, blind review pack, final labels |
 | `fetch_topup.ipynb` | Phase 2: Colab notebook that runs `fetch_curves.py` on the top-up points |
