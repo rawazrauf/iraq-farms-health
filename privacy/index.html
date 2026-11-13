@@ -19,6 +19,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font)}
+/* Arabic and Kurdish: Noto Sans Arabic first, as on the map page, so every device shows the same face */
+html[lang="ar"],html[lang="ku"]{--font:"Noto Sans Arabic",ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif}
 a{color:var(--canal)}
 header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:calc(10px + var(--safe-t)) 14px 10px;
   background:var(--ink);color:var(--paper)}
@@ -83,6 +85,7 @@ Recordings are available for up to 30 days. We do not sell this information or u
 
 <h3>Services that provide the data</h3>
 <p>To show a field, your browser asks other services for data: Microsoft Planetary Computer (satellite readings for the field's outline), Open-Meteo (rainfall at the field's centre), Terrascope (the 2021 crop map), Esri, NASA and Google (map pictures), Google (fonts) and jsDelivr (the map software). Like any website, they see the request and your internet address.</p>
+<p>Search: village and town names are looked up in a list inside the page, so what you type stays in your browser. Only when that list has no match and you press Enter is the text sent to OpenStreetMap's Nominatim search, which also sees your internet address.</p>
 
 <h3>Questions</h3>
 <p>Open an issue on <a href="https://github.com/rawazrauf/iraq-farms-health/issues" target="_blank" rel="noopener">GitHub</a>.</p>`},
@@ -115,6 +118,7 @@ ar:{dir:"rtl", back:"← العودة إلى الخريطة", html:`
 
 <h3>الخدمات التي توفّر البيانات</h3>
 <p>لعرض حقل، يطلب متصفحك بيانات من خدمات أخرى: Microsoft Planetary Computer (قراءات الأقمار الصناعية لحدود الحقل)، وOpen-Meteo (الأمطار عند مركز الحقل)، وTerrascope (خريطة المحاصيل لعام 2021)، وEsri وNASA وGoogle (صور الخريطة)، وGoogle (الخطوط)، وjsDelivr (برنامج الخريطة). وكأي موقع على الإنترنت، ترى هذه الخدمات الطلب وعنوان الإنترنت الخاص بك.</p>
+<p>البحث: تُبحث أسماء القرى والبلدات في قائمة داخل الصفحة، فيبقى ما تكتبه في متصفحك. فقط عندما لا تجد القائمة تطابقاً وتضغط Enter، يُرسل النص إلى بحث Nominatim التابع لـ OpenStreetMap، الذي يرى أيضاً عنوان الإنترنت الخاص بك.</p>
 
 <h3>أسئلة</h3>
 <p>افتح موضوعاً (issue) على <a href="https://github.com/rawazrauf/iraq-farms-health/issues" target="_blank" rel="noopener">GitHub</a>.</p>`},
@@ -147,6 +151,7 @@ ku:{dir:"rtl", back:"← گەڕانەوە بۆ نەخشە", html:`
 
 <h3>ئەو خزمەتگوزارییانەی داتا دابین دەکەن</h3>
 <p>بۆ پیشاندانی کێڵگەیەک، وێبگەڕەکەت داتا لە خزمەتگوزاری تر داوا دەکات: Microsoft Planetary Computer (خوێندنەوەی سەتەلایت بۆ سنووری کێڵگەکە)، Open-Meteo (باران لە ناوەڕاستی کێڵگەکە)، Terrascope (نەخشەی دانەوێڵەی ٢٠٢١)، Esri و NASA و Google (وێنەکانی نەخشە)، Google (فۆنتەکان) و jsDelivr (نەرمەکاڵای نەخشە). وەک هەر ماڵپەڕێک، ئەوان داواکارییەکە و ناونیشانی ئینتەرنێتەکەت دەبینن.</p>
+<p>گەڕان: ناوی گوند و شارۆچکەکان لە لیستێکی ناو پەڕەکەدا دەگەڕێنرێن، بۆیە ئەوەی دەینووسیت لە وێبگەڕەکەتدا دەمێنێتەوە. تەنها کاتێک لیستەکە هیچی نەدۆزییەوە و Enter دادەگریت، دەقەکە بۆ گەڕانی Nominatimـی OpenStreetMap دەنێردرێت، کە ئەویش ناونیشانی ئینتەرنێتەکەت دەبینێت.</p>
 
 <h3>پرسیار</h3>
 <p>بابەتێک (issue) لە <a href="https://github.com/rawazrauf/iraq-farms-health/issues" target="_blank" rel="noopener">GitHub</a> بکەرەوە.</p>`}

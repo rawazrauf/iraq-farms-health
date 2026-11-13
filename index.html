@@ -74,10 +74,17 @@
   --shadow:0 2px 14px rgba(20,38,27,.18);
   --safe-t:env(safe-area-inset-top,0px);
   --safe-b:env(safe-area-inset-bottom,0px);
+  /* one type stack for the whole app (13-j). In Arabic and Kurdish, Noto Sans Arabic comes first so
+     every piece of text, buttons and drawn charts included, uses the same face on every device;
+     otherwise iPhones use SF Arabic, Windows Segoe UI and Macs Geeza Pro for some parts. */
+  --font:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;
 }
+html[lang="ar"],html[lang="ku"]{--font:"Noto Sans Arabic",ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font-family:inherit}
+.maplibregl-map{font-family:var(--font)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--ink);
-  font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;
+  font-family:var(--font);
   color:var(--ink);overscroll-behavior:none}
 #map{position:absolute;inset:0}
 [dir="rtl"]{direction:rtl}
@@ -368,7 +375,7 @@ html,body{margin:0;height:100%;background:var(--ink);
 /* Compact sheet while a playback is open: keep the field line, the chart and the
    play controls; everything else steps aside so the map has the room. */
 #sheet.compact #stat,#sheet.compact .nbr,#sheet.compact .msg,#sheet.compact .pv-save{display:none}
-.play-tag{position:fixed;left:50%;transform:translateX(-50%);z-index:6;background:rgba(20,38,27,.88);color:#F3EFE4;font:800 13px/1 ui-sans-serif,system-ui,"Noto Sans Arabic",sans-serif;
+.play-tag{position:fixed;left:50%;transform:translateX(-50%);z-index:6;background:rgba(20,38,27,.88);color:#F3EFE4;font:800 13px/1 var(--font);
   padding:6px 10px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer}
 #play-row{display:flex;gap:8px;align-items:stretch}
 #play-btn{flex:1;border:0;border-radius:12px;padding:12px 14px;font-family:inherit;font-size:15px;font-weight:800;
@@ -484,7 +491,7 @@ body:has(.maplibregl-compact-show) #legend{display:none}
 
 /* Random farm: a labelled pill on computers, a round green button on phones */
 #random-farm{display:flex;align-items:center;gap:9px;height:48px;padding:0 18px;border:0;border-radius:24px;
-  background:var(--canal);color:#fff;font:800 14px/1 ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;cursor:pointer;
+  background:var(--canal);color:#fff;font:800 14px/1 var(--font);cursor:pointer;
   box-shadow:0 4px 16px rgba(20,38,27,.35)}
 #random-farm svg{width:22px;height:22px;flex:none}
 #random-farm:active{transform:scale(.96)}
@@ -501,6 +508,94 @@ body.dbg #diag{bottom:calc(var(--safe-b) + 54px)}
 .tapfx-outline{position:absolute;inset:0;z-index:3;pointer-events:none;transition:opacity .25s}
 .tapfx-outline path{fill:rgba(255,255,255,0);stroke:#fff;stroke-width:3;stroke-linejoin:round;
   transition:stroke-dashoffset .5s ease-out,fill .4s ease}
+
+/* Place search suggestions (13-k): a list under the search box while typing */
+#search-wrap{position:relative}
+#bar:has(#search-sug:not([hidden])){z-index:13}   /* the list opens over the "zoom in" bubble and the card */
+#search-sug[hidden]{display:none}
+#search-sug{position:absolute;top:calc(100% + 6px);inset-inline-start:0;width:max(100%,300px);max-width:calc(100vw - 16px);
+  z-index:12;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 28px rgba(20,38,27,.28);
+  padding:4px;max-height:min(60vh,380px);overflow:auto;box-sizing:border-box}
+#search-sug .sg{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer}
+#search-sug .sg[aria-selected="true"],#search-sug .sg:hover{background:#E9E2D2}
+#search-sug .sg-ico{width:30px;height:30px;flex:none;border-radius:15px;background:#E4DCC8;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+#search-sug .sg-ico svg{width:16px;height:16px}
+#search-sug .sg-t{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
+#search-sug .sg-n{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#search-sug .sg-s{font-size:12px;font-weight:600;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#search-sug .sg-none{padding:12px;font-size:13px;font-weight:600;opacity:.7;line-height:1.45}
+/* the place picked from the list: a pulsing dot with its name, for a few seconds */
+.place-pin{pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.place-pin .pp-name{background:var(--ink);color:var(--paper);font:800 13px/1 var(--font);padding:7px 11px;border-radius:14px;
+  white-space:nowrap;box-shadow:var(--shadow)}
+.place-pin .pp-dot{width:16px;height:16px;border-radius:50%;background:#fff;border:4px solid var(--canal);box-sizing:border-box;position:relative}
+.place-pin .pp-dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:3px solid #fff;animation:pppulse 1.6s ease-out infinite}
+@keyframes pppulse{from{transform:scale(1);opacity:.9}to{transform:scale(3.2);opacity:0}}
+@media (prefers-reduced-motion: reduce){.place-pin .pp-dot::after{animation:none}}
+
+/* ===== Field card (13-k): health ring, chips, a chart that draws itself, three actions =====
+   Phones: a sheet from the bottom, as before. Computers (900 px and wider): a panel on the left,
+   so the map stays visible beside it. On the left in Arabic and Kurdish too: the map's buttons
+   (Random farm, My location, zoom) are on the right, and a panel there would cover them. */
+#sheet{padding:10px 16px calc(var(--safe-b) + 16px);border-top-left-radius:24px;border-top-right-radius:24px;
+  box-shadow:0 -6px 24px rgba(20,38,27,.25);max-height:calc(100% - var(--safe-t) - 70px);overflow-y:auto;overscroll-behavior:contain}
+#sheet .grip{width:40px;height:5px;border-radius:3px;margin:0 auto 8px}
+#sheet .close{top:10px;inset-inline-end:12px;width:36px;height:36px;border-radius:18px;padding:0;opacity:1;
+  background:rgba(20,38,27,.07);display:flex;align-items:center;justify-content:center;z-index:2}
+#sheet .close svg{width:18px;height:18px}
+#sheet .sub{margin:0 0 12px;font-size:12px;font-weight:600;opacity:1;color:#5E6B60;padding-inline-end:44px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:20px}
+.fc-hero{display:flex;align-items:center;gap:16px;margin:0 0 12px}
+.fc-ring{position:relative;width:76px;height:76px;flex:none}
+.fc-ring svg{width:76px;height:76px;transform:rotate(-90deg);display:block}
+.fc-ring circle{fill:none;stroke-width:8}
+.fc-ring .trk{stroke:#E4DCC8}
+.fc-ring .val{stroke-linecap:round;stroke-dasharray:194.78}
+.fc-ring .val.anim{animation:ringfill .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes ringfill{from{stroke-dashoffset:194.78}}
+.fc-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;direction:ltr}
+.fc-txt{min-width:0;display:flex;flex-direction:column;gap:3px}
+.fc-band{font-size:26px;font-weight:800;line-height:1.1}
+.fc-cap{font-size:13px;font-weight:600;color:#5E6B60}
+.fc-yoy{display:flex;align-items:center;gap:5px;font-size:14px;font-weight:700}
+.fc-yoy svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.fc-yv{font-weight:600;opacity:.8}
+.fc-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.fc-chips:empty{display:none}
+.fc-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:14px;font-size:12.5px;font-weight:700;line-height:1.3}
+.fc-chip.crop{background:#F7DDEE;color:#8A1366}
+.fc-chip.crop .sw{width:9px;height:9px;border-radius:2px;background:#D6249F;flex:none}
+.fc-chip.rain{background:#DCE8F3;color:#1F4E79}
+.fc-chip.rain svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fc-chip.dbg{background:transparent;border:1px dashed var(--line);color:var(--ink)}
+.fc-chart{background:#FBF9F3;border:1px solid #E4DCC8;border-radius:14px;padding:9px 10px 6px;margin:0 0 12px}
+.fc-chart-h{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:700;color:#5E6B60;margin:0 2px 2px}
+.fc-chart-h .pk{color:var(--canal);white-space:nowrap}
+#sheet #spark{background:transparent;border:0;border-radius:0;height:96px;clip-path:inset(0 0 0 0)}
+#sheet #spark.draw{animation:sparkdraw 1.3s ease-out both}
+@keyframes sparkdraw{from{clip-path:inset(0 100% 0 0)}}
+#sheet #play-wrap{margin:0 0 12px}
+#sheet #play-btn{min-height:50px;border-radius:14px;font-size:16px}
+#sheet .fc-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+#sheet .fc-acts button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:4px 6px;
+  border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);font-size:14px;font-weight:700;
+  cursor:pointer;line-height:1.15;text-align:center}
+#sheet .fc-acts button svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#sheet .fc-acts .save-btn.saved{background:var(--canal);border-color:var(--canal);color:#fff}
+#sheet .fc-acts .share-btn.copied{border-color:var(--canal);color:var(--canal)}
+#sheet .fc-acts button:disabled{cursor:default}
+#sheet .fc-acts .share-btn.loading{opacity:.75}
+#sheet.compact .fc-chips{display:none}
+@media (prefers-reduced-motion: reduce){.fc-ring .val.anim,#sheet #spark.draw{animation:none}}
+@media (min-width:900px) and (min-height:520px){
+  #sheet{top:calc(var(--safe-t) + 66px);bottom:auto;left:12px;right:auto;width:400px;
+    max-height:calc(100% - var(--safe-t) - 78px);border-radius:20px;padding:16px 20px 20px;
+    box-shadow:0 8px 32px rgba(20,38,27,.32);transform:translateX(calc(-100% - 24px));transition:transform .45s cubic-bezier(.2,.9,.25,1)}
+  #sheet.open{transform:none}
+  #sheet .grip{display:none}
+  #sheet .grip,#sheet .sub{cursor:default}
+  #sheet .close{top:14px;inset-inline-end:16px}
+}
 
 /* My fields and Ranking open above the "zoom in" bubble, like Layers; one close button style */
 #hist-panel,#pins-panel{z-index:8}
@@ -603,9 +698,11 @@ body.dbg #diag{bottom:calc(var(--safe-b) + 54px)}
   <div id="search-wrap">
     <svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
     <input id="search-input" type="text" enterkeyhint="search" autocomplete="off" aria-label="Search"
-           data-t-ph="searchPh" placeholder="Field ID or lat, lon" />
+           role="combobox" aria-autocomplete="list" aria-controls="search-sug" aria-expanded="false"
+           spellcheck="false" data-t-ph="searchPh" placeholder="Village, field ID or lat, lon" />
     <button id="search-go" data-t="go">Go</button>
     <button id="lang-chip" type="button" aria-label="Language">EN</button>
+    <div id="search-sug" role="listbox" hidden></div>
   </div>
   <div id="rail">
     <button id="layers-btn" type="button" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/></svg><span class="lbl" data-t="layers">Layers</span></button>
@@ -694,7 +791,7 @@ body.dbg #diag{bottom:calc(var(--safe-b) + 54px)}
 </button>
 
 <div id="sheet">
-  <span class="close" id="sheet-close">×</span>
+  <button class="close" id="sheet-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   <div class="grip"></div>
   <div id="sheet-body">
     <div class="load" data-t="loading">Reading this field…</div>
@@ -708,7 +805,7 @@ body.dbg #diag{bottom:calc(var(--safe-b) + 54px)}
 const I18N = {
   en:{title:"Iraq Farms Health",legend:"Vegetation health",low:"Low",high:"High",
       loading:"Reading this field…",tapHint:"Tap any field to read its vegetation health.",
-      playPrep:"Loading months…",tPlayWait:"This field's two-year satellite history is still loading — {n} of {total} months so far. The button turns green when it's ready; then tap it.",playBtn:"▶ Watch month by month",playPause:"❚❚ Pause",playResume:"▶ Continue",playReplay:"↻ Watch again",playHide:"Hide",playLoading:"Loading images…",playFail:"Images unavailable right now",playScene:"image",playMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Two map layers: 🌱 Health map shows how green the land is — the whole country when zoomed out, each field when zoomed in (green is healthy, red is stressed). Tap it off for the plain satellite picture. 🌾 Crops shows where wheat or barley grew in 2021. Both switches are under Layers.",tCrop:"🌾 This line says the field grew wheat or barley in 2021, from the European Space Agency's crop map. It's a past record, not this season.",tPlay:"Now tap ▶ Watch month by month to see how green this field was, month by month, over two years.",tPlay2:"Each frame is your field coloured by how green it was that month, from that month's satellite image — green is growing, rust is bare soil or water. Pause, or drag along the chart to pick a month. Tap Next when you're done.",tReport:"Tap Report to download a picture with everything about this field — every month's reading, rainfall, moisture, crop history and how it compares with nearby fields. Keep it, or send it to anyone.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place.",tHelp:"Open Layers any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropSrc21:"ESA WorldCereal map, 2021",cropKeyT:"Winter cereals",cropKeyS:"wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",monthImgs:"Field images, month by month (last 12 months) — green is growing, rust is bare soil or water",copied:"Link copied ✓",tooBig:"This outline is too large to be one field (over 2,000 donums). Zoom in and tap a smaller field.",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",layers:"Layers",guide:"How to use the map",privacy:"Data sources and privacy",randomFarm:"Random farm",
+      playPrep:"Loading months…",tPlayWait:"This field's two-year satellite history is still loading — {n} of {total} months so far. The button turns green when it's ready; then tap it.",playBtn:"▶ Watch month by month",playPause:"❚❚ Pause",playResume:"▶ Continue",playReplay:"↻ Watch again",playHide:"Hide",playLoading:"Loading images…",playFail:"Images unavailable right now",playScene:"image",playMonths:["January","February","March","April","May","June","July","August","September","October","November","December"],latest:"Vegetation index",health:"Health",asOf:"as of",field:"Field",go:"Go",zoomHint:"Zoom in to see and tap fields",fieldsInView:"fields in view",noFieldsHere:"no fields here",loadingFields:"loading fields…",helpBtn:"? Guide",tourSkip:"Skip",tourNext:"Next",tourDone:"Got it",tourStep:"Step",t1:"Welcome! This tool shows how healthy farm fields are across Iraq, using free satellite images. Let's look at one field together.",t2:"Every outlined shape is a field. 👆 Tap any field to open it.",t3:"This is the field's health right now — Good, Fair or Poor — and whether it's greener than last year.",t4:"And here is two years of history, loading month by month, so you can see how the field changes with the seasons.",t5:"Two map layers: 🌱 Health map shows how green the land is — the whole country when zoomed out, each field when zoomed in (green is healthy, red is stressed). Tap it off for the plain satellite picture. 🌾 Crops shows where wheat or barley grew in 2021. Both switches are under Layers.",tCrop:"🌾 This line says the field grew wheat or barley in 2021, from the European Space Agency's crop map. It's a past record, not this season.",tPlay:"Now tap ▶ Watch month by month to see how green this field was, month by month, over two years.",tPlay2:"Each frame is your field coloured by how green it was that month, from that month's satellite image — green is growing, rust is bare soil or water. Pause, or drag along the chart to pick a month. Tap Next when you're done.",tReport:"Tap Report to download a picture with everything about this field — every month's reading, rainfall, moisture, crop history and how it compares with nearby fields. Keep it, or send it to anyone.",t6:"Save your fields with ★, see your best fields in 🏆 Ranking, or search a place.",tHelp:"Open Layers any time to see this guide again.",myFields:"My fields",locateBtn:"My location",locating:"Finding your location…",locateDenied:"Location permission is off. Turn it on in your browser settings, then tap again — or search your area by name.",locateFail:"Could not get your location. Try again, or search your area by name.",locateOk:"You are here. Zoom in to see and tap your field.",history:"Ranking",healthMap:"Health map",cropMap:"Crops",cropWinter:"Winter cereals — wheat or barley",cropSrc21:"ESA WorldCereal map, 2021",cropKeyT:"Winter cereals",cropKeyS:"wheat or barley",cropNote:"Sown in autumn, harvested in early summer. Mapped in 2021 — not this year, and not your field in particular.",cerealYes:"Wheat or barley grew here in 2021",cerealPart:"Part of this field was wheat or barley in 2021",historyTitle:"Most improved fields",histEmpty:"Fields you open will appear here, ranked by how much they improved since last year.",improveLabel:"vs last year",searchPh:"Village, field ID or lat, lon",pinsEmpty:"Tap a field, then Save, to add it here.",save:"Save field",saved:"Saved ✓",share:"Share",report:"Report",preparing:"Preparing…",monthlyNdvi:"Monthly vegetation index (NDVI)",monthImgs:"Field images, month by month (last 12 months) — green is growing, rust is bare soil or water",copied:"Link copied ✓",tooBig:"This outline is too large to be one field (over 2,000 donums). Zoom in and tap a smaller field.",notFound:"Field ID only works for fields you've opened before. Use coordinates (lat, lon) or tap the field on the map.",source:"Source scene",cloud:"Scene cloud",verify:"Explore in Copernicus",viewField:"See my field (NDVI)",lastYr:"last year",thisYr:"this year",vsLastYear:"vs last year",nbrHealth_above:"Greener than most nearby fields",nbrHealth_around:"About average for nearby fields",nbrHealth_below:"Less green than most nearby fields",moist_moist:"Good moisture in the crop",moist_mid:"Moderate moisture",moist_dry:"Low moisture — dry canopy",nbrMoist_above:"wetter than most nearby fields",nbrMoist_around:"about average for the area",nbrMoist_below:"drier than most nearby fields",yoyUp:"A greener year overall than last year.",yoyDown:"A less green year overall than last year.",yoySame:"About the same over the year as last year.",sizeLabel:"Field size",donums:"donums",rainLabel:"Rainfall (2 yr)",rainThis:"this year",rainLast:"last year",rainWetter:"wetter",rainDrier:"drier",rainSame:"about the same",rainMm:"mm",placeTypes:["","City","Town","Village","Hamlet","Neighbourhood"],near:"near",noPlace:"No place with that name. Try another spelling, or tap your field on the map.",placeSearching:"Searching…",yoyG:"Greener than a year ago",yoyL:"Less green than a year ago",yoyS:"About the same as a year ago",twoYears:"Last two years",peak:"Peak",layers:"Layers",guide:"How to use the map",privacy:"Data sources and privacy",randomFarm:"Random farm",
       poor:"Poor",fair:"Fair",good:"Good",
       poorMsg:"Little green growth right now — bare soil, early planting, or stress.",
       fairMsg:"Some growth — the crop is developing but not at full cover.",
@@ -717,7 +814,7 @@ const I18N = {
       dir:"ltr"},
   ar:{title:"صحة مزارع العراق",legend:"صحة الغطاء النباتي",low:"منخفض",high:"مرتفع",
       loading:"جارٍ قراءة هذا الحقل…",tapHint:"انقر على أي حقل لقراءة صحة الغطاء النباتي.",
-      playPrep:"جارٍ تحميل الأشهر…",tPlayWait:"ما زال تاريخ هذا الحقل لسنتين من صور الأقمار الصناعية قيد التحميل — {n} من {total} شهراً حتى الآن. يصبح الزر أخضر عندما يجهز، ثم انقر عليه.",playBtn:"▶ شاهد شهراً بشهر",playPause:"❚❚ إيقاف مؤقت",playResume:"▶ متابعة",playReplay:"↻ شاهد مجدداً",playHide:"إخفاء",playLoading:"جارٍ تحميل الصور…",playFail:"الصور غير متاحة حالياً",playScene:"صورة",playMonths:["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"طبقتان على الخريطة: 🌱 خريطة الصحة تُظهر مدى اخضرار الأرض — البلد كله عند التصغير، وكل حقل عند التكبير (الأخضر صحي والأحمر مُجهَد). أطفئها لرؤية صورة القمر الصناعي وحدها. 🌾 المحاصيل تُظهر أين زُرع القمح أو الشعير عام 2021. كلا المفتاحين تحت زر الطبقات.",tCrop:"🌾 يشير هذا السطر إلى أن الحقل زُرع قمحاً أو شعيراً عام 2021، وفق خريطة المحاصيل لوكالة الفضاء الأوروبية. إنه سجلّ سابق، وليس هذا الموسم.",tPlay:"الآن انقر ▶ شاهد شهراً بشهر لترى مدى اخضرار هذا الحقل، شهراً بعد شهر، على مدى سنتين.",tPlay2:"كل لقطة تُظهر حقلك ملوّناً حسب درجة اخضراره في ذلك الشهر، من صورة القمر الصناعي لذلك الشهر — الأخضر نموّ، والبنّي تربة عارية أو ماء. يمكنك الإيقاف المؤقت، أو السحب على الرسم لاختيار شهر. انقر التالي عند الانتهاء.",tReport:"انقر تقرير لتنزيل صورة فيها كل شيء عن هذا الحقل — قراءة كل شهر والأمطار والرطوبة وسجلّ المحصول ومقارنته بالحقول القريبة. احتفظ بها أو أرسلها لمن تشاء.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان.",tHelp:"افتح الطبقات في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropSrc21:"خريطة ESA WorldCereal، 2021",cropKeyT:"حبوب شتوية",cropKeyS:"قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"معرّف الحقل أو الإحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",monthImgs:"صور الحقل شهراً بشهر (آخر 12 شهراً) — الأخضر نموّ، والبنّي تربة عارية أو ماء",copied:"تم نسخ الرابط ✓",tooBig:"هذا الحدّ كبير جداً ليكون حقلاً واحداً (أكثر من 2000 دونم). قرّب الخريطة وانقر على حقل أصغر.",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",layers:"الطبقات",guide:"كيفية استخدام الخريطة",privacy:"مصادر البيانات والخصوصية",randomFarm:"مزرعة عشوائية",
+      playPrep:"جارٍ تحميل الأشهر…",tPlayWait:"ما زال تاريخ هذا الحقل لسنتين من صور الأقمار الصناعية قيد التحميل — {n} من {total} شهراً حتى الآن. يصبح الزر أخضر عندما يجهز، ثم انقر عليه.",playBtn:"▶ شاهد شهراً بشهر",playPause:"❚❚ إيقاف مؤقت",playResume:"▶ متابعة",playReplay:"↻ شاهد مجدداً",playHide:"إخفاء",playLoading:"جارٍ تحميل الصور…",playFail:"الصور غير متاحة حالياً",playScene:"صورة",playMonths:["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],latest:"مؤشر الغطاء النباتي",health:"الصحة",asOf:"بتاريخ",field:"حقل",go:"اذهب",zoomHint:"قرّب لرؤية الحقول والنقر عليها",fieldsInView:"حقول ظاهرة",noFieldsHere:"لا حقول هنا",loadingFields:"جارٍ تحميل الحقول…",helpBtn:"؟ دليل",tourSkip:"تخطٍّ",tourNext:"التالي",tourDone:"فهمت",tourStep:"خطوة",t1:"مرحباً! تعرض هذه الأداة مدى صحة الحقول الزراعية في العراق باستخدام صور الأقمار الصناعية المجانية. لننظر إلى حقل معاً.",t2:"كل شكل محدّد هو حقل. 👆 انقر أي حقل لفتحه.",t3:"هذه هي صحة الحقل الآن — جيدة أو متوسطة أو ضعيفة — وهل هو أكثر اخضراراً من العام الماضي.",t4:"وهنا سنتان من التاريخ، تُحمَّل شهراً بعد شهر، لترى كيف يتغيّر الحقل مع الفصول.",t5:"طبقتان على الخريطة: 🌱 خريطة الصحة تُظهر مدى اخضرار الأرض — البلد كله عند التصغير، وكل حقل عند التكبير (الأخضر صحي والأحمر مُجهَد). أطفئها لرؤية صورة القمر الصناعي وحدها. 🌾 المحاصيل تُظهر أين زُرع القمح أو الشعير عام 2021. كلا المفتاحين تحت زر الطبقات.",tCrop:"🌾 يشير هذا السطر إلى أن الحقل زُرع قمحاً أو شعيراً عام 2021، وفق خريطة المحاصيل لوكالة الفضاء الأوروبية. إنه سجلّ سابق، وليس هذا الموسم.",tPlay:"الآن انقر ▶ شاهد شهراً بشهر لترى مدى اخضرار هذا الحقل، شهراً بعد شهر، على مدى سنتين.",tPlay2:"كل لقطة تُظهر حقلك ملوّناً حسب درجة اخضراره في ذلك الشهر، من صورة القمر الصناعي لذلك الشهر — الأخضر نموّ، والبنّي تربة عارية أو ماء. يمكنك الإيقاف المؤقت، أو السحب على الرسم لاختيار شهر. انقر التالي عند الانتهاء.",tReport:"انقر تقرير لتنزيل صورة فيها كل شيء عن هذا الحقل — قراءة كل شهر والأمطار والرطوبة وسجلّ المحصول ومقارنته بالحقول القريبة. احتفظ بها أو أرسلها لمن تشاء.",t6:"احفظ حقولك بالنجمة ★، وشاهد أفضل حقولك في 🏆 الترتيب، أو ابحث عن مكان.",tHelp:"افتح الطبقات في أي وقت لرؤية هذا الدليل مجدداً.",myFields:"حقولي",locateBtn:"موقعي",locating:"جارٍ تحديد موقعك…",locateDenied:"إذن الموقع مغلق. فعّله من إعدادات المتصفح ثم انقر مرة أخرى — أو ابحث عن منطقتك بالاسم.",locateFail:"تعذّر تحديد موقعك. حاول مجدداً أو ابحث عن منطقتك بالاسم.",locateOk:"أنت هنا. قرّب لرؤية حقلك والنقر عليه.",history:"الترتيب",healthMap:"خريطة الصحة",cropMap:"المحاصيل",cropWinter:"حبوب شتوية — قمح أو شعير",cropSrc21:"خريطة ESA WorldCereal، 2021",cropKeyT:"حبوب شتوية",cropKeyS:"قمح أو شعير",cropNote:"تُزرع في الخريف وتُحصد في أوائل الصيف. مرسومة لعام 2021 — ليس هذا العام، وليس حقلك تحديداً.",cerealYes:"نما هنا قمح أو شعير عام 2021",cerealPart:"جزء من هذا الحقل كان قمحاً أو شعيراً عام 2021",historyTitle:"أكثر الحقول تحسناً",histEmpty:"الحقول التي تفتحها ستظهر هنا، مرتبة حسب تحسنها مقارنة بالعام الماضي.",improveLabel:"مقارنة بالعام الماضي",searchPh:"قرية أو معرّف حقل أو إحداثيات",pinsEmpty:"انقر حقلاً ثم احفظه ليظهر هنا.",save:"احفظ الحقل",saved:"محفوظ ✓",share:"مشاركة",report:"تقرير",preparing:"جارٍ التحضير…",monthlyNdvi:"مؤشر الغطاء النباتي الشهري (NDVI)",monthImgs:"صور الحقل شهراً بشهر (آخر 12 شهراً) — الأخضر نموّ، والبنّي تربة عارية أو ماء",copied:"تم نسخ الرابط ✓",tooBig:"هذا الحدّ كبير جداً ليكون حقلاً واحداً (أكثر من 2000 دونم). قرّب الخريطة وانقر على حقل أصغر.",notFound:"معرّف الحقل يعمل فقط للحقول التي فتحتها من قبل. استخدم الإحداثيات (lat, lon) أو انقر الحقل على الخريطة.",source:"المشهد المصدر",cloud:"غيوم المشهد",verify:"استكشف في Copernicus",viewField:"شاهد حقلي (NDVI)",lastYr:"العام الماضي",thisYr:"هذا العام",vsLastYear:"مقارنة بالعام الماضي",nbrHealth_above:"أكثر اخضراراً من معظم الحقول القريبة",nbrHealth_around:"قريب من متوسط الحقول المجاورة",nbrHealth_below:"أقل اخضراراً من معظم الحقول القريبة",moist_moist:"رطوبة جيدة في المحصول",moist_mid:"رطوبة متوسطة",moist_dry:"رطوبة منخفضة — غطاء جاف",nbrMoist_above:"أكثر رطوبة من معظم الحقول القريبة",nbrMoist_around:"قريب من متوسط المنطقة",nbrMoist_below:"أجف من معظم الحقول القريبة",yoyUp:"سنة أكثر اخضراراً من العام الماضي إجمالاً.",yoyDown:"سنة أقل اخضراراً من العام الماضي إجمالاً.",yoySame:"مماثل تقريباً للعام الماضي على مدار السنة.",sizeLabel:"مساحة الحقل",donums:"دونم",rainLabel:"الأمطار (سنتان)",rainThis:"هذا العام",rainLast:"العام الماضي",rainWetter:"أكثر مطراً",rainDrier:"أقل مطراً",rainSame:"مماثل تقريباً",rainMm:"ملم",placeTypes:["","مدينة","بلدة","قرية","قرية صغيرة","حي"],near:"قرب",noPlace:"لا يوجد مكان بهذا الاسم. جرّب كتابة أخرى، أو انقر حقلك على الخريطة.",placeSearching:"جارٍ البحث…",yoyG:"أكثر اخضراراً من العام الماضي",yoyL:"أقل اخضراراً من العام الماضي",yoyS:"مماثل تقريباً للعام الماضي",twoYears:"آخر سنتين",peak:"الذروة",layers:"الطبقات",guide:"كيفية استخدام الخريطة",privacy:"مصادر البيانات والخصوصية",randomFarm:"مزرعة عشوائية",
       poor:"ضعيف",fair:"متوسط",good:"جيد",
       poorMsg:"نمو أخضر قليل حالياً — تربة عارية أو زراعة مبكرة أو إجهاد.",
       fairMsg:"بعض النمو — المحصول يتطور لكن دون غطاء كامل.",
@@ -726,7 +823,7 @@ const I18N = {
       dir:"rtl"},
   ku:{title:"تەندروستی کێڵگەکانی عێراق",legend:"تەندروستی ڕووەک",low:"نزم",high:"بەرز",
       loading:"خوێندنەوەی ئەم کێڵگەیە…",tapHint:"دەست بنێ لە هەر کێڵگەیەک بۆ خوێندنەوەی تەندروستی ڕووەک.",
-      playPrep:"مانگەکان بار دەبن…",tPlayWait:"مێژووی دوو ساڵەی وێنەی سەتەلایتی ئەم کێڵگەیە هێشتا بار دەبێت — تا ئێستا {n} لە {total} مانگ. دوگمەکە سەوز دەبێت کە ئامادە بوو، ئینجا دەستی لێ بنێ.",playBtn:"▶ مانگ بە مانگ ببینە",playPause:"❚❚ ڕاگرتن",playResume:"▶ بەردەوامبە",playReplay:"↻ دووبارە ببینە",playHide:"شاردنەوە",playLoading:"وێنەکان بار دەبن…",playFail:"وێنەکان ئێستا بەردەست نین",playScene:"وێنە",playMonths:["کانوونی دووەم","شوبات","ئازار","نیسان","ئایار","حوزەیران","تەممووز","ئاب","ئەیلوول","تشرینی یەکەم","تشرینی دووەم","کانوونی یەکەم"],latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دوو چینی نەخشە: 🌱 نەخشەی تەندروستی پیشانی دەدات زەوی چەند سەوزە — هەموو وڵات کە دووردەخەیتەوە، هەر کێڵگەیەک کە نزیکدەخەیتەوە (سەوز تەندروستە، سوور لاوازە). بیکوژێنەوە بۆ بینینی تەنها وێنەی سەتەلایت. 🌾 دانەوێڵە پیشانی دەدات لە ٢٠٢١ لە کوێ گەنم یان جۆ چێندراوە. هەردوو کلیلەکە لە ژێر چینەکاندان.",tCrop:"🌾 ئەم دێڕە دەڵێت لە ساڵی ٢٠٢١ گەنم یان جۆ لەم کێڵگەیە چێندراوە، بەپێی نەخشەی دانەوێڵەی ئاژانسی بۆشایی ئاسمانی ئەوروپا. ئەمە تۆمارێکی ڕابردووە، نەک ئەم وەرزە.",tPlay:"ئێستا دەست بنێ لە ▶ مانگ بە مانگ ببینە بۆ ئەوەی ببینیت ئەم کێڵگەیە چەند سەوز بووە، مانگ بە مانگ، لە ماوەی دوو ساڵدا.",tPlay2:"هەر وێنەیەک کێڵگەکەت پیشان دەدات بە ڕەنگی سەوزاییەکەی لەو مانگەدا، لە وێنەی سەتەلایتی ئەو مانگەوە — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو. دەتوانیت ڕایبگریت، یان بەسەر هێڵکارییەکەدا ڕابکێشیت بۆ هەڵبژاردنی مانگێک. کە تەواو بوویت دەست بنێ لە دواتر.",tReport:"دەست بنێ لە ڕاپۆرت بۆ داگرتنی وێنەیەک کە هەموو شتێکی ئەم کێڵگەیەی تێدایە — خوێندنەوەی هەر مانگێک، باران، شێداری، مێژووی دانەوێڵە و بەراوردی لەگەڵ کێڵگە نزیکەکان. هەڵیبگرە، یان بۆ هەر کەسێک بینێرە.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ.",tHelp:"هەر کاتێک چینەکان بکەرەوە بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropSrc21:"نەخشەی ESA WorldCereal، ٢٠٢١",cropKeyT:"دانەوێڵەی زستانە",cropKeyS:"گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",monthImgs:"وێنەکانی کێڵگە، مانگ بە مانگ (دوایین ١٢ مانگ) — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو",copied:"لینک کۆپی کرا ✓",tooBig:"ئەم سنوورە زۆر گەورەیە بۆ ئەوەی یەک کێڵگە بێت (زیاتر لە ٢٠٠٠ دۆنم). نزیک ببەرەوە و دەست لە کێڵگەیەکی بچووکتر بنێ.",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",layers:"چینەکان",guide:"چۆنیەتی بەکارهێنانی نەخشەکە",privacy:"سەرچاوەی داتا و تایبەتێتی",randomFarm:"کێڵگەیەکی هەڕەمەکی",
+      playPrep:"مانگەکان بار دەبن…",tPlayWait:"مێژووی دوو ساڵەی وێنەی سەتەلایتی ئەم کێڵگەیە هێشتا بار دەبێت — تا ئێستا {n} لە {total} مانگ. دوگمەکە سەوز دەبێت کە ئامادە بوو، ئینجا دەستی لێ بنێ.",playBtn:"▶ مانگ بە مانگ ببینە",playPause:"❚❚ ڕاگرتن",playResume:"▶ بەردەوامبە",playReplay:"↻ دووبارە ببینە",playHide:"شاردنەوە",playLoading:"وێنەکان بار دەبن…",playFail:"وێنەکان ئێستا بەردەست نین",playScene:"وێنە",playMonths:["کانوونی دووەم","شوبات","ئازار","نیسان","ئایار","حوزەیران","تەممووز","ئاب","ئەیلوول","تشرینی یەکەم","تشرینی دووەم","کانوونی یەکەم"],latest:"پێوەری ڕووەک",health:"تەندروستی",asOf:"لە",field:"کێڵگە",go:"بڕۆ",zoomHint:"نزیک ببەرەوە بۆ بینین و هەڵبژاردنی کێلگەکان",fieldsInView:"کێڵگە دیارە",noFieldsHere:"کێڵگە نییە لێرە",loadingFields:"کێڵگەکان بار دەبن…",helpBtn:"؟ ڕێنمایی",tourSkip:"تێپەڕاندن",tourNext:"دواتر",tourDone:"تێگەیشتم",tourStep:"هەنگاو",t1:"بەخێربێیت! ئەم ئامرازە پیشانی دەدات کێڵگە کشتوکاڵییەکانی عێراق چەند تەندروستن، بە پشت بەستن بە وێنەی سەتەلایتی بێبەرامبەر. با پێکەوە سەیری کێڵگەیەک بکەین.",t2:"هەر شێوەیەکی دیاریکراو کێڵگەیەکە. 👆 دەست بنێ لە هەر کێڵگەیەک بۆ کردنەوەی.",t3:"ئەمە تەندروستی کێڵگەکەیە ئێستا — باش، مامناوەند، یان لاواز — و ئایا سەوزترە لە پار.",t4:"لێرەش دوو ساڵ مێژووە، مانگ بە مانگ بار دەبێت، تاکو ببینیت کێڵگەکە چۆن دەگۆڕێت لەگەڵ وەرزەکان.",t5:"دوو چینی نەخشە: 🌱 نەخشەی تەندروستی پیشانی دەدات زەوی چەند سەوزە — هەموو وڵات کە دووردەخەیتەوە، هەر کێڵگەیەک کە نزیکدەخەیتەوە (سەوز تەندروستە، سوور لاوازە). بیکوژێنەوە بۆ بینینی تەنها وێنەی سەتەلایت. 🌾 دانەوێڵە پیشانی دەدات لە ٢٠٢١ لە کوێ گەنم یان جۆ چێندراوە. هەردوو کلیلەکە لە ژێر چینەکاندان.",tCrop:"🌾 ئەم دێڕە دەڵێت لە ساڵی ٢٠٢١ گەنم یان جۆ لەم کێڵگەیە چێندراوە، بەپێی نەخشەی دانەوێڵەی ئاژانسی بۆشایی ئاسمانی ئەوروپا. ئەمە تۆمارێکی ڕابردووە، نەک ئەم وەرزە.",tPlay:"ئێستا دەست بنێ لە ▶ مانگ بە مانگ ببینە بۆ ئەوەی ببینیت ئەم کێڵگەیە چەند سەوز بووە، مانگ بە مانگ، لە ماوەی دوو ساڵدا.",tPlay2:"هەر وێنەیەک کێڵگەکەت پیشان دەدات بە ڕەنگی سەوزاییەکەی لەو مانگەدا، لە وێنەی سەتەلایتی ئەو مانگەوە — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو. دەتوانیت ڕایبگریت، یان بەسەر هێڵکارییەکەدا ڕابکێشیت بۆ هەڵبژاردنی مانگێک. کە تەواو بوویت دەست بنێ لە دواتر.",tReport:"دەست بنێ لە ڕاپۆرت بۆ داگرتنی وێنەیەک کە هەموو شتێکی ئەم کێڵگەیەی تێدایە — خوێندنەوەی هەر مانگێک، باران، شێداری، مێژووی دانەوێڵە و بەراوردی لەگەڵ کێڵگە نزیکەکان. هەڵیبگرە، یان بۆ هەر کەسێک بینێرە.",t6:"کێڵگەکانت پاشەکەوت بکە بە ★، باشترین کێڵگەکانت ببینە لە 🏆 ڕیزبەندی، یان بەدوای شوێنێکدا بگەڕێ.",tHelp:"هەر کاتێک چینەکان بکەرەوە بۆ بینینەوەی ئەم ڕێنماییە.",myFields:"کێڵگەکانم",locateBtn:"شوێنی من",locating:"شوێنەکەت دەدۆزرێتەوە…",locateDenied:"مۆڵەتی شوێن داخراوە. لە ڕێکخستنی وێبگەڕەکەت بیکەرەوە، پاشان دیسان دەست بنێ — یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateFail:"نەتوانرا شوێنەکەت بدۆزرێتەوە. دووبارە هەوڵبدە، یان بە ناو بەدوای ناوچەکەتدا بگەڕێ.",locateOk:"تۆ لێرەیت. نزیک ببەرەوە بۆ بینینی کێڵگەکەت.",history:"ڕیزبەندی",healthMap:"نەخشەی تەندروستی",cropMap:"دانەوێڵە",cropWinter:"دانەوێڵەی زستانە — گەنم یان جۆ",cropSrc21:"نەخشەی ESA WorldCereal، ٢٠٢١",cropKeyT:"دانەوێڵەی زستانە",cropKeyS:"گەنم یان جۆ",cropNote:"لە پاییزدا دەچێنرێن و لە سەرەتای هاویندا دەدروێنرێن. نەخشەی ٢٠٢١ — نە ئەمساڵ، نە بە تایبەتی کێڵگەکەی تۆ.",cerealYes:"لە ٢٠٢١ گەنم یان جۆ لێرە ڕواوە",cerealPart:"بەشێک لەم کێڵگەیە لە ٢٠٢١ گەنم یان جۆ بووە",historyTitle:"کێڵگە باشبووەکان",histEmpty:"ئەو کێڵگانەی دەیکەیتەوە لێرە دەردەکەون، بەپێی چەندی باشبوونیان بەراورد بە پار.",improveLabel:"بەراورد بە پار",searchPh:"گوند، ناسنامەی کێڵگە یان کۆردینات",pinsEmpty:"دەست بنێ لە کێڵگەیەک، پاشان پاشەکەوتی بکە.",save:"پاشەکەوتی کێڵگە",saved:"پاشەکەوتکرا ✓",share:"هاوبەشکردن",report:"ڕاپۆرت",preparing:"ئامادەکردن…",monthlyNdvi:"پێوەری ڕووەکی مانگانە (NDVI)",monthImgs:"وێنەکانی کێڵگە، مانگ بە مانگ (دوایین ١٢ مانگ) — سەوز واتە گەشەکردن، قاوەیی واتە خاکی ڕووت یان ئاو",copied:"لینک کۆپی کرا ✓",tooBig:"ئەم سنوورە زۆر گەورەیە بۆ ئەوەی یەک کێڵگە بێت (زیاتر لە ٢٠٠٠ دۆنم). نزیک ببەرەوە و دەست لە کێڵگەیەکی بچووکتر بنێ.",notFound:"ناسنامەی کێڵگە تەنها بۆ ئەو کێڵگانە کار دەکات کە پێشتر کردووتەوە. کۆردینات بەکاربهێنە یان دەست لە کێڵگەکە بنێ.",source:"وێنەی سەرچاوە",cloud:"هەوری وێنە",verify:"لە Copernicus بگەڕێ",viewField:"کێڵگەکەم ببینە (NDVI)",lastYr:"پار",thisYr:"ئەمساڵ",vsLastYear:"بەراورد بە پار",nbrHealth_above:"سەوزترە لە زۆربەی کێڵگە نزیکەکان",nbrHealth_around:"نزیکە لە نێوەندی کێڵگە نزیکەکان",nbrHealth_below:"کەمتر سەوزە لە زۆربەی کێڵگە نزیکەکان",moist_moist:"شێداری باش لە ڕووەکەکەدا",moist_mid:"شێداری مامناوەند",moist_dry:"شێداری کەم — ڕووەکی وشک",nbrMoist_above:"شێدارترە لە زۆربەی کێڵگە نزیکەکان",nbrMoist_around:"نزیکە لە نێوەندی ناوچەکە",nbrMoist_below:"وشکترە لە زۆربەی کێڵگە نزیکەکان",yoyUp:"ساڵێکی سەوزتر لە پار بە گشتی.",yoyDown:"ساڵێکی کەمتر سەوز لە پار بە گشتی.",yoySame:"بە گشتی نزیکەی وەک پار.",sizeLabel:"ڕووبەری کێڵگە",donums:"دۆنم",rainLabel:"باران (٢ ساڵ)",rainThis:"ئەمساڵ",rainLast:"پار",rainWetter:"باراناوی ترە",rainDrier:"وشک ترە",rainSame:"نزیکەی وەک یەک",rainMm:"ملم",placeTypes:["","شار","شارۆچکە","گوند","گوندۆچکە","گەڕەک"],near:"نزیک",noPlace:"هیچ شوێنێک بەو ناوە نییە. ڕێنووسێکی تر تاقی بکەرەوە، یان دەست لە کێڵگەکەت بنێ لەسەر نەخشە.",placeSearching:"گەڕان…",yoyG:"سەوزترە لە پار",yoyL:"کەمتر سەوزە لە پار",yoyS:"نزیکەی وەک پار",twoYears:"دوو ساڵی ڕابردوو",peak:"بەرزترین",layers:"چینەکان",guide:"چۆنیەتی بەکارهێنانی نەخشەکە",privacy:"سەرچاوەی داتا و تایبەتێتی",randomFarm:"کێڵگەیەکی هەڕەمەکی",
       poor:"لاواز",fair:"مامناوەند",good:"باش",
       poorMsg:"گەشەی سەوزی کەم لە ئێستادا — خاکی ڕووت، چاندنی زوو، یان فشار.",
       fairMsg:"هەندێ گەشە — دەغڵەکە گەشە دەکات بەڵام نەگەیشتووەتە داپۆشینی تەواو.",
@@ -748,6 +845,12 @@ function initialLang(){
   }catch{}
   return "en";
 }
+// The app's type stack (the --font variable) for text drawn on canvases: charts, the report
+// image. Arabic and Kurdish get Noto Sans Arabic, the same face as the rest of the page (13-j).
+function FONT(){
+  try{ return getComputedStyle(document.documentElement).getPropertyValue("--font").trim() || "system-ui,sans-serif"; }
+  catch{ return "system-ui,sans-serif"; }
+}
 function applyLang(L){
   lang = L; const t = I18N[L];
   try{ localStorage.setItem(LANG_KEY, L); }catch{}
@@ -759,6 +862,8 @@ function applyLang(L){
     history.replaceState(null, "", location.pathname + "?" + params.toString());
   }catch{}
   document.documentElement.lang = L;
+  // fetch the Arabic-script faces now, so charts drawn on a canvas a moment later already have them
+  if(L !== "en") try{ for(const w of [400, 700, 800]) document.fonts.load(w + ' 16px "Noto Sans Arabic"', "بە"); }catch{}
   document.documentElement.dir = t.dir;
   { const chip = document.getElementById("lang-chip");
     if(chip){ chip.textContent = {en:"EN", ar:"عربي", ku:"کوردی"}[L] || "EN"; chip.setAttribute("aria-label", t.layers || "Language"); }
@@ -891,7 +996,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.13-i";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.13-k";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1851,7 +1956,7 @@ document.getElementById("sheet-close").addEventListener("click", closeSheet);
   let startY = 0, dy = 0, dragging = false, t0 = 0;
   const canStart = e => !!(e.target.closest(".grip, h2, .sub"));
   sheet.addEventListener("pointerdown", e=>{
-    if(!sheet.classList.contains("open") || !canStart(e)) return;
+    if(!sheet.classList.contains("open") || !canStart(e) || isSideSheet()) return;
     dragging = true; startY = e.clientY; dy = 0; t0 = performance.now();
     sheet.classList.add("dragging");
     try{ sheet.setPointerCapture(e.pointerId); }catch{}
@@ -2193,6 +2298,19 @@ async function runHealthSample(){
   if(runId === __healthRunId) pushHealth(out, inViewKeys);
 }
 
+/* The open card covers the bottom of the map on phones and the left on computers (13-k).
+   Both use these. */
+function isSideSheet(){
+  try{ return matchMedia("(min-width: 900px) and (min-height: 520px)").matches; }catch{ return false; }
+}
+function sheetCover(){
+  const W = window.innerWidth, H = window.innerHeight;
+  if(isSideSheet()){
+    return {left: (sheet.offsetWidth || 400) + 12, right: 0, bottom: 0, W, H};
+  }
+  return {left: 0, right: 0, bottom: sheet.offsetHeight || Math.round(H*0.5), W, H};
+}
+
 /* Pan the field into the strip still visible above the sheet (see onFieldTap).
    Also called when the sheet changes height, e.g. leaving the compact
    playback card. */
@@ -2228,8 +2346,18 @@ function panFieldAboveSheet(f){
     try{
       const c = polyCentroid(f.geometry);
       if(!c) return;
-      const sheetH = sheet.offsetHeight || Math.round(window.innerHeight*0.5);
       const pt = map.project([c[0], c[1]]);
+      if(isSideSheet()){
+        // Computers: the card is a side panel. Centre the field in the map beside it, if it
+        // is under the panel or near its edge.
+        const cv = sheetCover(), l = cv.left, r = cv.W - cv.right;
+        if(pt.x > l + 60 && pt.x < r - 60) return;
+        const ctr = map.project(map.getCenter());
+        const center = map.unproject([ctr.x + pt.x - (l + r)/2, ctr.y + pt.y - (72 + cv.H)/2]);
+        map.easeTo({ center, duration:500 });
+        return;
+      }
+      const sheetH = sheet.offsetHeight || Math.round(window.innerHeight*0.5);
       const coveredTop = window.innerHeight - sheetH;   // y below this is hidden
       // Only move if the field sits under the sheet (or near its edge).
       if(pt.y > coveredTop - 40){
@@ -3132,7 +3260,13 @@ function setPreviewTag(P){
     __previewTag = el;
   }
   __previewTag.textContent = playMonthName(P.f.__history[P.idx]);
-  __previewTag.style.top = Math.max(64, sheet.getBoundingClientRect().top - 40) + "px";
+  if(isSideSheet()){
+    const cv = sheetCover();
+    __previewTag.style.top = "76px"; __previewTag.style.left = Math.round((cv.left + cv.W - cv.right)/2) + "px";
+  } else {
+    __previewTag.style.left = "";
+    __previewTag.style.top = Math.max(64, sheet.getBoundingClientRect().top - 40) + "px";
+  }
 }
 
 function startPlay(f){
@@ -3160,12 +3294,12 @@ function fitFieldForPlay(f){
   requestAnimationFrame(()=>{
     try{
       const bb = geomBbox(f.geometry); if(!bb) return;
-      const sheetH = sheet.offsetHeight || 0;
+      const cv = sheetCover(), sheetH = cv.bottom;
       // clear the title/language bar — or the guide's card while the guide is on
       const top = (typeof tourActive!=="undefined" && tourActive) ? (tourCard.offsetHeight||150) + 30 : 72, side = 24;
       if(window.innerHeight - sheetH - top < 120) return;   // no room — leave the view alone
       map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],
-        {padding:{top, bottom:sheetH+side, left:side, right:side}, maxZoom:18, duration:600});
+        {padding:{top, bottom:sheetH+side, left:cv.left+side, right:cv.right+side}, maxZoom:18, duration:600});
     }catch{}
   });
 }
@@ -3557,6 +3691,29 @@ function neighborStanding(f, myVal, cache, getVal){
   return "around";
 }
 
+/* Icon + word for the card's three buttons (13-k). */
+const ACT_ICONS = {
+  save:'<path d="M12 17.3l-5.5 3 1.1-6.2L3 9.7l6.2-.9L12 3l2.8 5.8 6.2.9-4.6 4.4 1.1 6.2z"/>',
+  share:'<path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+  report:'<path d="M12 3v12M8 11l4 4 4-4"/><path d="M5 19h14"/>'
+};
+function actLabel(kind, word){
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${ACT_ICONS[kind]}</svg><span>${word}</span>`;
+}
+/* "13 November 2026" in the card's language (Latin digits, as everywhere in the app). */
+function dateWords(iso){
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ""); if(!m) return iso || "";
+  const names = (I18N[lang].playMonths || I18N.en.playMonths);
+  return `${+m[3]} ${names[+m[2]-1]} ${m[1]}`;
+}
+/* The greenest month of the last twelve, for the chart's "Peak" note. */
+function sparkPeak(hist){
+  let best = null;
+  for(let i = Math.max(0, hist.length - 12); i < hist.length; i++){
+    const h = hist[i]; if(h && h.v != null && (!best || h.v > best.v)) best = h;
+  }
+  return best;
+}
 function renderField(f){
   const t = I18N[lang];
   const hist = f.__history || [];
@@ -3569,62 +3726,68 @@ function renderField(f){
 
   // Year-on-year: newest filled month vs the same month one year earlier.
   const yoy = computeYoY(hist);
-
+  const id = resolveFieldId(f);
+  const c0 = polyCentroid(f.geometry);
+  const areaM2 = f.geometry ? geomAreaMeters(f.geometry) : 0, don = areaM2/2500;   // 1 donum = 2,500 m²
+  /* Entrance (13-k): the ring fills once a reading arrives, and the chart draws itself left to right
+     when the field opens with its history already loaded (while months still arrive, the chart
+     grows by itself). The card is redrawn as data arrives, so each redraw continues the same
+     animation from where it is (a negative delay) rather than starting it again. */
+  const now = performance.now();
+  if(f.__fxT0 == null){ f.__fxT0 = now; f.__fxDraw = !loading && hist.some(s => s.v != null); }
+  if(cur != null && f.__ringT0 == null) f.__ringT0 = now;
+  const ringAge = f.__ringT0 != null ? now - f.__ringT0 : 1e9;
+  const drawAge = f.__fxDraw ? now - f.__fxT0 : 1e9;
+  const RC = 194.78;                                     // ring circumference, r = 31
+  const frac = cur != null ? Math.max(0.04, Math.min(1, (cur + 0.05) / 0.95)) : 0;
+  const col = ndviColor(cur);
+  const yk = yoy.diff == null ? null : yoy.diff > 0.03 ? "yoyG" : yoy.diff < -0.03 ? "yoyL" : "yoyS";
+  const arrow = yk === "yoyG" ? '<path d="M12 19V5M6 11l6-6 6 6"/>' : yk === "yoyL" ? '<path d="M12 5v14M6 13l6 6 6-6"/>' : '<path d="M5 12h14"/>';
+  const months = t.playMonths || I18N.en.playMonths;
+  const peak = sparkPeak(hist);
+  const chips = [];
+  {
+    // What ESA WorldCereal mapped on this field in 2021. The year is in the sentence: a five-year-old
+    // mask read as this season's planting is the one way this line could mislead. Below 15% nothing
+    // is said: a field missing from a 2021 mask could be rice, orchard, fallow or simply missed, and
+    // "not wheat" would read as a finding when it is only a silence.
+    const cp = f.__cereal;
+    if(cp != null && cp >= 0.15) chips.push(`<span class="fc-chip crop" id="cereal-line"><span class="sw"></span>${t[cp >= 0.5 ? "cerealYes" : "cerealPart"]}</span>`);
+    if(DBG.on && crop26Of(f)){ const c26 = crop26Of(f); chips.push(`<span class="fc-chip dbg">🧪 ${c26.text}${c26.right ? " — " + c26.right : ""}</span>`); }
+    const sr = DBG.on && fieldSeason(f);                  // debug mode only: season label from the curve
+    if(sr) chips.push(`<span class="fc-chip dbg" id="season-line">🧪 ${seasonText(sr)}</span>`);
+    const r = rainSummaryText(f, t);                      // rainfall: this year vs last year
+    if(r) chips.push(`<span class="fc-chip rain"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15a4 4 0 0 1 .5-8 5 5 0 0 1 9.5 1.5A3.5 3.5 0 0 1 17 15H7z"/><path d="M9 18l-1 2M13 18l-1 2"/></svg>${r}</span>`);
+  }
+  const already = id && pinExists(id);
   sheetBody.innerHTML = `
-    <p class="sub">${fieldLabel(f)}${geoLabel(f)}${curDate ? "  ·  "+t.asOf+` <bdi dir="ltr" style="white-space:nowrap">${curDate}</bdi>` : ""}${loading?`  ·  ${done}/${hist.length}`:""}</p>
-    <div id="stat">
-      <div class="card">
-        <div class="n" style="color:${ndviColor(cur)}">${cur!=null?cur.toFixed(2):"—"}</div>
-        <div class="c">${t.latest}</div>
-      </div>
-      <div class="card">
-        <div class="n" style="color:${ndviColor(cur)}">${band ? t[band] : "—"}</div>
-        <div class="c">${t.health}</div>
-      </div>
-      <div class="card">
-        <div class="n" style="color:${yoy.color}">${yoy.text}</div>
-        <div class="c">${t.vsLastYear}</div>
+    <p class="sub">${id ? `<bdi dir="ltr">${id}</bdi>` : ""}${don > 0 ? ` · <bdi>${f.__partial ? "≥ " : ""}${don >= 10 ? Math.round(don) : don.toFixed(1)} ${t.donums}</bdi>` : ""}${c0 ? ` · <bdi dir="ltr">${c0[1].toFixed(4)}, ${c0[0].toFixed(4)}</bdi>` : ""}</p>
+    <div id="stat" class="fc-hero">
+      <div class="fc-ring" aria-hidden="true"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="31" class="trk"/>${cur != null ? `<circle cx="38" cy="38" r="31" class="val${ringAge < 1500 ? " anim" : ""}" style="stroke:${col};stroke-dashoffset:${(RC*(1-frac)).toFixed(1)};animation-delay:${Math.round(250 - ringAge)}ms"/>` : ""}</svg><span class="fc-num">${cur != null ? cur.toFixed(2) : "—"}</span></div>
+      <div class="fc-txt">
+        <div class="fc-band" style="color:${col}">${band ? t[band] : "—"}</div>
+        <div class="fc-cap">${t.latest}${curDate ? ` · <bdi>${dateWords(curDate)}</bdi>` : ""}</div>
+        ${yk ? `<div class="fc-yoy" style="color:${yoy.color}"><svg viewBox="0 0 24 24" aria-hidden="true">${arrow}</svg><span>${t[yk]}</span> <bdi dir="ltr" class="fc-yv">${yoy.text.replace(/^[^+\-\d]+/, "")}</bdi></div>` : ""}
       </div>
     </div>
-    ${/* Neighbour comparison and NDMI moisture live in the Report, not here:
-         the popup keeps to what a farmer reads at a glance. */""}
-    ${(()=>{
-      // What ESA WorldCereal mapped on this field in 2021. The year is in the
-      // sentence, not a footnote: a five-year-old mask read as this season's
-      // planting is the one way this row could mislead.
-      const cp = f.__cereal;
-      if(cp==null || cp < 0.15) return "";
-      // Below 15% the row is dropped rather than reporting an absence: a field
-      // missing from a 2021 mask could be rice, orchard, fallow, a crop the
-      // product never maps, or simply missed — "not wheat" would read as a
-      // finding when it is only a silence.
-      const key = cp >= 0.5 ? "cerealYes" : "cerealPart";
-      return `<div class="nbr" id="cereal-line"><span class="nbr-ico">🌾</span> ${t[key]}</div>`;
-    })()}
-    ${DBG.on && crop26Of(f) ? `<div class="nbr" style="border-style:dashed"><span class="nbr-ico">🧪</span> ${crop26Of(f).text}${crop26Of(f).right ? " — " + crop26Of(f).right : ""}</div>` : ""}
-    ${(()=>{ const sr = DBG.on && fieldSeason(f);      // debug mode only: season label from the curve
-             return sr ? `<div class="nbr" style="border-style:dashed" id="season-line"><span class="nbr-ico">🧪</span> ${seasonText(sr)}</div>` : ""; })()}
-    ${(()=>{
-      // Rainfall: this year vs last year (rule and wording in rainSummaryText).
-      const r = rainSummaryText(f, t);
-      return r ? `<div class="nbr"><span class="nbr-ico">🌧️</span> ${r}</div>` : "";
-    })()}
-    <div id="spark-wrap">
-      <canvas id="spark" width="640" height="150"></canvas>
-      <div id="spark-tip" hidden></div>
-      <div id="spark-prov" hidden></div>
+    <div class="fc-chips">${chips.join("")}</div>
+    <div class="fc-chart">
+      <div class="fc-chart-h"><span>${t.twoYears}${loading ? ` · <bdi dir="ltr">${done}/${hist.length}</bdi>` : ""}</span>${peak ? `<span class="pk">${t.peak} <bdi dir="ltr">${peak.v.toFixed(2)}</bdi> · ${months[peak.monthIdx]}</span>` : ""}</div>
+      <div id="spark-wrap">
+        <canvas id="spark" width="640" height="150"${drawAge < 1800 ? ` class="draw" style="animation-delay:${Math.round(300 - drawAge)}ms"` : ""}></canvas>
+        <div id="spark-tip" hidden></div>
+        <div id="spark-prov" hidden></div>
+      </div>
     </div>
     ${playRowHtml(f)}
-    ${/* The health sentence lives in the Report — the Health card already says
-         it. The box only appears when there is no reading at all, to say why. */
+    ${/* The health sentence lives in the Report — the ring already says it. The box only appears
+         when there is no reading at all, to say why. */
       (cur==null && !loading) ? `<div class="msg none"><div class="msg-main">${t.noData}</div></div>` : ""}
-    <div class="pv-save">${(()=>{
-      const id = resolveFieldId(f);
-      const already = id && pinExists(id);
-      return `<button class="save-btn ${already?'saved':''}" id="save-field-btn" ${already?'disabled':''}>${already?t.saved:t.save}</button>`+
-             `<button class="share-btn" id="share-field-btn">${t.share} ↗</button>`+
-             `<button class="share-btn ${__reportReady?'':'loading'}" id="report-field-btn" ${__reportReady?'':`disabled aria-busy="true" style="--spin-sync:-${Date.now()%800}ms"`}>${__reportReady?(t.report+' ↓'):(t.preparing||'Preparing…')}</button>`;
-    })()}</div>`;
+    <div class="pv-save fc-acts">`+
+      `<button class="save-btn ${already?'saved':''}" id="save-field-btn" ${already?'disabled':''}>${actLabel("save", already ? t.saved : t.save)}</button>`+
+      `<button class="share-btn" id="share-field-btn">${actLabel("share", t.share)}</button>`+
+      `<button class="share-btn ${__reportReady?'':'loading'}" id="report-field-btn" ${__reportReady?'':`disabled aria-busy="true" style="--spin-sync:-${Date.now()%800}ms"`}>${__reportReady ? actLabel("report", t.report) : (t.preparing||'Preparing…')}</button>`+
+    `</div>`;
   drawSpark(hist);
   attachSparkHover(hist);
   wirePlayRow(f);
@@ -3634,7 +3797,7 @@ function renderField(f){
     const c = fieldLinkPoint(f.geometry);
     if(!id || !c) return;
     addPin({id, lon:c[0], lat:c[1], band: healthBand(cur), scale:NDVI_SCALE});
-    saveBtn.textContent = t.saved; saveBtn.classList.add("saved"); saveBtn.disabled = true;
+    saveBtn.innerHTML = actLabel("save", t.saved); saveBtn.classList.add("saved"); saveBtn.disabled = true;
   });
   const shareBtn = document.getElementById("share-field-btn");
   if(shareBtn) shareBtn.addEventListener("click",()=> shareField(f, shareBtn));
@@ -3678,7 +3841,7 @@ function shareCopied(msg){
   const paint = () => {
     const b = document.getElementById("share-field-btn"); if(!b) return;
     const on = Date.now() < __shareCopiedUntil;
-    b.textContent = on ? msg : (I18N[lang].share + " ↗");
+    b.innerHTML = on ? actLabel("share", msg) : actLabel("share", I18N[lang].share);
     b.classList.toggle("copied", on);
   };
   paint();
@@ -3804,7 +3967,7 @@ function setReportReadyState(){
   const b = document.getElementById("report-field-btn");
   if(!b) return;
   const t = I18N[lang];
-  if(__reportReady){ b.textContent=(t.report||"Report")+" ↓"; b.disabled=false; b.classList.remove("loading"); b.removeAttribute("aria-busy"); }
+  if(__reportReady){ b.innerHTML=actLabel("report", t.report||"Report"); b.disabled=false; b.classList.remove("loading"); b.removeAttribute("aria-busy"); }
   else { b.textContent=t.preparing||"Preparing…"; b.disabled=true; b.setAttribute("aria-busy","true");
          if(!b.classList.contains("loading")){ b.style.setProperty("--spin-sync", `-${Date.now()%800}ms`); b.classList.add("loading"); } }
 }
@@ -3865,9 +4028,9 @@ function layoutReportNotes(ctx, notes, ox, oy, w, draw){
   for(const n of notes){
     if(n.kind==="msg"){
       const inner = w - 48;
-      ctx.font = "800 26px system-ui,sans-serif";
+      ctx.font = "800 26px " + FONT();
       const L = wrapCanvasText(ctx, n.text, inner);
-      ctx.font = "600 21px system-ui,sans-serif";
+      ctx.font = "600 21px " + FONT();
       const S = n.sub ? wrapCanvasText(ctx, n.sub, inner) : [];
       const h = 20 + L.length*34 + (S.length ? 6 + S.length*28 : 0) + 16;
       if(draw){
@@ -3875,16 +4038,16 @@ function layoutReportNotes(ctx, notes, ox, oy, w, draw){
         ctx.strokeStyle = "#D9D2C2"; ctx.lineWidth = 1; roundRectPath(ctx, ox, y, w, h, 14); ctx.stroke();
         ctx.fillStyle = n.color; roundRectPath(ctx, rtl ? ox+w-18 : ox+12, y+14, 6, h-28, 3); ctx.fill();
         ctx.textAlign = START;
-        ctx.font = "800 26px system-ui,sans-serif"; ctx.fillStyle = n.color;
+        ctx.font = "800 26px " + FONT(); ctx.fillStyle = n.color;
         L.forEach((s,i)=> ctx.fillText(s, at(34), y+20+i*34));
-        ctx.font = "600 21px system-ui,sans-serif"; ctx.fillStyle = "#6b7b70";
+        ctx.font = "600 21px " + FONT(); ctx.fillStyle = "#6b7b70";
         S.forEach((s,i)=> ctx.fillText(s, at(34), y+20+L.length*34+6+i*28));
       }
       y += h + 22;
     }else{
-      ctx.font = "800 24px system-ui,sans-serif";
+      ctx.font = "800 24px " + FONT();
       const rw = n.right ? ctx.measureText(n.right).width + 24 : 0;
-      ctx.font = "700 24px system-ui,sans-serif";
+      ctx.font = "700 24px " + FONT();
       // The icon gets its own slot: drawn inside one string, Safari's RTL
       // canvas let bidi reorder it against a leading number ("689 🌧️ ملم…").
       const iw = n.icon ? 38 : 0;
@@ -3894,7 +4057,7 @@ function layoutReportNotes(ctx, notes, ox, oy, w, draw){
         if(n.icon) ctx.fillText(n.icon, at(0), y);
         L.forEach((s,i)=> ctx.fillText(s, at(iw), y+i*34));
         if(n.right){
-          ctx.font = "800 24px system-ui,sans-serif"; ctx.fillStyle = "#6b7b70";
+          ctx.font = "800 24px " + FONT(); ctx.fillStyle = "#6b7b70";
           ctx.textAlign = END; ctx.fillText(n.right, at(w), y);
         }
       }
@@ -3977,9 +4140,9 @@ async function buildFieldReport(f, btn){
 
     // header
     x.fillStyle = "#1E6E5A"; x.beginPath(); x.arc(pad+10, y+16, 10, 0, 7); x.fill();
-    x.fillStyle = "#14261B"; x.font = "800 34px system-ui,sans-serif";
+    x.fillStyle = "#14261B"; x.font = "800 34px " + FONT();
     x.fillText("Iraq Farms Health", pad+32, y+2);
-    x.fillStyle = "#6b7b70"; x.font = "500 22px system-ui,sans-serif";
+    x.fillStyle = "#6b7b70"; x.font = "500 22px " + FONT();
     const sub = `${id}${c?"  ·  "+`lat ${c[1].toFixed(4)}, lon ${c[0].toFixed(4)}`:""}`;
     x.fillText(sub, pad, y+50);
     if(cur && cur.date){ x.fillText(`${t.asOf} \u200E${cur.date}`, pad, y+78); }
@@ -4017,9 +4180,9 @@ async function buildFieldReport(f, btn){
       const cx = pad + i*(cardW+24);
       x.fillStyle="#fff"; roundRectPath(x,cx,y,cardW,130,14); x.fill();
       x.strokeStyle="#D9D2C2"; x.lineWidth=1; roundRectPath(x,cx,y,cardW,130,14); x.stroke();
-      x.fillStyle=s.color; x.font="800 38px system-ui,sans-serif";
+      x.fillStyle=s.color; x.font="800 38px " + FONT();
       x.fillText(String(s.big), cx+18, y+22);
-      x.fillStyle="#6b7b70"; x.font="600 20px system-ui,sans-serif";
+      x.fillStyle="#6b7b70"; x.font="600 20px " + FONT();
       x.fillText(String(s.small), cx+18, y+86);
     });
     y += 150;
@@ -4032,13 +4195,13 @@ async function buildFieldReport(f, btn){
     y += chartH + 24;
 
     // monthly NDVI table (exact figures, health-coloured cells)
-    x.fillStyle="#6b7b70"; x.font="600 20px system-ui,sans-serif"; x.textAlign="left";
+    x.fillStyle="#6b7b70"; x.font="600 20px " + FONT(); x.textAlign="left";
     x.fillText(t.monthlyNdvi || "Monthly vegetation index (NDVI)", pad, y);
     y += drawNdviTable(x, f.__history||[], pad, y+30, W-pad*2) + 30 + 20;
 
     // month-by-month field images (same scenes as the table and the playback)
     if(frameImgs.length){
-      x.fillStyle="#6b7b70"; x.font="600 20px system-ui,sans-serif"; x.textAlign="left";
+      x.fillStyle="#6b7b70"; x.font="600 20px " + FONT(); x.textAlign="left";
       x.fillText(t.monthImgs || "Field images, month by month (last 12 months)", pad, y);
       y += 40;
       const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -4052,7 +4215,7 @@ async function buildFieldReport(f, btn){
         x.imageSmoothingEnabled = true;
         x.drawImage(fi.img, tx + (fTile-dw)/2, ty + (fTileH-dh)/2, dw, dh);
         x.strokeStyle="#D9D2C2"; x.lineWidth=1; roundRectPath(x, tx, ty, fTile, fTileH, 10); x.stroke();
-        x.textAlign="center"; x.fillStyle="#14261B"; x.font="700 18px system-ui,sans-serif";
+        x.textAlign="center"; x.fillStyle="#14261B"; x.font="700 18px " + FONT();
         x.fillText(`${MON[fi.slot.monthIdx]} ${String(fi.slot.year).slice(2)} · ${fi.slot.v.toFixed(2)}`, tx + fTile/2, ty + fTileH + 8);
       });
       x.textAlign="left";
@@ -4070,9 +4233,9 @@ async function buildFieldReport(f, btn){
 
     // footer
     x.strokeStyle="#D9D2C2"; x.beginPath(); x.moveTo(pad,y); x.lineTo(W-pad,y); x.stroke();
-    x.fillStyle="#1E6E5A"; x.font="800 24px system-ui,sans-serif";
+    x.fillStyle="#1E6E5A"; x.font="800 24px " + FONT();
     x.fillText("iraqfarmshealth.com", pad, y+18);
-    x.fillStyle="#8a9790"; x.font="500 18px system-ui,sans-serif";
+    x.fillStyle="#8a9790"; x.font="500 18px " + FONT();
     x.fillText("Sentinel-2 · Esri · Fields of the World · Open-Meteo", pad, y+50);
 
     const blob = await new Promise(res=> cv.toBlob(res, "image/png"));
@@ -4332,11 +4495,11 @@ function drawNdviTable(x, hist, ox, oy, w){
   const years=[...new Set(hist.map(s=>s.year))].sort();
   const labelW=64, cellW=(w-labelW)/12, headH=30, rowH=52, gap=6;
   let y=oy;
-  x.textAlign="center"; x.font="700 18px system-ui,sans-serif"; x.fillStyle="#8a9790";
+  x.textAlign="center"; x.font="700 18px " + FONT(); x.fillStyle="#8a9790";
   for(let m=0;m<12;m++){ x.fillText(MON[m], ox+labelW+cellW*m+cellW/2, y+6); }
   y+=headH;
   for(const yr of years){
-    x.textAlign="left"; x.font="800 20px system-ui,sans-serif"; x.fillStyle="#14261B";
+    x.textAlign="left"; x.font="800 20px " + FONT(); x.fillStyle="#14261B";
     x.fillText(String(yr), ox+4, y+rowH/2-16);
     for(let m=0;m<12;m++){
       const slot=hist.find(s=>s.year===yr && s.monthIdx===m);
@@ -4346,12 +4509,12 @@ function drawNdviTable(x, hist, ox, oy, w){
         x.fillStyle=ndviColorHex(val);
         roundRectPath(x, cx, y, cw, rowH-gap, 8); x.fill();
         x.fillStyle = (val>=NDVI_POOR && val<NDVI_GOOD) ? "#3a2c10" : "#fff";   // contrast on wheat
-        x.font="800 19px system-ui,sans-serif"; x.textAlign="center";
+        x.font="800 19px " + FONT(); x.textAlign="center";
         x.fillText(val.toFixed(2), cx+cw/2, y+rowH/2-16);
       } else {
         x.fillStyle="#ece8dc";
         roundRectPath(x, cx, y, cw, rowH-gap, 8); x.fill();
-        x.fillStyle="#b8b3a2"; x.font="700 16px system-ui,sans-serif"; x.textAlign="center";
+        x.fillStyle="#b8b3a2"; x.font="700 16px " + FONT(); x.textAlign="center";
         x.fillText("–", cx+cw/2, y+rowH/2-14);
       }
     }
@@ -4386,11 +4549,11 @@ function drawRainStrip(x, f, ox, oy, w){
   const labelW=64, cellW=(w-labelW)/12, headH=28, rowH=46, gap=6, barMax=rowH-18;
   let y=oy;
   // Section title
-  x.textAlign="left"; x.font="600 20px system-ui,sans-serif"; x.fillStyle="#6b7b70";
+  x.textAlign="left"; x.font="600 20px " + FONT(); x.fillStyle="#6b7b70";
   x.fillText(`${t.rainLabel} · ${t.rainMm}`, ox, y);
   y += headH;
   for(const yr of years){
-    x.textAlign="left"; x.font="800 20px system-ui,sans-serif"; x.fillStyle="#14261B";
+    x.textAlign="left"; x.font="800 20px " + FONT(); x.fillStyle="#14261B";
     x.fillText(String(yr), ox+4, y+rowH/2);
     for(let m=0;m<12;m++){
       const cx=ox+labelW+cellW*m, cw=cellW-gap;
@@ -4420,7 +4583,7 @@ function drawSparkOnto(ctx, hist, ox, oy, w, h){
   ctx.strokeStyle="#E4DCC8"; ctx.lineWidth=1;
   [NDVI_POOR,NDVI_GOOD].forEach(g=>{ ctx.beginPath(); ctx.moveTo(ox+P,y(g)); ctx.lineTo(ox+w-P,y(g)); ctx.stroke(); });
   // year dividers
-  ctx.textAlign="center"; ctx.font="600 14px system-ui,sans-serif";
+  ctx.textAlign="center"; ctx.font="600 14px " + FONT();
   for(let i=0;i<n;i++){
     if(hist[i] && hist[i].monthIdx===0){
       const px=x(i);
@@ -4471,7 +4634,7 @@ function drawSpark(hist){
   [NDVI_POOR,NDVI_GOOD].forEach(g=>{ ctx.beginPath(); ctx.moveTo(P,y(g)); ctx.lineTo(W-P,y(g)); ctx.stroke(); });
 
   // Vertical dividers at each January (year boundaries), with the year number.
-  ctx.textAlign="center"; ctx.font="600 10px ui-sans-serif,system-ui";
+  ctx.textAlign="center"; ctx.font="600 10px " + FONT();
   for(let i=0;i<n;i++){
     if(hist[i] && hist[i].monthIdx===0){        // January
       const px = x(i);
@@ -4506,7 +4669,7 @@ function drawSpark(hist){
     const cx=x(i), cy=y(s.v), r=(i>=n-12?3.2:2.2);
     ctx.fillStyle=ndviColorHex(s.v);
     ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.fill();
-    __sparkDots.push({i, cx, cy, v:s.v, label:s.label, year:s.year, date:s.date, scene:s.scene, cloud:s.cloud, thisYear:i>=n-12});
+    __sparkDots.push({i, cx, cy, v:s.v, label:s.label, monthIdx:s.monthIdx, year:s.year, date:s.date, scene:s.scene, cloud:s.cloud, thisYear:i>=n-12});
   }
   // Playback playhead: the month currently shown on the map.
   if(__play && __play.idx!=null && __play.f.__history===hist){
@@ -4528,19 +4691,22 @@ function drawSpark(hist){
     }
   }
 
-  // month labels: every 3rd
-  ctx.fillStyle="#8A8064"; ctx.font="10px ui-sans-serif,system-ui"; ctx.textAlign="center";
-  for(let i=0;i<n;i+=3){ if(hist[i]) ctx.fillText(hist[i].label, x(i), H-4); }
+  // month labels: every 3rd in English; in Arabic and Kurdish, whose month names are long,
+  // every 6th (13-k: they used to be English in every language)
+  ctx.fillStyle="#8A8064"; ctx.font="10px " + FONT(); ctx.textAlign="center";
+  const monN = lang==="en" ? null : (I18N[lang].playMonths || null), monStep = monN ? 6 : 3;
+  for(let i=0;i<n;i+=monStep){ if(hist[i]) ctx.fillText(monN ? monN[hist[i].monthIdx] : hist[i].label, x(i), H-4); }
 
   // "last year" / "this year" captions over the two halves (localized)
   const t = I18N[lang];
-  ctx.font="700 10px ui-sans-serif,system-ui"; ctx.textAlign="center";
+  ctx.font="700 10px " + FONT(); ctx.textAlign="center";
+  ctx.strokeStyle="#FBF9F3"; ctx.lineWidth=3.5; ctx.lineJoin="round";   // a halo, so the words stay readable over the line
   if(n>12){
     ctx.fillStyle="rgba(120,110,88,.85)";
-    ctx.fillText(t.lastYr, x(5), P+2);            // mid of first 12
+    ctx.strokeText(t.lastYr, x(5), P+2); ctx.fillText(t.lastYr, x(5), P+2);            // mid of first 12
   }
   ctx.fillStyle="rgba(30,110,90,.95)";
-  ctx.fillText(t.thisYr, x(Math.max(0,n-8)), P+2); // mid of last 12
+  ctx.strokeText(t.thisYr, x(Math.max(0,n-8)), P+2); ctx.fillText(t.thisYr, x(Math.max(0,n-8)), P+2); // mid of last 12
 }
 function ndviColorHex(v){
   if(v<NDVI_POOR) return "#B4552D";
@@ -4650,7 +4816,7 @@ function attachSparkHover(hist){
     if(__hoverDot!==d.i){ __hoverDot=d.i; drawSpark(hist); }
     if(__play) scrubTo(d.i);
     tip.innerHTML = `<span class="tv">${d.v.toFixed(2)}</span>`+
-      `<div class="td">${d.label} ${d.year}${d.date?" · "+d.date:""}</div>`;
+      `<div class="td">${lang==="en" ? d.label+" "+d.year : playMonthName(d)}${d.date?" · "+d.date:""}</div>`;
     tip.style.left = d.cx+"px";
     tip.style.top  = d.cy+"px";
     tip.hidden = false;
@@ -5156,34 +5322,216 @@ function flyToField(lon, lat){
 
 /* Search: accept "lat, lon" or a field id (FTW-XXXXXX). */
 const searchInput = document.getElementById("search-input");
+const searchSug = document.getElementById("search-sug");
+/* Arabic and Kurdish keyboards type ٠-٩ (or ۰-۹), "٫" for the decimal point and "،" for the
+   comma: read them as 0-9 "." "," so "٣٥٫٥٦، ٤٥٫٤٣" works like "35.56, 45.43" (13-i). */
+function searchText(){
+  return (searchInput.value||"").replace(/[\u0660-\u0669]/g, c => c.charCodeAt(0) - 0x660)
+         .replace(/[\u06F0-\u06F9]/g, c => c.charCodeAt(0) - 0x6F0)
+         .replace(/\u066B/g, ".").replace(/[\u060C\u066C]/g, ",").trim();
+}
+const COORD_RE = /^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/;
+// a field ID: FTW-XXXXXX, or six letters and digits with at least one digit
+const isFieldIdText = q => /^ftw-?[a-z0-9]{6}$/i.test(q) || (/^[a-z0-9]{6}$/i.test(q) && /\d/.test(q));
+
 function doSearch(){
-  // Arabic and Kurdish keyboards type ٠-٩ (or ۰-۹), "٫" for the decimal point and "،" for the
-  // comma: read them as 0-9 "." "," so "٣٥٫٥٦، ٤٥٫٤٣" works like "35.56, 45.43" (13-i).
-  const q = (searchInput.value||"").replace(/[\u0660-\u0669]/g, c => c.charCodeAt(0) - 0x660)
-            .replace(/[\u06F0-\u06F9]/g, c => c.charCodeAt(0) - 0x6F0)
-            .replace(/\u066B/g, ".").replace(/[\u060C\u066C]/g, ",").trim();
+  const q = searchText();
   if(!q) return;
   // Coordinate form "lat, lon" (matching Google Maps / OSM order and how the app
   // now displays coordinates everywhere). Accepts comma or space separated.
-  const m = q.match(/^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$/);
+  const m = q.match(COORD_RE);
   if(m){
     let lat=parseFloat(m[1]), lon=parseFloat(m[2]);
     // typed the other way round ("lon, lat")? In Iraq longitude is 38-49 and latitude 29-38,
     // so a first number that only makes sense as a longitude means the pair is swapped
     if(lat > 38.5 && lat < 49 && lon > 29 && lon < 38.5){ const t = lat; lat = lon; lon = t; }
-    if(isFinite(lat)&&isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){ flyToField(lon, lat); return; }
+    if(isFinite(lat)&&isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){ closeSug(); searchInput.blur(); flyToField(lon, lat); return; }
   }
-  // Field-id form. The FTW code is a one-way hash of the centroid, so it can
-  // only be resolved for fields we've already stored: saved pins OR history
-  // (every opened field is auto-logged). Look in both.
-  const id = q.toUpperCase().startsWith("FTW-") ? q.toUpperCase() : "FTW-"+q.toUpperCase();
-  const found = loadPins().find(p=>p.id===id) || loadHistory().find(e=>e.id===id);
-  if(found){ flyToField(found.lon, found.lat); return; }
-  showErr(I18N[lang].notFound);
-  setTimeout(()=>{ errBox.style.display="none"; }, 4500);
+  if(isFieldIdText(q)){
+    // Field-id form. The FTW code is a one-way hash of the centroid, so it can
+    // only be resolved for fields we've already stored: saved pins OR history
+    // (every opened field is auto-logged). Look in both.
+    const id = q.toUpperCase().startsWith("FTW-") ? q.toUpperCase() : "FTW-"+q.toUpperCase().replace(/^FTW/, "");
+    const found = loadPins().find(p=>p.id===id) || loadHistory().find(e=>e.id===id);
+    closeSug(); searchInput.blur();
+    if(found){ flyToField(found.lon, found.lat); return; }
+    showErr(I18N[lang].notFound);
+    setTimeout(()=>{ errBox.style.display="none"; }, 4500);
+    return;
+  }
+  // A place name: the highlighted suggestion, else the best match, else ask OpenStreetMap.
+  placeSearch(q, true);
+}
+
+/* ---------- place search (13-k) ----------
+   Names of 12,700 cities, towns, villages, hamlets and neighbourhoods from OpenStreetMap
+   (places/iraq_places_search.json, built by tools/places_search_build.py), loaded the first time
+   someone uses the search box. Suggestions appear while typing, from that file alone: nothing
+   typed leaves the browser. Only when Enter finds nothing there is the text sent, once, to
+   OpenStreetMap's Nominatim search, within its usage policy (one request per search, never per
+   keystroke: https://operations.osmfoundation.org/policies/nominatim/). */
+const PLACES_SEARCH_URL = "/places/iraq_places_search.json";
+let __places = null, __placesP = null, __sugItems = [], __sugSel = -1, __placePin = null, __nomLast = 0;
+/* One spelling for comparing: Latin without accents, Arabic without vowel marks, and the Kurdish
+   and Arabic forms of the same letter made equal (ی ێ ي ى · ک ك گ · ە ه ة · ۆ و · ڵ ل · ڕ ر …),
+   so "سلیمانیە", "السليمانية" and "Silêmanî" each find Sulaymaniyah. A leading al-/ال is dropped. */
+function normName(x){
+  return String(x||"").toLowerCase().normalize("NFKD")
+    .replace(/[\u0300-\u036f\u064B-\u065F\u0670\u0640\u200B-\u200F]/g, "")
+    .replace(/[\u0622\u0623\u0625\u0671]/g, "\u0627")
+    .replace(/[\u064A\u0649\u06CC\u06CE\u0626]/g, "\u064A")
+    .replace(/[\u06A9\u06AF\u0643]/g, "\u0643")
+    .replace(/[\u06D5\u0629\u06BE\u06C1\u0647]/g, "\u0647")
+    .replace(/[\u06C6\u06C7\u06C9\u0624]/g, "\u0648")
+    .replace(/\u06B5/g, "\u0644").replace(/\u0695/g, "\u0631").replace(/\u06A4/g, "\u0641")
+    .replace(/\u0686/g, "\u062C").replace(/\u067E/g, "\u0628").replace(/\u0698/g, "\u0632")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/(^| )\u0627\u0644(?=\S)/g, "$1").replace(/(^| )(?:al|el) (?=\S)/g, "$1")
+    .replace(/\s+/g, " ").trim();
+}
+/* A looser key for spellings that differ in their vowels: "Dohuk" and "Duhok" both become "dhk",
+   Kurdish "کەرکووک" and Arabic "كركوك" both "كرك". Used only when nothing matches the full spelling. */
+function skelName(n){
+  return n.replace(/[aeiouy]/g, "").replace(/[\u0627\u0648\u064A\u0647]/g, "").replace(/(.)\1+/g, "$1").replace(/ +/g, " ").trim();
+}
+function loadPlaces(){
+  if(__places) return Promise.resolve(__places);
+  if(!__placesP) __placesP = fetch(PLACES_SEARCH_URL).then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)))
+    .then(d => {
+      const p = d.p || [];
+      for(const r of p){
+        const keys = new Set();
+        for(const k of [3,4,5,6,7]) if(r[k]){ const n = normName(r[k]); if(n) keys.add(n); }
+        r.keys = [...keys];
+        r.sk = r.keys.map(skelName);
+      }
+      return (__places = p);
+    })
+    .catch(e => { __placesP = null; DBG.log("place names failed: " + e.message); throw e; });
+  return __placesP;
+}
+// How the name shows in each language: the same choice as the map labels.
+function placeName(r, L){
+  L = L || lang;
+  return (L==="en" ? r[4] : L==="ar" ? r[5] : r[6]) || r[3];
+}
+function findPlaces(q, max){
+  const nq = normName(q);
+  if(!__places || nq.length < 2) return [];
+  const sq = nq.length >= 4 ? skelName(nq) : "";
+  const out = [];
+  for(let i=0;i<__places.length;i++){
+    const r = __places[i]; let best = 9;
+    for(const k of r.keys){
+      let sc = 9;
+      if(k === nq) sc = 0;
+      else if(k.startsWith(nq)) sc = 1;
+      else if(k.includes(" " + nq)) sc = 2;
+      else if(nq.length >= 3 && k.includes(nq)) sc = 3;
+      if(sc < best){ best = sc; if(!sc) break; }
+    }
+    if(best === 9 && sq.length >= 3)
+      for(const k of r.sk) if(k.startsWith(sq) || k.includes(" " + sq)){ best = 4; break; }
+    if(best < 9) out.push([best, r[2], placeName(r).length, i]);
+  }
+  out.sort((a,b) => a[0]-b[0] || a[1]-b[1] || a[2]-b[2]);
+  return out.slice(0, max || 7).map(o => __places[o[3]]);
+}
+const PIN_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`;
+const escHtml = x => String(x).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function renderSug(items, msg){
+  const t = I18N[lang];
+  __sugItems = items; __sugSel = -1;
+  if(!items.length && !msg){ closeSug(); return; }
+  searchSug.innerHTML = items.map((r, i) => {
+    const near = r[8] >= 0 && __places[r[8]] ? `${t.near} ${escHtml(placeName(__places[r[8]]))}` : "";
+    // in English, also the Arabic-script name, so the right village can be recognised
+    const alt = lang==="en" ? (r[6] || r[5] || (/[\u0600-\u06FF]/.test(r[3]) ? r[3] : "")) : (r[4] || "");
+    const sub = [ (t.placeTypes||[])[r[2]] || "", near, alt ? `<bdi>${escHtml(alt)}</bdi>` : "" ].filter(Boolean).join(" · ");
+    return `<div class="sg" role="option" id="sg-${i}" data-i="${i}" aria-selected="false"><span class="sg-ico">${PIN_SVG}</span>`+
+           `<span class="sg-t"><span class="sg-n"><bdi>${escHtml(placeName(r))}</bdi></span><span class="sg-s">${sub}</span></span></div>`;
+  }).join("") + (msg ? `<div class="sg-none">${escHtml(msg)}</div>` : "");
+  searchSug.hidden = false; searchInput.setAttribute("aria-expanded", "true");
+}
+function closeSug(){
+  searchSug.hidden = true; searchSug.innerHTML = ""; __sugItems = []; __sugSel = -1;
+  searchInput.setAttribute("aria-expanded", "false"); searchInput.removeAttribute("aria-activedescendant");
+}
+function moveSug(d){
+  if(!__sugItems.length) return;
+  __sugSel = (__sugSel + d + __sugItems.length) % __sugItems.length;
+  searchSug.querySelectorAll(".sg").forEach((el, i) => el.setAttribute("aria-selected", i===__sugSel ? "true" : "false"));
+  const el = document.getElementById("sg-" + __sugSel);
+  if(el){ el.scrollIntoView({block:"nearest"}); searchInput.setAttribute("aria-activedescendant", el.id); }
+}
+// Fly to a place and mark it for a few seconds: close enough to see and tap fields (zoom 13 and
+// more), closer for smaller places.
+function goToPlace(lon, lat, name, typ){
+  closeSug();
+  searchInput.blur();
+  const z = {1:13, 2:13.5, 3:14.5, 4:15, 5:14.5}[typ] || 14;
+  map.flyTo({center:[lon, lat], zoom:z, duration:1200});
+  try{
+    if(__placePin){ __placePin.remove(); __placePin = null; }
+    const el = document.createElement("div"); el.className = "place-pin";
+    el.innerHTML = `<span class="pp-name"><bdi>${escHtml(name)}</bdi></span><span class="pp-dot"></span>`;
+    const pin = __placePin = new maplibregl.Marker({element:el, anchor:"bottom"}).setLngLat([lon, lat]).addTo(map);
+    setTimeout(() => { if(__placePin === pin){ pin.remove(); __placePin = null; } }, 9000);
+  }catch{}
+}
+function pickSug(i){
+  const r = __sugItems[i]; if(!r) return;
+  searchInput.value = placeName(r);
+  goToPlace(r[0], r[1], placeName(r), r[2]);
+}
+let __sugTimer = null;
+async function placeSearch(q, enter){
+  const t = I18N[lang];
+  try{ await loadPlaces(); }catch{}
+  if(searchText() !== q) return;                       // typed on meanwhile
+  const items = findPlaces(q);
+  if(!enter){ renderSug(items); return; }
+  if(items.length){ pickSug(__sugSel >= 0 ? __sugSel : 0); return; }
+  // Enter and no match in the file: one Nominatim request (at most one a second).
+  if(Date.now() - __nomLast < 1100) return;
+  __nomLast = Date.now();
+  renderSug([], t.placeSearching);
+  try{
+    const al = lang==="ku" ? "ckb,ku,ar,en" : lang==="ar" ? "ar,en" : "en,ar";
+    const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=iq&accept-language="
+              + encodeURIComponent(al) + "&q=" + encodeURIComponent(q);
+    const res = await fetch(url, {headers:{"Accept":"application/json"}});
+    const js = res.ok ? await res.json() : [];
+    if(searchText() !== q) return;
+    const hit = js && js[0];
+    if(hit) goToPlace(+hit.lon, +hit.lat, (hit.name || hit.display_name || q).split(",")[0], 0);
+    else renderSug([], t.noPlace);
+  }catch{ renderSug([], t.noPlace); }
 }
 document.getElementById("search-go").addEventListener("click", doSearch);
-searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter"){ doSearch(); searchInput.blur(); } });
+searchInput.addEventListener("focus", () => { loadPlaces().catch(()=>{}); });
+searchInput.addEventListener("input", () => {
+  clearTimeout(__sugTimer);
+  const q = searchText();
+  if(!q || COORD_RE.test(q) || /^[\d\s.,-]+$/.test(q) || isFieldIdText(q)){ closeSug(); return; }
+  __sugTimer = setTimeout(() => placeSearch(q, false), 90);
+});
+searchInput.addEventListener("keydown", e => {
+  if(e.key==="ArrowDown"){ moveSug(1); e.preventDefault(); }
+  else if(e.key==="ArrowUp"){ moveSug(-1); e.preventDefault(); }
+  else if(e.key==="Escape"){ closeSug(); }
+  else if(e.key==="Enter"){
+    e.preventDefault();
+    if(__sugSel >= 0 && __sugItems[__sugSel]){ pickSug(__sugSel); return; }
+    doSearch();      // closes the keyboard itself once it has somewhere to go
+  }
+});
+// pointerdown, not click: picking must happen before the input's blur closes the list
+searchSug.addEventListener("pointerdown", e => {
+  const el = e.target.closest(".sg"); if(!el) return;
+  e.preventDefault(); pickSug(+el.dataset.i);
+});
+searchInput.addEventListener("blur", () => setTimeout(() => { if(document.activeElement !== searchInput) closeSug(); }, 150));
 
 /* ---------- first-run interactive tour ----------
    Gated flow: the user must actually TAP a field to proceed, then watches the
