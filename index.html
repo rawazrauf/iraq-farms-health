@@ -646,14 +646,27 @@ body.dbg #diag{bottom:calc(var(--safe-b) + 54px)}
 @media (prefers-reduced-motion: reduce){.tapfx-ripple,.tapfx-outline{display:none}#layers-panel{animation:none}}
 </style>
 
-<!-- Microsoft Clarity (anonymous session analytics + heatmaps) -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "xz1wf678mu");
+<!-- GoatCounter (13-m, replacing Microsoft Clarity): counts visits and a few named actions, with no
+     cookies, no personal data and no recordings. What is counted is listed on /privacy/.
+     The visit is counted as "/" only: the page address holds the map position and, when a field
+     is open, that field's position, and none of that is sent. Actions are counted by name only
+     (for example "field-open"), never with a place, a field or what was typed.
+     To stop counting your own visits: open https://iraqfarmshealth.com/#toggle-goatcounter once
+     in each browser you use. -->
+<script>
+window.goatcounter = {no_onload: true};
+window.gcCount = function(name, isEvent){
+  try{
+    var g = window.goatcounter;
+    if(g && g.count) g.count(isEvent ? {path: name, title: name, event: true} : {path: name});
+    else (window.__gcq = window.__gcq || []).push([name, isEvent]);
+  }catch(e){}
+};
+window.gcEvent = function(name){ window.gcCount(name, true); };
+window.gcCount("/", false);
 </script>
+<script data-goatcounter="https://iraqfarmshealth.goatcounter.com/count" async src="//gc.zgo.at/count.js"
+        onload="var q=window.__gcq||[];window.__gcq=[];q.forEach(function(x){gcCount(x[0],x[1])})"></script>
 </head>
 <body>
 <noscript>
@@ -889,7 +902,7 @@ function applyLang(L){
   if(sheet.classList.contains("open") && lastField) renderField(lastField, true);
 }
 document.querySelectorAll("button[data-lang]").forEach(b=>
-  b.addEventListener("click",()=>applyLang(b.dataset.lang)));
+  b.addEventListener("click",()=>{ if(b.dataset.lang !== lang) gcEvent("language-change-" + b.dataset.lang); applyLang(b.dataset.lang); }));
 
 /* ---------- diagnostics ---------- */
 const D = {
@@ -999,7 +1012,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.13-l";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.14-m";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2485,9 +2498,11 @@ async function onFieldTap(e){
     if(DBG.on) map.jumpTo(cam);
     __fieldBusyUntil = 0; scheduleHealthSample();
     showErr(I18N[lang].tooBig); setTimeout(()=>{ errBox.style.display="none"; }, 5000);
+    gcEvent("field-too-big");
     return;
   }
   DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
+  gcEvent("field-open");
   // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
   const selSrc = map.getSource("sel");
   if(selSrc) selSrc.setData({type:"FeatureCollection",features:[
@@ -3284,6 +3299,7 @@ function startPlay(f){
   const frames = playFrames(f);
   if(!frames.length) return;
   __play = {f, frames, pos:0, idx:null, state:"loading", gen:0, front:"a", shownAny:false, failStreak:0};
+  gcEvent("watch-months");
   DBG.log(`playback: ${frames.length} months`);
   sheet.classList.add("compact");
   updatePlayUI();
@@ -3800,12 +3816,13 @@ function renderField(f){
     const c = fieldLinkPoint(f.geometry);
     if(!id || !c) return;
     addPin({id, lon:c[0], lat:c[1], band: healthBand(cur), scale:NDVI_SCALE});
+    gcEvent("save-field");
     saveBtn.innerHTML = actLabel("save", t.saved); saveBtn.classList.add("saved"); saveBtn.disabled = true;
   });
   const shareBtn = document.getElementById("share-field-btn");
-  if(shareBtn) shareBtn.addEventListener("click",()=> shareField(f, shareBtn));
+  if(shareBtn) shareBtn.addEventListener("click",()=>{ gcEvent("share"); shareField(f, shareBtn); });
   const reportBtn = document.getElementById("report-field-btn");
-  if(reportBtn) reportBtn.addEventListener("click",()=> buildFieldReport(f, reportBtn));
+  if(reportBtn) reportBtn.addEventListener("click",()=>{ if(__reportReady && !__reportBusy) gcEvent("report"); buildFieldReport(f, reportBtn); });
   // Start (or refresh) the readiness monitor for this field, which enables the
   // Report button once the history + neighbour colours are loaded — so the tap
   // itself is fast and iOS keeps the share sheet (share must fire in the gesture).
@@ -5043,7 +5060,7 @@ function setLayersOpen(open){
   layersBtn.setAttribute("aria-expanded", open ? "true" : "false");
   if(open){ pinsPanel.hidden = true; histPanel.hidden = true; }
 }
-layersBtn.addEventListener("click", () => setLayersOpen(layersPanel.hidden));
+layersBtn.addEventListener("click", () => { if(layersPanel.hidden) gcEvent("layers-open"); setLayersOpen(layersPanel.hidden); });
 document.getElementById("lp-close").addEventListener("click", () => setLayersOpen(false));
 document.getElementById("lang-chip").addEventListener("click", () => setLayersOpen(true));
 document.getElementById("legend").addEventListener("click", () => setLayersOpen(true));
@@ -5134,12 +5151,14 @@ healthToggle.addEventListener("click",()=>{
         }
         meMarker.setLngLat([lon,lat]).addTo(map);
         say(t.locateOk, 5000);
+        gcEvent("my-location");
       },
       (err)=>{
         btn.disabled = false;
         btn.classList.remove("locating");
         // 1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT
         say(err && err.code===1 ? t.locateDenied : t.locateFail, 8000);
+        gcEvent(err && err.code===1 ? "my-location-denied" : "my-location-failed");
       },
       { enableHighAccuracy:true, timeout:12000, maximumAge:60000 }
     );
@@ -5235,6 +5254,7 @@ function nextRandomFarm(){
 }
 document.getElementById("random-farm")?.addEventListener("click", () => {
   const p = nextRandomFarm(); if(!p) return;
+  gcEvent("random-farm");
   flyToField(p[0], p[1]);
 });
 
@@ -5348,7 +5368,7 @@ function doSearch(){
     // typed the other way round ("lon, lat")? In Iraq longitude is 38-49 and latitude 29-38,
     // so a first number that only makes sense as a longitude means the pair is swapped
     if(lat > 38.5 && lat < 49 && lon > 29 && lon < 38.5){ const t = lat; lat = lon; lon = t; }
-    if(isFinite(lat)&&isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){ closeSug(); searchInput.blur(); flyToField(lon, lat); return; }
+    if(isFinite(lat)&&isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){ closeSug(); searchInput.blur(); gcEvent("search-coordinates"); flyToField(lon, lat); return; }
   }
   if(isFieldIdText(q)){
     // Field-id form. The FTW code is a one-way hash of the centroid, so it can
@@ -5357,7 +5377,8 @@ function doSearch(){
     const id = q.toUpperCase().startsWith("FTW-") ? q.toUpperCase() : "FTW-"+q.toUpperCase().replace(/^FTW/, "");
     const found = loadPins().find(p=>p.id===id) || loadHistory().find(e=>e.id===id);
     closeSug(); searchInput.blur();
-    if(found){ flyToField(found.lon, found.lat); return; }
+    if(found){ gcEvent("search-field-id"); flyToField(found.lon, found.lat); return; }
+    gcEvent("search-field-id-unknown");
     showErr(I18N[lang].notFound);
     setTimeout(()=>{ errBox.style.display="none"; }, 4500);
     return;
@@ -5484,6 +5505,7 @@ function goToPlace(lon, lat, name, typ){
 }
 function pickSug(i){
   const r = __sugItems[i]; if(!r) return;
+  gcEvent("search-place");
   searchInput.value = placeName(r);
   goToPlace(r[0], r[1], placeName(r), r[2]);
 }
@@ -5507,8 +5529,8 @@ async function placeSearch(q, enter){
     const js = res.ok ? await res.json() : [];
     if(searchText() !== q) return;
     const hit = js && js[0];
-    if(hit) goToPlace(+hit.lon, +hit.lat, (hit.name || hit.display_name || q).split(",")[0], 0);
-    else renderSug([], t.noPlace);
+    if(hit){ gcEvent("search-osm-found"); goToPlace(+hit.lon, +hit.lat, (hit.name || hit.display_name || q).split(",")[0], 0); }
+    else { gcEvent("search-nothing-found"); renderSug([], t.noPlace); }
   }catch{ renderSug([], t.noPlace); }
 }
 document.getElementById("search-go").addEventListener("click", doSearch);
@@ -5570,6 +5592,7 @@ const TOUR_STEPS = [
 ];
 
 function startTour(){
+  gcEvent("guide-started");
   tourActive = true; tourIdx = 0; tourGen++;
   if(typeof stopPlay==="function" && __play) stopPlay(true);
   if(sheet.classList.contains("open")){ // reset any open field
@@ -5785,11 +5808,15 @@ function endTour(){
 }
 tourNextBtn.addEventListener("click",()=>{
   if(tourIdx < TOUR_STEPS.length-1) showTourStep(tourIdx+1);
-  else endTour();
+  else { gcEvent("guide-finished"); endTour(); }
 });
-tourSkipBtn.addEventListener("click", endTour);
+tourSkipBtn.addEventListener("click", ()=>{
+  // which step people leave the guide at shows where it loses them
+  const st = TOUR_STEPS[tourIdx]; gcEvent("guide-skipped-at-" + (st ? st.key : tourIdx));
+  endTour();
+});
 document.getElementById("help-btn").addEventListener("click", ()=>{
-  pinsPanel.hidden = true; setLayersOpen(false); startTour();
+  pinsPanel.hidden = true; setLayersOpen(false); gcEvent("guide-opened"); startTour();
 });
 window.addEventListener("resize",()=>{
   if(tourActive && tourEl.dataset.mode!=="lang" && tourEl.dataset.mode!=="watch") placeTour();
@@ -5816,6 +5843,7 @@ function maybeAutoTour(){
 renderPins();
 
 applyLang(initialLang());
+gcEvent("language-" + lang);         // the language this visit opened in (GoatCounter, 13-m)
 
 // Keep the sparkline crisp and correctly proportioned after resize/rotate.
 let __resizeT;
