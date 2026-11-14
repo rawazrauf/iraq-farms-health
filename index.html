@@ -1012,7 +1012,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.14-m";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.14-n";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -2473,6 +2473,19 @@ async function wholeFieldFull(f, lngLat){
 }
 
 let __sweeping = false;                          // a debug whole-field sweep is moving the map
+/* How many different fields one visit opens (GoatCounter, 14-n). GoatCounter shows how many visits
+   had an event, not how often it happened, so "field-open" alone cannot tell one field from twenty.
+   Each visit instead sends a milestone the first time it reaches 1, 2, 3, 5, 10 and 20 different
+   fields: "fields-in-visit-3" counts the visits that opened at least three. Visits with exactly
+   two fields = fields-in-visit-2 minus fields-in-visit-3, and so on. No field is ever named. */
+const __visitFields = new Set(), FIELD_MILESTONES = [1, 2, 3, 5, 10, 20];
+function countFieldInVisit(f){
+  try{
+    const id = resolveFieldId(f); if(!id || __visitFields.has(id)) return;
+    __visitFields.add(id);
+    if(FIELD_MILESTONES.includes(__visitFields.size)) gcEvent("fields-in-visit-" + __visitFields.size);
+  }catch{}
+}
 async function onFieldTap(e){
   const piece = e.features && e.features[0];
   if(!piece || __sweeping) return;               // ignore taps while a sweep moves the map
@@ -2503,6 +2516,7 @@ async function onFieldTap(e){
   }
   DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
   gcEvent("field-open");
+  countFieldInVisit(f);
   // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
   const selSrc = map.getSource("sel");
   if(selSrc) selSrc.setData({type:"FeatureCollection",features:[
