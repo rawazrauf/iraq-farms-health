@@ -1012,7 +1012,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.14-n";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.14-o";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1073,11 +1073,15 @@ const SCL_BAD_EXPR = "((SCL==0)|(SCL==1)|(SCL==3)|(SCL==8)|(SCL==9)|(SCL==10)|(S
 const FIELD_MIN_COVER = 0.6;     // readable pixels ÷ the field's 10 m pixels
 const FIELD_MAX_CLOUD = 0.25;    // share of the field's pixels flagged by SCL
 const SCL_CHECK_MIN_SCENE_CLOUD = 1;   // %: below this the scene is treated as clear over the field
-// FTW GLOBAL predictions — wall-to-wall, 195 countries incl. full Iraq, 10m, 2024/2025.
-// Host works over plain HTTP, anonymous read (physically s3 tge-labs/ftw-global-data).
-// Two files exist: 2025 (default) and 2024-with-confidence. We use 2025.
-// Layer name format confirmed from FTW's own docs: "field-YYYY-01-01 00:00:00".
-// Individual field polygons only render at zoom > 10 (below that the file is density).
+// FTW (Fields of the World) predictions, 10 m, 2024 and 2025. Since 14-o the app reads FTW's own
+// Iraq-only file (results-by-admin-conf/admin:country_code=IQ/Iraq.pmtiles on source.coop, 1.0 GB,
+// layers "2024" and "2025", zooms 0-13, gzip), copied unchanged to Cloudflare R2 behind
+// tiles.iraqfarmshealth.com. The 2.1 TB global file it replaces needed about 6-7 s before the first
+// outlines appeared (its 1 GB leaf directories, read from S3 in Oregon, uncached); the Iraq file
+// shows them in well under a second. Checked on 210 fields in 13 places: the same fields, the same
+// vertex counts, areas within 2 %, centres within a few metres. Zoom 13 is the file's most detailed
+// level: MapLibre draws it unchanged at higher zooms. To refresh: download the new Iraq.pmtiles from
+// source.coop and upload it to the bucket ifh-tiles as fields/Iraq.pmtiles (rclone).
 // NOTE: the per-polygon `confidence` column is NULL across almost all of Iraq
 // (the confidence layer covers mainly the 24 FTW training countries), so we do NOT
 // style or filter by confidence here — it would blank out real Iraqi fields.
@@ -1085,8 +1089,8 @@ const SCL_CHECK_MIN_SCENE_CLOUD = 1;   // %: below this the scene is treated as 
    language: built by tools/places_build.py from an Overpass extract. Small vector tiles (about 0.5 KB
    each), so a phone fetches only the few around the view. */
 const PLACES_PMTILES = "/places/iraq_places.pmtiles";
-const FTW_PMTILES = "https://data.source.coop/ftw/global-data/predictions/vectors/alpha/global.pmtiles";
-const FTW_SRC_LAYER = "field-2025-01-01 00:00:00";
+const FTW_PMTILES = "https://tiles.iraqfarmshealth.com/fields/Iraq.pmtiles";
+const FTW_SRC_LAYER = "2025";
 const FTW_MIN_ZOOM = 13; // only show field outlines when zoomed to farm scale;
                           // below this the polygons blanket whole cities (over-detection)
 
@@ -2413,8 +2417,9 @@ function startFieldLookups(f){
    stitchFields() joins the pieces MapLibre has rendered. Two traps:
    - Tiles off the screen are never loaded, so a field running off the edge
      came back without its off-screen part (field 16: 23.5 ha instead of 27.5).
-   - The FTW file holds full-detail outlines only in its zoom-15 tiles. Below
-     zoom 15 the outlines are simplified, so zooming out to fit a field (build
+   - The FTW file holds full-detail outlines only in its most detailed tiles
+     (zoom 15 in the global file; zoom 13 in the Iraq file used since 14-o).
+     Below that the outlines are simplified, so zooming out to fit a field (build
      -j) read a different field: 29.9 ha at z14.6 and 48 ha at z13.9 for the
      same place (field 28), and 4,636 ha at z13.1 (field 29).
    So: read at zoom >= 15 only, and when the field runs off the screen, pan
@@ -2423,7 +2428,7 @@ function startFieldLookups(f){
    outline keeps growing (up to 4 rounds, 16 views). The map ends centred on
    the field at zoom >= 15. A field over the size cap stops early (the caller
    refuses it). */
-const FIELD_READ_ZOOM = 15;           // the FTW file's most detailed tile zoom
+const FIELD_READ_ZOOM = 13;           // the FTW file's most detailed tile zoom (Iraq file, 14-o)
 const FIELD_MAX_HA = 500;             // bigger than this is not one farm field
 function fieldOffScreen(f){
   const W = map.getCanvas().clientWidth, H = map.getCanvas().clientHeight, m = 2;
@@ -2486,6 +2491,31 @@ function countFieldInVisit(f){
     if(FIELD_MILESTONES.includes(__visitFields.size)) gcEvent("fields-in-visit-" + __visitFields.size);
   }catch{}
 }
+/* Field IDs after the switch to the Iraq file (14-o). An FTW ID is a hash of the field's centre,
+   and the Iraq file's outlines differ from the global file's by a few vertices' rounding, so most
+   fields got a new ID (centres moved 0.3-2 m; 18 of 210 checked kept theirs). Saved fields and
+   Ranking entries store a point inside the field, so when a field opens, any entry whose point lies
+   inside it takes the field's current ID. The old ID stays as oldId, so searching for it still
+   finds the field. Not done for a field running off the screen: its outline is only partial. */
+function adoptFieldId(f){
+  try{
+    if(!f || f.__partial) return;
+    const id = resolveFieldId(f); if(!id) return;
+    const fix = (arr, save)=>{
+      let changed = false;
+      for(const e of arr){
+        if(e && e.id && e.id!==id && isFinite(e.lon) && isFinite(e.lat) && pointInGeom(e.lon, e.lat, f.geometry)){
+          if(!e.oldId) e.oldId = e.id;
+          e.id = id; changed = true;
+        }
+      }
+      if(changed) save(arr.filter((e,i)=>arr.findIndex(x=>x.id===e.id)===i));   // one entry per field
+      return changed;
+    };
+    if(fix(loadPins(), savePins)) renderPins();
+    if(fix(loadHistory(), saveHistory) && !histPanel.hidden) renderHistory();
+  }catch{}
+}
 async function onFieldTap(e){
   const piece = e.features && e.features[0];
   if(!piece || __sweeping) return;               // ignore taps while a sweep moves the map
@@ -2517,6 +2547,7 @@ async function onFieldTap(e){
   DBG.log("── tap "+(resolveFieldId(f)||"?")+" healthOn="+healthOn);
   gcEvent("field-open");
   countFieldInVisit(f);
+  adoptFieldId(f);
   // Lock the highlight to this polygon's geometry (survives pan/zoom/tile refresh).
   const selSrc = map.getSource("sel");
   if(selSrc) selSrc.setData({type:"FeatureCollection",features:[
@@ -5389,7 +5420,7 @@ function doSearch(){
     // only be resolved for fields we've already stored: saved pins OR history
     // (every opened field is auto-logged). Look in both.
     const id = q.toUpperCase().startsWith("FTW-") ? q.toUpperCase() : "FTW-"+q.toUpperCase().replace(/^FTW/, "");
-    const found = loadPins().find(p=>p.id===id) || loadHistory().find(e=>e.id===id);
+    const found = loadPins().find(p=>p.id===id || p.oldId===id) || loadHistory().find(e=>e.id===id || e.oldId===id);
     closeSug(); searchInput.blur();
     if(found){ gcEvent("search-field-id"); flyToField(found.lon, found.lat); return; }
     gcEvent("search-field-id-unknown");

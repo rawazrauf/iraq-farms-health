@@ -38,7 +38,7 @@ Smallholder farmers, agronomists, agricultural suppliers, researchers, and journ
 The app is a **single, self-contained HTML file**. It runs entirely in the browser — there is no backend server and no database. Your saved fields and history are stored only on your own device.
 
 - **Base map:** Esri World Imagery (satellite) with Esri reference layers for roads, place names, and boundaries.
-- **Field boundaries:** Fields of the World (FTW) global field polygons, served as [PMTiles](https://protomaps.com/docs/pmtiles).
+- **Field boundaries:** Fields of the World (FTW) 2025 field polygons, from FTW's Iraq-only [PMTiles](https://protomaps.com/docs/pmtiles) file on [source.coop](https://source.coop/ftw/global-data), copied unchanged to Cloudflare R2 and served from `tiles.iraqfarmshealth.com` (the outlines appear in under a second instead of 6–7 s from the 2.1 TB global file). To refresh it, upload a new `Iraq.pmtiles` to the `ifh-tiles` bucket as `fields/Iraq.pmtiles`.
 - **Vegetation & moisture data:** Sentinel-2 L2A imagery via Microsoft's [Planetary Computer](https://planetarycomputer.microsoft.com/), which computes NDVI and NDMI statistics per field.
 - **Country-wide greenness (low zoom):** NASA MODIS Terra 8-day NDVI via NASA GIBS, shown until individual fields appear.
 - **Rainfall:** [Open-Meteo](https://open-meteo.com/)'s historical weather archive (ECMWF's ERA5 and ERA5-Land reanalyses and IFS model, grids of about 9–25 km), one request per field.
