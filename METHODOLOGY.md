@@ -72,7 +72,7 @@ Field outlines come from **Fields of the World (FTW)**, an open, machine-learnin
 
 ### Country-wide greenness (low zoom) — NASA MODIS
 
-When you are zoomed out too far to see individual fields, the map shows where land is green right now across Iraq, so the country doesn't look empty. This is NASA's **MODIS Terra 8-day NDVI** composite (about 250 m pixels), served by NASA's free GIBS tile service. The tool picks the newest composite NASA has published, which is usually one to three weeks old. It fades out as you zoom in, and the tappable field outlines with their own Sentinel-2 readings take over; the two are never on screen together.
+When you are zoomed out too far to see individual fields, the map shows where land is green right now across Iraq, so the country doesn't look empty. This is NASA's **MODIS Terra 8-day NDVI** composite (about 250 m pixels), served by NASA's free GIBS tile service. The tool picks the newest composite NASA has published, which is usually one to three weeks old. It fades out as you zoom in, and the tappable field outlines with their own Sentinel-2 readings take over; the two are never on screen together. NASA's colour scale paints bare land a pale beige rather than leaving it empty; the tool keeps only the green (vegetated) pixels of each tile and makes the rest transparent, so desert, bare soil and towns show the chosen satellite picture unchanged.
 
 > **Important:** this layer is a regional picture of greenness, not a reading of any field — a 250 m pixel can cover several fields, roads and villages at once. Field readings always come from Sentinel-2 at 10 m (§3). The **Health map** button turns this layer and the per-field colours on and off together.
 
