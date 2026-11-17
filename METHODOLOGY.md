@@ -88,11 +88,15 @@ The 🌾 **Crops** button and the line "Wheat or barley grew here in 2021" use t
 
 Rivers, lakes, marshes and reservoirs are shown from the **JRC Global Surface Water** occurrence layer (EU Joint Research Centre / Google): each 30 m pixel is coloured by how often it was water between 1984 and 2021, from pale pink (rarely) to blue (always). It is always on, for orientation; it is not a reading of any field.
 
-### Base map & reference layers — Esri
+### Base map — EOxCloudless 2025; reference layers — Esri
 
-The satellite base map and the roads / place-name / boundary reference layers are **Esri World Imagery** and Esri reference services. The same reference layers (roads and place names) are also composited into the shareable field report so the small map there carries geographic context.
+The satellite picture under everything is **EOxCloudless 2025** (EOX IT Services GmbH; contains modified Copernicus Sentinel data 2025; CC BY-NC-SA 4.0): a cloud-free Sentinel-2 mosaic of one recent year at 10 m. It is the same satellite the health readings come from, so what a farmer sees under a field matches the year being read. It is blurry at field zoom (a 1 ha field is 10 × 10 pixels; native detail ends at zoom 14 and the map enlarges it beyond), which is enough to recognise fields, canals and villages.
 
-**Optional background: Sentinel-2, 2025.** Under Layers → Satellite picture, the Esri picture can be swapped for **EOxCloudless 2025** (EOX IT Services GmbH; contains modified Copernicus Sentinel data 2025; CC BY-NC-SA 4.0), a cloud-free Sentinel-2 mosaic of one recent year at 10 m. It is the same satellite the health readings come from, and more recent and uniform than Esri's mix of capture dates, but blurry at field zoom (a 1 ha field is 10 × 10 pixels; native detail ends at zoom 14). It comes from EOX's free EOX::Maps service, which is rate-limited and has no service guarantee; a tile the service turns away is requested again up to three times (after 0.6, 1.5 and 3.5 s), always from the same 2025 mosaic, so the picture is never mixed with Esri or another year. If all tries fail the tile stays empty. Esri stays the default. Only the picture changes: field outlines, readings and the Report are identical with either background (the Report never draws the background picture).
+It comes from EOX's free EOX::Maps service, which is rate-limited and has no service guarantee. A tile the service turns away is requested again up to three times (after 0.6, 1.5 and 3.5 s), skipping the browser's cache, always from the same 2025 mosaic, so the picture is never mixed with another source or year. If all tries fail the tile stays empty.
+
+Until build 2026.11.17-f the default picture was **Esri World Imagery** (sub-metre in many places, but captured on different, often older dates), with EOX as an option under Layers. It was dropped because EOX matches present conditions on the ground better and 10 m is enough for farm-scale use.
+
+The roads / place-name / boundary reference layers on top of the picture are **Esri reference services**. The same reference layers are also composited into the shareable field report so the small map there carries geographic context. The Report never draws the background picture.
 
 ---
 
