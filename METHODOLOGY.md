@@ -92,6 +92,8 @@ Rivers, lakes, marshes and reservoirs are shown from the **JRC Global Surface Wa
 
 The satellite base map and the roads / place-name / boundary reference layers are **Esri World Imagery** and Esri reference services. The same reference layers (roads and place names) are also composited into the shareable field report so the small map there carries geographic context.
 
+**Optional background: Sentinel-2, 2025.** Under Layers → Satellite picture, the Esri picture can be swapped for **EOxCloudless 2025** (EOX IT Services GmbH; contains modified Copernicus Sentinel data 2025; CC BY-NC-SA 4.0), a cloud-free Sentinel-2 mosaic of one recent year at 10 m. It is the same satellite the health readings come from, and more recent and uniform than Esri's mix of capture dates, but blurry at field zoom (a 1 ha field is 10 × 10 pixels; native detail ends at zoom 14). It comes from EOX's free EOX::Maps service, which is rate-limited and has no service guarantee. Esri stays the default. Only the picture changes: field outlines, readings and the Report are identical with either background (the Report never draws the background picture).
+
 ---
 
 ## 3. How a field reading is computed
