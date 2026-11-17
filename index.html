@@ -1027,7 +1027,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.17-a";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.17-c";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1533,6 +1533,31 @@ let map, lastField=null;
 try{
   const proto = new pmtiles.Protocol();
   maplibregl.addProtocol("pmtiles", proto.tile);
+  /* EOX tiles with retries (17-c). The free EOX::Maps service turns requests away when it is busy
+     (seen 17 Nov: a zoomed-out view half black). A refused tile is asked for again after 0.6, 1.5
+     and 3.5 s, always the same 2025 mosaic, so the picture stays EOX only (no Esri or older year
+     mixed in). A map move cancels the waits for tiles no longer needed. If all four tries fail, the
+     tile stays empty. */
+  maplibregl.addProtocol("eoxretry", async (params, abortController) => {
+    const url = params.url.replace(/^eoxretry:\/\//, "https://");
+    const waits = [0, 600, 1500, 3500];
+    let last;
+    for(const ms of waits){
+      if(ms) await new Promise((res, rej) => {
+        const t = setTimeout(res, ms);
+        abortController.signal.addEventListener("abort", () => { clearTimeout(t); rej(new DOMException("aborted", "AbortError")); }, {once:true});
+      });
+      try{
+        const r = await fetch(url, {signal: abortController.signal});
+        if(r.ok) return {data: await r.arrayBuffer(), cacheControl: r.headers.get("cache-control"), expires: r.headers.get("expires")};
+        last = new Error("EOX tile " + r.status);
+      }catch(e){
+        if(e && e.name === "AbortError") throw e;
+        last = e;
+      }
+    }
+    throw last || new Error("EOX tile unavailable");
+  });
 
   /* Start where the link points. The map used to open on the default field and
      only jump to ?lat=&lon= once it had loaded, so every shared link, refresh
@@ -1565,8 +1590,9 @@ try{
         // Second background picture (14-p, Layers panel): EOxCloudless 2025, a cloud-free Sentinel-2 mosaic
         // of 2025 at 10 m, from EOX's free EOX::Maps service (CC BY-NC-SA 4.0; rate-limited, no SLA).
         // Native detail ends at zoom 14; MapLibre enlarges it beyond. Its credit shows only while it is on.
+        // Fetched through the "eoxretry" protocol (17-c): refused tiles are retried, never replaced.
         eox:{type:"raster",tiles:[
-          "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg"
+          "eoxretry://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg"
         ],tileSize:256,maxzoom:14,attribution:'<a href="https://cloudless.eox.at" target="_blank" rel="noopener">EOxCloudless</a> 2025 by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2025), <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>'}
       },
       layers:[{id:"sat",type:"raster",source:"esri",layout:{visibility: BG0==="esri" ? "visible" : "none"}},
