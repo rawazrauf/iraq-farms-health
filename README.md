@@ -59,6 +59,8 @@ The site also shows a 2025-26 winter-cereal map of Iraq (`crops/2026/`), made wi
 - **Southern tiles (67 tiles, 10.5 Mha), stratified random sample of 575 points:** where the map says "confident cereal", a winter crop grew 96% of the time (95% CI 92–99%). The map catches 71% (65–77%) of the winter-crop area. Winter-crop area 1.91 Mha (1.75–2.06), against 1.41 Mha mapped.
 - **Northern tiles:** field checks showed rain-fed cereal is often under-counted. These tiles are being re-run with a later season and will then be assessed the same way.
 
+**Sharing a view.** The crop page's address follows what is on screen, so a copied link opens the same place and settings, for example `https://iraqfarmshealth.com/crops/?lang=en&lat=36.18&lon=43.95&z=11.5&view=diff&gov=Erbil`. Parameters (defaults are left out): `lat`, `lon`, `z` (map centre and zoom); `lang` (`en`, `ar`, `ku`); `view` (`y2021` or `diff`); `hide` (crop classes switched off: `wheat`, `barley`, `other`, `offseason`, `nocrop`); `fade=0`; `doubt=1`; `rule=top`; `op` (opacity, 0.2–1); `tab` (`dl`, `check`, `about`); `gov` (governorate outlined, and used as the download area); `area` (download box `w,s,e,n`).
+
 The method, data and scripts are in **[validation/](validation/README.md)**, so anyone can repeat the checks and get the same results.
 
 ---

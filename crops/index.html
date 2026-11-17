@@ -305,7 +305,8 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
 (function(){
 "use strict";
 // Data folder (relative to this page). Override with ?data=<url> to test another location.
-const DATA = new URLSearchParams(location.search).get("data") || "2026/";
+const Q0 = new URLSearchParams(location.search);   // the link this page was opened with (see "link to this view")
+const DATA = Q0.get("data") || "2026/";
 const DATA_ABS = new URL(DATA, location.href).href;
 const KRI_NAME = "Kurdistan Region";
 
@@ -426,6 +427,7 @@ const CLASS_T = {
 };
 let LANG = "en";
 try{ LANG = localStorage.getItem("ifh-lang") || (navigator.language||"en").slice(0,2); }catch(e){}
+if(T[Q0.get("lang")]) LANG = Q0.get("lang");   // a link's language wins for this visit
 if(!T[LANG]) LANG = "en";
 const t = (k, v) => { let s = (T[LANG][k] ?? T.en[k] ?? k); if(v) for(const [a,b] of Object.entries(v)) s = s.split("{"+a+"}").join(b); return s; };
 const fmt = n => Math.round(n).toLocaleString("en-US");
@@ -436,6 +438,76 @@ const regionName = n => n===KRI_NAME ? t("kri") : t("fed");
 /* ------------------------------------------------------------------ state */
 let INDEX = null, STATS = null, BOUNDS = null, map = null;
 let AOI = null; // {name, bbox:[w,s,e,n], geom (optional lon/lat polygon), key}
+let SEL_GOV = "";  // governorate outlined in gold (table row or area picker)
+
+/* ------------------------------------------------------------------ link to this view
+   The address bar follows what is on screen, so a copied or shared link opens the same view
+   (asked for 17 Nov 2026, for researchers checking the map). Parameters, defaults left out:
+     lat, lon, z   map centre and zoom          lang   en | ar | ku
+     view          y2021 | diff (crops = default)
+     hide          crop classes switched off, e.g. hide=other,nocrop
+     fade=0        "fade where less sure" off    doubt=1   doubtful cereal shown
+     rule          top (p70 = default; the 2021 comparison's 2025-26 rule)
+     op            crop layer opacity (0.9 = default)
+     tab           dl | check | about (stats = default)
+     gov           governorate outlined (also becomes the download area)
+     area          drawn download box, w,s,e,n
+     data          test data folder, kept as given
+   history.replaceState, so moving the map does not fill the Back button. Nothing is written
+   until the link's own view has been applied (linkReady). */
+const CLASS_KEYS = ["wheat","barley","other","offseason","nocrop"];
+let linkReady = false, linkTimer = null;
+function writeLink(){
+  if(!linkReady) return;
+  clearTimeout(linkTimer);
+  linkTimer = setTimeout(() => {
+    const q = new URLSearchParams();
+    if(Q0.get("data")) q.set("data", Q0.get("data"));
+    q.set("lang", LANG);
+    if(map){ const c = map.getCenter(); q.set("lat", c.lat.toFixed(5)); q.set("lon", c.lng.toFixed(5)); q.set("z", map.getZoom().toFixed(1)); }
+    if(CropLayer.opts.mode !== "crops") q.set("view", CropLayer.opts.mode);
+    const hid = CLASS_KEYS.filter(k => !$("#lg-"+k).checked); if(hid.length) q.set("hide", hid.join(","));
+    if(!$("#lg-fade").checked) q.set("fade", "0");
+    if($("#lg-doubt").checked) q.set("doubt", "1");
+    if($("#lg-rule").value !== "p70") q.set("rule", $("#lg-rule").value);
+    if(+$("#lg-op").value !== 0.9) q.set("op", $("#lg-op").value);
+    const tab = (document.querySelector("nav.tabs button.on") || {dataset:{}}).dataset.tab;
+    if(tab && tab !== "stats") q.set("tab", tab);
+    if(SEL_GOV) q.set("gov", SEL_GOV);
+    if(AOI && !AOI.gov) q.set("area", AOI.bbox.map(v => v.toFixed(5)).join(","));
+    try{ history.replaceState(null, "", location.pathname + "?" + q.toString().replace(/%2C/gi, ",")); }catch(e){}
+  }, 250);
+}
+// Settings from the link that don't need the map: tick-boxes, rule, opacity, tab. Called once the data index is in.
+function applyLinkSettings(){
+  const hide = (Q0.get("hide") || "").split(",");
+  CLASS_KEYS.forEach(k => { const on = !hide.includes(k); $("#lg-"+k).checked = on; CropLayer.setOptions({show:{[k]:on}}); });
+  if(Q0.get("fade") === "0"){ $("#lg-fade").checked = false; CropLayer.setOptions({fadeLess:false}); }
+  if(Q0.get("doubt") === "1"){ $("#lg-doubt").checked = true; CropLayer.setOptions({showDoubtful:true}); }
+  const rule = Q0.get("rule");
+  if(rule && [...$("#lg-rule").options].some(o => o.value === rule)){ $("#lg-rule").value = rule; CropLayer.setOptions({cerealRule:rule}); }
+  const op = parseFloat(Q0.get("op"));
+  if(op >= 0.2 && op <= 1) $("#lg-op").value = op;
+  const view = Q0.get("view");
+  if(view === "y2021" || view === "diff") setView(view);
+  const tb = document.querySelector(`nav.tabs button[data-tab="${Q0.get("tab")}"]`);
+  if(tb) tb.click();
+}
+// Link view for the map: centre and zoom (used when the map is made), then governorate and box once its layers exist.
+function linkCamera(){
+  const lat = parseFloat(Q0.get("lat")), lon = parseFloat(Q0.get("lon")), z = parseFloat(Q0.get("z"));
+  return (isFinite(lat) && isFinite(lon) && Math.abs(lat) <= 85 && Math.abs(lon) <= 180)
+    ? {center:[lon, lat], zoom: isFinite(z) ? Math.min(17, Math.max(4, z)) : 9} : null;
+}
+function applyLinkAreas(){
+  if(linkReady) return;
+  const g = Q0.get("gov");
+  if(g){ selectGovernorate(g, true, !linkCamera()); if(SEL_GOV === g) $("#aoi-gov").value = g; }
+  const a = (Q0.get("area") || "").split(",").map(Number);
+  if(a.length === 4 && a.every(isFinite) && a[2] > a[0] && a[3] > a[1]) setAoi({bbox:a, label:t("aoiDraw"), key:"box"});
+  linkReady = true;
+  writeLink();
+}
 let sortKey = "wheat", sortAsc = false, openGov = null;
 const $ = s => document.querySelector(s);
 
@@ -453,13 +525,14 @@ function applyLang(){
   updateAoi();
 }
 document.querySelectorAll("#lang button").forEach(b => b.onclick = () => {
-  LANG = b.dataset.l; try{ localStorage.setItem("ifh-lang", LANG); }catch(e){} applyLang();
+  LANG = b.dataset.l; try{ localStorage.setItem("ifh-lang", LANG); }catch(e){} applyLang(); writeLink();
 });
 
 /* ------------------------------------------------------------------ tabs */
 document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => {
   document.querySelectorAll("nav.tabs button").forEach(x => x.classList.toggle("on", x===b));
   document.querySelectorAll(".pane").forEach(p => p.hidden = p.id !== "pane-"+b.dataset.tab);
+  writeLink();
 });
 
 /* ------------------------------------------------------------------ statistics */
@@ -648,7 +721,7 @@ function initMap(){
     throw last || new Error("EOX tile unavailable");
   });
   map = new maplibregl.Map({
-    container:"map", attributionControl:false, center:[44.2,33.6], zoom:5.6, maxZoom:17, minZoom:4,
+    container:"map", attributionControl:false, center:(linkCamera()||{}).center || [44.2,33.6], zoom:(linkCamera()||{}).zoom || 5.6, maxZoom:17, minZoom:4,
     style:{version:8, sources:{
       img:{type:"raster",tiles:["eoxretry://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg"],tileSize:256,maxzoom:14,
            attribution:'Imagery: <a href="https://cloudless.eox.at" target="_blank" rel="noopener">EOxCloudless</a> 2025 by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2025), <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>'},
@@ -664,7 +737,7 @@ function initMap(){
   const addLayers = () => {
     if(map.getSource("crops")) return;
     map.addSource("crops",{type:"raster",tiles:["wcrop://{z}/{x}/{y}?v=0"],tileSize:256,minzoom:4,maxzoom:INDEX.max_zoom});
-    map.addLayer({id:"crops",type:"raster",source:"crops",paint:{"raster-opacity":0.9,"raster-resampling":"nearest","raster-fade-duration":0}});
+    map.addLayer({id:"crops",type:"raster",source:"crops",paint:{"raster-opacity":+$("#lg-op").value,"raster-resampling":"nearest","raster-fade-duration":0}});
     map.addLayer({id:"lbl",type:"raster",source:"lbl",paint:{"raster-opacity":0.85}});
     if(BOUNDS){
       map.addSource("gov",{type:"geojson",data:BOUNDS});
@@ -682,9 +755,11 @@ function initMap(){
     map.on("idle", () => { pending = 0; setStatus(""); });
     map.on("sourcedata", e => { if(e.sourceId==="crops" && map.isSourceLoaded("crops")) setStatus(""); });
     if(CropLayer.opts.mode !== "crops") setView(CropLayer.opts.mode);
+    applyLinkAreas();
   };
   if(map.isStyleLoaded()) addLayers(); else map.once("style.load", addLayers);
   map.on("zoomend", zoomHint);
+  map.on("moveend", writeLink);
   map.once("load", addLayers);
   map.on("click", async e => {
     if(drawing) return;
@@ -714,11 +789,12 @@ function refreshCrops(){
   CropLayer.version = (CropLayer.version||0)+1;
   s.setTiles(["wcrop://{z}/{x}/{y}?v="+CropLayer.version]);
 }
-["wheat","barley","other","nocrop","offseason"].forEach(k => $("#lg-"+k).onchange = e => { CropLayer.setOptions({show:{[k]:e.target.checked}}); refreshCrops(); });
-$("#lg-fade").onchange = e => { CropLayer.setOptions({fadeLess:e.target.checked}); refreshCrops(); };
-$("#lg-doubt").onchange = e => { CropLayer.setOptions({showDoubtful:e.target.checked}); refreshCrops(); };
-$("#lg-rule").onchange = e => { CropLayer.setOptions({cerealRule:e.target.value}); refreshCrops(); renderCheck(); };
+CLASS_KEYS.forEach(k => $("#lg-"+k).onchange = e => { CropLayer.setOptions({show:{[k]:e.target.checked}}); refreshCrops(); writeLink(); });
+$("#lg-fade").onchange = e => { CropLayer.setOptions({fadeLess:e.target.checked}); refreshCrops(); writeLink(); };
+$("#lg-doubt").onchange = e => { CropLayer.setOptions({showDoubtful:e.target.checked}); refreshCrops(); writeLink(); };
+$("#lg-rule").onchange = e => { CropLayer.setOptions({cerealRule:e.target.value}); refreshCrops(); renderCheck(); writeLink(); };
 $("#lg-op").oninput = e => map && map.getLayer("crops") && map.setPaintProperty("crops","raster-opacity",+e.target.value);
+$("#lg-op").onchange = writeLink;
 
 async function sample2021(lon, lat){
   const z = 14, n = 2 ** z, [mx, my] = CropLayer.lonLatTo3857(lon, lat), R = 20037508.342789244, s = 2 * R / n;
@@ -739,6 +815,7 @@ function setView(v){
   if(map && map.getLayer("proc-line")) map.setLayoutProperty("proc-line","visibility", v === "diff" ? "visible" : "none");
   zoomHint();
   refreshCrops();
+  writeLink();
 }
 document.querySelectorAll("input[name=view]").forEach(r => r.onchange = () => setView(r.value));
 $("#zoomhint").onclick = () => map && map.easeTo({zoom:CropLayer.DIFF_MIN_ZOOM - 1, duration:600});
@@ -793,6 +870,7 @@ function setAoi(a){
   }
   if(map && map.getSource("aoi")) map.getSource("aoi").setData(fc);
   updateAoi();
+  writeLink();
 }
 function bbox3857(b){ const [x0,y0] = CropLayer.lonLatTo3857(b[0],b[1]), [x1,y1] = CropLayer.lonLatTo3857(b[2],b[3]); return [x0,y0,x1,y1]; }
 function km2(b){ // geodesic-ish area of a lon/lat box
@@ -894,14 +972,16 @@ function fillGovSelect(){
   sel.innerHTML = `<option value="">${t("aoiGov")}</option>` + items.map(i => `<option value="${i.v}">${i.l}</option>`).join("");
   sel.value = cur;
 }
-function selectGovernorate(name, asAoi){
+function selectGovernorate(name, asAoi, fit = true){
   const f = BOUNDS && BOUNDS.features.find(x => x.properties.name===name);
   if(!f) return;
   const bb = bboxOfGeom(f.geometry);
+  SEL_GOV = name;
   if(map){
-    map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],{padding:30,duration:600});
+    if(fit) map.fitBounds([[bb[0],bb[1]],[bb[2],bb[3]]],{padding:30,duration:600});
     if(map.getLayer("gov-sel")) map.setFilter("gov-sel",["==",["get","name"],name]);
   }
+  writeLink();
   if(asAoi) setAoi({bbox:bb, geom:f.geometry, label:govName(f.properties), key:name.toLowerCase().replace(/[^a-z]+/g,"_"), gov:name});
 }
 $("#aoi-gov").onchange = e => e.target.value && selectGovernorate(e.target.value, true);
@@ -957,6 +1037,7 @@ document.addEventListener("click", async e => {
     ]);
     STATS = st; BOUNDS = bd;
     CMP = await fetch(DATA+"compare_2021.json",{cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null);
+    applyLinkSettings();
     initMap(); wireDraw();
     applyLang();
   }catch(err){
