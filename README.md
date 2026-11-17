@@ -37,7 +37,7 @@ Smallholder farmers, agronomists, agricultural suppliers, researchers, and journ
 
 The app is a **single, self-contained HTML file**. It runs entirely in the browser — there is no backend server and no database. Your saved fields and history are stored only on your own device.
 
-- **Base map:** Esri World Imagery (satellite) with Esri reference layers for roads, place names, and boundaries. Under **Layers → Satellite picture** the background can be switched to **Sentinel-2, 2025** (EOxCloudless 2025 by EOX: one recent cloud-free year at 10 m, blurrier up close); the choice is remembered on the device.
+- **Base map:** **EOxCloudless 2025** by EOX: a cloud-free Sentinel-2 picture of one recent year at 10 m (the same satellite as the health readings), with Esri reference layers for roads, place names, and boundaries on top. Until build 2026.11.17-f the background was Esri World Imagery, with EOX as an option.
 - **Field boundaries:** Fields of the World (FTW) 2025 field polygons, from FTW's Iraq-only [PMTiles](https://protomaps.com/docs/pmtiles) file on [source.coop](https://source.coop/ftw/global-data), copied unchanged to Cloudflare R2 and served from `tiles.iraqfarmshealth.com` (the outlines appear in under a second instead of 6–7 s from the 2.1 TB global file). To refresh it, upload a new `Iraq.pmtiles` to the `ifh-tiles` bucket as `fields/Iraq.pmtiles`.
 - **Vegetation & moisture data:** Sentinel-2 L2A imagery via Microsoft's [Planetary Computer](https://planetarycomputer.microsoft.com/), which computes NDVI and NDMI statistics per field.
 - **Country-wide greenness (low zoom):** NASA MODIS Terra 8-day NDVI via NASA GIBS, shown until individual fields appear.
@@ -101,7 +101,8 @@ The map library (MapLibre GL JS) and PMTiles are loaded from a public CDN (jsDel
 - **Rainfall:** [Open-Meteo](https://open-meteo.com/) historical weather API (CC BY 4.0), built on ECMWF's ERA5 / ERA5-Land reanalyses and IFS model. Generated using Copernicus Climate Change Service information.
 - **Surface water:** [JRC Global Surface Water](https://global-surface-water.appspot.com/) (EC Joint Research Centre / Google).
 - **Country-wide greenness:** NASA MODIS Terra NDVI via [NASA GIBS](https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api).
-- **Base imagery & reference layers:** [Esri World Imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9) (Esri, Maxar, Earthstar Geographics) and Esri reference layers. Optional background: [EOxCloudless](https://cloudless.eox.at) 2025 by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2025), [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), from EOX's free EOX::Maps service.
+- **Base imagery:** [EOxCloudless](https://cloudless.eox.at) 2025 by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2025), [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), from EOX's free EOX::Maps service.
+- **Reference layers (roads, place names, boundaries):** Esri reference services.
 - **Village and town names:** © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) (ODbL 1.0). Extract of 13 Nov 2026; `places/iraq_places.pmtiles` and `places/iraq_places_search.json` are available under the same licence. Search fallback: [Nominatim](https://nominatim.openstreetmap.org/) (OpenStreetMap Foundation).
 - **District boundaries (crop page statistics):** [geoBoundaries](https://www.geoboundaries.org/) (CC BY 4.0).
 - **Independent verification:** [Copernicus Browser](https://dataspace.copernicus.eu/browser/) (ESA / Copernicus Data Space Ecosystem).
@@ -122,7 +123,7 @@ The map lists the credits for what is on screen under its ⓘ button, and the fi
 - **Code** (`index.html`, `crops/`, `tools/`, `validation/` scripts): [MIT](LICENSE).
 - **Crop map data** (`crops/2026/`, `crops/2026p/`): CC BY 4.0. Credit: "Crop types: ESA WorldCereal system, run by Iraq Farms Health on Copernicus Data Space. Contains modified Copernicus Sentinel data 2025–2026."
 - **Validation data** (`validation/`): CC BY 4.0. Credit: "Iraq Farms Health".
-- **Third-party data** shown in the app (Esri imagery, EOxCloudless, Fields of the World, WorldCereal 2021, JRC water, NASA GIBS, Open-Meteo) stays under its providers' own terms; follow the links above.
+- **Third-party data** shown in the app (EOxCloudless, Esri reference layers, Fields of the World, WorldCereal 2021, JRC water, NASA GIBS, Open-Meteo) stays under its providers' own terms; follow the links above.
 
 ---
 

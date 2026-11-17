@@ -625,11 +625,33 @@ function renderAbout(){
 function setStatus(msg){ const s = $("#status"); s.hidden = !msg; s.textContent = msg || ""; }
 function initMap(){
   CropLayer.registerProtocol(maplibregl);
+  /* Background picture: EOxCloudless 2025, the same as the main map since build 2026.11.17-f (before
+     that, Esri World Imagery). Free EOX::Maps service, rate-limited: a refused tile is asked for again
+     after 0.6, 1.5 and 3.5 s, skipping the browser cache, always from the same 2025 mosaic. */
+  maplibregl.addProtocol("eoxretry", async (params, abortController) => {
+    const url = params.url.replace(/^eoxretry:\/\//, "https://");
+    let last;
+    for(const [i, ms] of [0, 600, 1500, 3500].entries()){
+      if(ms) await new Promise((res, rej) => {
+        const t = setTimeout(res, ms);
+        abortController.signal.addEventListener("abort", () => { clearTimeout(t); rej(new DOMException("aborted", "AbortError")); }, {once:true});
+      });
+      try{
+        const r = await fetch(url, {signal: abortController.signal, cache: i ? "reload" : "default"});
+        if(r.ok) return {data: await r.arrayBuffer(), cacheControl: r.headers.get("cache-control"), expires: r.headers.get("expires")};
+        last = new Error("EOX tile " + r.status);
+      }catch(e){
+        if(e && e.name === "AbortError") throw e;
+        last = e;
+      }
+    }
+    throw last || new Error("EOX tile unavailable");
+  });
   map = new maplibregl.Map({
     container:"map", attributionControl:false, center:[44.2,33.6], zoom:5.6, maxZoom:17, minZoom:4,
     style:{version:8, sources:{
-      img:{type:"raster",tiles:["https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:18,
-           attribution:"Imagery: Esri, Maxar, Earthstar Geographics"},
+      img:{type:"raster",tiles:["eoxretry://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2025_3857/default/g/{z}/{y}/{x}.jpg"],tileSize:256,maxzoom:14,
+           attribution:'Imagery: <a href="https://cloudless.eox.at" target="_blank" rel="noopener">EOxCloudless</a> 2025 by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2025), <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>'},
       lbl:{type:"raster",tiles:["https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Esri"}
     }, layers:[{id:"img",type:"raster",source:"img"}]}
   });

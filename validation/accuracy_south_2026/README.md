@@ -315,7 +315,7 @@ The reference labels use one reading a month, which cannot show a crop that is c
 The reference labels come from the same satellite as the map (Limits). `vhr_check.py` reports a first check against sharper, independent imagery. It is a check of land use only.
 
 - **Points (76).** The 72 hand-reviewed points, and the 5 points where the map says "not cropland" and the reference says winter crop (one point is in both groups).
-- **Imagery.** Esri World Imagery, 0.3–0.5 m (Vantor mosaics; the app's basemap). The image date of each point was read from the service. **None of the 76 images is from the 2025-26 season:** they run from 2018 to 9 April 2025, and 32 were taken in December–April of some year. So the imagery shows what kind of land a point is, not what grew there in 2025-26.
+- **Imagery.** Esri World Imagery, 0.3–0.5 m (Vantor mosaics; the app's basemap at the time). The image date of each point was read from the service. **None of the 76 images is from the 2025-26 season:** they run from 2018 to 9 April 2025, and 32 were taken in December–April of some year. So the imagery shows what kind of land a point is, not what grew there in 2025-26.
 - **Reading.** Each point was viewed in a 250 m window and given one class by eye: field parcels (F), trees or orchard (T), field edge or canal bank (E), farmstead or built (U), bare or natural land with no parcels (B), marsh or water (W). The classes and dates are in `data/vhr_landuse.csv`.
 
   | Reference label | F | T | E | U | B | W | n |
