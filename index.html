@@ -1027,7 +1027,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.17-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.17-d";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1558,6 +1558,33 @@ try{
     }
     throw last || new Error("EOX tile unavailable");
   });
+  /* Greenness backdrop without the beige (17-d). NASA's MODIS NDVI tiles paint bare land a solid pale
+     beige (near-zero greenness is a colour in their scale, not transparency: 99% of a western-Iraq
+     tile was opaque RGB ~215,196,180), which laid a cream film over the satellite picture at country
+     zoom. Each tile is redrawn keeping only pixels where green beats red by 10 or more; the rest become
+     transparent. On Iraqi tiles every vegetation colour has green ahead by 20+ and every bare, brown
+     or beige one has red ahead, so the cut is clean (checked 17 Nov on 5 tiles, 330,000 pixels). If a
+     browser cannot redraw the tile, the original is used. */
+  maplibregl.addProtocol("ndvigreen", async (params, abortController) => {
+    const r = await fetch(params.url.replace(/^ndvigreen:/, "https:"), {signal: abortController.signal});
+    if(!r.ok) throw new Error("NDVI tile " + r.status);
+    const blob = await r.blob();
+    try{
+      const im = await createImageBitmap(blob);
+      const cv = typeof OffscreenCanvas === "function" ? new OffscreenCanvas(im.width, im.height)
+               : Object.assign(document.createElement("canvas"), {width: im.width, height: im.height});
+      const g = cv.getContext("2d");
+      g.drawImage(im, 0, 0);
+      const img = g.getImageData(0, 0, im.width, im.height), d = img.data;
+      for(let i = 0; i < d.length; i += 4) if(d[i+1] - d[i] < 10) d[i+3] = 0;
+      g.putImageData(img, 0, 0);
+      const out = cv.convertToBlob ? await cv.convertToBlob({type: "image/png"})
+                                   : await new Promise(res => cv.toBlob(res, "image/png"));
+      return {data: await out.arrayBuffer()};
+    }catch(e){
+      return {data: await blob.arrayBuffer()};
+    }
+  });
 
   /* Start where the link points. The map used to open on the default field and
      only jump to ?lat=&lon= once it had loaded, so every shared link, refresh
@@ -1851,7 +1878,7 @@ function onMapLoad(){
       if(map.getSource("ndvi-backdrop")) return;
       map.addSource("ndvi-backdrop",{
         type:"raster",
-        tiles:[gibsNdviTiles(ndviDate)],
+        tiles:[gibsNdviTiles(ndviDate).replace(/^https:/, "ndvigreen:")],   // green pixels only (17-d)
         tileSize:256, maxzoom:9,
         attribution:"NDVI backdrop: NASA EOSDIS GIBS (MODIS Terra)"
       });
