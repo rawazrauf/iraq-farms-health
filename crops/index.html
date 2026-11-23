@@ -68,6 +68,13 @@ aside{width:420px;max-width:46vw;display:flex;flex-direction:column;border-inlin
 #status{position:absolute;z-index:3;bottom:calc(10px + var(--safe-b));inset-inline-start:10px;background:rgba(20,38,27,.86);
   color:var(--paper);font-size:12px;font-weight:600;border-radius:9px;padding:6px 9px;max-width:70%}
 #status[hidden]{display:none}
+/* hover label (23 Nov 2026): class of the 10 m pixel under the mouse; physical left/top set by script */
+#hovertip{position:absolute;z-index:4;left:0;top:0;pointer-events:none;max-width:290px;background:rgba(20,38,27,.93);color:var(--paper);
+  font-size:12.5px;line-height:1.38;border-radius:9px;padding:6px 10px;box-shadow:var(--shadow)}
+#hovertip[hidden]{display:none}
+#hovertip .sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-end:6px;vertical-align:-1px;border:1px solid rgba(243,239,228,.7)}
+#hovertip .m{opacity:.72;font-size:11.5px;margin-top:3px}
+#hovertip .c{direction:ltr;unicode-bidi:isolate;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
 #zoomhint{position:absolute;z-index:3;bottom:calc(44px + var(--safe-b));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);border:0;
   border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;box-shadow:var(--shadow);cursor:pointer;max-width:70%}
 #zoomhint[hidden]{display:none}
@@ -185,6 +192,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
       <input type="range" id="lg-op" min="0.2" max="1" step="0.05" value="0.9" aria-label="Opacity">
     </details>
     <div id="status" hidden></div>
+    <div id="hovertip" hidden></div>
     <button id="zoomhint" hidden data-t="zoomCmp">Zoom in to compare 2021 and 2025-26 (detail needed).</button>
   </div>
   <aside>
@@ -783,6 +791,66 @@ function initMap(){
     new maplibregl.Popup({closeButton:true,maxWidth:"260px"}).setLngLat(e.lngLat)
       .setHTML(`<div>${CropLayer.opts.mode!=="crops"?"2025-26":t("here")}: ${what}</div>${y21}${gov?`<div class="pct" style="margin-top:4px">${t("gov")}: ${gov}</div>`:""}`).addTo(map);
   });
+  if(matchMedia("(hover: hover) and (pointer: fine)").matches) wireHover();
+}
+
+/* ------------------------------------------------------------------ hover label
+   On computers with a mouse, a small label beside the pointer names the class of the 10 m pixel under it,
+   so a reviewer can sweep across an area instead of clicking hundreds of times (idea from OlmoEarth's
+   classifier map, 23 Nov 2026). It reads the same full-resolution codes as a click (CropLayer.sample; tiles
+   are cached, so after the first read of a ~2.4 km block, moving the mouse costs no downloads). One read at a
+   time: while one is out, only the newest mouse position waits. From zoom 11 only (coarser, one screen pixel
+   covers many 10 m pixels); hidden while the map moves, while drawing a box and when the mouse leaves the map.
+   Phones and tablets keep tap-for-popup. The label shows the stored class even where a legend box hides it. */
+const HOVER_MIN_ZOOM = 11;
+function wireHover(){
+  const tip = $("#hovertip"), box = map.getContainer();
+  let pend = null, busy = false, raf = 0, seq = 0, lastPt = null;
+  const hide = () => { seq++; pend = null; tip.hidden = true; };
+  const place = p => {
+    const W = box.clientWidth, H = box.clientHeight, w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = p.x + 16, y = p.y + 16;
+    if(x + w > W - 6) x = p.x - w - 12;
+    if(y + h > H - 6) y = p.y - h - 12;
+    tip.style.left = Math.max(4, x) + "px"; tip.style.top = Math.max(4, y) + "px";
+  };
+  const show = async e => {
+    if(drawing || map.isMoving() || map.getZoom() < HOVER_MIN_ZOOM){ hide(); return; }
+    const my = seq, {lng, lat} = e.lngLat;
+    const code = await CropLayer.sample(lng, lat);
+    const y21 = CropLayer.opts.mode !== "crops" ? await sample2021(lng, lat) : undefined;
+    if(my !== seq) return;                                    // the mouse left or the map moved meanwhile
+    const d = CropLayer.describe(code);
+    const sw = !d.cls ? "transparent" : d.note === "offseason" ? CropLayer.OFF_SEASON_COLOR : CropLayer.colors()[(code % 100) - 1];
+    const what = !d.cls ? t("notCrop")
+      : d.note === "offseason" ? `<b>${t("offPop")}</b> · ${clsName(d.cls)}`
+      : d.note === "unreliable" ? `<b>${t("unrelPop")}</b> · ${clsName(d.cls)}`
+      : `<b>${clsName(d.cls)}</b>${d.doubtful ? " · " + t("doubtPop") : d.less ? " · " + t("lessSure") : ""}`;
+    let gov = "";
+    if(map.getLayer("gov-fill")){
+      const f = map.queryRenderedFeatures(e.point, {layers:["gov-fill"]})[0];
+      if(f) gov = govName(f.properties);
+    }
+    tip.innerHTML = `<div><span class="sw" style="background:${sw}"></span>${CropLayer.opts.mode !== "crops" ? "2025-26: " : ""}${what}</div>`
+      + (y21 !== undefined ? `<div>2021 (ESA): <b>${y21 === null ? t("y2021na") : y21 ? t("y2021yes") : t("y2021no")}</b></div>` : "")
+      + `<div class="m">${gov ? gov + " · " : ""}<span class="c">${lat.toFixed(5)}, ${lng.toFixed(5)}</span></div>`;
+    tip.hidden = false;
+    place(lastPt || e.point);
+  };
+  const run = async () => {
+    raf = 0;
+    if(busy) return;
+    busy = true;
+    try{ while(pend){ const e = pend; pend = null; await show(e).catch(hide); } }
+    finally{ busy = false; }
+  };
+  map.on("mousemove", e => {
+    pend = e; lastPt = e.point;
+    if(!tip.hidden) place(e.point);
+    if(!raf) raf = requestAnimationFrame(run);
+  });
+  box.addEventListener("mouseleave", hide);
+  map.on("movestart", hide);
 }
 function refreshCrops(){
   const s = map && map.getSource("crops"); if(!s) return;
