@@ -79,6 +79,7 @@ aside{width:420px;max-width:46vw;display:flex;flex-direction:column;border-inlin
   border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;box-shadow:var(--shadow);cursor:pointer;max-width:70%}
 #zoomhint[hidden]{display:none}
 .maplibregl-popup-content{font-family:var(--font);font-size:13px;border-radius:10px;padding:10px 12px;background:var(--card)}
+.maplibregl-popup-content .psw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-end:6px;vertical-align:-1px;border:1px solid rgba(0,0,0,.25)}
 .maplibregl-popup-tip{border-top-color:var(--card)!important;border-bottom-color:var(--card)!important}
 
 /* side panel */
@@ -321,7 +322,7 @@ const KRI_NAME = "Kurdistan Region";
 /* ------------------------------------------------------------------ text */
 const T = {
  en:{offseason:"Summer-crop label (not a winter crop)",offPop:"Not a winter crop",offWhy:"WorldCereal's label: {c}. Iraq grows it only in summer, so it can't be right in this winter map.",offRice:"Likely flooded or wet ground.",unrelPop:"Other crop",unrelWhy:"WorldCereal's label: {c}. This label is often wrong in this map.",ckOff:"Slate blue means WorldCereal gave a summer crop's name, such as rice, in this winter map. On lake and marsh shores it is usually ground that flooded and then greened up, not rice.",ckRulesT:"Does the counting method change the answer?",ckRulesP:"2021 is a yes/no cereal map; 2025-26 picks the most likely of 24 crops. By default this page counts 2025-26 cereal only where WorldCereal's cereal probability is at least 70% and the pixel is part of a patch of at least 0.1 ha. Other ways of counting, compared with 2021:",ckRule:"2025-26 rule",ckIraq:"All",rTop:"Most likely crop (WorldCereal's map)",rP50:"Cereal probability ≥ 50%",rP70:"Confident cereal: ≥ 70%, no specks (default)",rP70all:"Cereal probability ≥ 70%, specks included",doubt:"Show doubtful cereal (below 70%, or specks under 0.1 ha)",doubtPop:"doubtful: cereal probability below 70% or an isolated speck",allPix:"WorldCereal top-crop map",v2026:"2025-26 crops",v2021:"2021 cereals (ESA)",vdiff:"2021 vs 2025-26",dBoth:"Cereal in both years",d2026:"2025-26 only",d2021:"2021 only",
-  dNote:"Only inside processed areas (dashed outline).",y21:"Winter cereals, 2021 (ESA WorldCereal)",tabCheck:"Check",
+  dNote:"Only inside processed areas (dashed outline).",dNone:"Cereal in neither year",dOut:"Outside the processed area: no comparison yet",dNa:"No comparison: the 2021 map is not available here",y21:"Winter cereals, 2021 (ESA WorldCereal)",tabCheck:"Check",
   ckTitle:"Is this map right? Check it yourself",
   ckIntro:"Compare our 2025-26 map with ESA's own published WorldCereal map for 2021, over satellite imagery. Same system, different year, so they should agree on where farming happens, and differ only where land use really changed.",
   ckShow:"Show 2021 vs 2025-26 on the map",ckUnavail:"The comparison needs the newest data files. It will appear after the next data update.",
@@ -357,7 +358,7 @@ const T = {
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
   view:"Map view",gov:"Governorate",ha:"ha"},
  ar:{offseason:"تسمية محصول صيفي (ليس محصولاً شتوياً)",offPop:"ليس محصولاً شتوياً",offWhy:"تسمية WorldCereal: {c}. يُزرع في العراق صيفاً فقط، فلا يمكن أن تكون صحيحة في هذه الخريطة الشتوية.",offRice:"على الأرجح أرض غُمرت بالماء أو رطبة.",unrelPop:"محصول آخر",unrelWhy:"تسمية WorldCereal: {c}، وكثيراً ما تكون هذه التسمية خاطئة في هذه الخريطة.",ckOff:"اللون الرمادي المزرق يعني أن WorldCereal أعطى اسم محصول صيفي، مثل الرز، في هذه الخريطة الشتوية. على شواطئ البحيرات والأهوار يكون هذا غالباً أرضاً غُمرت ثم اخضرّت، وليس رزاً.",ckRulesT:"هل تغيّر طريقة العدّ النتيجة؟",ckRulesP:"خريطة 2021 تجيب بنعم أو لا عن الحبوب؛ أما 2025-26 فتختار المحصول الأرجح من بين 24. افتراضياً تعدّ هذه الصفحة حبوب 2025-26 فقط حيث يبلغ احتمال الحبوب لدى WorldCereal 70% على الأقل ويكون البكسل جزءاً من رقعة لا تقل عن 0.1 هكتار. طرق عدّ أخرى مقارنةً بـ 2021:",ckRule:"قاعدة 2025-26",ckIraq:"الكل",rTop:"المحصول الأرجح (خريطة WorldCereal)",rP50:"احتمال الحبوب ≥ 50%",rP70:"حبوب مؤكدة: ≥ 70% دون بقع (الافتراضي)",rP70all:"احتمال الحبوب ≥ 70% مع البقع",doubt:"إظهار الحبوب المشكوك فيها (أقل من 70% أو بقع أصغر من 0.1 هكتار)",doubtPop:"مشكوك فيها: احتمال الحبوب أقل من 70% أو بقعة معزولة",allPix:"خريطة المحصول الأرجح لـ WorldCereal",v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
-  dNote:"داخل المناطق المعالَجة فقط (الحد المتقطع).",y21:"الحبوب الشتوية 2021 (ESA WorldCereal)",tabCheck:"التحقق",
+  dNote:"داخل المناطق المعالَجة فقط (الحد المتقطع).",dNone:"ليست حبوباً في أيٍّ من السنتين",dOut:"خارج المنطقة المعالَجة: لا مقارنة بعد",dNa:"لا مقارنة: خريطة 2021 غير متاحة هنا",y21:"الحبوب الشتوية 2021 (ESA WorldCereal)",tabCheck:"التحقق",
   ckTitle:"هل الخريطة صحيحة؟ تحقّق بنفسك",
   ckIntro:"قارن خريطتنا لموسم 2025-26 بخريطة WorldCereal الرسمية التي نشرتها وكالة الفضاء الأوروبية لعام 2021، فوق صور الأقمار الصناعية. النظام نفسه وسنة مختلفة، لذا يُفترض أن تتفقا على أماكن الزراعة وأن تختلفا فقط حيث تغيّر استخدام الأرض فعلاً.",
   ckShow:"اعرض 2021 مقابل 2025-26 على الخريطة",ckUnavail:"تحتاج المقارنة إلى أحدث ملفات البيانات، وستظهر بعد التحديث القادم.",
@@ -393,7 +394,7 @@ const T = {
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
   view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
  ku:{offseason:"ناوی بەرهەمی هاوینە (بەرهەمی زستانە نییە)",offPop:"بەرهەمی زستانە نییە",offWhy:"ناوی WorldCereal: {c}. لە عێراق تەنها لە هاویندا دەچێنرێت، بۆیە لەم نەخشە زستانەیەدا ناتوانێت ڕاست بێت.",offRice:"بە ئەگەری زۆر زەوییەکی ئاو لێهاتوو یان شێدارە.",unrelPop:"بەرهەمی تر",unrelWhy:"ناوی WorldCereal: {c}، کە زۆرجار لەم نەخشەیەدا هەڵەیە.",ckOff:"ڕەنگی خۆڵەمێشی-شین واتە WorldCereal ناوی بەرهەمێکی هاوینەی، وەک برنج، لەم نەخشە زستانەیەدا داناوە. لە کەناری دەریاچە و هۆڕەکان ئەمە زۆرجار زەوییەکە کە ئاوی لێهاتووە و پاشان سەوز بووە، نەک برنج.",ckRulesT:"ئایا شێوازی ژماردن ئەنجامەکە دەگۆڕێت؟",ckRulesP:"نەخشەی 2021 بە بەڵێ یان نەخێر وەڵامی دانەوێڵە دەداتەوە؛ 2025-26 ئەگەرترین بەرهەم لە نێوان 24 هەڵدەبژێرێت. بە بنەڕەت ئەم پەڕەیە دانەوێڵەی 2025-26 تەنها لەو شوێنانە دەژمێرێت کە ئەگەری دانەوێڵەی WorldCereal لانیکەم 70%ە و پیکسڵەکە بەشێکە لە پارچەیەکی لانیکەم 0.1 هێکتار. شێوازەکانی تری ژماردن، بەراورد بە 2021:",ckRule:"یاسای 2025-26",ckIraq:"هەموو",rTop:"ئەگەرترین بەرهەم (نەخشەی WorldCereal)",rP50:"ئەگەری دانەوێڵە ≥ 50%",rP70:"دانەوێڵەی دڵنیا: ≥ 70%، بێ پەڵە (بنەڕەت)",rP70all:"ئەگەری دانەوێڵە ≥ 70%، لەگەڵ پەڵەکان",doubt:"پیشاندانی دانەوێڵەی گوماناوی (کەمتر لە 70%، یان پەڵەی بچووکتر لە 0.1 هێکتار)",doubtPop:"گوماناوی: ئەگەری دانەوێڵە کەمتر لە 70% یان پەڵەیەکی تاک",allPix:"نەخشەی ئەگەرترین بەرهەمی WorldCereal",v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
-  dNote:"تەنها لە ناو ناوچە پرۆسێسکراوەکان (سنووری پچڕپچڕ).",y21:"دانەوێڵەی زستانی، 2021 (ESA WorldCereal)",tabCheck:"پشکنین",
+  dNote:"تەنها لە ناو ناوچە پرۆسێسکراوەکان (سنووری پچڕپچڕ).",dNone:"لە هیچ ساڵێکدا دانەوێڵە نییە",dOut:"دەرەوەی ناوچەی پرۆسێسکراو: هێشتا بەراورد نییە",dNa:"بەراورد نییە: نەخشەی 2021 لێرە بەردەست نییە",y21:"دانەوێڵەی زستانی، 2021 (ESA WorldCereal)",tabCheck:"پشکنین",
   ckTitle:"ئایا ئەم نەخشەیە ڕاستە؟ خۆت بیپشکنە",
   ckIntro:"نەخشەکەمان بۆ وەرزی 2025-26 بەراورد بکە لەگەڵ نەخشەی فەرمیی WorldCereal ی ئاژانسی بۆشایی ئەوروپا بۆ ساڵی 2021، لەسەر وێنەی مانگی دەستکرد. هەمان سیستەم و ساڵێکی جیاواز، بۆیە دەبێت لەسەر شوێنی کشتوکاڵ ڕێک بن و تەنها لەو شوێنانە جیاواز بن کە بەکارهێنانی زەوی بەڕاستی گۆڕاوە.",
   ckShow:"2021 بەراورد بە 2025-26 لەسەر نەخشە پیشان بدە",ckUnavail:"بەراوردەکە پێویستی بە نوێترین فایلەکانی داتایە، دوای نوێکردنەوەی داهاتوو دەردەکەوێت.",
@@ -771,27 +772,52 @@ function initMap(){
   map.once("load", addLayers);
   map.on("click", async e => {
     if(drawing) return;
-    const code = await CropLayer.sample(e.lngLat.lng, e.lngLat.lat);
-    const d = CropLayer.describe(code);
-    let gov = "";
-    if(map.getLayer("gov-fill")){
-      const f = map.queryRenderedFeatures(e.point,{layers:["gov-fill"]})[0];
-      if(f) gov = govName(f.properties);
-    }
-    // Labels that don't fit a winter map (crop-layer.js labelNote): name what WorldCereal said, but don't present it as a detection.
-    const what = !d.cls ? t("notCrop")
-      : d.note === "offseason" ? `<b>${t("offPop")}</b><div class="pct" style="margin-top:2px">${t("offWhy",{c:clsName(d.cls)})}${d.cls==="rice" ? " " + t("offRice") : ""}</div>`
-      : d.note === "unreliable" ? `<b>${t("unrelPop")}</b><div class="pct" style="margin-top:2px">${t("unrelWhy",{c:clsName(d.cls)})}</div>`
-      : `<b>${clsName(d.cls)}</b>${d.doubtful ? ` <span class="pct">(${t("doubtPop")})</span>` : d.less ? ` <span class="pct">(${t("lessSure")})</span>` : ""}`;
-    let y21 = "";
-    if(CropLayer.opts.mode !== "crops"){
-      const v = await sample2021(e.lngLat.lng, e.lngLat.lat);
-      y21 = `<div style="margin-top:4px">2021 (ESA): <b>${v===null ? t("y2021na") : v ? t("y2021yes") : t("y2021no")}</b></div>`;
-    }
+    hideHover && hideHover();                                 // the popup says the same; the label returns on the next mouse move
+    const p = await pointInfo(e.lngLat.lng, e.lngLat.lat, e.point, true);
     new maplibregl.Popup({closeButton:true,maxWidth:"260px"}).setLngLat(e.lngLat)
-      .setHTML(`<div>${CropLayer.opts.mode!=="crops"?"2025-26":t("here")}: ${what}</div>${y21}${gov?`<div class="pct" style="margin-top:4px">${t("gov")}: ${gov}</div>`:""}`).addTo(map);
+      .setHTML(`<div><span class="psw" style="background:${p.sw}"></span>${p.head}</div>`
+        + p.rows.map(r => `<div style="margin-top:4px">${r}</div>`).join("")
+        + (p.gov ? `<div class="pct" style="margin-top:4px">${t("gov")}: ${p.gov}</div>` : "")).addTo(map);
   });
   if(matchMedia("(hover: hover) and (pointer: fine)").matches) wireHover();
+}
+
+/* What one point shows in the current view (23 Nov 2026), shared by the click popup and the hover label so each
+   view explains its own colours: "2025-26 crops" → the 2025-26 class; "2021 cereals (ESA)" → only the 2021 answer;
+   "2021 vs 2025-26" → the comparison colour first (same rule as the map: crop-layer.js isWinterCereal with the
+   chosen 2025-26 rule, and only inside the processed area), then each year on its own line.
+   long = click popup: adds why a summer-crop or unreliable label is shown, and "Here:" in the crops view.
+   Returns {sw: swatch colour, head, rows: [html], gov}. */
+const rgbOf = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+async function pointInfo(lng, lat, point, long){
+  const mode = CropLayer.opts.mode, C = CropLayer.DIFF_COLORS;
+  let gov = "";
+  if(map.getLayer("gov-fill")){
+    const f = map.queryRenderedFeatures(point, {layers:["gov-fill"]})[0];
+    if(f) gov = govName(f.properties);
+  }
+  const y21Text = v => `2021 (ESA): <b>${v === null ? t("y2021na") : v ? t("y2021yes") : t("y2021no")}</b>`;
+  if(mode === "y2021"){
+    const v = await sample2021(lng, lat);
+    return {sw: v ? rgbOf(C.y2021) : "transparent", head: y21Text(v), rows: [], gov};
+  }
+  const [code, v] = await Promise.all([CropLayer.sample(lng, lat), mode === "diff" ? sample2021(lng, lat) : null]);
+  const d = CropLayer.describe(code);
+  // Labels that don't fit a winter map (crop-layer.js labelNote): name what WorldCereal said, but don't present it as a detection.
+  const what = !d.cls ? t("notCrop")
+    : d.note === "offseason" ? (long ? `<b>${t("offPop")}</b><div class="pct" style="margin-top:2px">${t("offWhy",{c:clsName(d.cls)})}${d.cls==="rice" ? " " + t("offRice") : ""}</div>` : `<b>${t("offPop")}</b> · ${clsName(d.cls)}`)
+    : d.note === "unreliable" ? (long ? `<b>${t("unrelPop")}</b><div class="pct" style="margin-top:2px">${t("unrelWhy",{c:clsName(d.cls)})}</div>` : `<b>${t("unrelPop")}</b> · ${clsName(d.cls)}`)
+    : `<b>${clsName(d.cls)}</b>${d.doubtful ? " · " + t("doubtPop") : d.less ? " · " + t("lessSure") : ""}`;
+  if(mode !== "diff"){
+    const sw = !d.cls ? "transparent" : d.note === "offseason" ? CropLayer.OFF_SEASON_COLOR : CropLayer.colors()[(code % 100) - 1];
+    return {sw, head: long ? `${t("here")}: ${what}` : what, rows: [], gov};
+  }
+  const rows = [`2025-26: ${what}`, y21Text(v)];
+  if(!procAt(lng, lat)) return {sw: "transparent", head: t("dOut"), rows, gov};
+  if(v === null) return {sw: "transparent", head: t("dNa"), rows, gov};
+  const a = v === 1, b = CropLayer.isWinterCereal(code);
+  const k = a && b ? "both" : b ? "only2026" : a ? "only2021" : "";
+  return {sw: k ? rgbOf(C[k]) : "transparent", head: `<b>${t({both:"dBoth", only2026:"d2026", only2021:"d2021", "":"dNone"}[k])}</b>`, rows, gov};
 }
 
 /* ------------------------------------------------------------------ hover label
@@ -803,10 +829,12 @@ function initMap(){
    covers many 10 m pixels); hidden while the map moves, while drawing a box and when the mouse leaves the map.
    Phones and tablets keep tap-for-popup. The label shows the stored class even where a legend box hides it. */
 const HOVER_MIN_ZOOM = 11;
+var hideHover = null;                                         // set by wireHover; var, so setView can run before this line
 function wireHover(){
   const tip = $("#hovertip"), box = map.getContainer();
   let pend = null, busy = false, raf = 0, seq = 0, lastPt = null;
   const hide = () => { seq++; pend = null; tip.hidden = true; };
+  hideHover = hide;
   const place = p => {
     const W = box.clientWidth, H = box.clientHeight, w = tip.offsetWidth, h = tip.offsetHeight;
     let x = p.x + 16, y = p.y + 16;
@@ -817,23 +845,11 @@ function wireHover(){
   const show = async e => {
     if(drawing || map.isMoving() || map.getZoom() < HOVER_MIN_ZOOM){ hide(); return; }
     const my = seq, {lng, lat} = e.lngLat;
-    const code = await CropLayer.sample(lng, lat);
-    const y21 = CropLayer.opts.mode !== "crops" ? await sample2021(lng, lat) : undefined;
-    if(my !== seq) return;                                    // the mouse left or the map moved meanwhile
-    const d = CropLayer.describe(code);
-    const sw = !d.cls ? "transparent" : d.note === "offseason" ? CropLayer.OFF_SEASON_COLOR : CropLayer.colors()[(code % 100) - 1];
-    const what = !d.cls ? t("notCrop")
-      : d.note === "offseason" ? `<b>${t("offPop")}</b> · ${clsName(d.cls)}`
-      : d.note === "unreliable" ? `<b>${t("unrelPop")}</b> · ${clsName(d.cls)}`
-      : `<b>${clsName(d.cls)}</b>${d.doubtful ? " · " + t("doubtPop") : d.less ? " · " + t("lessSure") : ""}`;
-    let gov = "";
-    if(map.getLayer("gov-fill")){
-      const f = map.queryRenderedFeatures(e.point, {layers:["gov-fill"]})[0];
-      if(f) gov = govName(f.properties);
-    }
-    tip.innerHTML = `<div><span class="sw" style="background:${sw}"></span>${CropLayer.opts.mode !== "crops" ? "2025-26: " : ""}${what}</div>`
-      + (y21 !== undefined ? `<div>2021 (ESA): <b>${y21 === null ? t("y2021na") : y21 ? t("y2021yes") : t("y2021no")}</b></div>` : "")
-      + `<div class="m">${gov ? gov + " · " : ""}<span class="c">${lat.toFixed(5)}, ${lng.toFixed(5)}</span></div>`;
+    const p = await pointInfo(lng, lat, e.point, false);
+    if(my !== seq) return;                                    // the mouse left, the map moved or the view changed meanwhile
+    tip.innerHTML = `<div><span class="sw" style="background:${p.sw}"></span>${p.head}</div>`
+      + p.rows.map(r => `<div>${r}</div>`).join("")
+      + `<div class="m">${p.gov ? p.gov + " · " : ""}<span class="c">${lat.toFixed(5)}, ${lng.toFixed(5)}</span></div>`;
     tip.hidden = false;
     place(lastPt || e.point);
   };
@@ -860,16 +876,23 @@ function refreshCrops(){
 CLASS_KEYS.forEach(k => $("#lg-"+k).onchange = e => { CropLayer.setOptions({show:{[k]:e.target.checked}}); refreshCrops(); writeLink(); });
 $("#lg-fade").onchange = e => { CropLayer.setOptions({fadeLess:e.target.checked}); refreshCrops(); writeLink(); };
 $("#lg-doubt").onchange = e => { CropLayer.setOptions({showDoubtful:e.target.checked}); refreshCrops(); writeLink(); };
-$("#lg-rule").onchange = e => { CropLayer.setOptions({cerealRule:e.target.value}); refreshCrops(); renderCheck(); writeLink(); };
+$("#lg-rule").onchange = e => { hideHover && hideHover(); CropLayer.setOptions({cerealRule:e.target.value}); refreshCrops(); renderCheck(); writeLink(); };
 $("#lg-op").oninput = e => map && map.getLayer("crops") && map.setPaintProperty("crops","raster-opacity",+e.target.value);
 $("#lg-op").onchange = writeLink;
 
-async function sample2021(lon, lat){
+function px14(lon, lat){                                     // z14 tile and pixel index of a point (≈ 10 m pixels in Iraq)
   const z = 14, n = 2 ** z, [mx, my] = CropLayer.lonLatTo3857(lon, lat), R = 20037508.342789244, s = 2 * R / n;
   const tx = Math.floor((mx + R) / s), ty = Math.floor((R - my) / s);
-  const m = await CropLayer.wc21Tile(z, tx, ty);
-  if(!m) return null;
-  return m[Math.floor(((R - my) / s - ty) * 256) * 256 + Math.floor(((mx + R) / s - tx) * 256)];
+  return {z, tx, ty, i: Math.floor(((R - my) / s - ty) * 256) * 256 + Math.floor(((mx + R) / s - tx) * 256)};
+}
+async function sample2021(lon, lat){
+  const p = px14(lon, lat), m = await CropLayer.wc21Tile(p.z, p.tx, p.ty);
+  return m ? m[p.i] : null;
+}
+function procAt(lon, lat){                                    // inside the processed area (dashed outline)?
+  if(!CropLayer.canCompare()) return false;
+  const p = px14(lon, lat);
+  return !!CropLayer.procTile(p.z, p.tx, p.ty)[p.i];
 }
 function zoomHint(){
   const show = map && CropLayer.opts.mode === "diff" && map.getZoom() < CropLayer.DIFF_MIN_ZOOM - 1.5;   // 256 px tiles: MapLibre requests tile zoom round(map zoom + 1), so z12 tiles from map zoom 10.5
@@ -878,6 +901,7 @@ function zoomHint(){
 function setView(v){
   if(v === "diff" && !CropLayer.canCompare()) v = "crops";
   CropLayer.setOptions({mode:v});
+  hideHover && hideHover();
   document.querySelectorAll("input[name=view]").forEach(r => r.checked = r.value === v);
   $("#lg-crops").hidden = v !== "crops"; $("#lg-diff").hidden = v !== "diff"; $("#lg-y2021").hidden = v !== "y2021";
   if(map && map.getLayer("proc-line")) map.setLayoutProperty("proc-line","visibility", v === "diff" ? "visible" : "none");
