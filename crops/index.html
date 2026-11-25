@@ -133,6 +133,7 @@ sup.gap{color:var(--muted);font-weight:700;cursor:help}
 .btn.on{background:var(--canal);color:#fff;border-color:var(--canal)}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .seg{display:flex;flex-wrap:wrap;gap:8px}
+#gl-ov[hidden],#gl-full[hidden],.btn[hidden]{display:none!important}
 select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 10px;font-weight:600;font-size:13px;max-width:100%}
 .code{font-family:var(--mono);font-size:12px;background:#1d2a21;color:#E8EFE9;border-radius:10px;padding:10px 12px;
   overflow-x:auto;white-space:pre;direction:ltr;text-align:left;line-height:1.5}
@@ -248,22 +249,37 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
         <p class="note" data-t="dlNote">One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure; +200 = doubtful cereal (cereal probability below 70%, or an isolated speck under 0.1 ha). Opens in QGIS, ArcGIS and GeoLibre.</p>
       </div>
       <div class="card" style="display:grid;gap:10px">
-        <h2 data-t="qgisTitle">Stream in QGIS (whole country, full detail)</h2>
+        <h2 data-t="qgisTitle">Stream in QGIS (whole country)</h2>
+        <div class="seg" role="group" aria-label="Detail">
+          <button class="btn on" data-qres="full" aria-pressed="true" data-t="resFull">10 m · full detail</button>
+          <button class="btn" data-qres="ov" aria-pressed="false" data-t="resOv">76 m · one file</button>
+        </div>
         <ol>
           <li data-t="qgis1">Layer ▸ Add Layer ▸ Add Raster Layer…</li>
           <li data-t="qgis2">Source type: Protocol: HTTP(S), cloud, etc. Paste this link:</li>
         </ol>
         <div class="copyrow"><input id="url-vrt" readonly><button class="btn" data-copy="url-vrt" data-t="copy">Copy</button></div>
+        <p class="note" id="qgis-note"></p>
         <p class="note"><span data-t="qgis3">Then load the colours: Layer Properties ▸ Style ▸ Load Style ▸</span> <a id="qml" download data-t="qmlLink">iraq_crops.qml</a></p>
         <h3 data-t="gdalTitle">GDAL command for your area</h3>
         <div class="code" id="gdal"></div>
       </div>
       <div class="card" style="display:grid;gap:10px">
         <h2 data-t="glTitle">GeoLibre and other COG viewers</h2>
-        <p class="note" data-t="glText">Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:</p>
-        <div class="copyrow"><input id="url-ov" readonly><button class="btn" data-copy="url-ov" data-t="copy">Copy</button></div>
-        <p class="note" data-t="glCells">Full 10 m detail is split into blocks; the blocks covering your area:</p>
-        <div id="cell-links" class="note"></div>
+        <div class="seg" role="group" aria-label="Detail">
+          <button class="btn on" data-gres="ov" aria-pressed="true" data-t="resOv">76 m · one file</button>
+          <button class="btn" data-gres="full" aria-pressed="false" data-t="resFull">10 m · full detail</button>
+        </div>
+        <div id="gl-ov" style="display:grid;gap:10px">
+          <p class="note" data-t="glText">Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:</p>
+          <div class="copyrow"><input id="url-ov" readonly><button class="btn" data-copy="url-ov" data-t="copy">Copy</button></div>
+        </div>
+        <div id="gl-full" style="display:grid;gap:8px" hidden>
+          <p class="note" data-t="glFullWhy">COG viewers open one file at a time, and the whole country at 10 m is too big for one file, so full detail comes in blocks of about 65 km. Paste one block's link:</p>
+          <p class="note" id="gl-cells-note" style="font-weight:700"></p>
+          <div id="cell-links" class="note"></div>
+          <div class="seg"><button class="btn" id="gl-copyall" hidden></button><a class="btn" id="gl-alltxt" download></a></div>
+        </div>
       </div>
       <div class="links" id="dl-files"></div>
     </section>
@@ -351,9 +367,9 @@ const T = {
   lvl:"{m} m pixels — up to {mb} MB",lvlFull:"Full detail (WorldCereal {m} m) — up to {mb} MB",lvlTooBig:"too large for the browser — use QGIS/GDAL",
   dlDone:"Downloaded. In this area (approximate, from the map pixels): wheat {w} ha, barley {b} ha, all cropland {c} ha.",dlFail:"Download failed: {e}",
   dlNote:"One band, colours included. 0 = not cropland; codes 1–24 = WorldCereal classes; +100 = WorldCereal less sure; +200 = doubtful cereal (cereal probability below 70%, or an isolated speck under 0.1 ha). Opens in QGIS, ArcGIS and GeoLibre.",
-  qgisTitle:"Stream in QGIS (whole country, full detail)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"Source type: Protocol: HTTP(S), cloud, etc. Paste this link:",
+  qgisTitle:"Stream in QGIS (whole country)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"Source type: Protocol: HTTP(S), cloud, etc. Paste this link:",
   qgis3:"Then load the colours: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"GDAL command for your area",gdalAll:"No area chosen: this copies the whole country at full detail, a very large file. Choose an area above for a smaller command.",
-  glTitle:"GeoLibre and other COG viewers",glText:"Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:",glCells:"Full 10 m detail is split into blocks; the blocks covering your area:",
+  glTitle:"GeoLibre and other COG viewers",glText:"Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:",resFull:"10 m · full detail",resOv:"76 m · one file",qgisFull:"A virtual mosaic (VRT) of the 10 m blocks: QGIS reads only what is on screen, and coarser copies when you zoom out.",qgisOv:"One small file of the whole country at 76 m: quick to open, but too coarse to show single fields.",glFullWhy:"COG viewers open one file at a time, and the whole country at 10 m is too big for one file, so full detail comes in blocks of about 65 km. Paste one block's link:",glCellsArea:"Blocks covering your area: {n}",glCellsView:"No area chosen, so these are the blocks in the current map view: {n}. Move the map, or choose an area above.",glCellsNone:"No processed blocks here yet. Move the map to an area with crops, or choose an area above.",copyAll:"Copy all {n} links",allList:"All {n} blocks (list, .txt)",
   copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
   view:"Map view",gov:"Governorate",ha:"ha"},
@@ -387,9 +403,9 @@ const T = {
   lvl:"بكسل {m} م — حتى {mb} م.ب",lvlFull:"الدقة الكاملة (WorldCereal {m} م) — حتى {mb} م.ب",lvlTooBig:"أكبر من أن يعالجه المتصفح — استخدم QGIS/GDAL",
   dlDone:"تم التنزيل. في هذه المنطقة (تقريبياً، من بكسلات الخريطة): قمح {w} هكتار، شعير {b} هكتار، كل الأراضي الزراعية {c} هكتار.",dlFail:"فشل التنزيل: {e}",
   dlNote:"نطاق واحد مع الألوان. 0 = ليست أرضاً زراعية؛ الرموز 1–24 = أصناف WorldCereal؛ +100 = ثقة أقل؛ +200 = حبوب مشكوك فيها (احتمال أقل من 70% أو بقعة معزولة أصغر من 0.1 هكتار). يُفتح في QGIS وArcGIS وGeoLibre.",
-  qgisTitle:"البث في QGIS (كل البلاد، دقة كاملة)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"نوع المصدر: Protocol: HTTP(S). الصق هذا الرابط:",
+  qgisTitle:"البث في QGIS (كل البلاد)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"نوع المصدر: Protocol: HTTP(S). الصق هذا الرابط:",
   qgis3:"ثم حمّل الألوان: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"أمر GDAL لمنطقتك",gdalAll:"لم تُختر منطقة: هذا ينسخ البلد كله بالدقة الكاملة، وهو ملف كبير جداً. اختر منطقة في الأعلى لأمر أصغر.",
-  glTitle:"GeoLibre وعارضات COG الأخرى",glText:"الصق رابط GeoTIFF محسّن للسحابة. كل البلاد بدقة 76 م:",glCells:"الدقة الكاملة 10 م مقسّمة إلى كتل؛ الكتل التي تغطي منطقتك:",
+  glTitle:"GeoLibre وعارضات COG الأخرى",glText:"الصق رابط GeoTIFF محسّن للسحابة. كل البلاد بدقة 76 م:",resFull:"10 م · دقة كاملة",resOv:"76 م · ملف واحد",qgisFull:"فسيفساء افتراضية (VRT) من كتل الـ10 م: يقرأ QGIS ما يظهر على الشاشة فقط، ونسخاً أخشن عند التصغير.",qgisOv:"ملف واحد صغير لكل البلاد بدقة 76 م: سريع الفتح، لكنه أخشن من أن يُظهر الحقول المفردة.",glFullWhy:"تفتح عارضات COG ملفاً واحداً في كل مرة، وكل البلاد بدقة 10 م أكبر من أن تكون ملفاً واحداً، لذا تأتي الدقة الكاملة في كتل بعرض نحو 65 كم. الصق رابط كتلة واحدة:",glCellsArea:"الكتل التي تغطي منطقتك: {n}",glCellsView:"لم تُختر منطقة، فهذه كتل عرض الخريطة الحالي: {n}. حرّك الخريطة أو اختر منطقة أعلاه.",glCellsNone:"لا توجد كتل معالَجة هنا بعد. حرّك الخريطة إلى منطقة فيها محاصيل، أو اختر منطقة أعلاه.",copyAll:"نسخ الروابط كلها ({n})",allList:"كل الكتل ({n}، قائمة ‎.txt)",
   copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
   view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
@@ -423,9 +439,9 @@ const T = {
   lvl:"پیکسڵی {m} م — تا {mb} MB",lvlFull:"وردی تەواو (WorldCereal {m} م) — تا {mb} MB",lvlTooBig:"زۆر گەورەیە بۆ وێبگەڕ — QGIS/GDAL بەکاربهێنە",
   dlDone:"داگیرا. لەم ناوچەیەدا (نزیکەیی، لە پیکسڵەکانی نەخشە): گەنم {w} هێکتار، جۆ {b} هێکتار، هەموو زەوی کشتوکاڵی {c} هێکتار.",dlFail:"داگرتن سەرکەوتوو نەبوو: {e}",
   dlNote:"یەک باند، ڕەنگەکانی تێدایە. 0 = زەوی کشتوکاڵی نییە؛ کۆدەکانی 1–24 = پۆلەکانی WorldCereal؛ +100 = دڵنیایی کەمتر؛ +200 = دانەوێڵەی گوماناوی (ئەگەری کەمتر لە 70%، یان پەڵەیەکی تاکی بچووکتر لە 0.1 هێکتار). لە QGIS و ArcGIS و GeoLibre دەکرێتەوە.",
-  qgisTitle:"پەخش لە QGIS (هەموو وڵات، وردی تەواو)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"جۆری سەرچاوە: Protocol: HTTP(S). ئەم بەستەرە دابنێ:",
+  qgisTitle:"پەخش لە QGIS (هەموو وڵات)",qgis1:"Layer ▸ Add Layer ▸ Add Raster Layer…",qgis2:"جۆری سەرچاوە: Protocol: HTTP(S). ئەم بەستەرە دابنێ:",
   qgis3:"پاشان ڕەنگەکان باربکە: Layer Properties ▸ Style ▸ Load Style ▸",qmlLink:"iraq_crops.qml",gdalTitle:"فەرمانی GDAL بۆ ناوچەکەت",gdalAll:"هیچ ناوچەیەک هەڵنەبژێردراوە: ئەمە هەموو وڵات بە وردی تەواو کۆپی دەکات، فایلێکی زۆر گەورە. ناوچەیەک لە سەرەوە هەڵبژێرە بۆ فەرمانێکی بچووکتر.",
-  glTitle:"GeoLibre و بینەرەکانی تری COG",glText:"بەستەری GeoTIFFی گونجاو بۆ هەور دابنێ. هەموو وڵات بە وردی 76 م:",glCells:"وردی تەواوی 10 م دابەشکراوە بۆ بلۆک؛ ئەو بلۆکانەی ناوچەکەت دادەپۆشن:",
+  glTitle:"GeoLibre و بینەرەکانی تری COG",glText:"بەستەری GeoTIFFی گونجاو بۆ هەور دابنێ. هەموو وڵات بە وردی 76 م:",resFull:"10 م · وردی تەواو",resOv:"76 م · یەک فایل",qgisFull:"مۆزاییکێکی مەجازی (VRT) لە بلۆکەکانی 10 م: QGIS تەنها ئەوەی لەسەر شاشەیە دەخوێنێتەوە، و کاتێک دوور دەکەویتەوە وێنەی زبرتر.",qgisOv:"یەک فایلی بچووک بۆ هەموو وڵات بە وردی 76 م: زوو دەکرێتەوە، بەڵام زۆر زبرە بۆ پیشاندانی کێڵگەی تاک.",glFullWhy:"بینەرەکانی COG هەر جارێک یەک فایل دەکەنەوە، و هەموو وڵات بە وردی 10 م زۆر گەورەیە بۆ یەک فایل، بۆیە وردی تەواو بە بلۆکی نزیکەی 65 کم دێت. بەستەری یەک بلۆک دابنێ:",glCellsArea:"ئەو بلۆکانەی ناوچەکەت دادەپۆشن: {n}",glCellsView:"هیچ ناوچەیەک هەڵنەبژێردراوە، بۆیە ئەمانە بلۆکەکانی دیمەنی ئێستای نەخشەن: {n}. نەخشەکە بجوڵێنە یان لە سەرەوە ناوچەیەک هەڵبژێرە.",glCellsNone:"هێشتا هیچ بلۆکێکی پرۆسێسکراو لێرە نییە. نەخشەکە ببە بۆ ناوچەیەک کە بەرهەمی تێدایە، یان لە سەرەوە ناوچەیەک هەڵبژێرە.",copyAll:"کۆپیکردنی هەموو بەستەرەکان ({n})",allList:"هەموو بلۆکەکان ({n}، لیستی ‎.txt)",
   copy:"کۆپی",copied:"کۆپی کرا",chooseArea:"سەرەتا ناوچەیەک هەڵبژێرە.",here:"لێرە",notCrop:"زەوی کشتوکاڵی نییە (یان هێشتا پرۆسێس نەکراوە)",lessSure:"دڵنیایی کەمتر",
   loading:"چینی بەرهەمەکان باردەکرێت…",noData:"چینی بەرهەمەکان هێشتا بڵاو نەکراوەتەوە.",files:"فایلەکان",legendCsv:"ڕێبەری ڕەنگ (CSV)",indexJson:"پێڕست (JSON)",
   view:"دیمەنی نەخشە",gov:"پارێزگا",ha:"هێکتار"}
@@ -769,6 +785,7 @@ function initMap(){
   if(map.isStyleLoaded()) addLayers(); else map.once("style.load", addLayers);
   map.on("zoomend", zoomHint);
   map.on("moveend", writeLink);
+  map.on("moveend", () => { if(!AOI && GRES === "full") renderCells(); });
   map.once("load", addLayers);
   map.on("click", async e => {
     if(drawing) return;
@@ -988,11 +1005,45 @@ function groundM(L){
   const lat = AOI ? (AOI.bbox[1]+AOI.bbox[3])/2 : 33;
   return Math.round(CropLayer.levelRes(L)*Math.cos(lat*Math.PI/180));
 }
+/* 10 m or 76 m (25 Nov 2026). QGIS: the VRT (10 m blocks, with coarser copies for zoomed-out views) or the single
+   76 m overview. COG viewers (GeoLibre etc.) open one file at a time and the whole country at 10 m is too big for one
+   file on GitHub Pages (100 MB limit), so 10 m comes as blocks: those covering the chosen area, or, with no area,
+   the current map view (it follows the map), plus "copy all" and a list of every block. */
+let QRES = "full", GRES = "ov";
+function applyRes(){
+  document.querySelectorAll("[data-qres]").forEach(b => { const on = b.dataset.qres === QRES; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+  document.querySelectorAll("[data-gres]").forEach(b => { const on = b.dataset.gres === GRES; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+  if(INDEX) $("#url-vrt").value = DATA_ABS + (QRES === "full" ? INDEX.vrt : INDEX.overview.file);
+  $("#qgis-note").textContent = t(QRES === "full" ? "qgisFull" : "qgisOv");
+  $("#gl-ov").hidden = GRES !== "ov"; $("#gl-full").hidden = GRES !== "full";
+}
+document.querySelectorAll("[data-qres]").forEach(b => b.onclick = () => { QRES = b.dataset.qres; applyRes(); });
+document.querySelectorAll("[data-gres]").forEach(b => b.onclick = () => { GRES = b.dataset.gres; applyRes(); renderCells(); });
+function renderCells(){
+  if(!INDEX) return;
+  let b = null;
+  if(AOI) b = bbox3857(AOI.bbox);
+  else if(map){ const v = map.getBounds(); b = bbox3857([v.getWest(), Math.max(-85, v.getSouth()), v.getEast(), Math.min(85, v.getNorth())]); }
+  const R = 20037508.342789244, cs = 2*R/2**INDEX.cell_zoom;
+  const cells = !b ? [] : INDEX.cells.filter(c => { const cb=[-R+c.x*cs, R-(c.y+1)*cs, -R+(c.x+1)*cs, R-c.y*cs]; return cb[0]<b[2]&&cb[2]>b[0]&&cb[1]<b[3]&&cb[3]>b[1]; });
+  const urls = cells.map(c => DATA_ABS + c.file);
+  $("#gl-cells-note").textContent = !urls.length ? t("glCellsNone") : t(AOI ? "glCellsArea" : "glCellsView", {n: urls.length});
+  $("#cell-links").innerHTML = urls.slice(0,12).map(u => `<div class="copyrow" style="margin-top:6px"><input readonly value="${u}"><button class="btn" data-copyval="${u}">${t("copy")}</button></div>`).join("")
+    + (urls.length > 12 ? `<div style="margin-top:6px">+${urls.length-12}…</div>` : "");
+  const all = $("#gl-copyall");
+  all.hidden = urls.length < 2;
+  all.textContent = t("copyAll", {n: urls.length});
+  all.dataset.copyval = urls.join("\n");
+}
 function updateAoi(){
   const sum = $("#aoi-sum"), lv = $("#dl-level");
   if(!INDEX) return;
-  $("#url-vrt").value = DATA_ABS + INDEX.vrt;
   $("#url-ov").value = DATA_ABS + INDEX.overview.file;
+  const allUrls = INDEX.cells.map(c => DATA_ABS + c.file);
+  $("#gl-alltxt").href = "data:text/plain;charset=utf-8," + encodeURIComponent(allUrls.join("\n") + "\n");
+  $("#gl-alltxt").download = `iraq_crops_${INDEX.season}_blocks.txt`;
+  $("#gl-alltxt").textContent = t("allList", {n: allUrls.length});
+  applyRes();
   $("#qml").href = DATA + "iraq_crops.qml";
   $("#dl-files").innerHTML = `<span class="note" style="align-self:center">${t("files")}:</span>
     <a class="btn" href="${DATA}legend.csv" download>${t("legendCsv")}</a>
@@ -1001,7 +1052,7 @@ function updateAoi(){
   if(!AOI){
     sum.textContent = t("aoiNone"); lv.innerHTML = ""; $("#dl-go").disabled = true;
     $("#gdal").textContent = `# ${t("gdalAll")}\n` + `gdal_translate -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  iraq_crops_${INDEX.season}.tif`;
-    $("#cell-links").textContent = "–";
+    renderCells();
     return;
   }
   const area = AOI.geom ? polyKm2(AOI.geom) : km2(AOI.bbox);
@@ -1022,9 +1073,7 @@ function updateAoi(){
   $("#gdal").textContent = AOI.gov
     ? `gdalwarp -cutline /vsicurl/${DATA_ABS}boundaries.geojson \\\n  -cwhere "name='${AOI.gov}'" -crop_to_cutline \\\n  -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  ${out}`
     : `gdal_translate -projwin_srs EPSG:4326 -projwin ${w} ${n} ${e} ${s} \\\n  -co COMPRESS=DEFLATE -co TILED=YES \\\n  /vsicurl/${DATA_ABS}${INDEX.vrt} \\\n  ${out}`;
-  const R = 20037508.342789244, cs = 2*R/2**INDEX.cell_zoom;
-  const cells = INDEX.cells.filter(c => { const cb=[-R+c.x*cs, R-(c.y+1)*cs, -R+(c.x+1)*cs, R-c.y*cs]; return cb[0]<b[2]&&cb[2]>b[0]&&cb[1]<b[3]&&cb[3]>b[1]; });
-  $("#cell-links").innerHTML = cells.length ? cells.slice(0,12).map(c => `<div class="copyrow" style="margin-top:6px"><input readonly value="${DATA_ABS}${c.file}"><button class="btn" data-copyval="${DATA_ABS}${c.file}">${t("copy")}</button></div>`).join("") + (cells.length>12?`<div>+${cells.length-12}…</div>`:"") : "–";
+  renderCells();
 }
 $("#aoi-draw").onclick = () => {
   drawing = !drawing;
