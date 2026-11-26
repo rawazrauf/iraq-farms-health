@@ -1086,7 +1086,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.26-c";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.26-d";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -3426,6 +3426,7 @@ async function runPlay(){
     return;
   }
   P.state = P.shownAny ? "done" : "error"; updatePlayUI();
+  if(P.state === "done") offerReportAfterPreview(P.f);   // a full "Watch month by month" ends with the invitation too
 }
 
 function maybeAutoPreview(f){
@@ -3450,12 +3451,15 @@ function maybeAutoPreview(f){
    computers (side card) a card appears beside the field card, level with the Report button and pointing at it,
    with a thumbnail of this field's real Report and a list of what it holds, and a Download button (it stays while
    the mouse is over it). The Report button flashes three times, then stays green while the invitation is up. Tapping the pill is the same as tapping Report (the tap keeps the share sheet working on
-   phones). Shown at most once per visit and on at most REPORT_CTA_MAX visits, never once Report has been used;
+   phones). Shown after every preview and every finished "Watch month by month" (26 Nov 2026: Rawaz wants it every
+   time, it is easy to miss), except during the guide;
    it waits up to 4 s for the Report to be ready and is skipped if it isn't; it leaves after REPORT_CTA_MS, when
    another field is opened, a playback starts or the card closes. Reduced motion needs no variant: the preview
    itself never runs then. */
-const REPORT_CTA_MS = 8000, REPORT_CARD_MS = 12000, REPORT_CTA_MAX = 3;   // the card has more to read
-var __repCta = null, __repCtaShown = false;   // var: closeSheet may run before this line on some paths
+const REPORT_CTA_MS = 8000, REPORT_CARD_MS = 12000;   // the card has more to read
+var __repCta = null;   // var: closeSheet may run before this line on some paths
+// A playback that is still going (or paused) keeps the invitation away; a finished one doesn't.
+function playRunning(){ return !!__play && __play.state !== "done"; }
 function hideReportCta(){
   if(!__repCta) return;
   clearTimeout(__repCta.timer); clearInterval(__repCta.watch); if(__repCta.off) __repCta.off(); __repCta.el.remove(); __repCta = null;
@@ -3463,17 +3467,12 @@ function hideReportCta(){
 }
 function offerReportAfterPreview(f){
   try{
-    if(__repCtaShown) return;
-    let n = 0;
-    try{ if(localStorage.getItem("ifh.reportUsed")) return; n = +(localStorage.getItem("ifh.repCta") || 0); }catch{}
-    if(n >= REPORT_CTA_MAX) return;
+    if(typeof tourActive!=="undefined" && tourActive) return;
     const t0 = Date.now();
     const wait = setInterval(()=>{
-      if(lastField!==f || !sheet.classList.contains("open") || __play || Date.now()-t0 > 4000){ clearInterval(wait); return; }
+      if(lastField!==f || !sheet.classList.contains("open") || playRunning() || Date.now()-t0 > 4000){ clearInterval(wait); return; }
       if(!__reportReady || __reportReadyField!==f) return;
       clearInterval(wait);
-      __repCtaShown = true;
-      try{ localStorage.setItem("ifh.repCta", String(n+1)); }catch{}
       showReportCta(f);
     }, 250);
   }catch(e){ DBG.warn("report invitation: "+e.message); }
@@ -3507,7 +3506,7 @@ function showReportCta(f){
   }
   flashReportBtn();
   __repCta = {el, timer: setTimeout(hideReportCta, REPORT_CTA_MS),
-              watch: setInterval(()=>{ if(lastField!==f || !sheet.classList.contains("open") || __play) hideReportCta(); }, 300)};
+              watch: setInterval(()=>{ if(lastField!==f || !sheet.classList.contains("open") || playRunning()) hideReportCta(); }, 300)};
   gcEvent("report-cta-shown");
   DBG.log("report: invitation shown after the preview");
 }
@@ -3567,7 +3566,7 @@ function showReportCard(f, t){
   flashReportBtn();
   const arm = () => setTimeout(hideReportCta, REPORT_CARD_MS);
   __repCta = {el, timer: arm(),
-              watch: setInterval(()=>{ if(lastField!==f || !sheet.classList.contains("open") || __play) hideReportCta(); }, 300),
+              watch: setInterval(()=>{ if(lastField!==f || !sheet.classList.contains("open") || playRunning()) hideReportCta(); }, 300),
               off: () => { sheet.removeEventListener("scroll", place); window.removeEventListener("resize", place); }};
   // While the mouse is over the card it stays; it leaves REPORT_CARD_MS after the mouse goes.
   el.addEventListener("mouseenter", () => { if(__repCta){ clearTimeout(__repCta.timer); __repCta.timer = 0; } });
@@ -4137,7 +4136,7 @@ function renderField(f){
   if(shareBtn) shareBtn.addEventListener("click",()=>{ gcEvent("share"); shareField(f, shareBtn); });
   const reportBtn = document.getElementById("report-field-btn");
   if(reportBtn) reportBtn.addEventListener("click",()=>{
-    if(__reportReady && !__reportBusy){ gcEvent("report"); try{ localStorage.setItem("ifh.reportUsed", "1"); }catch{} }
+    if(__reportReady && !__reportBusy) gcEvent("report");
     hideReportCta(); buildFieldReport(f, reportBtn);
   });
   // Start (or refresh) the readiness monitor for this field, which enables the
