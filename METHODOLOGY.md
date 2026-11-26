@@ -131,7 +131,7 @@ Under the chart, **Watch month by month** plays the field's history on the map. 
 When a field is opened, one request fetches the daily rainfall at the field's centre for the same 24 months as the chart, and adds it up by month. The last nine days are left out, because the archive takes about a week to fill in.
 
 - The card compares the **last 12 months with the 12 before**: "this year … mm · last year … mm", then "wetter", "drier" or "about the same" (within 15 mm). It is shown only if both years have at least 11 months of data.
-- The Report adds **monthly rainfall as numbers**: two rows, this year (the last 12 months) and last year (the 12 before), the same windows as the text line, with each month's millimetres shaded darker blue for more rain and each row's total beside it.
+- The Report adds **monthly rainfall as numbers**: two rows, this year (the last 12 months) and last year (the 12 before), the same windows as the text line, with each month's millimetres shaded darker blue for more rain, each row's total beside it, and a third row with each month's change.
 - Because the grid is 9–25 km, neighbouring fields usually get the same figure. It describes the area's rain, not irrigation.
 
 ### Wheat or barley in 2021
@@ -156,6 +156,22 @@ To compare this year with last year, the tool computes the **area under the NDVI
 The tool reports each field's area in **donums** (1 donum = 2,500 m²). The area is calculated directly from the field's boundary polygon using a geodesic (spherical-excess) formula, which is accurate at Iraq's latitude — a simple flat calculation on raw longitude/latitude degrees would be substantially wrong. Interior holes in a boundary are subtracted.
 
 > **Important:** the size is only as accurate as the FTW boundary it is measured from. Because those boundaries are model predictions (see §2), a field whose outline is slightly too large or too small will produce a correspondingly off size. Treat it as a close estimate, not a survey.
+
+### The Report
+
+**Report** makes one picture of the field to keep or send (a download on a computer, the share sheet on a phone). It is laid out like a certificate, in the reader's language, from top to bottom:
+
+- **Title and QR code.** The QR code opens this field on the map, in the same language. It holds only the field's link, nothing else.
+- **The field's facts:** its code, location, size and the date of the newest reading.
+- **A small map** of the field and its neighbours, coloured by health, beside the **verdict**: the current reading, Good, Fair or Poor, what that means, the change over the year, and this year's rain.
+- **Greenness and rain, month by month:** this year (the last 12 months), last year (the 12 before) and the change, as numbers in coloured cells. A month without a reading shows "–", never an estimate. The change is worked out from the numbers as printed, so it always matches them.
+- **The month images** behind the readings, the same ones the preview plays.
+- **A table of the measures** with this year, last year and a status: greenness now and at its peak, rain, moisture (with how it compares with nearby fields), how green the field is next to its neighbours, and wheat or barley in 2021. Everything the field card leaves out is here, so the Report is the field's full record.
+- **The sources** and a stamp with the date of the reading.
+
+A reading **below zero** is open water, bare ground or a building, not a failing crop. The Report shows it in grey as "Water or bare" rather than as Poor. (The map and the field card still show it as Poor.)
+
+The month grids and images run left to right in every language, as a timeline; the rest of the page runs right to left in Arabic and Kurdish. Text is at least about 20 px on the 1080 px image, because a phone shows the image at about a third of that.
 
 ---
 
