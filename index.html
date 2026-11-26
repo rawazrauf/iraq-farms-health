@@ -1087,7 +1087,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.26-f";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.26-g";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -4433,6 +4433,9 @@ let __reportBusy = false;   // a report is being built or its share sheet is ope
    buildFieldReport so the computer's Report invitation can show a thumbnail of the real Report). */
 async function drawFieldReport(f){
   const t = I18N[lang];
+  /* Arabic and Kurdish (26 Nov 2026): headings, the stat cards and the "as of" line run right to left and sit on
+     the right, like the notes at the bottom; the map, chart and tables keep their left-to-right timeline. */
+  const rtlR = lang !== "en";
   // Data is already loaded (the button only enabled once it was), so this is
   // fast and stays within the tap's gesture window → iOS shows the share sheet.
   const W = 1080, pad = 48;
@@ -4483,7 +4486,12 @@ async function drawFieldReport(f){
   x.fillStyle = "#6b7b70"; x.font = "500 22px " + FONT();
   const sub = `${id}${c?"  ·  "+`lat ${c[1].toFixed(4)}, lon ${c[0].toFixed(4)}`:""}`;
   x.fillText(sub, pad, y+50);
-  if(cur && cur.date){ x.fillText(`${t.asOf} \u200E${cur.date}`, pad, y+78); }
+  if(cur && cur.date){
+    x.save();   // in Arabic and Kurdish "لە 2026-11-23" reads right to left and sits on the right
+    if(rtlR){ x.direction = "rtl"; x.textAlign = "right"; x.fillText(`${t.asOf} \u200E${cur.date}`, W-pad, y+78); }
+    else x.fillText(`${t.asOf} \u200E${cur.date}`, pad, y+78);
+    x.restore();
+  }
   y += 120;
 
   // field-context panel
@@ -4515,13 +4523,18 @@ async function drawFieldReport(f){
     { big: yoyText, small: t.vsLastYear, color: yoyColor }
   ];
   stats.forEach((s,i)=>{
-    const cx = pad + i*(cardW+24);
+    const cx = pad + (rtlR ? stats.length-1-i : i)*(cardW+24);   // first card on the right in Arabic and Kurdish
     x.fillStyle="#fff"; roundRectPath(x,cx,y,cardW,130,14); x.fill();
     x.strokeStyle="#D9D2C2"; x.lineWidth=1; roundRectPath(x,cx,y,cardW,130,14); x.stroke();
+    x.save();
+    if(rtlR) x.textAlign = "right";
+    const tx0 = rtlR ? cx+cardW-18 : cx+18;
     x.fillStyle=s.color; x.font="800 38px " + FONT();
-    x.fillText(String(s.big), cx+18, y+22);
+    x.fillText(String(s.big), tx0, y+22);
+    if(rtlR) x.direction = "rtl";
     x.fillStyle="#6b7b70"; x.font="600 20px " + FONT();
-    x.fillText(String(s.small), cx+18, y+86);
+    x.fillText(String(s.small), tx0, y+86);
+    x.restore();
   });
   y += 150;
 
@@ -4533,14 +4546,12 @@ async function drawFieldReport(f){
   y += chartH + 24;
 
   // monthly NDVI table (exact figures, health-coloured cells)
-  x.fillStyle="#6b7b70"; x.font="600 20px " + FONT(); x.textAlign="left";
-  x.fillText(t.monthlyNdvi || "Monthly vegetation index (NDVI)", pad, y);
+  reportHeading(x, t.monthlyNdvi || "Monthly vegetation index (NDVI)", pad, y, W-pad*2);
   y += drawNdviTable(x, f.__history||[], pad, y+30, W-pad*2) + 30 + 20;
 
   // month-by-month field images (same scenes as the table and the playback)
   if(frameImgs.length){
-    x.fillStyle="#6b7b70"; x.font="600 20px " + FONT(); x.textAlign="left";
-    x.fillText(t.monthImgs || "Field images, month by month (last 12 months)", pad, y);
+    reportHeading(x, t.monthImgs || "Field images, month by month (last 12 months)", pad, y, W-pad*2);
     y += 40;
     const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     frameImgs.forEach((fi, k) => {
@@ -4838,6 +4849,21 @@ function computeYoY(hist){
   return {text,color,msg,diff,pct};
 }
 
+/* A Report section heading: on the left in English, on the right and right to left in Arabic and Kurdish.
+   small = the lighter key line under a table. */
+function reportHeading(x, txt, ox, y, w, small){
+  x.save();
+  x.fillStyle = small ? "#8a9790" : "#6b7b70"; x.font = (small ? "500 17px " : "600 20px ") + FONT();
+  if(lang !== "en"){ x.direction = "rtl"; x.textAlign = "right"; x.fillText(txt, ox+w, y); }
+  else { x.textAlign = "left"; x.fillText(txt, ox, y); }
+  x.restore();
+}
+/* Month names over the Report's tables, centred on their line whatever the font: with textBaseline "top" the
+   Arabic font that leads the font list in Arabic and Kurdish puts Latin letters lower, into the cells (26 Nov 2026). */
+function reportMonthName(x, txt, cx, y){
+  x.save(); x.textBaseline = "middle"; x.textAlign = "center"; x.font = "700 18px " + FONT(); x.fillStyle = "#8a9790";
+  x.fillText(txt, cx, y + 13); x.restore();
+}
 /* Draw a two-row (per-year) monthly NDVI table with health-coloured cells.
    Returns the pixel height drawn. Empty months show a subtle "–". */
 function drawNdviTable(x, hist, ox, oy, w){
@@ -4845,8 +4871,7 @@ function drawNdviTable(x, hist, ox, oy, w){
   const years=[...new Set(hist.map(s=>s.year))].sort();
   const labelW=64, cellW=(w-labelW)/12, headH=30, rowH=52, gap=6;
   let y=oy;
-  x.textAlign="center"; x.font="700 18px " + FONT(); x.fillStyle="#8a9790";
-  for(let m=0;m<12;m++){ x.fillText(MON[m], ox+labelW+cellW*m+cellW/2, y+6); }
+  for(let m=0;m<12;m++) reportMonthName(x, MON[m], ox+labelW+cellW*m+cellW/2, y);
   y+=headH;
   for(const yr of years){
     x.textAlign="left"; x.font="800 20px " + FONT(); x.fillStyle="#14261B";
@@ -4892,11 +4917,9 @@ function drawRainStrip(x, f, ox, oy, w){
   const t = I18N[lang], cap = s => lang==="en" ? s.charAt(0).toUpperCase() + s.slice(1) : s;
   const labelW=150, cellW=(w-labelW)/12, headH=30, rowH=74, gap=6;
   let y=oy;
-  x.textAlign="left"; x.font="600 20px " + FONT(); x.fillStyle="#6b7b70";
-  x.fillText(`${t.rainLabel} · ${t.rainMm}`, ox, y);
+  reportHeading(x, `${t.rainLabel} · ${t.rainMm}`, ox, y, w);
   y += 30;
-  x.textAlign="center"; x.font="700 18px " + FONT(); x.fillStyle="#8a9790";
-  thisY.forEach((sl, m) => x.fillText(MON[sl.monthIdx], ox+labelW+cellW*m+cellW/2, y+6));
+  thisY.forEach((sl, m) => reportMonthName(x, MON[sl.monthIdx], ox+labelW+cellW*m+cellW/2, y));
   y += headH;
   const shade = a => { const A=[238,241,238], B=[62,109,166]; return `rgb(${A.map((c,i)=>Math.round(c+(B[i]-c)*a)).join(",")})`; };
   for(const [label, row] of [[t.rainThis, thisY], [t.rainLast, lastY]]){
@@ -4923,8 +4946,8 @@ function drawRainStrip(x, f, ox, oy, w){
     });
     y += rowH;
   }
-  x.textAlign="left"; x.font="500 17px " + FONT(); x.fillStyle="#8a9790";
-  x.fillText(t.rainKey || I18N.en.rainKey, ox, y+4);
+  reportHeading(x, t.rainKey || I18N.en.rainKey, ox, y+4, w, true);
+  x.textAlign="left";   // the cells above left it centred; the notes and footer that follow expect left
   y += 30;
   return y-oy;
 }
