@@ -15,7 +15,7 @@
 :root{
   --ink:#14261B; --paper:#F3EFE4; --card:#FBF9F3; --clay:#B4552D; --canal:#1E6E5A; --wheat:#D9A441;
   --line:#C9BFA8; --muted:#5E6B60; --panel:rgba(243,239,228,.95); --shadow:0 2px 14px rgba(20,38,27,.18);
-  --c-wheat:#A87000; --c-barley:#E2007F; --c-other:#00AF4D; --c-nocrop:#BFBF7A; --c-off:#6F86B5;   /* USDA NASS Cropland Data Layer colours (see CDL_COLORS) */
+  --c-wheat:#F0B000; --c-barley:#E2007F; --c-other:#7FA88A; --c-nocrop:#BFBF7A; --c-off:#6F86B5;   /* crop colours: see CROP_COLORS */
   --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
   --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
   --font:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;
@@ -1165,16 +1165,20 @@ document.addEventListener("click", async e => {
   const old = b.textContent; b.textContent = t("copied"); setTimeout(() => b.textContent = old, 1400);
 });
 
-/* USDA NASS Cropland Data Layer colours (Earth Engine USDA/NASS/CDL class table), by WorldCereal class.
-   Nearest CDL class where the names differ: other temporary crops = Other Crops, vegetables = Misc Vegs & Fruits,
-   beet = Sugarbeets, dry pulses = Lentils (Chick Peas shares Other Crops' green), other oilseed = Safflower,
-   groundnuts = Peanuts, fibre crops = Cotton, cassava = Sweet Potatoes, grass/fodder = Alfalfa, no crop = Fallow/Idle. */
-const CDL_COLORS = {
-  wheat:"#A87000", barley:"#E2007F", rye:"#AE017E", oats:"#A15889", maize:"#FFD400", sorghum:"#FF9E0F", rice:"#00A9E6",
-  other_temporary_crops:"#00AF4D", millet:"#73004C", vegetables:"#FF6666", beet:"#A900E6", dry_pulses_legumes:"#00DEB0",
-  sunflower:"#FFFF00", soy_soybeans:"#267300", rapeseed_rape:"#D1FF00", other_oilseed:"#D6D600", groundnuts:"#70A800",
-  fibre_crops:"#FF2626", potatoes:"#732600", cassava:"#732600", tobacco:"#00AF4D", grass_fodder_crops:"#FFA8E3",
-  sugar_cane:"#B380FF", no_crop:"#BFBF7A"
+/* Crop colours on this page, by WorldCereal class. Based on the USDA NASS Cropland Data Layer (CDL, the US national crop
+   map; Earth Engine USDA/NASS/CDL class table), with two changes made after checking the live map over Iraq (26 Nov 2026):
+   - wheat is a brighter gold than CDL's winter-wheat brown (#A87000), which disappeared over dry soil, on dark centre
+     pivots and at country scale;
+   - the minor classes are muted greens and sage instead of CDL's bright salmon, teal, lime and pink, so wheat and barley
+     lead the picture; they match the single "Other crops" swatch in the legend, and the pop-up names the class.
+   Barley, rye, oats and cropland-with-no-crop keep their CDL colours (Barley, Rye, Oats, Fallow/Idle Cropland).
+   Summer-only classes are drawn in one blue (CropLayer.OFF_SEASON_COLOR) whatever is set here; their CDL colours are kept. */
+const CROP_COLORS = {
+  wheat:"#F0B000", barley:"#E2007F", rye:"#AE017E", oats:"#A15889", no_crop:"#BFBF7A",
+  other_temporary_crops:"#7FA88A", tobacco:"#7FA88A", vegetables:"#8FB08A", dry_pulses_legumes:"#7DB0A8",
+  grass_fodder_crops:"#A9C28C", potatoes:"#94A27A", beet:"#8FA89E", rapeseed_rape:"#B5C27E", other_oilseed:"#B5C27E",
+  maize:"#FFD400", sorghum:"#FF9E0F", rice:"#00A9E6", millet:"#73004C", sunflower:"#FFFF00", soy_soybeans:"#267300",
+  groundnuts:"#70A800", fibre_crops:"#FF2626", cassava:"#732600", sugar_cane:"#B380FF"
 };
 
 /* ------------------------------------------------------------------ start */
@@ -1183,11 +1187,9 @@ const CDL_COLORS = {
   applyLang();
   try{
     INDEX = await CropLayer.init(DATA);
-    // Crop colours on this page follow the USDA NASS Cropland Data Layer (CDL) palette (the US national crop map;
-    // wheat brown, barley magenta). Each WorldCereal class takes the colour of its nearest CDL class; classes
-    // CDL has no exact match for are noted. index.json and iraq_crops.qml keep
-    // their own colours; this page's map, pop-ups, legend and coloured GeoTIFF downloads use these.
-    INDEX.codes.colors = CropLayer.classes().map((c, i) => CDL_COLORS[c] || INDEX.codes.colors[i]);
+    // This page's own crop colours (CROP_COLORS). index.json and iraq_crops.qml keep their own colours; this page's
+    // map, pop-ups, legend and coloured GeoTIFF downloads use these.
+    INDEX.codes.colors = CropLayer.classes().map((c, i) => CROP_COLORS[c] || INDEX.codes.colors[i]);
     CropLayer._buildLut();
     $("#season").textContent = INDEX.season;
     const [st, bd] = await Promise.all([
