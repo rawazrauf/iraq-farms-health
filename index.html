@@ -959,6 +959,7 @@ function applyLang(L){
   if(typeof renderHistory==="function" && !document.getElementById("hist-panel").hidden) renderHistory();
   // refresh open sheet copy
   if(sheet.classList.contains("open") && lastField) renderField(lastField, true);
+  if(typeof refreshReportCta==="function") refreshReportCta();   // the Report invitation, if up, in the new language
 }
 document.querySelectorAll("button[data-lang]").forEach(b=>
   b.addEventListener("click",()=>{ if(b.dataset.lang !== lang) gcEvent("language-change-" + b.dataset.lang); applyLang(b.dataset.lang); }));
@@ -1086,7 +1087,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.26-d";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.26-e";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -3484,10 +3485,15 @@ const REPORT_ICONS = ["M4 4v16h16M7 15l4-4 3 3 5-6", "M4 4h7v7H4zM13 4h7v7h-7zM4
   "M12 3c3 4 6 7.4 6 11a6 6 0 0 1-12 0c0-3.6 3-7 6-11z",
   "M12 21V9M12 9c-1.8 0-3-1.4-3-3.2C9 4 10.3 2.8 12 2c1.7.8 3 2 3 3.8C15 7.6 13.8 9 12 9zM12 15c-1.5-1.8-3.5-2.4-5-2.4.3 2 2.2 3.6 5 3.6M12 15c1.5-1.8 3.5-2.4 5-2.4-.3 2-2.2 3.6-5 3.6",
   "M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5zM9 4v13.5M15 6.5V20"];
-function showReportCta(f){
+/* After a language change: rebuild the invitation that is up in the new language (the card's thumbnail too),
+   without flashing the button again or counting it twice; the redrawn Report button is set green again. */
+function refreshReportCta(){
+  if(__repCta && __repCta.f) showReportCta(__repCta.f, true);
+}
+function showReportCta(f, quiet){
   hideReportCta();
   const t = I18N[lang];
-  if(isSideSheet() && showReportCard(f, t)) return;
+  if(isSideSheet() && showReportCard(f, t, quiet)) return;
   const el = document.createElement("button");
   el.type = "button"; el.className = "play-tag rep-cta";
   el.innerHTML = `<span>${t.repCta || I18N.en.repCta}</span> <b>${t.report || "Report"} ${lang==="en" ? "›" : "‹"}</b>`;   // arrow points forward in right-to-left text
@@ -3504,10 +3510,10 @@ function showReportCta(f){
   } else {
     el.style.top = Math.max(64, sheet.getBoundingClientRect().top - el.offsetHeight - 10) + "px";
   }
-  flashReportBtn();
-  __repCta = {el, timer: setTimeout(hideReportCta, REPORT_CTA_MS),
+  if(quiet) litReportBtn(); else flashReportBtn();
+  __repCta = {el, f, timer: setTimeout(hideReportCta, REPORT_CTA_MS),
               watch: setInterval(()=>{ if(lastField!==f || !sheet.classList.contains("open") || playRunning()) hideReportCta(); }, 300)};
-  gcEvent("report-cta-shown");
+  if(!quiet) gcEvent("report-cta-shown");
   DBG.log("report: invitation shown after the preview");
 }
 /* Three flashes of the Report button, then it stays green while the invitation is up (hideReportCta clears it). */
@@ -3517,8 +3523,9 @@ function flashReportBtn(){
   b.classList.remove("flash", "lit"); void b.offsetWidth; b.classList.add("flash");
   b.addEventListener("animationend", () => { b.classList.remove("flash"); if(__repCta) b.classList.add("lit"); }, {once:true});
 }
+function litReportBtn(){ const b = document.getElementById("report-field-btn"); if(b) b.classList.add("lit"); }
 /* The computer version: returns false (and the pill is used instead) when there is no room right of the card. */
-function showReportCard(f, t){
+function showReportCard(f, t, quiet){
   const btn = document.getElementById("report-field-btn");
   if(!btn) return false;
   const W = 400, GAP = 16, sr = sheet.getBoundingClientRect();
@@ -3563,15 +3570,15 @@ function showReportCard(f, t){
   place();
   sheet.addEventListener("scroll", place, {passive:true});
   window.addEventListener("resize", place);
-  flashReportBtn();
+  if(quiet) litReportBtn(); else flashReportBtn();
   const arm = () => setTimeout(hideReportCta, REPORT_CARD_MS);
-  __repCta = {el, timer: arm(),
+  __repCta = {el, f, timer: arm(),
               watch: setInterval(()=>{ if(lastField!==f || !sheet.classList.contains("open") || playRunning()) hideReportCta(); }, 300),
               off: () => { sheet.removeEventListener("scroll", place); window.removeEventListener("resize", place); }};
   // While the mouse is over the card it stays; it leaves REPORT_CARD_MS after the mouse goes.
   el.addEventListener("mouseenter", () => { if(__repCta){ clearTimeout(__repCta.timer); __repCta.timer = 0; } });
   el.addEventListener("mouseleave", () => { if(__repCta){ clearTimeout(__repCta.timer); __repCta.timer = arm(); } });
-  gcEvent("report-cta-shown");
+  if(!quiet) gcEvent("report-cta-shown");
   DBG.log("report: invitation card shown after the preview");
   return true;
 }
