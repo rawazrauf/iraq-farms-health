@@ -15,7 +15,7 @@
 :root{
   --ink:#14261B; --paper:#F3EFE4; --card:#FBF9F3; --clay:#B4552D; --canal:#1E6E5A; --wheat:#D9A441;
   --line:#C9BFA8; --muted:#5E6B60; --panel:rgba(243,239,228,.95); --shadow:0 2px 14px rgba(20,38,27,.18);
-  --c-wheat:#E3B505; --c-barley:#C2571A; --c-other:#4F9D69; --c-nocrop:#9AA0A6; --c-off:#6F86B5;
+  --c-wheat:#A87000; --c-barley:#E2007F; --c-other:#00AF4D; --c-nocrop:#BFBF7A; --c-off:#6F86B5;   /* USDA NASS Cropland Data Layer colours (see CDL_COLORS) */
   --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
   --safe-l:env(safe-area-inset-left,0px); --safe-r:env(safe-area-inset-right,0px);
   --font:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Noto Sans Arabic","Noto Kufi Arabic",sans-serif;
@@ -1165,12 +1165,30 @@ document.addEventListener("click", async e => {
   const old = b.textContent; b.textContent = t("copied"); setTimeout(() => b.textContent = old, 1400);
 });
 
+/* USDA NASS Cropland Data Layer colours (Earth Engine USDA/NASS/CDL class table), by WorldCereal class.
+   Nearest CDL class where the names differ: other temporary crops = Other Crops, vegetables = Misc Vegs & Fruits,
+   beet = Sugarbeets, dry pulses = Lentils (Chick Peas shares Other Crops' green), other oilseed = Safflower,
+   groundnuts = Peanuts, fibre crops = Cotton, cassava = Sweet Potatoes, grass/fodder = Alfalfa, no crop = Fallow/Idle. */
+const CDL_COLORS = {
+  wheat:"#A87000", barley:"#E2007F", rye:"#AE017E", oats:"#A15889", maize:"#FFD400", sorghum:"#FF9E0F", rice:"#00A9E6",
+  other_temporary_crops:"#00AF4D", millet:"#73004C", vegetables:"#FF6666", beet:"#A900E6", dry_pulses_legumes:"#00DEB0",
+  sunflower:"#FFFF00", soy_soybeans:"#267300", rapeseed_rape:"#D1FF00", other_oilseed:"#D6D600", groundnuts:"#70A800",
+  fibre_crops:"#FF2626", potatoes:"#732600", cassava:"#732600", tobacco:"#00AF4D", grass_fodder_crops:"#FFA8E3",
+  sugar_cane:"#B380FF", no_crop:"#BFBF7A"
+};
+
 /* ------------------------------------------------------------------ start */
 (async function start(){
   if(matchMedia("(max-width:820px)").matches) $("#legend").open = false;
   applyLang();
   try{
     INDEX = await CropLayer.init(DATA);
+    // Crop colours on this page follow the USDA NASS Cropland Data Layer (CDL) palette (the US national crop map;
+    // wheat brown, barley magenta). Each WorldCereal class takes the colour of its nearest CDL class; classes
+    // CDL has no exact match for are noted. index.json and iraq_crops.qml keep
+    // their own colours; this page's map, pop-ups, legend and coloured GeoTIFF downloads use these.
+    INDEX.codes.colors = CropLayer.classes().map((c, i) => CDL_COLORS[c] || INDEX.codes.colors[i]);
+    CropLayer._buildLut();
     $("#season").textContent = INDEX.season;
     const [st, bd] = await Promise.all([
       fetch(DATA+"stats.json",{cache:"no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null),
