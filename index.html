@@ -1087,7 +1087,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.26-h";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.26-i";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -4100,7 +4100,7 @@ function renderField(f){
   }
   const already = id && pinExists(id);
   sheetBody.innerHTML = `
-    <p class="sub">${id ? `<bdi dir="ltr">${id}</bdi>` : ""}${don > 0 ? ` · <bdi>${f.__partial ? "≥ " : ""}${don >= 10 ? Math.round(don) : don.toFixed(1)} ${t.donums}</bdi>` : ""}${c0 ? ` · <bdi dir="ltr">${c0[1].toFixed(4)}, ${c0[0].toFixed(4)}</bdi>` : ""}</p>
+    <p class="sub">${id ? `<bdi dir="ltr">${id}</bdi>` : ""}${don > 0 ? ` · <bdi><bdi dir="ltr">${f.__partial ? "≥ " : ""}${don >= 10 ? Math.round(don) : don.toFixed(1)}</bdi> ${t.donums}</bdi>` : ""}${c0 ? ` · <bdi dir="ltr">${c0[1].toFixed(4)}, ${c0[0].toFixed(4)}</bdi>` : ""}</p>
     <div id="stat" class="fc-hero">
       <div class="fc-ring" aria-hidden="true"><svg viewBox="0 0 76 76"><circle cx="38" cy="38" r="31" class="trk"/>${cur != null ? `<circle cx="38" cy="38" r="31" class="val${ringAge < 1500 ? " anim" : ""}" style="stroke:${col};stroke-dashoffset:${(RC*(1-frac)).toFixed(1)};animation-delay:${Math.round(250 - ringAge)}ms"/>` : ""}</svg><span class="fc-num">${cur != null ? cur.toFixed(2) : "—"}</span></div>
       <div class="fc-txt">
@@ -4498,7 +4498,8 @@ async function drawFieldReport(f){
   const hasRain = rT.concat(rL).some(v => v != null);
   const areaM2 = geomAreaMeters(f.geometry);
   const don = areaM2 / 2500;   // 1 donum = 2,500 m²
-  const sizeTxt = areaM2 > 0 ? `${f.__partial ? "≥ " : ""}${don >= 10 ? Math.round(don).toLocaleString("en-US") : don.toFixed(1)} ${t.donums}` : "—";
+  // the figure (with "≥" for a field partly off the screen) kept left to right: right-to-left text mirrors "≥" into "≤"
+  const sizeTxt = areaM2 > 0 ? `\u2066${f.__partial ? "≥ " : ""}${don >= 10 ? Math.round(don).toLocaleString("en-US") : don.toFixed(1)}\u2069 ${t.donums}` : "—";
   const win = row => { const a = row[0], b = row[row.length-1]; return a && b ? `${MON[a.monthIdx]} ${String(a.year).slice(2)} – ${MON[b.monthIdx]} ${String(b.year).slice(2)}` : ""; };
   const peakOf = row => { let p = null; row.forEach(sl => { if(sl && sl.v != null && (!p || sl.v > p.v)) p = sl; }); return p; };
 
