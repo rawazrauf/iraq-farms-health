@@ -124,7 +124,10 @@
 
     _open(file) {
       if (!this._tiffs.has(file)) {
-        this._tiffs.set(file, GeoTIFF.fromUrl(this.base + file, { allowFullFile: false, cacheSize: 200 })
+        // allowFullFile: GitHub Pages now and then answers a range request with 200 and the whole file (seen 26 Nov 2026
+        // on cells of 6-8 MB, with and without a CDN cache hit). Refusing that made every map tile of the cell fail;
+        // accepting it costs one full download of that cell (at most ~9 MB) and the tiles draw.
+        this._tiffs.set(file, GeoTIFF.fromUrl(this.base + file, { allowFullFile: true, cacheSize: 200 })
           .then(async t => {
             const n = await t.getImageCount();
             const imgs = [];
@@ -141,8 +144,22 @@
       return this._tiffs.get(file);
     },
 
-    /** Read crop codes for a 3857 box into an out x out grid (nearest neighbour). */
+    /** Read crop codes for a 3857 box into an out x out grid (nearest neighbour). A failed read is tried once more after
+     *  a short pause (a dropped or odd server response), unless it was cancelled: MapLibre does not ask again for a tile
+     *  that failed, so without this the area stayed blank until the map moved. */
     async _readBox(file, b, outW, outH, signal) {
+      try {
+        return await this._readBoxOnce(file, b, outW, outH, signal);
+      } catch (e) {
+        if ((signal && signal.aborted) || (e && e.name === "AbortError")) throw e;
+        if (typeof console !== "undefined") console.warn("crop-layer: read failed, trying again:", file, e && e.message);
+        await new Promise(r => setTimeout(r, 400));
+        if (signal && signal.aborted) throw e;
+        return this._readBoxOnce(file, b, outW, outH, signal);
+      }
+    },
+
+    async _readBoxOnce(file, b, outW, outH, signal) {
       const levels = await this._open(file);
       const want = (b[2] - b[0]) / outW;
       // finest level that is not finer than needed
