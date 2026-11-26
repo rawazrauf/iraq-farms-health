@@ -131,7 +131,7 @@ Under the chart, **Watch month by month** plays the field's history on the map. 
 When a field is opened, one request fetches the daily rainfall at the field's centre for the same 24 months as the chart, and adds it up by month. The last nine days are left out, because the archive takes about a week to fill in.
 
 - The card compares the **last 12 months with the 12 before**: "this year … mm · last year … mm", then "wetter", "drier" or "about the same" (within 15 mm). It is shown only if both years have at least 11 months of data.
-- The Report adds a **month-by-month rainfall strip** for the two years.
+- The Report adds **monthly rainfall as numbers**: two rows, this year (the last 12 months) and last year (the 12 before), the same windows as the text line, with each month's millimetres shaded darker blue for more rain and each row's total beside it.
 - Because the grid is 9–25 km, neighbouring fields usually get the same figure. It describes the area's rain, not irrigation.
 
 ### Wheat or barley in 2021
