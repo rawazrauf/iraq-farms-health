@@ -43,6 +43,7 @@
   - Southern tiles not yet in the published layer: 83 of the 150 planned south of 34.8°N (main run; to be confirmed against the run folder's status).
 - 8 Nov: `overview.tif` rewritten with nodata 0 and a colour table (same pixels); `iraq_crops.qml` labels escaped (`&lt;`), so QGIS loads it.
 - 8 Nov: labels that can't be right in a winter map are shown differently on the crop page and in the app (the data keep WorldCereal's codes): summer-only crops (rice, maize, sorghum, sunflower, cotton and others, ~3,200 ha) as "not a winter crop"; tobacco and rapeseed as "other crop" (label often wrong). See `METHODOLOGY.md` §8.
+- 26–27 Nov: new crop colours. The crop page draws them since `crops-2026.11.26-b` (`CROP_COLORS` in `crops/index.html`: based on the USDA NASS Cropland Data Layer, wheat gold `#F0B000`, barley magenta `#E2007F`, rye and oats purple, cropland with no crop khaki, minor classes muted greens). `PALETTE` in `worldcereal_publish.ipynb` now holds the same colours, so the next publish writes them into `index.json`, `iraq_crops.qml`, `legend.csv` and the colour table of `overview.tif` and every cell. The files published on 7 Nov keep the old colours until then.
 - The 2025-26 layer is **not shown to the public in the app** (debug mode only) until the north is processed and validated.
 - Earlier: 26 Oct overview bug fixed (MODE resampling includes 0); 27 Oct zoom-hint bug fixed; 28 Oct first publish (37 tiles); 29 Oct switch to the wheat + barley probability.
 
