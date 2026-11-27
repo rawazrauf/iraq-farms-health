@@ -1,0 +1,31 @@
+{
+ "seed": 20261127,
+ "n": {
+  "confident_cereal": 100,
+  "doubtful_cereal": 100,
+  "other_crop": 60,
+  "no_crop": 60,
+  "not_cropland": 250
+ },
+ "area_ha": {
+  "confident_cereal": 1710506.8330078016,
+  "doubtful_cereal": 1445736.6857036746,
+  "other_crop": 583376.353315933,
+  "no_crop": 825420.6272566064,
+  "not_cropland": 3785792.430990371
+ },
+ "tiles": 68,
+ "tiles_by_run": {
+  "iraq_winter2026_north": 65,
+  "iraq_pilot_season_jun": 3
+ },
+ "map": {
+  "generated_utc": "2026-11-27 07:17",
+  "tiles": 213,
+  "cells": 112
+ },
+ "spotcheck": {
+  "seed": 20261128,
+  "n": 57
+ }
+}

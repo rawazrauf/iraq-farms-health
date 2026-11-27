@@ -1,0 +1,21 @@
+Manual-look criteria, northern assessment (written 27 Nov 2026, before any northern curve was fetched).
+Applied to every point the rules call "unclear", blind to the map. Months Sep..Aug, values x1000 (offset-corrected NDVI).
+Same as the southern criteria except the winter season runs to May and must be over by July (the north run's season is
+1 Nov 2025 - 30 Jun 2026), plus the northern notes at the end.
+- winter_crop: one clear seasonal rise and fall with its peak in Dec-May: peak >= 350, rising at least 150 above the
+  autumn level before it and falling back at least half way after it by July (a single-month spike does not count).
+  A crop that emerges in Feb-Apr, peaks in Apr-May and is dry by June-July counts (late or spring-sown crops inside the
+  map's season, e.g. late barley or spring chickpea).
+- summer_only: the clear rise and fall peaks in Jun-Oct (>= 350), or is still green (>= 350) in July, and Dec-Apr
+  stays low (< 300).
+- perennial: >= 300 in most months (9+) without a winter rise-and-fall that meets the winter_crop test.
+- no_crop: max < 330, or only an isolated single-month spike.
+- water: mostly negative.
+- unclear: anything else (two competing seasons of similar size, gaps that hide the peak, weak 300-350 winter peak).
+Northern notes:
+- Missing Jan-Feb months (cloud or snow in the mountains) do not by themselves make a point unclear if the rise before
+  and the fall after the peak are both visible.
+- Several dips and regrowths inside Dec-May (grazing or fodder cuts) still count as winter_crop if the season as a whole
+  meets the test.
+- A winter crop followed by a summer crop counts as winter_crop.
+Every manual label is recorded with a one-line reason. The rule label is kept beside it.
