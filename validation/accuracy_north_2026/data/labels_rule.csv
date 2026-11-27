@@ -1,0 +1,571 @@
+id,rule_label,rule_reason
+N001,unclear,W=0.309 S=0.091 B=0.06
+N002,winter_crop,"peak 0.65 in 2026-03, low 0.10"
+N003,no_crop,max 0.14
+N004,winter_crop,"peak 0.45 in 2026-04, low 0.10"
+N005,unclear,W=0.302 S=0.104 B=0.06
+N006,winter_crop,"peak 0.69 in 2026-04, low 0.07"
+N007,unclear,W=0.394 S=0.124 B=0.09
+N008,no_crop,max 0.16
+N009,winter_crop,"peak 0.73 in 2026-04, low 0.03"
+N010,winter_crop,"peak 0.65 in 2026-04, low 0.07"
+N011,winter_crop,"peak 0.80 in 2026-04, low 0.19"
+N012,no_crop,max 0.21
+N013,winter_crop,"peak 0.53 in 2026-04, low 0.07"
+N014,no_crop,max 0.19
+N015,no_crop,max 0.28
+N016,winter_crop,"peak 0.60 in 2026-02, low 0.08"
+N017,winter_crop,"late peak 0.41 in 2026-05, low 0.08"
+N018,winter_crop,"peak 0.64 in 2026-04, low 0.08"
+N019,unclear,W=0.299 S=0.37 B=0.20
+N020,winter_crop,"peak 0.82 in 2026-04, low 0.07"
+N021,unclear,W=0.391 S=0.138 B=0.10
+N022,winter_crop,"peak 0.56 in 2026-04, low 0.07"
+N023,winter_crop,"late peak 0.41 in 2026-05, low 0.14"
+N024,unclear,2 winter months missing
+N025,unclear,W=0.315 S=0.137 B=0.08
+N026,winter_crop,"peak 0.68 in 2026-04, low 0.07"
+N027,winter_crop,"peak 0.49 in 2026-04, low 0.07"
+N028,no_crop,max 0.26
+N029,unclear,4 winter months missing
+N030,no_crop,max 0.24
+N031,no_crop,max 0.13
+N032,winter_crop,"peak 0.93 in 2026-04, low 0.11"
+N033,no_crop,max 0.27
+N034,winter_crop,"peak 0.53 in 2026-04, low 0.15"
+N035,unclear,W=0.27 S=0.18 B=0.11
+N036,winter_crop,"peak 0.54 in 2026-04, low 0.15"
+N037,unclear,W=0.31 S=0.101 B=0.08
+N038,winter_crop,"peak 0.57 in 2026-04, low 0.06"
+N039,winter_crop,"peak 0.61 in 2026-04, low 0.05"
+N040,winter_crop,"peak 0.76 in 2026-04, low 0.07"
+N041,winter_crop,"peak 0.45 in 2026-04, low 0.08"
+N042,no_crop,max 0.19
+N043,no_crop,max 0.19
+N044,winter_crop,"peak 0.50 in 2026-04, low 0.07"
+N045,winter_crop,"peak 0.91 in 2026-03, low 0.12"
+N046,no_crop,max 0.22
+N047,no_crop,max 0.26
+N048,winter_crop,"peak 0.48 in 2026-04, low 0.16"
+N049,winter_crop,"peak 0.82 in 2026-04, low 0.10"
+N050,winter_crop,"peak 0.73 in 2026-04, low 0.14"
+N051,winter_crop,"peak 0.45 in 2026-04, low 0.09"
+N052,unclear,W=0.422 S=0.856 B=0.21
+N053,winter_crop,"peak 0.44 in 2026-04, low 0.10"
+N054,winter_crop,"peak 0.67 in 2026-04, low 0.07"
+N055,winter_crop,"peak 0.67 in 2026-04, low 0.07"
+N056,winter_crop,"peak 0.42 in 2026-04, low 0.06"
+N057,winter_crop,"peak 0.68 in 2026-04, low 0.13"
+N058,summer_only,"summer peak 0.41, winter max 0.251"
+N059,winter_crop,"peak 0.74 in 2026-03, low 0.07"
+N060,no_crop,max 0.20
+N061,winter_crop,"peak 0.47 in 2026-04, low 0.07"
+N062,winter_crop,"peak 0.70 in 2026-04, low 0.09"
+N063,unclear,W=0.355 S=0.106 B=0.07
+N064,unclear,W=0.344 S=0.101 B=0.04
+N065,no_crop,max 0.09
+N066,winter_crop,"peak 0.61 in 2026-04, low 0.07"
+N067,no_crop,max 0.28
+N068,winter_crop,"peak 0.52 in 2026-04, low 0.06"
+N069,winter_crop,"peak 0.62 in 2026-04, low 0.08"
+N070,winter_crop,"late peak 0.69 in 2026-05, low 0.28"
+N071,winter_crop,"late peak 0.62 in 2026-05, low 0.17"
+N072,winter_crop,"peak 0.47 in 2026-04, low 0.22"
+N073,winter_crop,"peak 0.46 in 2026-04, low 0.09"
+N074,winter_crop,"peak 0.74 in 2026-04, low 0.07"
+N075,no_crop,max 0.19
+N076,no_crop,max 0.29
+N077,no_crop,max 0.29
+N078,winter_crop,"peak 0.96 in 2026-04, low 0.10"
+N079,no_crop,max 0.13
+N080,unclear,W=0.35 S=0.138 B=0.10
+N081,no_crop,max 0.19
+N082,winter_crop,"peak 0.66 in 2026-04, low 0.07"
+N083,winter_crop,"peak 0.63 in 2026-04, low 0.21"
+N084,no_crop,max 0.29
+N085,winter_crop,"peak 0.62 in 2026-04, low 0.08"
+N086,winter_crop,"peak 0.49 in 2026-04, low 0.10"
+N087,winter_crop,"peak 0.86 in 2026-04, low 0.10"
+N088,winter_crop,"peak 0.55 in 2026-04, low 0.09"
+N089,winter_crop,"peak 0.60 in 2026-04, low 0.12"
+N090,winter_crop,"peak 0.89 in 2026-04, low 0.06"
+N091,winter_crop,"peak 0.60 in 2026-04, low 0.22"
+N092,no_crop,max 0.22
+N093,unclear,W=0.304 S=0.11 B=0.04
+N094,no_crop,max 0.26
+N095,winter_crop,"peak 0.43 in 2026-04, low 0.06"
+N096,no_crop,max 0.27
+N097,winter_crop,"peak 0.55 in 2026-04, low 0.07"
+N098,unclear,W=0.323 S=0.118 B=0.07
+N099,no_crop,max 0.15
+N100,unclear,2 winter months missing
+N101,winter_crop,"peak 0.64 in 2026-04, low 0.07"
+N102,winter_crop,"peak 0.56 in 2026-04, low 0.11"
+N103,winter_crop,"peak 0.91 in 2026-03, low 0.08"
+N104,winter_crop,"peak 0.47 in 2026-04, low 0.07"
+N105,no_crop,max 0.28
+N106,unclear,W=0.335 S=0.55 B=0.16
+N107,winter_crop,"peak 0.47 in 2026-04, low 0.06"
+N108,winter_crop,"peak 0.93 in 2026-03, low 0.09"
+N109,no_crop,max 0.28
+N110,no_crop,max 0.28
+N111,water,NDVI < 0 in half the months
+N112,no_crop,max 0.27
+N113,winter_crop,"peak 0.64 in 2026-04, low 0.10"
+N114,no_crop,max 0.11
+N115,winter_crop,"late peak 0.45 in 2026-05, low 0.16"
+N116,unclear,W=0.324 S=0.15 B=0.08
+N117,summer_only,"summer peak 0.51, winter max 0.269"
+N118,winter_crop,"peak 0.45 in 2026-04, low 0.08"
+N119,winter_crop,"peak 0.90 in 2026-03, low 0.06"
+N120,no_crop,max 0.14
+N121,unclear,W=0.389 S=0.105 B=0.02
+N122,winter_crop,"peak 0.80 in 2026-04, low 0.08"
+N123,winter_crop,"peak 0.56 in 2026-04, low 0.10"
+N124,winter_crop,"late peak 0.75 in 2026-05, low 0.25"
+N125,winter_crop,"peak 0.70 in 2026-04, low 0.08"
+N126,winter_crop,"peak 0.64 in 2026-04, low 0.19"
+N127,winter_crop,"peak 0.52 in 2026-04, low 0.16"
+N128,unclear,W=0.33 S=0.099 B=0.07
+N129,unclear,W=0.359 S=0.105 B=0.06
+N130,no_crop,max 0.19
+N131,no_crop,max 0.13
+N132,no_crop,max 0.26
+N133,unclear,2 winter months missing
+N134,winter_crop,"peak 0.76 in 2026-04, low 0.09"
+N135,winter_crop,"peak 0.55 in 2026-04, low 0.06"
+N136,unclear,W=0.314 S=0.125 B=0.04
+N137,winter_crop,"peak 0.76 in 2026-03, low 0.09"
+N138,no_crop,max 0.28
+N139,no_crop,max 0.19
+N140,no_crop,max 0.21
+N141,winter_crop,"peak 0.47 in 2026-04, low 0.08"
+N142,winter_crop,"peak 0.44 in 2026-04, low 0.17"
+N143,winter_crop,"peak 0.71 in 2026-04, low 0.14"
+N144,unclear,W=0.324 S=0.169 B=0.08
+N145,unclear,fewer than 6 clear months
+N146,winter_crop,"peak 0.48 in 2026-04, low 0.13"
+N147,no_crop,max 0.14
+N148,winter_crop,"peak 0.68 in 2026-04, low 0.13"
+N149,winter_crop,"peak 0.52 in 2026-03, low 0.18"
+N150,no_crop,max 0.21
+N151,winter_crop,"peak 0.60 in 2026-03, low 0.09"
+N152,winter_crop,"peak 0.57 in 2026-04, low 0.07"
+N153,unclear,W=0.375 S=0.134 B=0.08
+N154,unclear,W=0.676 S=0.532 B=0.12
+N155,winter_crop,"peak 0.57 in 2026-04, low 0.14"
+N156,unclear,W=0.395 S=0.129 B=0.08
+N157,winter_crop,"peak 0.56 in 2026-04, low 0.18"
+N158,summer_only,"summer peak 0.55, winter max 0.199"
+N159,winter_crop,"peak 0.86 in 2026-04, low 0.09"
+N160,winter_crop,"peak 0.93 in 2026-02, low 0.08"
+N161,no_crop,max 0.24
+N162,no_crop,max 0.17
+N163,unclear,2 winter months missing
+N164,winter_crop,"peak 0.59 in 2026-04, low 0.07"
+N165,winter_crop,"peak 0.71 in 2026-04, low 0.09"
+N166,winter_crop,"peak 0.92 in 2026-04, low 0.09"
+N167,winter_crop,"peak 0.69 in 2026-04, low 0.05"
+N168,no_crop,max 0.18
+N169,winter_crop,"peak 0.86 in 2026-04, low 0.17"
+N170,no_crop,max 0.13
+N171,winter_crop,"peak 0.59 in 2026-04, low 0.15"
+N172,winter_crop,"peak 0.50 in 2026-03, low 0.09"
+N173,winter_crop,"peak 0.51 in 2026-04, low 0.11"
+N174,winter_crop,"peak 0.62 in 2026-04, low 0.07"
+N175,winter_crop,"late peak 0.78 in 2026-05, low 0.27"
+N176,no_crop,max 0.10
+N177,winter_crop,"peak 0.42 in 2026-04, low 0.14"
+N178,no_crop,max 0.27
+N179,winter_crop,"peak 0.58 in 2026-04, low 0.05"
+N180,winter_crop,"peak 0.85 in 2026-04, low 0.11"
+N181,unclear,W=0.398 S=0.113 B=0.07
+N182,no_crop,max 0.19
+N183,winter_crop,"peak 0.89 in 2026-03, low 0.07"
+N184,winter_crop,"peak 0.50 in 2026-04, low 0.06"
+N185,winter_crop,"peak 0.81 in 2026-04, low 0.08"
+N186,no_crop,max 0.13
+N187,winter_crop,"peak 0.90 in 2026-04, low 0.11"
+N188,no_crop,max 0.05
+N189,winter_crop,"late peak 0.62 in 2026-05, low 0.20"
+N190,no_crop,max 0.19
+N191,winter_crop,"peak 0.41 in 2026-02, low -0.37"
+N192,no_crop,max 0.21
+N193,winter_crop,"peak 0.81 in 2026-04, low 0.10"
+N194,winter_crop,"peak 0.85 in 2026-04, low 0.07"
+N195,unclear,W=0.435 S=0.949 B=0.09
+N196,no_crop,max 0.29
+N197,winter_crop,"peak 0.75 in 2026-04, low 0.11"
+N198,no_crop,max 0.20
+N199,no_crop,max 0.20
+N200,unclear,W=0.25 S=0.183 B=0.12
+N201,winter_crop,"peak 0.74 in 2026-04, low 0.08"
+N202,no_crop,max 0.12
+N203,unclear,2 winter months missing
+N204,summer_only,"summer peak 0.42, winter max 0.106"
+N205,winter_crop,"late peak 0.59 in 2026-05, low 0.22"
+N206,no_crop,max 0.13
+N207,winter_crop,"peak 0.82 in 2026-04, low 0.08"
+N208,unclear,W=0.379 S=0.677 B=0.30
+N209,winter_crop,"peak 0.83 in 2026-03, low 0.06"
+N210,winter_crop,"peak 0.80 in 2026-03, low 0.08"
+N211,winter_crop,"late peak 0.57 in 2026-05, low 0.22"
+N212,unclear,W=0.498 S=0.519 B=0.26
+N213,unclear,W=0.201 S=0.303 B=0.09
+N214,no_crop,max 0.27
+N215,winter_crop,"peak 0.77 in 2026-03, low 0.08"
+N216,winter_crop,"peak 0.55 in 2026-03, low 0.21"
+N217,winter_crop,"peak 0.71 in 2026-04, low 0.24"
+N218,winter_crop,"peak 0.70 in 2026-04, low 0.18"
+N219,no_crop,max 0.21
+N220,winter_crop,"peak 0.60 in 2026-04, low 0.07"
+N221,no_crop,max 0.25
+N222,winter_crop,"peak 0.80 in 2026-04, low 0.13"
+N223,winter_crop,"peak 0.63 in 2026-04, low 0.11"
+N224,winter_crop,"late peak 0.49 in 2026-05, low 0.18"
+N225,no_crop,max 0.24
+N226,no_crop,max 0.15
+N227,unclear,2 winter months missing
+N228,winter_crop,"peak 0.88 in 2026-03, low 0.11"
+N229,unclear,W=0.319 S=0.614 B=0.19
+N230,winter_crop,"peak 0.85 in 2026-04, low 0.07"
+N231,winter_crop,"peak 0.48 in 2026-04, low 0.08"
+N232,winter_crop,"peak 0.57 in 2026-04, low 0.09"
+N233,unclear,3 winter months missing
+N234,winter_crop,"peak 0.62 in 2026-04, low 0.24"
+N235,winter_crop,"peak 0.78 in 2026-04, low 0.10"
+N236,winter_crop,"peak 0.47 in 2026-04, low 0.16"
+N237,winter_crop,"peak 0.77 in 2026-04, low 0.07"
+N238,unclear,W=0.367 S=0.116 B=0.07
+N239,winter_crop,"peak 0.83 in 2026-04, low 0.17"
+N240,no_crop,max 0.23
+N241,winter_crop,"peak 0.87 in 2026-04, low 0.09"
+N242,winter_crop,"peak 0.64 in 2026-04, low 0.07"
+N243,winter_crop,"peak 0.46 in 2026-04, low 0.14"
+N244,unclear,W=0.345 S=0.101 B=0.07
+N245,winter_crop,"peak 0.66 in 2026-04, low 0.12"
+N246,no_crop,max 0.29
+N247,unclear,W=0.349 S=0.111 B=0.06
+N248,winter_crop,"peak 0.48 in 2026-04, low 0.05"
+N249,unclear,W=0.365 S=0.187 B=0.09
+N250,no_crop,max 0.09
+N251,unclear,2 winter months missing
+N252,unclear,W=0.346 S=0.165 B=0.13
+N253,winter_crop,"peak 0.74 in 2026-04, low 0.07"
+N254,winter_crop,"peak 0.78 in 2026-02, low -0.67"
+N255,winter_crop,"peak 0.79 in 2026-04, low 0.12"
+N256,winter_crop,"peak 0.83 in 2026-04, low 0.07"
+N257,water,NDVI < 0 in half the months
+N258,no_crop,max 0.28
+N259,winter_crop,"peak 0.46 in 2026-04, low 0.07"
+N260,unclear,W=0.305 S=0.159 B=0.08
+N261,winter_crop,"peak 0.75 in 2026-04, low 0.09"
+N262,winter_crop,"peak 0.91 in 2026-03, low 0.11"
+N263,no_crop,max 0.13
+N264,winter_crop,"peak 0.77 in 2026-04, low 0.09"
+N265,unclear,W=0.323 S=0.106 B=0.07
+N266,no_crop,max 0.11
+N267,winter_crop,"peak 0.48 in 2026-04, low 0.14"
+N268,winter_crop,"peak 0.70 in 2026-02, low 0.07"
+N269,winter_crop,"peak 0.44 in 2026-04, low 0.13"
+N270,winter_crop,"peak 0.65 in 2026-04, low 0.17"
+N271,unclear,W=0.364 S=0.111 B=0.08
+N272,winter_crop,"late peak 0.48 in 2026-05, low 0.12"
+N273,summer_only,"summer peak 0.99, winter max 0.219"
+N274,unclear,W=0.288 S=0.384 B=0.12
+N275,no_crop,max 0.15
+N276,winter_crop,"peak 0.84 in 2026-04, low 0.11"
+N277,winter_crop,"peak 0.59 in 2026-04, low 0.08"
+N278,winter_crop,"late peak 0.56 in 2026-05, low 0.23"
+N279,summer_only,"summer peak 0.99, winter max 0.109"
+N280,winter_crop,"peak 0.56 in 2026-04, low 0.09"
+N281,no_crop,max 0.20
+N282,no_crop,max 0.20
+N283,winter_crop,"peak 0.91 in 2026-03, low 0.09"
+N284,winter_crop,"peak 0.46 in 2026-04, low 0.09"
+N285,winter_crop,"late peak 0.41 in 2026-05, low 0.15"
+N286,winter_crop,"peak 0.47 in 2026-03, low 0.07"
+N287,no_crop,max 0.23
+N288,winter_crop,"late peak 0.63 in 2026-05, low 0.15"
+N289,no_crop,max 0.28
+N290,winter_crop,"peak 0.62 in 2026-03, low 0.09"
+N291,winter_crop,"peak 0.50 in 2026-04, low 0.06"
+N292,winter_crop,"peak 0.82 in 2026-04, low 0.09"
+N293,winter_crop,"peak 0.46 in 2026-04, low 0.15"
+N294,no_crop,max 0.19
+N295,winter_crop,"peak 0.92 in 2026-03, low 0.09"
+N296,summer_only,"summer peak 0.43, winter max -0.048"
+N297,winter_crop,"peak 0.69 in 2026-04, low 0.09"
+N298,winter_crop,"peak 0.47 in 2026-04, low 0.07"
+N299,winter_crop,"peak 0.42 in 2026-04, low 0.10"
+N300,no_crop,max 0.29
+N301,winter_crop,"peak 0.61 in 2026-04, low 0.06"
+N302,unclear,W=0.304 S=0.482 B=0.04
+N303,winter_crop,"peak 0.82 in 2026-03, low 0.06"
+N304,winter_crop,"peak 0.76 in 2026-04, low 0.16"
+N305,unclear,W=0.393 S=0.224 B=0.12
+N306,no_crop,max 0.26
+N307,unclear,W=0.399 S=0.137 B=0.08
+N308,winter_crop,"peak 0.75 in 2026-04, low 0.10"
+N309,unclear,W=0.336 S=0.097 B=0.06
+N310,no_crop,max 0.19
+N311,no_crop,max 0.08
+N312,unclear,4 winter months missing
+N313,no_crop,max 0.18
+N314,no_crop,max 0.20
+N315,unclear,W=0.349 S=0.099 B=0.06
+N316,no_crop,max 0.24
+N317,winter_crop,"peak 0.54 in 2026-04, low 0.18"
+N318,winter_crop,"peak 0.42 in 2026-04, low 0.11"
+N319,winter_crop,"peak 0.48 in 2026-04, low 0.10"
+N320,winter_crop,"peak 0.53 in 2026-04, low 0.12"
+N321,no_crop,max 0.22
+N322,unclear,W=0.361 S=0.109 B=0.06
+N323,no_crop,max 0.20
+N324,winter_crop,"peak 0.90 in 2026-04, low 0.08"
+N325,no_crop,max 0.12
+N326,winter_crop,"peak 0.80 in 2026-04, low 0.08"
+N327,no_crop,max 0.23
+N328,winter_crop,"peak 0.63 in 2026-04, low 0.06"
+N329,unclear,W=0.343 S=0.137 B=0.08
+N330,winter_crop,"late peak 0.41 in 2026-05, low 0.16"
+N331,winter_crop,"peak 0.81 in 2026-03, low 0.07"
+N332,no_crop,max 0.21
+N333,winter_crop,"peak 0.65 in 2026-04, low 0.27"
+N334,winter_crop,"peak 0.87 in 2026-04, low 0.10"
+N335,winter_crop,"peak 0.90 in 2026-04, low 0.09"
+N336,no_crop,max 0.25
+N337,no_crop,max 0.10
+N338,no_crop,max 0.18
+N339,winter_crop,"peak 0.59 in 2026-04, low 0.16"
+N340,winter_crop,"peak 0.48 in 2025-12, low 0.10"
+N341,no_crop,max 0.10
+N342,winter_crop,"peak 0.46 in 2026-04, low 0.08"
+N343,winter_crop,"peak 0.61 in 2026-04, low 0.08"
+N344,unclear,W=0.503 S=0.75 B=0.08
+N345,winter_crop,"peak 0.91 in 2026-04, low 0.09"
+N346,winter_crop,"peak 0.44 in 2026-04, low 0.15"
+N347,winter_crop,"peak 0.47 in 2026-04, low 0.09"
+N348,winter_crop,"peak 0.94 in 2026-04, low 0.07"
+N349,winter_crop,"peak 0.89 in 2026-04, low 0.10"
+N350,unclear,W=0.381 S=0.183 B=0.09
+N351,unclear,3 winter months missing
+N352,winter_crop,"peak 0.96 in 2026-04, low 0.07"
+N353,winter_crop,"peak 0.52 in 2026-04, low 0.26"
+N354,no_crop,max 0.10
+N355,winter_crop,"peak 0.41 in 2026-04, low 0.07"
+N356,winter_crop,"peak 0.69 in 2026-04, low 0.11"
+N357,no_crop,max 0.26
+N358,winter_crop,"peak 0.82 in 2026-04, low 0.10"
+N359,winter_crop,"peak 0.84 in 2026-04, low 0.18"
+N360,unclear,W=0.396 S=0.139 B=0.11
+N361,winter_crop,"peak 0.84 in 2026-04, low 0.18"
+N362,winter_crop,"peak 0.70 in 2026-04, low 0.15"
+N363,no_crop,max 0.29
+N364,winter_crop,"late peak 0.49 in 2026-05, low 0.19"
+N365,winter_crop,"peak 0.84 in 2026-04, low 0.06"
+N366,unclear,W=0.218 S=0.355 B=0.20
+N367,winter_crop,"peak 0.70 in 2026-04, low 0.07"
+N368,winter_crop,"peak 0.47 in 2026-04, low 0.06"
+N369,winter_crop,"peak 0.86 in 2026-04, low 0.08"
+N370,winter_crop,"peak 0.57 in 2026-04, low 0.24"
+N371,winter_crop,"peak 0.46 in 2026-04, low 0.07"
+N372,winter_crop,"peak 0.87 in 2026-04, low 0.07"
+N373,unclear,2 winter months missing
+N374,no_crop,max 0.11
+N375,winter_crop,"peak 0.51 in 2026-04, low 0.10"
+N376,winter_crop,"late peak 0.50 in 2026-05, low 0.15"
+N377,unclear,W=0.333 S=0.197 B=0.08
+N378,winter_crop,"peak 0.73 in 2026-04, low 0.08"
+N379,winter_crop,"peak 0.54 in 2026-04, low 0.24"
+N380,no_crop,max 0.15
+N381,winter_crop,"peak 0.60 in 2026-04, low 0.21"
+N382,winter_crop,"late peak 0.54 in 2026-05, low 0.16"
+N383,winter_crop,"peak 0.82 in 2026-03, low 0.07"
+N384,winter_crop,"peak 0.79 in 2026-04, low 0.06"
+N385,winter_crop,"peak 0.56 in 2026-04, low 0.21"
+N386,no_crop,max 0.28
+N387,no_crop,max 0.15
+N388,unclear,W=0.708 S=0.584 B=0.18
+N389,winter_crop,"peak 0.81 in 2026-04, low 0.05"
+N390,winter_crop,"peak 0.84 in 2026-04, low 0.08"
+N391,no_crop,max 0.20
+N392,winter_crop,"peak 0.50 in 2026-04, low 0.11"
+N393,winter_crop,"peak 0.71 in 2026-04, low 0.09"
+N394,no_crop,max 0.10
+N395,winter_crop,"peak 0.87 in 2026-04, low 0.09"
+N396,unclear,W=0.387 S=0.125 B=0.04
+N397,winter_crop,"peak 0.52 in 2026-03, low 0.09"
+N398,winter_crop,"peak 0.60 in 2026-04, low 0.07"
+N399,winter_crop,"late peak 0.58 in 2026-05, low 0.21"
+N400,winter_crop,"peak 0.95 in 2026-04, low 0.09"
+N401,winter_crop,"peak 0.62 in 2026-04, low 0.09"
+N402,winter_crop,"peak 0.63 in 2026-04, low 0.09"
+N403,winter_crop,"peak 0.62 in 2026-04, low 0.08"
+N404,unclear,W=0.366 S=0.106 B=0.06
+N405,winter_crop,"peak 0.51 in 2026-04, low 0.13"
+N406,unclear,W=0.453 S=0.415 B=0.26
+N407,winter_crop,"peak 0.90 in 2026-04, low 0.07"
+N408,unclear,W=0.376 S=0.112 B=0.09
+N409,winter_crop,"peak 0.52 in 2026-04, low 0.14"
+N410,unclear,W=0.716 S=0.495 B=-0.05
+N411,no_crop,max 0.10
+N412,winter_crop,"peak 0.45 in 2026-04, low 0.17"
+N413,winter_crop,"peak 0.56 in 2026-03, low 0.07"
+N414,no_crop,max 0.23
+N415,unclear,W=0.368 S=0.345 B=0.20
+N416,unclear,W=0.374 S=0.147 B=0.09
+N417,winter_crop,"peak 0.40 in 2026-04, low 0.08"
+N418,winter_crop,"peak 0.93 in 2026-04, low 0.20"
+N419,winter_crop,"peak 0.43 in 2026-04, low 0.08"
+N420,no_crop,max 0.28
+N421,no_crop,max 0.21
+N422,winter_crop,"peak 0.91 in 2026-04, low 0.07"
+N423,unclear,2 winter months missing
+N424,winter_crop,"peak 0.45 in 2026-04, low 0.08"
+N425,no_crop,max 0.07
+N426,unclear,W=0.307 S=0.123 B=0.08
+N427,winter_crop,"peak 0.66 in 2026-04, low 0.07"
+N428,winter_crop,"peak 0.71 in 2026-04, low 0.17"
+N429,winter_crop,"peak 0.67 in 2026-04, low 0.08"
+N430,no_crop,max 0.22
+N431,no_crop,max 0.09
+N432,no_crop,max 0.19
+N433,winter_crop,"peak 0.75 in 2026-04, low 0.09"
+N434,water,NDVI < 0 in half the months
+N435,winter_crop,"peak 0.72 in 2026-04, low 0.08"
+N436,winter_crop,"peak 0.51 in 2026-04, low 0.07"
+N437,winter_crop,"peak 0.62 in 2026-04, low 0.06"
+N438,winter_crop,"peak 0.67 in 2026-03, low 0.09"
+N439,unclear,3 winter months missing
+N440,winter_crop,"peak 0.56 in 2026-04, low 0.06"
+N441,winter_crop,"peak 0.48 in 2026-04, low 0.16"
+N442,no_crop,max 0.19
+N443,winter_crop,"peak 0.46 in 2026-04, low 0.07"
+N444,no_crop,max 0.19
+N445,winter_crop,"peak 0.50 in 2026-04, low 0.13"
+N446,unclear,W=0.55 S=0.565 B=0.10
+N447,winter_crop,"peak 0.96 in 2026-04, low 0.11"
+N448,winter_crop,"peak 0.51 in 2026-04, low 0.18"
+N449,winter_crop,"peak 0.45 in 2026-03, low 0.06"
+N450,winter_crop,"peak 0.68 in 2026-04, low 0.05"
+N451,no_crop,max 0.29
+N452,winter_crop,"peak 0.48 in 2026-04, low 0.17"
+N453,no_crop,max 0.21
+N454,winter_crop,"peak 0.57 in 2026-04, low 0.07"
+N455,no_crop,max 0.30
+N456,no_crop,max 0.23
+N457,summer_only,"summer peak 0.62, winter max 0.279"
+N458,no_crop,max 0.21
+N459,winter_crop,"peak 0.55 in 2026-04, low 0.09"
+N460,winter_crop,"peak 0.57 in 2026-04, low 0.07"
+N461,no_crop,max 0.14
+N462,winter_crop,"late peak 0.59 in 2026-05, low 0.19"
+N463,winter_crop,"peak 0.90 in 2026-04, low 0.10"
+N464,unclear,W=0.356 S=0.496 B=0.14
+N465,no_crop,max 0.13
+N466,winter_crop,"peak 0.42 in 2026-04, low 0.07"
+N467,winter_crop,"peak 0.75 in 2026-04, low 0.14"
+N468,perennial,green all year
+N469,no_crop,max 0.19
+N470,winter_crop,"peak 0.76 in 2026-04, low 0.14"
+N471,winter_crop,"peak 0.87 in 2026-04, low 0.10"
+N472,no_crop,max 0.10
+N473,winter_crop,"peak 0.48 in 2026-04, low 0.09"
+N474,unclear,W=0.155 S=0.383 B=0.08
+N475,winter_crop,"peak 0.60 in 2026-04, low 0.06"
+N476,winter_crop,"peak 0.74 in 2026-04, low 0.10"
+N477,winter_crop,"peak 0.86 in 2026-04, low 0.07"
+N478,winter_crop,"peak 0.91 in 2026-03, low 0.10"
+N479,no_crop,max 0.25
+N480,no_crop,max 0.17
+N481,no_crop,max 0.14
+N482,no_crop,max 0.20
+N483,winter_crop,"peak 0.43 in 2026-04, low 0.05"
+N484,winter_crop,"peak 0.43 in 2026-04, low 0.13"
+N485,winter_crop,"peak 0.71 in 2026-04, low 0.07"
+N486,winter_crop,"peak 0.58 in 2026-04, low 0.28"
+N487,winter_crop,"peak 0.60 in 2026-04, low 0.11"
+N488,winter_crop,"peak 0.89 in 2026-04, low 0.09"
+N489,winter_crop,"peak 0.50 in 2026-04, low 0.06"
+N490,winter_crop,"peak 0.62 in 2026-04, low 0.19"
+N491,winter_crop,"peak 0.45 in 2026-04, low 0.05"
+N492,winter_crop,"peak 0.53 in 2026-04, low 0.05"
+N493,no_crop,max 0.28
+N494,winter_crop,"peak 0.47 in 2026-04, low 0.08"
+N495,winter_crop,"peak 0.85 in 2026-04, low 0.12"
+N496,no_crop,max 0.27
+N497,summer_only,"summer peak 0.67, winter max 0.291"
+N498,winter_crop,"peak 0.84 in 2026-04, low 0.07"
+N499,no_crop,max 0.23
+N500,winter_crop,"late peak 0.60 in 2026-05, low 0.20"
+N501,unclear,W=0.373 S=0.181 B=0.08
+N502,winter_crop,"peak 0.56 in 2026-04, low 0.06"
+N503,no_crop,max 0.12
+N504,no_crop,max 0.19
+N505,winter_crop,"late peak 0.66 in 2026-05, low 0.22"
+N506,winter_crop,"peak 0.87 in 2026-04, low 0.08"
+N507,winter_crop,"late peak 0.80 in 2026-05, low 0.26"
+N508,no_crop,max 0.23
+N509,winter_crop,"peak 0.52 in 2026-04, low 0.15"
+N510,unclear,W=0.312 S=0.093 B=0.08
+N511,winter_crop,"peak 0.77 in 2026-04, low 0.25"
+N512,winter_crop,"peak 0.69 in 2026-04, low 0.09"
+N513,no_crop,max 0.23
+N514,winter_crop,"late peak 0.66 in 2026-05, low 0.25"
+N515,no_crop,max 0.10
+N516,winter_crop,"peak 0.75 in 2026-04, low 0.13"
+N517,winter_crop,"peak 0.70 in 2026-04, low 0.10"
+N518,winter_crop,"peak 0.82 in 2026-04, low 0.08"
+N519,winter_crop,"peak 0.62 in 2026-04, low 0.20"
+N520,no_crop,max 0.24
+N521,winter_crop,"peak 0.59 in 2026-03, low 0.06"
+N522,winter_crop,"peak 0.51 in 2026-04, low 0.12"
+N523,winter_crop,"peak 0.89 in 2026-04, low 0.14"
+N524,winter_crop,"peak 0.94 in 2026-03, low 0.07"
+N525,winter_crop,"peak 0.50 in 2026-04, low 0.07"
+N526,winter_crop,"peak 0.41 in 2026-04, low 0.04"
+N527,no_crop,max 0.19
+N528,water,NDVI < 0 in half the months
+N529,no_crop,max 0.20
+N530,winter_crop,"peak 0.47 in 2026-04, low 0.07"
+N531,unclear,W=0.163 S=0.27 B=0.09
+N532,winter_crop,"late peak 0.52 in 2026-05, low 0.14"
+N533,no_crop,max 0.27
+N534,unclear,W=0.374 S=0.067 B=0.06
+N535,unclear,W=0.413 S=0.414 B=0.17
+N536,no_crop,max 0.24
+N537,winter_crop,"peak 0.84 in 2026-04, low 0.07"
+N538,unclear,W=0.223 S=0.289 B=0.16
+N539,no_crop,max 0.17
+N540,winter_crop,"peak 0.62 in 2026-04, low 0.07"
+N541,no_crop,max 0.28
+N542,unclear,W=0.698 S=0.649 B=0.13
+N543,winter_crop,"peak 0.75 in 2026-04, low 0.09"
+N544,winter_crop,"peak 0.90 in 2026-03, low 0.09"
+N545,no_crop,max 0.14
+N546,no_crop,max 0.28
+N547,winter_crop,"peak 0.85 in 2026-03, low 0.09"
+N548,winter_crop,"late peak 0.52 in 2026-05, low 0.13"
+N549,winter_crop,"peak 0.76 in 2026-04, low 0.07"
+N550,winter_crop,"peak 0.84 in 2026-04, low 0.12"
+N551,winter_crop,"peak 0.62 in 2026-04, low 0.07"
+N552,no_crop,max 0.29
+N553,no_crop,max 0.29
+N554,winter_crop,"peak 0.83 in 2026-04, low 0.12"
+N555,winter_crop,"peak 0.45 in 2026-04, low 0.07"
+N556,winter_crop,"peak 0.83 in 2026-04, low 0.07"
+N557,winter_crop,"peak 0.50 in 2026-04, low 0.07"
+N558,no_crop,max 0.07
+N559,winter_crop,"peak 0.78 in 2026-04, low 0.15"
+N560,no_crop,max 0.21
+N561,no_crop,max 0.20
+N562,unclear,W=0.287 S=0.276 B=0.13
+N563,no_crop,max 0.11
+N564,no_crop,max 0.22
+N565,winter_crop,"peak 0.49 in 2026-04, low 0.09"
+N566,winter_crop,"peak 0.49 in 2026-04, low 0.10"
+N567,no_crop,max 0.29
+N568,winter_crop,"peak 0.44 in 2026-04, low 0.18"
+N569,unclear,W=0.356 S=0.149 B=0.11
+N570,winter_crop,"peak 0.51 in 2026-04, low 0.10"

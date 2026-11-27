@@ -1,0 +1,41 @@
+Land-use check, northern assessment: amendment 1 (written 27 Nov 2026 ~18:40 UTC, AFTER the map key was opened and
+BEFORE any imagery was looked at).
+
+Why: with the key open, 132 of 234 "not cropland" points had a winter-crop NDVI curve, 110 of them in the Kurdistan
+Region, mostly peaking in May. In the north, natural grassland and rangeland green up in spring and dry by June like a
+rain-fed crop, so the NDVI rules alone cannot separate them. The reference "winter crop" therefore needs a land-use test.
+
+Amended reference: a point is "winter crop" only if (a) its curve label is winter_crop (labels_final.csv, unchanged)
+and (b) the land at the point is farmed. A winter_crop curve on land judged not farmed becomes "no crop" (natural
+vegetation). Unclear curves stay unclear whatever the land use. Both the original and the amended figures are reported.
+
+Which points: every point whose final curve label is winter_crop or unclear (380), shuffled with seed 20261130,
+shown with no map class, map colours or ids that reveal the class.
+
+Imagery: Esri World Imagery (undated in the viewer; shows land use, not this season's crop), zoom 16 view about
+500 m across with the point marked, plus a zoom 18 close-up.
+
+Classes, judged at the marked point:
+- farmed: the point lies inside a cultivated parcel: straight or regular field edges, plough or drill lines, a
+  patchwork of fields with different tones, terraces, or an irrigation pattern; includes fallow-looking parcels inside
+  a field pattern.
+- not_farmed: the point lies on land with no field pattern: natural slopes, rangeland, scrub or forest, rock, gullies,
+  river beds, built-up land, roads, water.
+- unsure: the point sits on a field edge or boundary, the imagery is blurred or cloudy, or the pattern is ambiguous
+  (for example faint old field lines on rangeland).
+Each look gets a one-line note. Unsure points are reported both ways (as farmed / as not farmed), as for unclear curves.
+
+Amendment 2 (written 27 Nov 2026 ~19:00 UTC, after the imagery look of amendment 1 and BEFORE any field outline was
+read): resolving "unsure" land use with Fields of the World (FTW).
+
+Why: 94 of 380 imagery looks were "unsure", mostly flat plains with no visible field edges, which leaves the bounds too
+wide (winter-crop area 1.78-3.45 Mha).
+
+Source: FTW's Iraq file (source.coop results-by-admin-conf, admin:country_code=IQ/Iraq.pmtiles), as served to the app
+from tiles.iraqfarmshealth.com/fields/Iraq.pmtiles, layer "2025", zoom 13 (its most detailed level). FTW predicts field
+boundaries from Sentinel-2 with its own model, independent of WorldCereal.
+
+Test: a point is inside a field if it lies inside an FTW 2025 polygon (point-in-polygon on the zoom-13 tile geometry).
+Rule: for points whose imagery land use is "unsure", inside a field -> farmed, outside -> not_farmed. Imagery
+judgements of "farmed" and "not_farmed" are NOT changed. Layer "2024" is read too and reported as a sensitivity check.
+The FTW answer is also recorded for all 380 points, and its agreement with the imagery labels is reported.

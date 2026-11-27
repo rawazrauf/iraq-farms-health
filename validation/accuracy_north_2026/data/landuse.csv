@@ -1,0 +1,381 @@
+look_no,id,landuse,note,ftw2025_inside,ftw2024_inside,landuse_resolved
+1,N463,farmed,inside a dark parcel in a field patchwork,1,1,farmed
+2,N328,farmed,inside a long strip field,0,1,farmed
+3,N392,not_farmed,"rocky rangeland slope, no field pattern",0,0,not_farmed
+4,N220,not_farmed,"eroded hills, no field edges",1,1,not_farmed
+5,N377,unsure,irregular patch of shrubs or trees in faint rows; not clearly a field,0,0,not_farmed
+6,N477,unsure,on a track junction between field parcels,1,0,farmed
+7,N175,unsure,"deep shadow, ground not visible",0,0,not_farmed
+8,N103,farmed,inside an irrigated field in a regular pattern,1,1,farmed
+9,N163,not_farmed,hillside with scattered oak trees,0,0,not_farmed
+10,N061,not_farmed,mountain ridges and gullies,1,0,not_farmed
+11,N269,not_farmed,"bare walled plot at the edge of a settlement, no field pattern",1,1,not_farmed
+12,N019,unsure,village gardens beside a road; small plot or roadside verge,0,0,not_farmed
+13,N500,not_farmed,oak scrub with grassy gaps,0,0,not_farmed
+14,N029,not_farmed,dense forest,0,0,not_farmed
+15,N023,not_farmed,grassy hillside with scattered trees,0,0,not_farmed
+16,N326,farmed,inside a large parcel with drill lines,0,1,farmed
+17,N256,farmed,inside a ploughed parcel (contour furrows),1,1,farmed
+18,N470,not_farmed,grassland with scattered oaks,0,0,not_farmed
+19,N418,not_farmed,scrubby hillside,1,0,not_farmed
+20,N286,farmed,inside a parcel planted in rows,1,1,farmed
+21,N102,not_farmed,oak savanna,0,0,not_farmed
+22,N403,farmed,contour-ploughed land,1,1,farmed
+23,N419,not_farmed,badlands,1,0,not_farmed
+24,N049,not_farmed,"green grassy slope beside a road, no field edges",0,0,not_farmed
+25,N224,not_farmed,oak woodland,1,0,not_farmed
+26,N045,farmed,inside an orchard parcel with tree rows,1,1,farmed
+27,N518,unsure,"smooth rolling slopes, faint tones; field edges not visible",1,1,farmed
+28,N055,farmed,large parcel on a flat plain bounded by straight tracks,1,1,farmed
+29,N016,not_farmed,grassy slopes with gullies,1,1,not_farmed
+30,N459,not_farmed,"grassy mound and slopes, no field edges",1,1,not_farmed
+31,N290,farmed,inside a striped harvested field beside a road,1,1,farmed
+32,N091,not_farmed,oak scrub,0,0,not_farmed
+33,N501,not_farmed,steep ridges and gullies,0,0,not_farmed
+34,N160,farmed,inside a parcel with drill or plough lines,1,1,farmed
+35,N155,not_farmed,village edge with buildings and grassy open ground,1,0,not_farmed
+36,N410,not_farmed,dense oak woodland,0,0,not_farmed
+37,N447,farmed,inside a parcel in a field patchwork,1,1,farmed
+38,N283,farmed,inside a parcel in a regular field pattern,1,1,farmed
+39,N369,farmed,"inside a parcel on a plain, tracks converging at a well",1,1,farmed
+40,N200,not_farmed,rocky ground with scrub,0,0,not_farmed
+41,N367,unsure,"inside a river bend, faint lines; on the channel edge",1,0,farmed
+42,N222,not_farmed,rocky ridges,0,0,not_farmed
+43,N373,not_farmed,scrub woodland,0,0,not_farmed
+44,N041,not_farmed,grassy hills with oaks,0,1,not_farmed
+45,N345,farmed,inside an irrigated field,1,1,farmed
+46,N443,not_farmed,eroded slopes,1,0,not_farmed
+47,N211,not_farmed,scrub,0,0,not_farmed
+48,N415,not_farmed,built-up village,0,0,not_farmed
+49,N238,unsure,"flat land by a stream, uniform tone; field edges not clear",0,0,not_farmed
+50,N409,not_farmed,"mountain slope in shadow, small meadow",0,0,not_farmed
+51,N083,not_farmed,scrubby mountain slope,0,0,not_farmed
+52,N270,not_farmed,shrubland,1,1,not_farmed
+53,N440,unsure,"flat bare plain with tracks, no field edges visible",0,1,not_farmed
+54,N118,farmed,parallel furrows on a plain,0,1,farmed
+55,N450,farmed,strip pattern on a plain,0,0,farmed
+56,N267,not_farmed,grassy slope with scattered oaks,1,1,not_farmed
+57,N259,farmed,faint contour furrows between rock outcrops,1,1,farmed
+58,N177,not_farmed,grassland with trees by a stream,1,1,not_farmed
+59,N134,farmed,inside a strip field,1,1,farmed
+60,N487,unsure,on a gully line between smooth slopes,1,0,farmed
+61,N242,unsure,"uniform plain with tracks, no field edges",1,0,farmed
+62,N171,not_farmed,rocky scrubland,0,0,not_farmed
+63,N372,not_farmed,vegetated river channel,0,0,not_farmed
+64,N255,unsure,"beside a highway and compound, faint texture",1,0,farmed
+65,N351,not_farmed,forest and scrub,0,0,not_farmed
+66,N261,unsure,smooth slope with faint parallel lines,1,1,farmed
+67,N156,unsure,"valley floor beside a wadi, smooth tone",0,1,not_farmed
+68,N151,not_farmed,eroded hill slope next to a field,0,0,not_farmed
+69,N101,not_farmed,built-up village,0,0,not_farmed
+70,N007,farmed,inside a freshly ploughed parcel,0,1,farmed
+71,N360,not_farmed,bare and grassy valley slope with trees,0,0,not_farmed
+72,N010,unsure,curving band among hills with faint terrace lines,1,0,farmed
+73,N233,not_farmed,forest,0,0,not_farmed
+74,N448,unsure,"uniform brown slope with streaks, no edges",0,0,not_farmed
+75,N232,unsure,on the corner where parcels meet,1,0,farmed
+76,N401,farmed,inside an orchard parcel,1,1,farmed
+77,N339,not_farmed,scrub with trees beside a road,0,0,not_farmed
+78,N512,farmed,inside a parcel in a field patchwork,1,1,farmed
+79,N017,not_farmed,grassy hill slopes,1,1,not_farmed
+80,N485,farmed,inside a parcel with straight edges,0,1,farmed
+81,N153,not_farmed,hills and gullies,0,0,not_farmed
+82,N272,not_farmed,shrub steppe,0,0,not_farmed
+83,N566,farmed,inside a parcel next to a farmstead and orchard,1,1,farmed
+84,N484,farmed,contour lines or terraces on a slope by a road,0,0,farmed
+85,N505,not_farmed,oak savanna,0,0,not_farmed
+86,N525,farmed,inside a drilled field,0,1,farmed
+87,N183,farmed,"inside a parcel with drill lines, near a track",1,1,farmed
+88,N157,unsure,village gardens and trees near buildings,1,0,farmed
+89,N555,unsure,small green valley patch among hills,0,0,not_farmed
+90,N407,unsure,on a track between two large parcels,0,1,not_farmed
+91,N252,not_farmed,grassland with scattered trees,0,0,not_farmed
+92,N051,farmed,inside a parcel in a field patchwork,1,1,farmed
+93,N288,not_farmed,hill slope,0,0,not_farmed
+94,N422,farmed,inside a field with plough lines,1,1,farmed
+95,N347,unsure,"plain with wadi channels, smooth tone",1,0,farmed
+96,N254,not_farmed,lake water in the imagery (shore may be exposed in spring),1,0,not_farmed
+97,N293,not_farmed,dark scrub,0,1,not_farmed
+98,N317,not_farmed,oak woodland,0,0,not_farmed
+99,N324,farmed,inside a parcel with drill lines,1,1,farmed
+100,N404,not_farmed,rocky bare ground by a track,0,0,not_farmed
+101,N280,farmed,faint parallel strips on a plain by a road,1,1,farmed
+102,N335,farmed,contour furrows,1,1,farmed
+103,N100,not_farmed,scrub forest,0,0,not_farmed
+104,N006,unsure,"uniform plain with tracks, no edges visible",1,1,farmed
+105,N547,unsure,on the edge between a parcel and a wadi strip,1,1,farmed
+106,N038,farmed,"inside a parcel below a track, faint drill lines",0,1,farmed
+107,N215,farmed,plough lines inside a parcel next to fields,1,1,farmed
+108,N284,not_farmed,green slope between rock ridges,1,0,not_farmed
+109,N253,unsure,"pale plain with faint lines, edges unclear",1,1,farmed
+110,N491,farmed,drill lines on a plain with drainage streaks,0,1,farmed
+111,N507,not_farmed,grassy oak woodland,0,0,not_farmed
+112,N137,farmed,contour ploughing beside a centre-pivot field,0,1,farmed
+113,N396,not_farmed,"undulating pale land with gullies, no field pattern",0,1,not_farmed
+114,N141,not_farmed,dissected land with gullies,0,0,not_farmed
+115,N315,unsure,"uniform plain with tracks, no edges visible",0,1,not_farmed
+116,N149,not_farmed,mountain slope above a river bed,0,0,not_farmed
+117,N278,not_farmed,green slope with shrubs,0,0,not_farmed
+118,N115,not_farmed,rocky layered ridges with trees,0,0,not_farmed
+119,N460,farmed,"inside a parcel among fields, faint drill lines",0,1,farmed
+120,N301,farmed,ploughed curves on a plain beside a mound,0,1,farmed
+121,N405,not_farmed,rough scrubby land,0,0,not_farmed
+122,N133,not_farmed,brushy slope,0,0,not_farmed
+123,N494,not_farmed,green stream valley meadow,0,0,not_farmed
+124,N089,farmed,inside a cultivated strip between tree lines,0,0,farmed
+125,N435,unsure,dark band in a gully with faint linear marks,0,0,not_farmed
+126,N241,farmed,inside a parcel with drill lines,1,1,farmed
+127,N385,not_farmed,oak savanna,1,0,not_farmed
+128,N068,unsure,"pale plain with drainage lines, faint strips",0,1,not_farmed
+129,N013,farmed,"inside a parcel bounded by tracks, faint drill lines",1,1,farmed
+130,N378,unsure,on the edge between parcels by a track,0,1,not_farmed
+131,N276,farmed,harvested field with bale rows,1,1,farmed
+132,N026,not_farmed,bare village outskirts with tracks,0,1,not_farmed
+133,N462,not_farmed,scrub woodland,0,0,not_farmed
+134,N059,farmed,inside a parcel beside orchards,1,1,farmed
+135,N359,farmed,smooth plain with faint parallel drill lines,1,0,farmed
+136,N371,unsure,"smooth patch beside gullies, a track crossing",0,0,not_farmed
+137,N399,not_farmed,oak scrub,0,0,not_farmed
+138,N526,not_farmed,badland gullies,1,0,not_farmed
+139,N413,unsure,smooth green patch between dissected ridges,1,1,farmed
+140,N090,unsure,pale plain with green drainage streaks,0,1,not_farmed
+141,N353,not_farmed,oak woodland,0,0,not_farmed
+142,N304,not_farmed,green grassy slope with shrubs,1,1,not_farmed
+143,N169,farmed,inside a large smooth field by a stream,1,1,farmed
+144,N356,unsure,on the edge between a ploughed parcel and a grassy strip,1,1,farmed
+145,N393,farmed,drill lines in a parcel bounded by tracks,0,1,farmed
+146,N319,not_farmed,grassy slope with shrubs,1,1,not_farmed
+147,N390,unsure,on a junction where parcel boundaries meet,0,0,not_farmed
+148,N218,not_farmed,oak savanna,1,0,not_farmed
+149,N548,not_farmed,rocky ground by a village,0,0,not_farmed
+150,N445,not_farmed,marshy depression or pond beside fields,0,0,not_farmed
+151,N352,farmed,inside a green parcel just below a track,1,1,farmed
+152,N486,not_farmed,shrubland,0,0,not_farmed
+153,N368,unsure,"hummocky pale land next to a dark parcel, no pattern at the point",1,1,farmed
+154,N223,not_farmed,oak savanna,1,0,not_farmed
+155,N519,not_farmed,wooded slope by a town,0,0,not_farmed
+156,N070,not_farmed,snowy mountain forest,1,1,not_farmed
+157,N358,unsure,"smooth green slope by a track, no edges",0,0,not_farmed
+158,N097,not_farmed,rocky scrub slope,0,1,not_farmed
+159,N087,unsure,pale open land at a village edge near parcels,1,1,farmed
+160,N521,not_farmed,bare land with tracks by a settlement,0,0,not_farmed
+161,N509,not_farmed,rangeland slope by a stream with scattered trees,0,0,not_farmed
+162,N517,unsure,dark patch beside terraces and a track (burnt field or scrub),0,0,not_farmed
+163,N078,farmed,"inside a field below a track, drill texture",1,1,farmed
+164,N056,not_farmed,pale hilly rangeland with gullies,0,0,not_farmed
+165,N475,farmed,large field with faint lines bounded by a wadi,1,1,farmed
+166,N309,farmed,parcel with regular rows bounded by a track,0,1,farmed
+167,N027,unsure,small plot among buildings,1,0,farmed
+168,N108,farmed,inside a striped field beside an orchard,1,1,farmed
+169,N172,not_farmed,dissected hills,0,0,not_farmed
+170,N244,not_farmed,"town edge, bare ground",0,0,not_farmed
+171,N522,not_farmed,scrubby slope with gullies,0,0,not_farmed
+172,N318,not_farmed,steppe slope with shrubs,0,0,not_farmed
+173,N229,not_farmed,green woodland,0,0,not_farmed
+174,N145,not_farmed,dark scrubby mountain slope,0,0,not_farmed
+175,N330,not_farmed,scrub on a slope,0,0,not_farmed
+176,N340,farmed,inside a young orchard or planted parcel beside a centre pivot,1,1,farmed
+177,N441,not_farmed,oak savanna,1,1,not_farmed
+178,N236,not_farmed,grassy scrub,0,0,not_farmed
+179,N438,farmed,inside a parcel between canals,1,1,farmed
+180,N086,not_farmed,steep ridges,0,0,not_farmed
+181,N297,unsure,"large smooth slope with a gully, no edges",1,0,farmed
+182,N152,unsure,flat land with tracks and a marshy patch,0,0,not_farmed
+183,N291,not_farmed,reservoir shore with water and shoreline bands,1,1,not_farmed
+184,N478,farmed,inside a parcel with drill lines,1,1,farmed
+185,N569,not_farmed,rocky savanna,0,0,not_farmed
+186,N088,unsure,smooth lower slope below faint furrows,0,0,not_farmed
+187,N227,not_farmed,dense vegetation strip on a slope edge,0,0,not_farmed
+188,N074,unsure,"smooth parcels dotted with trees, straight track",1,1,farmed
+189,N053,unsure,"rolling bare land with tracks, no edges",1,0,farmed
+190,N180,farmed,inside a parcel in a field patchwork,1,1,farmed
+191,N073,unsure,"pale smooth land beside parcels, no edge at the point",1,1,farmed
+192,N395,farmed,inside a striped parcel between tracks,0,1,farmed
+193,N191,not_farmed,riverside woodland clearing,0,0,not_farmed
+194,N471,unsure,"pale smooth land beside dark plots, faint lines",1,1,farmed
+195,N516,not_farmed,grassy savanna,0,0,not_farmed
+196,N004,not_farmed,shrubland,0,0,not_farmed
+197,N364,not_farmed,scrubby slope,0,0,not_farmed
+198,N166,farmed,inside a strip parcel beside a small channel,1,1,farmed
+199,N210,farmed,inside a parcel with tree rows by a river,1,1,farmed
+200,N174,farmed,inside a large dark parcel,0,1,farmed
+201,N489,unsure,on a track between drilled parcels,0,1,not_farmed
+202,N165,farmed,inside a green parcel in a patchwork,1,1,farmed
+203,N476,farmed,green valley field beside a tree line,1,1,farmed
+204,N080,not_farmed,rough hilly land by a track,0,0,not_farmed
+205,N021,unsure,on the edge between a dark parcel and a slope,0,0,not_farmed
+206,N346,farmed,small valley parcel bounded by trees,0,0,farmed
+207,N376,not_farmed,"smooth grassy slope, no pattern",0,0,not_farmed
+208,N230,unsure,rough pale land with regular dark diagonal streaks,1,1,farmed
+209,N467,not_farmed,savanna,1,0,not_farmed
+210,N433,farmed,drill lines on a plain,1,1,farmed
+211,N550,unsure,open land at a town edge with faint lines,1,1,farmed
+212,N427,unsure,"smooth slope with faint lines, no edges",1,1,farmed
+213,N511,not_farmed,scrub,0,0,not_farmed
+214,N350,unsure,dark textured area below a road by an industrial site,0,0,not_farmed
+215,N128,not_farmed,dark scrubby slope,1,1,not_farmed
+216,N506,unsure,"flat land with tracks, smooth",0,0,not_farmed
+217,N095,farmed,smooth plain with faint drill lines,0,1,farmed
+218,N398,not_farmed,stream channel,0,0,not_farmed
+219,N237,unsure,plain with faint lines near a canal,1,1,farmed
+220,N382,not_farmed,shrub steppe,1,0,not_farmed
+221,N424,unsure,"on tracks converging on a well, between parcels",1,1,farmed
+222,N072,not_farmed,green grass with scrub,0,0,not_farmed
+223,N002,farmed,inside a parcel with drill lines,1,1,farmed
+224,N342,not_farmed,village with buildings and gardens,0,0,not_farmed
+225,N243,farmed,plain with drill lines among parcels,1,1,farmed
+226,N064,unsure,"pale plain with tracks and a canal, faint lines",0,1,not_farmed
+227,N292,farmed,inside a striped parcel among irrigated fields,1,1,farmed
+228,N349,unsure,bare yard beside farm buildings next to fields,1,1,farmed
+229,N307,not_farmed,hummocky gullied land,0,0,not_farmed
+230,N032,farmed,inside a parcel in a field patchwork,1,1,farmed
+231,N050,not_farmed,grassy oak savanna,1,0,not_farmed
+232,N538,not_farmed,farmstead or village buildings,0,0,not_farmed
+233,N408,not_farmed,eroded mound,1,1,not_farmed
+234,N011,not_farmed,grassland with trees,0,0,not_farmed
+235,N235,farmed,inside a dark parcel among fields,1,1,farmed
+236,N549,not_farmed,bare yard by buildings,0,0,not_farmed
+237,N248,unsure,irregular dark vegetation patches beside a parcel,0,0,not_farmed
+238,N535,not_farmed,scrub forest,0,0,not_farmed
+239,N069,unsure,smooth pale slope between gullies,0,0,not_farmed
+240,N126,not_farmed,woodland,1,0,not_farmed
+241,N417,unsure,on a gully bank in pale land,0,1,not_farmed
+242,N127,not_farmed,scrub,0,0,not_farmed
+243,N063,farmed,drill lines on a plain,0,0,farmed
+244,N565,unsure,on a ridge line between smooth slopes,0,1,not_farmed
+245,N381,not_farmed,savanna,0,0,not_farmed
+246,N148,unsure,on the edge of a green field,1,0,farmed
+247,N302,not_farmed,scrub woodland,0,0,not_farmed
+248,N298,farmed,contour-ploughed parcel in a river loop,0,1,farmed
+249,N543,farmed,regular planted pattern in a parcel,1,1,farmed
+250,N554,farmed,inside an orchard parcel,1,1,farmed
+251,N312,not_farmed,dark scrub,0,0,not_farmed
+252,N488,farmed,faint drill lines in a parcel beside a track,0,1,farmed
+253,N514,not_farmed,grassy scrub slope,0,0,not_farmed
+254,N262,farmed,parcel with drill lines bounded by tracks,1,1,farmed
+255,N251,not_farmed,scrub woodland,0,0,not_farmed
+256,N122,unsure,on a meandering stream channel,1,1,farmed
+257,N057,not_farmed,grassy slope beside a rocky gully,0,0,not_farmed
+258,N054,farmed,crossing drill lines on a plain,0,1,farmed
+259,N123,unsure,on a small gully crossing a parcel,0,0,not_farmed
+260,N556,farmed,drill lines on a plain,0,1,farmed
+261,N205,not_farmed,grassy scrub slope,1,0,not_farmed
+262,N449,not_farmed,bare village outskirts with tracks,1,1,not_farmed
+263,N375,not_farmed,steep ridges,0,0,not_farmed
+264,N523,not_farmed,grassland with trees,1,1,not_farmed
+265,N189,not_farmed,scrubby slope,0,0,not_farmed
+266,N119,farmed,inside a pale parcel among fields,1,1,farmed
+267,N264,unsure,"smooth slope above a ridge, by a track junction",0,0,not_farmed
+268,N295,farmed,ploughed curves in a parcel by a farmstead,1,1,farmed
+269,N285,not_farmed,shrub steppe,0,0,not_farmed
+270,N437,farmed,drill lines on a plain with tracks,0,1,farmed
+271,N537,farmed,parcel with faint drill lines beside fields,0,1,farmed
+272,N184,farmed,drill lines on a plain,0,1,farmed
+273,N268,not_farmed,vegetated wadi channel between fields,0,0,not_farmed
+274,N308,unsure,rough vegetation along drainage by tracks,1,1,farmed
+275,N239,unsure,green clearing among woodland,0,0,not_farmed
+276,N355,unsure,smooth pale land beside a wadi,1,1,farmed
+277,N129,farmed,inside a large dark field,0,1,farmed
+278,N343,unsure,smooth brown land with darker patches above faint parcels,1,0,farmed
+279,N164,unsure,pale smooth plain with drainage lines,0,0,not_farmed
+280,N212,unsure,scattered trees on green grass in a valley (old orchard or wood pasture),0,0,not_farmed
+281,N024,not_farmed,scrub woodland,0,0,not_farmed
+282,N146,not_farmed,grassy rangeland with a few shrubs,0,0,not_farmed
+283,N124,not_farmed,dense scrub,0,0,not_farmed
+284,N530,farmed,inside a ploughed parcel beside irrigated fields,1,1,farmed
+285,N194,unsure,"pale plain with tracks, faint streaks",1,1,farmed
+286,N066,unsure,"uniform grassy plain with tracks, no edges",0,1,not_farmed
+287,N245,not_farmed,smooth slope in hilly terrain with scattered trees,1,1,not_farmed
+288,N568,not_farmed,grassland with scattered trees,0,0,not_farmed
+289,N379,not_farmed,scrub woodland,1,0,not_farmed
+290,N036,not_farmed,oak savanna with a track,0,0,not_farmed
+291,N104,farmed,harvester paths in a parcel beside a dark field,0,1,farmed
+292,N197,not_farmed,scrub with tracks,1,0,not_farmed
+293,N365,unsure,smooth hazy land with faint lines and dark patches,1,1,farmed
+294,N085,unsure,smooth slope with faint lines,1,0,farmed
+295,N039,farmed,inside a furrowed parcel below a track,1,1,farmed
+296,N305,farmed,parcel with faint lines by a farmstead,0,0,farmed
+297,N483,farmed,inside a lined parcel beside a track above hills,0,0,farmed
+298,N389,farmed,contour ploughing beside a wadi,0,1,farmed
+299,N502,unsure,on a green drainage streak in farmland,0,1,not_farmed
+300,N159,farmed,plough lines in parcels beside a wadi,1,1,farmed
+301,N071,not_farmed,oak savanna,0,0,not_farmed
+302,N209,farmed,inside an irrigated field with lines,1,1,farmed
+303,N106,not_farmed,scrub,0,0,not_farmed
+304,N559,not_farmed,vegetated drainage channel on a plain,1,0,not_farmed
+305,N331,unsure,open land with tracks beside compounds,0,1,not_farmed
+306,N271,unsure,"beside a road and buildings, edge of a parcel",0,0,not_farmed
+307,N167,farmed,drill lines on a plain,1,1,farmed
+308,N400,farmed,inside a parcel with plough lines,1,1,farmed
+309,N201,not_farmed,green slope in dissected hills,0,0,not_farmed
+310,N524,farmed,inside a large dark parcel by a road,1,1,farmed
+311,N143,farmed,inside a dark green parcel near its corner,1,1,farmed
+312,N334,farmed,large smooth parcel with faint lines,1,1,farmed
+313,N299,farmed,faint plough lines on a plain beside a gully,1,1,farmed
+314,N217,unsure,"dense dark vegetation beside a canal (garden, orchard or reeds)",1,0,farmed
+315,N454,farmed,strip parcels on a plain,0,1,farmed
+316,N551,unsure,on a gully edge between a ploughed plateau and a slope,0,1,not_farmed
+317,N446,unsure,narrow green strip between fields at a hill foot,0,0,not_farmed
+318,N277,unsure,on the edge between a ploughed field and a dark patch,0,0,not_farmed
+319,N402,unsure,on a dark linear band inside a large parcel,1,1,farmed
+320,N034,not_farmed,savanna,0,0,not_farmed
+321,N412,unsure,"bare ground beside a poultry or farm compound, next to fields",0,1,not_farmed
+322,N040,farmed,pale parcel with faint lines beside a channel,0,1,farmed
+323,N397,unsure,rough land with a mound near a compound,0,1,not_farmed
+324,N154,farmed,inside a large brown parcel beside an orchard,1,1,farmed
+325,N181,unsure,uniform pale plain with tracks,0,0,not_farmed
+326,N179,farmed,faint drill lines in a parcel bounded by tracks,0,1,farmed
+327,N333,not_farmed,scrub slope,0,0,not_farmed
+328,N320,not_farmed,road junction at a village edge,0,0,not_farmed
+329,N429,farmed,inside a parcel among fields near a village,1,1,farmed
+330,N195,farmed,inside a dark parcel,1,1,farmed
+331,N044,not_farmed,mountain ridges,0,0,not_farmed
+332,N361,farmed,inside a large dark parcel by a town,0,0,farmed
+333,N142,not_farmed,grassy slope with shrubs,1,0,not_farmed
+334,N532,not_farmed,grassland with trees beside a road,1,1,not_farmed
+335,N231,not_farmed,rough pale land with dark patches and a gully,0,0,not_farmed
+336,N082,farmed,inside a dark parcel with a straight edge,0,0,farmed
+337,N362,farmed,bounded parcel with faint lines beside greenhouses,1,1,farmed
+338,N557,unsure,"dark smooth area bounded by tracks, irregular edge",1,1,farmed
+339,N344,farmed,parcel beside a patchwork of fields,1,1,farmed
+340,N384,not_farmed,built-up town,0,0,not_farmed
+341,N464,not_farmed,riparian trees along a stream,0,0,not_farmed
+342,N107,unsure,"pale plain with channels and tracks, faint marks",1,1,farmed
+343,N495,unsure,on the corner where a track meets parcels,0,0,not_farmed
+344,N216,not_farmed,dense scrub and wetland,0,0,not_farmed
+345,N452,not_farmed,scrub with a tree line,1,0,not_farmed
+346,N562,not_farmed,built-up city,0,0,not_farmed
+347,N193,farmed,inside a green parcel among fields,1,1,farmed
+348,N303,farmed,grid of faint lines in a parcel beside a river,1,1,farmed
+349,N135,not_farmed,vacant lot in a town,0,0,not_farmed
+350,N366,not_farmed,shrub land with trees,0,0,not_farmed
+351,N020,unsure,on the boundary between two parcels,0,1,not_farmed
+352,N009,unsure,pale land by a road with faint lines near strip fields,1,1,farmed
+353,N473,farmed,inside a lined parcel,1,1,farmed
+354,N348,unsure,"uniform plain, faint marks",0,0,not_farmed
+355,N022,unsure,smooth green valley floor among badlands,0,1,not_farmed
+356,N492,farmed,drill lines on a plain,0,1,farmed
+357,N207,farmed,faint parallel drill lines on a pale plain,1,1,farmed
+358,N125,unsure,plain with round spots and faint lines,0,1,not_farmed
+359,N428,not_farmed,green slope with shrub patches,1,0,not_farmed
+360,N062,not_farmed,gully in eroded land,0,0,not_farmed
+361,N329,not_farmed,dark vegetated gully on bare land,0,0,not_farmed
+362,N490,not_farmed,grassy slope with shrubs,0,0,not_farmed
+363,N466,not_farmed,road crossing gullied hills,0,0,not_farmed
+364,N234,unsure,"small plots and trees in a village valley, point on a plot edge",0,0,not_farmed
+365,N249,unsure,"rough land beside a road and a quarry, faint strips",0,1,not_farmed
+366,N018,farmed,pale parcel with faint lines beside a ploughed field,1,1,farmed
+367,N534,farmed,inside a parcel with plough lines,1,1,farmed
+368,N185,farmed,"inside a parcel below a channel, field lines",0,1,farmed
+369,N544,farmed,plough lines across a parcel beside a highway,1,1,farmed
+370,N048,not_farmed,savanna with trees,0,0,not_farmed
+371,N570,not_farmed,rocky slope by a road and cliff,0,1,not_farmed
+372,N383,farmed,faint drill lines on a plain with pale spots,1,1,farmed
+373,N370,not_farmed,savanna,1,1,not_farmed
+374,N498,farmed,large smooth parcel with faint arcs bounded by a channel,1,1,farmed
+375,N173,farmed,drill lines in parcels,1,1,farmed
+376,N228,farmed,orchard with irrigation basins,1,1,farmed
+377,N436,farmed,faint drill lines on a large pale plain,1,1,farmed
+378,N187,farmed,inside a strip parcel with lines,1,1,farmed
+379,N113,not_farmed,hills beside a compound,0,0,not_farmed
+380,N540,farmed,smooth plain with harvester turning arcs,0,1,farmed
