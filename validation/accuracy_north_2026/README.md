@@ -21,7 +21,7 @@ A stratified random accuracy assessment of the northern part of the Iraq Farms H
 
 - **Map:** the publish of 27 Nov 2026 (`index.json` `generated_utc` "2026-11-27 07:17"): 213 tiles (north run 65, season pilot 3, main run 145) in 112 cells.
   - This is **not** the `crops/2026/` folder in this repository at the time of writing, which still holds the 7 Nov publish.
-  - The assessed copy is `crops_2026_20261127_0717.zip`, 312,149,487 bytes, SHA-256 `9e87f0f7b8df12a6f6e1b87a7b862be1bec1778dc42293970478b95f701008db`. It is to be attached to a GitHub release, as the southern map was.
+  - The assessed copy is `crops_2026_20261127_0717.zip`, 312,149,487 bytes, SHA-256 `9e87f0f7b8df12a6f6e1b87a7b862be1bec1778dc42293970478b95f701008db`. It is attached to the release [`crops-2026-north-assessed`](https://github.com/rawazrauf/iraq-farms-health/releases/tag/crops-2026-north-assessed) (published 28 Nov 2026; tag on commit `744a73b`). The release copy was downloaded back and checked: byte-identical, all 128 files match `data/assessed_map_sha256.txt`, and the sample redraws from it byte for byte.
   - The SHA-256 of each of its 128 files is in `data/assessed_map_sha256.txt`.
   - The scripts refuse any other map (they check `generated_utc`, the tile count and the cell count) unless `--any-map` is given.
 - **Population:** every map pixel in the tiles whose centre lies at or north of 34.8°N, clipped to Iraq's boundary (`boundaries.geojson`).

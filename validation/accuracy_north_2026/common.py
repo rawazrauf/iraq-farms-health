@@ -3,8 +3,9 @@
 Every script takes the frozen crop layer folder with --crops. The map that is assessed is the publish of
 27 Nov 2026 (index.json generated_utc "2026-11-27 07:17", 213 tiles); it is NOT the crops/2026 folder in
 this repository at the time of writing. A fixed copy (crops_2026_20261127_0717.zip, SHA-256 in README.md
-section 1 and every file's SHA-256 in data/assessed_map_sha256.txt) is to be attached to a GitHub release.
-Unzip it and pass its 2026 folder: --crops crops_2026_20261127_0717/2026
+section 1 and every file's SHA-256 in data/assessed_map_sha256.txt) is attached to the release crops-2026-north-assessed:
+    https://github.com/rawazrauf/iraq-farms-health/releases/download/crops-2026-north-assessed/crops_2026_20261127_0717.zip
+Unzip it and pass its 2026 folder: --crops 2026
 The scripts refuse any other map unless --any-map is given.
 """
 import argparse, json, os
