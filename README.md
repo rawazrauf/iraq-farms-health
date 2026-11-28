@@ -54,7 +54,7 @@ For a full description of the data sources, the NDVI calculation, and the tool's
 
 ## Crop map and how it was checked
 
-The site also shows a 2025-26 winter-cereal map of Iraq (`crops/2026/`), made with the ESA WorldCereal models at 10 m resolution. Its accuracy has been checked against each location's own Sentinel-2 history:
+The site also shows a 2025-26 winter-cereal map of Iraq (served from `https://data.iraqfarmshealth.com/crops/2026/`), made with the ESA WorldCereal models at 10 m resolution. Its accuracy has been checked against each location's own Sentinel-2 history:
 
 - **Southern tiles (67 tiles, 10.5 Mha), stratified random sample of 575 points:** where the map says "confident cereal", a winter crop grew 96% of the time (95% CI 92–99%). The map catches 71% (65–77%) of the winter-crop area. Winter-crop area 1.91 Mha (1.75–2.06), against 1.41 Mha mapped.
 - **Northern tiles:** field checks showed rain-fed cereal is often under-counted. These tiles are being re-run with a later season and will then be assessed the same way.
@@ -129,7 +129,7 @@ The map lists the credits for what is on screen under its ⓘ button, and the fi
 ## License & use
 
 - **Code** (`index.html`, `crops/`, `tools/`, `validation/` scripts): [MIT](LICENSE).
-- **Crop map data** (`crops/2026/`, `crops/2026p/`): CC BY 4.0. Credit: "Crop types: ESA WorldCereal system, run by Iraq Farms Health on Copernicus Data Space. Contains modified Copernicus Sentinel data 2025–2026."
+- **Crop map data** (`https://data.iraqfarmshealth.com/crops/2026/`, `crops/2026p/`): CC BY 4.0. Credit: "Crop types: ESA WorldCereal system, run by Iraq Farms Health on Copernicus Data Space. Contains modified Copernicus Sentinel data 2025–2026."
 - **Validation data** (`validation/`): CC BY 4.0. Credit: "Iraq Farms Health".
 - **Third-party data** shown in the app (EOxCloudless, Esri reference layers, Fields of the World, WorldCereal 2021, JRC water, NASA GIBS, Open-Meteo) stays under its providers' own terms; follow the links above.
 

@@ -329,11 +329,27 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
 <script>
 (function(){
 "use strict";
-// Data folder (relative to this page). Override with ?data=<url> to test another location.
+// Data folder: the published map on Cloudflare R2 (bucket ifh-data, since 28 Nov 2026; before that crops/2026/ in this
+// repo). Override with ?data=<url> to test another location: absolute, or relative to this page (e.g. ?data=2026p/).
 const Q0 = new URLSearchParams(location.search);   // the link this page was opened with (see "link to this view")
-const DATA = Q0.get("data") || "2026/";
+const DATA = Q0.get("data") || "https://data.iraqfarmshealth.com/crops/2026/";
 const DATA_ABS = new URL(DATA, location.href).href;
 const KRI_NAME = "Kurdistan Region";
+// Browsers ignore <a download> for files on another domain (the data now comes from R2) and open them in a tab
+// instead. For such links, fetch the file and save it under its own name; if that fails, open it as before.
+document.addEventListener("click", async e => {
+  const a = e.target.closest && e.target.closest("a[download]");
+  if(!a || !a.href || /^(blob|data):/.test(a.href) || new URL(a.href).origin === location.origin) return;
+  e.preventDefault();
+  try{
+    const r = await fetch(a.href);
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const url = URL.createObjectURL(await r.blob()), tmp = document.createElement("a");
+    tmp.href = url; tmp.download = a.getAttribute("download") || decodeURIComponent(a.href.split("?")[0].split("/").pop());
+    document.body.appendChild(tmp); tmp.click(); tmp.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }catch(err){ window.open(a.href, "_blank", "noopener"); }
+});
 
 /* ------------------------------------------------------------------ text */
 const T = {

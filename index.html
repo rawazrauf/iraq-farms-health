@@ -1087,7 +1087,7 @@ function dbgUrl(u){
 }
 
 /* ---------- constants ---------- */
-const BUILD = "2026.11.26-j";  // bump on each deploy so screenshots self-identify
+const BUILD = "2026.11.28-a";  // bump on each deploy so screenshots self-identify
 /* Where the map opens (a link's ?lat=&lon= always wins):
    - first visit: on the guide's sample field, so the guide and the map agree;
    - once the guide has been seen (finished or skipped): the whole country, to
@@ -1413,17 +1413,18 @@ async function sampleWcProduct(f, product){
 /* ---------- DEBUG ONLY: 2021 vs 2025-26 crop check per field (?debug=1) ----------
    Hidden from normal users. With ?debug=1, every field tap writes a "CROP CHECK"
    block to the debug log: what ESA WorldCereal 2021 recorded on the field and
-   what our 2025-26 crop map (crops/2026, streamed with crops/crop-layer.js) says,
+   what our 2025-26 crop map (on Cloudflare R2, streamed with crops/crop-layer.js) says,
    pixel by pixel inside the polygon. "copy crops" in the debug bar copies only
    these blocks; "2026 layer" shows the 2025-26 map on top of the satellite image.
    ?crops=2026p reads another published folder instead (crops/2026p/ = the season
-   pilot, Nov 2026); every line then names that folder. Default: crops/2026/.
+   pilot, Nov 2026); every line then names that folder. Default: the published map on R2,
+   https://data.iraqfarmshealth.com/crops/2026/ (crops/2026/ in this repo until 28 Nov 2026).
    Nothing is loaded unless debug is on. */
 const CROPDBG = (function(){
   if(!DBG.on) return { check: ()=>{} };
   const q = new URLSearchParams(location.search).get("crops") || "";
   const LAYER = /^20\d\d[a-z]?$/.test(q) ? q : "2026";      // folder under crops/, e.g. 2026 or 2026p
-  const DATA = `crops/${LAYER}/`;
+  const DATA = LAYER === "2026" ? "https://data.iraqfarmshealth.com/crops/2026/" : `crops/${LAYER}/`;
   const blocks = [];
   let ready = null;
   const loadScript = src => new Promise((res, rej) => {

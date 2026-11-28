@@ -11,7 +11,7 @@
    - 2021 layers: winter cereals and temporary crops, read from the Terrascope WMTS.
    - Uses only tiles in the published `index.json`. Tiles that finished after publish are skipped and reported in the log.
    - Rules: top_crop, p50, p70_all, p70 (the default).
-4. Upload `publish/2026/` to the repo as `crops/2026/`. The page `crops/index.html` + `crops/crop-layer.js` (iraqfarmshealth.com/crops/) streams it.
+4. Run `tools/r2_upload.ipynb` (Colab): it copies `publish/2026/` from Drive to the R2 bucket `ifh-data`, served at `https://data.iraqfarmshealth.com/crops/2026/`. Run it once with `GO = False` to preview, then with `GO = True`; it ends with "ALL FILES MATCH". Do **not** upload the cells to the repo. The page `crops/index.html` + `crops/crop-layer.js` (iraqfarmshealth.com/crops/) and the app's debug crop layer stream the map from R2.
 
 ## Decision: "confident cereal" = wheat + barley ≥ 70% (2026-10-29)
 - A pixel counts as confident cereal when all three hold:
@@ -97,8 +97,13 @@
 - Kurdistan Region = Duhok, Erbil, Sulaymaniyah, Halabja.
 
 ## Hosting
-- Same repo, `crops/2026/`, served by GitHub Pages (HTTP range requests and CORS work, so the page and GIS programs stream the COGs directly).
-- Each publish adds a full new copy of the cells to the git history (~180 MB). History was 453 MB on 10 Nov; the December republish would bring it to ~640 MB, against GitHub's ~1 GB limit. Where the cells should live (history purge, a separate data repo, or Source Cooperative) is an open decision, to settle before the December republish.
+- **Since 28 Nov 2026: Cloudflare R2**, bucket `ifh-data` (location hint Eastern Europe), custom domain `data.iraqfarmshealth.com` (min TLS 1.2; the r2.dev address is off). The map is at `https://data.iraqfarmshealth.com/crops/2026/`, laid out exactly as `publish/2026/`.
+  - CORS: any origin may GET/HEAD; `Range` and the `If-` headers allowed; `ETag`, `Content-Range`, `Content-Length`, `Accept-Ranges`, `Last-Modified` exposed. So the page, QGIS, GeoLibre and other web tools stream the COGs directly.
+  - Cloudflare's cache is bypassed for `data.iraqfarmshealth.com` (Cache Rule "data: no cache"), because every republish reuses the same file names.
+  - Uploads: `tools/r2_upload.ipynb` with an Account API token limited to Object Read & Write on `ifh-data`, kept in Colab Secrets (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`). Free tier: 10 GB storage, no egress fees.
+  - R2 keeps no old versions: every assessed map is also attached to a GitHub release (`crops-2026-assessed`, `crops-2026-north-assessed`).
+- Before 28 Nov the map was in this repo, `crops/2026/`, served by GitHub Pages. Each publish added a full copy of the cells to the git history (about 400 MB by 28 Nov). That folder is no longer read by the site and is to be removed together with a history purge.
+- The season pilot `crops/2026p/` stays in the repo (`?data=2026p/` on the crop page, `?crops=2026p` in the app's debug mode).
 - The page loads `crop-layer.js?v=…`; bump `?v=` in `crops/index.html` whenever `crop-layer.js` changes.
 
 ## Pending
