@@ -102,9 +102,16 @@ p{margin:0;line-height:1.55;font-size:14px}
 .bar{height:8px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:6px}
 .bar i{display:block;height:100%;background:var(--canal)}
 .regions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.statshead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.unitseg{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.unitseg .btn{padding:4px 10px;font-size:12.5px}
+.region.national{border-color:var(--canal)}
+.region.national .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 16px}
+tfoot td{font-weight:800;border-top:2px solid var(--line);border-bottom:0;background:var(--card)}
 @media (max-width:380px){.regions{grid-template-columns:1fr}}
 .region .name{font-weight:800;font-size:14px;margin-bottom:8px}
-.rrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;font-weight:700;margin-top:8px}
+.rrow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:0 8px;font-size:14px;font-weight:700;margin-top:8px}
+.rrow>span:last-child{white-space:nowrap;margin-inline-start:auto}
 .rrow:first-of-type{margin-top:0}
 .rrow .k{display:flex;align-items:center;gap:6px}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
@@ -209,6 +216,13 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
 
     <section class="pane" id="pane-stats" role="tabpanel">
       <div class="banner" id="provisional" hidden></div>
+      <div class="statshead">
+        <h3 data-t="national">National total</h3>
+        <div class="unitseg" role="group" aria-label="Units"><span data-t="unitLbl">Units</span>
+          <button class="btn" data-unit="ha" data-t="ha">ha</button><button class="btn" data-unit="donum" data-t="donum">donum</button></div>
+      </div>
+      <p class="note" id="unitnote" hidden></p>
+      <div id="national"></div>
       <div>
         <h3 data-t="byRegion">By region</h3>
       </div>
@@ -224,7 +238,7 @@ ol,ul{margin:0;padding-inline-start:20px;line-height:1.6;font-size:14px}
           <th class="n" data-k="wheat" data-t="colWheat" aria-sort="descending">Wheat (ha)</th>
           <th class="n" data-k="barley" data-t="colBarley">Barley (ha)</th>
           <th class="n" data-k="cov" data-t="colCov">Processed</th>
-        </tr></thead><tbody></tbody>
+        </tr></thead><tbody></tbody><tfoot></tfoot>
       </table></div>
       <p class="note" id="gapnote"></p>
       <div class="links" id="csvlinks"></div>
@@ -366,7 +380,7 @@ const T = {
   ckTitle:"Is this map right? Check it yourself",
   ckIntro:"Compare our 2025-26 map with ESA's own published WorldCereal map for 2021, over satellite imagery. Same system, different year, so they should agree on where farming happens, and differ only where land use really changed.",
   ckShow:"Show 2021 vs 2025-26 on the map",ckUnavail:"The comparison needs the newest data files. It will appear after the next data update.",
-  ckLook:"What to look for",ckNums:"Winter cereals inside the processed area (ha)",ckArea:"Area",ckBoth:"Both",ckRatio:"Change",
+  ckLook:"What to look for",ckNums:"Winter cereals inside the processed area ({u})",ckArea:"Area",ckBoth:"Both",ckRatio:"Change",
   ck1:"Field-shaped patches (straight edges, canal grids) that changed colour are usually real changes in what farmers planted.",
   ck2:"Gold spread thinly across hills or open steppe, without field edges, may be pasture or natural vegetation after a wet winter. The map is least reliable there.",
   ck3:"Gold in desert, marshes, towns or rivers would be a clear error. Please <a href=\"https://github.com/rawazrauf/iraq-farms-health/issues\" target=\"_blank\" rel=\"noopener\">report it</a> with the location.",
@@ -377,7 +391,7 @@ const T = {
   fade:"Fade where WorldCereal is less sure",opacity:"Opacity",tabStats:"Statistics",tabDl:"Download & GIS",tabAbout:"About",
   byRegion:"By region",byGov:"By governorate",govHint:"Click a governorate to see its districts and zoom the map.",
   regionNote:"Kurdistan Region = Duhok, Erbil, Sulaymaniyah and Halabja governorates as drawn in the open boundary data. The district table lets anyone regroup areas whose administration is disputed.",
-  colGov:"Governorate",colWheat:"Wheat (ha)",colBarley:"Barley (ha)",colCov:"Processed",
+  colGov:"Governorate",colWheat:"Wheat ({u})",colBarley:"Barley ({u})",colCov:"Processed",
   kri:"Kurdistan Region",fed:"Other governorates",iraq:"Iraq (all processed areas)",
   cropland:"Cropland",sure:"of which WorldCereal sure",ofIraq:"of Iraq's mapped total",processed:"Processed",
   provisional:"<b>Provisional.</b> {d} of {p} planned tiles processed so far ({pc}). Totals will rise as the remaining tiles are processed; compare areas only where both show 100%.",
@@ -396,13 +410,13 @@ const T = {
   glTitle:"GeoLibre and other COG viewers",glText:"Paste a Cloud-Optimised GeoTIFF link. The whole country at 76 m:",resFull:"10 m · full detail",resOv:"76 m · one file",qgisFull:"A virtual mosaic (VRT) of the 10 m blocks: QGIS reads only what is on screen, and coarser copies when you zoom out.",qgisOv:"One small file of the whole country at 76 m: quick to open, but too coarse to show single fields.",glFullWhy:"COG viewers open one file at a time, and the whole country at 10 m is too big for one file, so full detail comes in blocks of about 65 km. Paste one block's link:",glCellsArea:"Blocks covering your area: {n}",glCellsView:"No area chosen, so these are the blocks in the current map view: {n}. Move the map, or choose an area above.",glCellsNone:"No processed blocks here yet. Move the map to an area with crops, or choose an area above.",copyAll:"Copy all {n} links",qgisCog:"One Cloud-Optimised GeoTIFF of the whole country at 10 m ({mb} MB): QGIS reads only what is on screen, and coarser copies when you zoom out.",glCog:"The whole country at 10 m in one file ({mb} MB). Viewers read only the part on screen, so it opens quickly:",
   copy:"Copy",copied:"Copied",chooseArea:"Choose an area first.",here:"Here",notCrop:"Not cropland (or not processed yet)",lessSure:"less sure",
   loading:"Loading crop layer…",noData:"The crop layer has not been published yet.",files:"Files",legendCsv:"Legend (CSV)",indexJson:"Index (JSON)",
-  view:"Map view",gov:"Governorate",ha:"ha"},
+  view:"Map view",gov:"Governorate",ha:"ha",donum:"donum",unitLbl:"Units",unitNote:"1 Iraqi donum = 2,500 m² = 0.25 ha. The CSV files stay in hectares.",national:"National total",iraq:"Iraq"},
  ar:{offseason:"تسمية محصول صيفي (ليس محصولاً شتوياً)",offPop:"ليس محصولاً شتوياً",offWhy:"تسمية WorldCereal: {c}. يُزرع في العراق صيفاً فقط، فلا يمكن أن تكون صحيحة في هذه الخريطة الشتوية.",offRice:"على الأرجح أرض غُمرت بالماء أو رطبة.",unrelPop:"محصول آخر",unrelWhy:"تسمية WorldCereal: {c}، وكثيراً ما تكون هذه التسمية خاطئة في هذه الخريطة.",ckOff:"اللون الرمادي المزرق يعني أن WorldCereal أعطى اسم محصول صيفي، مثل الرز، في هذه الخريطة الشتوية. على شواطئ البحيرات والأهوار يكون هذا غالباً أرضاً غُمرت ثم اخضرّت، وليس رزاً.",ckRulesT:"هل تغيّر طريقة العدّ النتيجة؟",ckRulesP:"خريطة 2021 تجيب بنعم أو لا عن الحبوب؛ أما 2025-26 فتختار المحصول الأرجح من بين 24. افتراضياً تعدّ هذه الصفحة حبوب 2025-26 فقط حيث يبلغ احتمال الحبوب لدى WorldCereal 70% على الأقل ويكون البكسل جزءاً من رقعة لا تقل عن 0.1 هكتار. طرق عدّ أخرى مقارنةً بـ 2021:",ckRule:"قاعدة 2025-26",ckIraq:"الكل",rTop:"المحصول الأرجح (خريطة WorldCereal)",rP50:"احتمال الحبوب ≥ 50%",rP70:"حبوب مؤكدة: ≥ 70% دون بقع (الافتراضي)",rP70all:"احتمال الحبوب ≥ 70% مع البقع",doubt:"إظهار الحبوب المشكوك فيها (أقل من 70% أو بقع أصغر من 0.1 هكتار)",doubtPop:"مشكوك فيها: احتمال الحبوب أقل من 70% أو بقعة معزولة",allPix:"خريطة المحصول الأرجح لـ WorldCereal",v2026:"محاصيل 2025-26",v2021:"حبوب 2021 (ESA)",vdiff:"2021 مقابل 2025-26",dBoth:"حبوب في السنتين",d2026:"2025-26 فقط",d2021:"2021 فقط",
   dNote:"داخل المناطق المعالَجة فقط (الحد المتقطع).",dNone:"ليست حبوباً في أيٍّ من السنتين",dOut:"خارج المنطقة المعالَجة: لا مقارنة بعد",dNa:"لا مقارنة: خريطة 2021 غير متاحة هنا",y21:"الحبوب الشتوية 2021 (ESA WorldCereal)",tabCheck:"التحقق",
   ckTitle:"هل الخريطة صحيحة؟ تحقّق بنفسك",
   ckIntro:"قارن خريطتنا لموسم 2025-26 بخريطة WorldCereal الرسمية التي نشرتها وكالة الفضاء الأوروبية لعام 2021، فوق صور الأقمار الصناعية. النظام نفسه وسنة مختلفة، لذا يُفترض أن تتفقا على أماكن الزراعة وأن تختلفا فقط حيث تغيّر استخدام الأرض فعلاً.",
   ckShow:"اعرض 2021 مقابل 2025-26 على الخريطة",ckUnavail:"تحتاج المقارنة إلى أحدث ملفات البيانات، وستظهر بعد التحديث القادم.",
-  ckLook:"ما الذي تبحث عنه",ckNums:"الحبوب الشتوية داخل المنطقة المعالَجة (هكتار)",ckArea:"المنطقة",ckBoth:"كلتاهما",ckRatio:"التغيّر",
+  ckLook:"ما الذي تبحث عنه",ckNums:"الحبوب الشتوية داخل المنطقة المعالَجة ({u})",ckArea:"المنطقة",ckBoth:"كلتاهما",ckRatio:"التغيّر",
   ck1:"الرقع ذات شكل الحقول (حواف مستقيمة، شبكات قنوات) التي تغيّر لونها هي غالباً تغيّرات حقيقية فيما زرعه المزارعون.",
   ck2:"اللون الذهبي المنتشر بخفة على التلال أو السهوب المفتوحة دون حدود حقول قد يكون مراعي أو نباتاً طبيعياً بعد شتاء ممطر. الخريطة أقل موثوقية هناك.",
   ck3:"اللون الذهبي في الصحراء أو الأهوار أو المدن أو الأنهار خطأ واضح. يُرجى <a href=\"https://github.com/rawazrauf/iraq-farms-health/issues\" target=\"_blank\" rel=\"noopener\">الإبلاغ عنه</a> مع الموقع.",
@@ -413,7 +427,7 @@ const T = {
   fade:"تخفيف اللون حيث تكون WorldCereal أقل ثقة",opacity:"الشفافية",tabStats:"الإحصاءات",tabDl:"التنزيل ونظم المعلومات",tabAbout:"حول",
   byRegion:"حسب الإقليم",byGov:"حسب المحافظة",govHint:"انقر على محافظة لعرض أقضيتها وتقريب الخريطة.",
   regionNote:"إقليم كوردستان = محافظات دهوك وأربيل والسليمانية وحلبجة كما تظهر في بيانات الحدود المفتوحة. يتيح جدول الأقضية لأي شخص إعادة تجميع المناطق المتنازع على إدارتها.",
-  colGov:"المحافظة",colWheat:"قمح (هكتار)",colBarley:"شعير (هكتار)",colCov:"المعالَج",
+  colGov:"المحافظة",colWheat:"قمح ({u})",colBarley:"شعير ({u})",colCov:"المعالَج",
   kri:"إقليم كوردستان",fed:"المحافظات الأخرى",iraq:"العراق (كل المناطق المعالَجة)",
   cropland:"الأراضي الزراعية",sure:"منها بثقة WorldCereal",ofIraq:"من إجمالي العراق المرسوم",processed:"المعالَج",
   provisional:"<b>نتائج أولية.</b> عولج {d} من أصل {p} مربعاً مخططاً حتى الآن ({pc}). سترتفع الأرقام مع معالجة البقية؛ قارن بين المناطق فقط حين تبلغ كلتاهما 100%.",
@@ -432,13 +446,13 @@ const T = {
   glTitle:"GeoLibre وعارضات COG الأخرى",glText:"الصق رابط GeoTIFF محسّن للسحابة. كل البلاد بدقة 76 م:",resFull:"10 م · دقة كاملة",resOv:"76 م · ملف واحد",qgisFull:"فسيفساء افتراضية (VRT) من كتل الـ10 م: يقرأ QGIS ما يظهر على الشاشة فقط، ونسخاً أخشن عند التصغير.",qgisOv:"ملف واحد صغير لكل البلاد بدقة 76 م: سريع الفتح، لكنه أخشن من أن يُظهر الحقول المفردة.",glFullWhy:"تفتح عارضات COG ملفاً واحداً في كل مرة، وكل البلاد بدقة 10 م أكبر من أن تكون ملفاً واحداً، لذا تأتي الدقة الكاملة في كتل بعرض نحو 65 كم. الصق رابط كتلة واحدة:",glCellsArea:"الكتل التي تغطي منطقتك: {n}",glCellsView:"لم تُختر منطقة، فهذه كتل عرض الخريطة الحالي: {n}. حرّك الخريطة أو اختر منطقة أعلاه.",glCellsNone:"لا توجد كتل معالَجة هنا بعد. حرّك الخريطة إلى منطقة فيها محاصيل، أو اختر منطقة أعلاه.",copyAll:"نسخ الروابط كلها ({n})",qgisCog:"ملف GeoTIFF واحد محسّن للسحابة لكل البلاد بدقة 10 م ({mb} م.ب): يقرأ QGIS ما يظهر على الشاشة فقط، ونسخاً أخشن عند التصغير.",glCog:"كل البلاد بدقة 10 م في ملف واحد ({mb} م.ب). تقرأ العارضات الجزء الظاهر على الشاشة فقط، لذا يُفتح بسرعة:",
   copy:"نسخ",copied:"نُسخ",chooseArea:"اختر منطقة أولاً.",here:"هنا",notCrop:"ليست أرضاً زراعية (أو لم تُعالج بعد)",lessSure:"ثقة أقل",
   loading:"جارٍ تحميل طبقة المحاصيل…",noData:"لم تُنشر طبقة المحاصيل بعد.",files:"الملفات",legendCsv:"مفتاح الألوان (CSV)",indexJson:"الفهرس (JSON)",
-  view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار"},
+  view:"عرض الخريطة",gov:"المحافظة",ha:"هكتار",donum:"دونم",unitLbl:"الوحدة",unitNote:"الدونم العراقي = 2,500 م² = 0.25 هكتار. تبقى ملفات CSV بالهكتار.",national:"المجموع الوطني",iraq:"العراق"},
  ku:{offseason:"ناوی بەرهەمی هاوینە (بەرهەمی زستانە نییە)",offPop:"بەرهەمی زستانە نییە",offWhy:"ناوی WorldCereal: {c}. لە عێراق تەنها لە هاویندا دەچێنرێت، بۆیە لەم نەخشە زستانەیەدا ناتوانێت ڕاست بێت.",offRice:"بە ئەگەری زۆر زەوییەکی ئاو لێهاتوو یان شێدارە.",unrelPop:"بەرهەمی تر",unrelWhy:"ناوی WorldCereal: {c}، کە زۆرجار لەم نەخشەیەدا هەڵەیە.",ckOff:"ڕەنگی خۆڵەمێشی-شین واتە WorldCereal ناوی بەرهەمێکی هاوینەی، وەک برنج، لەم نەخشە زستانەیەدا داناوە. لە کەناری دەریاچە و هۆڕەکان ئەمە زۆرجار زەوییەکە کە ئاوی لێهاتووە و پاشان سەوز بووە، نەک برنج.",ckRulesT:"ئایا شێوازی ژماردن ئەنجامەکە دەگۆڕێت؟",ckRulesP:"نەخشەی 2021 بە بەڵێ یان نەخێر وەڵامی دانەوێڵە دەداتەوە؛ 2025-26 ئەگەرترین بەرهەم لە نێوان 24 هەڵدەبژێرێت. بە بنەڕەت ئەم پەڕەیە دانەوێڵەی 2025-26 تەنها لەو شوێنانە دەژمێرێت کە ئەگەری دانەوێڵەی WorldCereal لانیکەم 70%ە و پیکسڵەکە بەشێکە لە پارچەیەکی لانیکەم 0.1 هێکتار. شێوازەکانی تری ژماردن، بەراورد بە 2021:",ckRule:"یاسای 2025-26",ckIraq:"هەموو",rTop:"ئەگەرترین بەرهەم (نەخشەی WorldCereal)",rP50:"ئەگەری دانەوێڵە ≥ 50%",rP70:"دانەوێڵەی دڵنیا: ≥ 70%، بێ پەڵە (بنەڕەت)",rP70all:"ئەگەری دانەوێڵە ≥ 70%، لەگەڵ پەڵەکان",doubt:"پیشاندانی دانەوێڵەی گوماناوی (کەمتر لە 70%، یان پەڵەی بچووکتر لە 0.1 هێکتار)",doubtPop:"گوماناوی: ئەگەری دانەوێڵە کەمتر لە 70% یان پەڵەیەکی تاک",allPix:"نەخشەی ئەگەرترین بەرهەمی WorldCereal",v2026:"بەرهەمەکانی 2025-26",v2021:"دانەوێڵەی 2021 (ESA)",vdiff:"2021 بەراورد بە 2025-26",dBoth:"دانەوێڵە لە هەردوو ساڵدا",d2026:"تەنها 2025-26",d2021:"تەنها 2021",
   dNote:"تەنها لە ناو ناوچە پرۆسێسکراوەکان (سنووری پچڕپچڕ).",dNone:"لە هیچ ساڵێکدا دانەوێڵە نییە",dOut:"دەرەوەی ناوچەی پرۆسێسکراو: هێشتا بەراورد نییە",dNa:"بەراورد نییە: نەخشەی 2021 لێرە بەردەست نییە",y21:"دانەوێڵەی زستانی، 2021 (ESA WorldCereal)",tabCheck:"پشکنین",
   ckTitle:"ئایا ئەم نەخشەیە ڕاستە؟ خۆت بیپشکنە",
   ckIntro:"نەخشەکەمان بۆ وەرزی 2025-26 بەراورد بکە لەگەڵ نەخشەی فەرمیی WorldCereal ی ئاژانسی بۆشایی ئەوروپا بۆ ساڵی 2021، لەسەر وێنەی مانگی دەستکرد. هەمان سیستەم و ساڵێکی جیاواز، بۆیە دەبێت لەسەر شوێنی کشتوکاڵ ڕێک بن و تەنها لەو شوێنانە جیاواز بن کە بەکارهێنانی زەوی بەڕاستی گۆڕاوە.",
   ckShow:"2021 بەراورد بە 2025-26 لەسەر نەخشە پیشان بدە",ckUnavail:"بەراوردەکە پێویستی بە نوێترین فایلەکانی داتایە، دوای نوێکردنەوەی داهاتوو دەردەکەوێت.",
-  ckLook:"بەدوای چیدا بگەڕێیت",ckNums:"دانەوێڵەی زستانی لە ناو ناوچەی پرۆسێسکراو (هێکتار)",ckArea:"ناوچە",ckBoth:"هەردووکیان",ckRatio:"گۆڕان",
+  ckLook:"بەدوای چیدا بگەڕێیت",ckNums:"دانەوێڵەی زستانی لە ناو ناوچەی پرۆسێسکراو ({u})",ckArea:"ناوچە",ckBoth:"هەردووکیان",ckRatio:"گۆڕان",
   ck1:"پارچە بە شێوەی کێڵگە (لێواری ڕاست، تۆڕی جۆگە) کە ڕەنگیان گۆڕاوە زۆربەی کات گۆڕانی ڕاستەقینەن لەوەی جووتیاران چاندوویانە.",
   ck2:"ڕەنگی زێڕین کە بە تەنکی بەسەر گردەکان یان دەشتی کراوەدا بڵاوبووەتەوە بێ سنووری کێڵگە، لەوانەیە لەوەڕگا یان ڕووەکی سروشتی بێت دوای زستانێکی بەباران. نەخشەکە لەوێ کەمترین متمانەی هەیە.",
   ck3:"ڕەنگی زێڕین لە بیابان، هۆڕ، شار یان ڕووبار هەڵەیەکی ڕوونە. تکایە <a href=\"https://github.com/rawazrauf/iraq-farms-health/issues\" target=\"_blank\" rel=\"noopener\">ڕاپۆرتی بکە</a> لەگەڵ شوێنەکەی.",
@@ -449,7 +463,7 @@ const T = {
   fade:"کاڵکردنەوە لەو شوێنانەی WorldCereal دڵنیایی کەمترە",opacity:"ڕوونی",tabStats:"ئامارەکان",tabDl:"داگرتن و GIS",tabAbout:"دەربارە",
   byRegion:"بەپێی هەرێم",byGov:"بەپێی پارێزگا",govHint:"کرتە لە پارێزگایەک بکە بۆ بینینی قەزاکانی و نزیککردنەوەی نەخشە.",
   regionNote:"هەرێمی کوردستان = پارێزگاکانی دهۆک، هەولێر، سلێمانی و هەڵەبجە وەک لە داتای سنووری کراوەدا هاتووە. خشتەی قەزاکان ڕێگە دەدات هەر کەسێک ناوچە ناکۆکەکان بە شێوەی خۆی کۆبکاتەوە.",
-  colGov:"پارێزگا",colWheat:"گەنم (هێکتار)",colBarley:"جۆ (هێکتار)",colCov:"ڕێژەی پرۆسێس",
+  colGov:"پارێزگا",colWheat:"گەنم ({u})",colBarley:"جۆ ({u})",colCov:"ڕێژەی پرۆسێس",
   kri:"هەرێمی کوردستان",fed:"پارێزگاکانی تر",iraq:"عێراق (هەموو ناوچە پرۆسێسکراوەکان)",
   cropland:"زەوی کشتوکاڵی",sure:"لەوانە بە دڵنیایی WorldCereal",ofIraq:"لە کۆی نەخشەکراوی عێراق",processed:"پرۆسێسکراو",
   provisional:"<b>ئەنجامی سەرەتایی.</b> تا ئێستا {d} لە {p} چوارگۆشەی پلاندانراو پرۆسێس کراوە ({pc}). ژمارەکان زیاد دەکەن کاتێک ئەوانی تر پرۆسێس دەکرێن؛ تەنها کاتێک بەراورد بکە کە هەردووکیان 100% بن.",
@@ -468,7 +482,7 @@ const T = {
   glTitle:"GeoLibre و بینەرەکانی تری COG",glText:"بەستەری GeoTIFFی گونجاو بۆ هەور دابنێ. هەموو وڵات بە وردی 76 م:",resFull:"10 م · وردی تەواو",resOv:"76 م · یەک فایل",qgisFull:"مۆزاییکێکی مەجازی (VRT) لە بلۆکەکانی 10 م: QGIS تەنها ئەوەی لەسەر شاشەیە دەخوێنێتەوە، و کاتێک دوور دەکەویتەوە وێنەی زبرتر.",qgisOv:"یەک فایلی بچووک بۆ هەموو وڵات بە وردی 76 م: زوو دەکرێتەوە، بەڵام زۆر زبرە بۆ پیشاندانی کێڵگەی تاک.",glFullWhy:"بینەرەکانی COG هەر جارێک یەک فایل دەکەنەوە، و هەموو وڵات بە وردی 10 م زۆر گەورەیە بۆ یەک فایل، بۆیە وردی تەواو بە بلۆکی نزیکەی 65 کم دێت. بەستەری یەک بلۆک دابنێ:",glCellsArea:"ئەو بلۆکانەی ناوچەکەت دادەپۆشن: {n}",glCellsView:"هیچ ناوچەیەک هەڵنەبژێردراوە، بۆیە ئەمانە بلۆکەکانی دیمەنی ئێستای نەخشەن: {n}. نەخشەکە بجوڵێنە یان لە سەرەوە ناوچەیەک هەڵبژێرە.",glCellsNone:"هێشتا هیچ بلۆکێکی پرۆسێسکراو لێرە نییە. نەخشەکە ببە بۆ ناوچەیەک کە بەرهەمی تێدایە، یان لە سەرەوە ناوچەیەک هەڵبژێرە.",copyAll:"کۆپیکردنی هەموو بەستەرەکان ({n})",qgisCog:"یەک فایلی GeoTIFFی گونجاو بۆ هەور بۆ هەموو وڵات بە وردی 10 م ({mb} MB): QGIS تەنها ئەوەی لەسەر شاشەیە دەخوێنێتەوە، و کاتێک دوور دەکەویتەوە وێنەی زبرتر.",glCog:"هەموو وڵات بە وردی 10 م لە یەک فایلدا ({mb} MB). بینەرەکان تەنها ئەو بەشەی لەسەر شاشەیە دەخوێننەوە، بۆیە زوو دەکرێتەوە:",
   copy:"کۆپی",copied:"کۆپی کرا",chooseArea:"سەرەتا ناوچەیەک هەڵبژێرە.",here:"لێرە",notCrop:"زەوی کشتوکاڵی نییە (یان هێشتا پرۆسێس نەکراوە)",lessSure:"دڵنیایی کەمتر",
   loading:"چینی بەرهەمەکان باردەکرێت…",noData:"چینی بەرهەمەکان هێشتا بڵاو نەکراوەتەوە.",files:"فایلەکان",legendCsv:"ڕێبەری ڕەنگ (CSV)",indexJson:"پێڕست (JSON)",
-  view:"دیمەنی نەخشە",gov:"پارێزگا",ha:"هێکتار"}
+  view:"دیمەنی نەخشە",gov:"پارێزگا",ha:"هێکتار",donum:"دۆنم",unitLbl:"یەکە",unitNote:"دۆنمی عێراقی = 2,500 م² = 0.25 هێکتار. فایلەکانی CSV بە هێکتار دەمێننەوە.",national:"کۆی گشتی نیشتمانی",iraq:"عێراق"}
 };
 const CLASS_T = {
   ar:{wheat:"قمح",barley:"شعير",rye:"شيلم",oats:"شوفان",maize:"ذرة",sorghum:"ذرة بيضاء",rice:"رز",other_temporary_crops:"محاصيل مؤقتة أخرى",millet:"دخن",vegetables:"خضروات",beet:"شمندر",dry_pulses_legumes:"بقوليات",sunflower:"عباد الشمس",soy_soybeans:"فول الصويا",rapeseed_rape:"سلجم",other_oilseed:"بذور زيتية أخرى",groundnuts:"فول سوداني",fibre_crops:"محاصيل ألياف",potatoes:"بطاطا",cassava:"كسافا",tobacco:"تبغ",grass_fodder_crops:"أعلاف",sugar_cane:"قصب السكر",no_crop:"بلا محصول"},
@@ -478,7 +492,16 @@ let LANG = "en";
 try{ LANG = localStorage.getItem("ifh-lang") || (navigator.language||"en").slice(0,2); }catch(e){}
 if(T[Q0.get("lang")]) LANG = Q0.get("lang");   // a link's language wins for this visit
 if(!T[LANG]) LANG = "en";
-const t = (k, v) => { let s = (T[LANG][k] ?? T.en[k] ?? k); if(v) for(const [a,b] of Object.entries(v)) s = s.split("{"+a+"}").join(b); return s; };
+const t = (k, v) => { let s = (T[LANG][k] ?? T.en[k] ?? k); if(v) for(const [a,b] of Object.entries(v)) s = s.split("{"+a+"}").join(b);
+  return s.includes("{u}") ? s.split("{u}").join(t(UNIT)) : s; };
+/* Area unit for the Statistics and Check tabs (28 Nov 2026): hectares, or the Iraqi donum (2,500 m², so 1 ha = 4 donum),
+   which Iraqi research and ministries use. Areas are stored in ha; only the display changes. Remembered like the language;
+   a link's unit=donum wins for that visit. Percentages, ratios and the method's own thresholds (0.1 ha) stay as they are. */
+let UNIT = "ha";
+try{ if(localStorage.getItem("ifh-unit") === "donum") UNIT = "donum"; }catch(e){}
+if(Q0.get("unit") === "donum" || Q0.get("unit") === "ha") UNIT = Q0.get("unit");
+const DONUM_PER_HA = 4;
+const area = ha => UNIT === "donum" ? ha * DONUM_PER_HA : ha;
 const fmt = n => Math.round(n).toLocaleString("en-US");
 const clsName = c => LANG==="en" ? c.replace(/_/g," ").replace(/^./,m=>m.toUpperCase()) : (CLASS_T[LANG][c] || c);
 const govName = g => !g ? "" : LANG==="ar" ? (g.name_ar||g.name) : LANG==="ku" ? (g.name_ku||g.name) : g.name;
@@ -501,6 +524,7 @@ let SEL_GOV = "";  // governorate outlined in gold (table row or area picker)
      tab           dl | check | about (stats = default)
      gov           governorate outlined (also becomes the download area)
      area          drawn download box, w,s,e,n
+     unit          donum (ha = default): area unit of the Statistics and Check tabs
      data          test data folder, kept as given
    history.replaceState, so moving the map does not fill the Back button. Nothing is written
    until the link's own view has been applied (linkReady). */
@@ -513,6 +537,7 @@ function writeLink(){
     const q = new URLSearchParams();
     if(Q0.get("data")) q.set("data", Q0.get("data"));
     q.set("lang", LANG);
+    if(UNIT !== "ha") q.set("unit", UNIT);
     if(map){ const c = map.getCenter(); q.set("lat", c.lat.toFixed(5)); q.set("lon", c.lng.toFixed(5)); q.set("z", map.getZoom().toFixed(1)); }
     if(CropLayer.opts.mode !== "crops") q.set("view", CropLayer.opts.mode);
     const hid = CLASS_KEYS.filter(k => !$("#lg-"+k).checked); if(hid.length) q.set("hide", hid.join(","));
@@ -569,10 +594,15 @@ function applyLang(){
     if(el.tagName==="OPTION" || !el.children.length) el.textContent = t(k);
   });
   document.querySelectorAll("#lang button").forEach(b => b.classList.toggle("on", b.dataset.l===LANG));
+  document.querySelectorAll("[data-unit]").forEach(b => { const on = b.dataset.unit===UNIT; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+  $("#unitnote").hidden = UNIT !== "donum"; $("#unitnote").textContent = t("unitNote");
   if(STATS){ renderStats(); fillGovSelect(); }
   if(INDEX) { renderAbout(); renderCheck(); }
   updateAoi();
 }
+document.querySelectorAll("[data-unit]").forEach(b => b.onclick = () => {
+  UNIT = b.dataset.unit; try{ localStorage.setItem("ifh-unit", UNIT); }catch(e){} applyLang(); writeLink();
+});
 document.querySelectorAll("#lang button").forEach(b => b.onclick = () => {
   LANG = b.dataset.l; try{ localStorage.setItem("ifh-lang", LANG); }catch(e){} applyLang(); writeLink();
 });
@@ -591,7 +621,19 @@ function cls(r, c){
   const c70 = o.ha_cereal70 != null;
   return {ha: c70 ? o.ha_cereal70 : o.ha, all: o.ha, ha_sure: o.ha_sure, c70};
 }
-const subLine = x => x.c70 ? `${t("allPix")}: <span class="num">${fmt(x.all)}</span>` : `${t("sure")}: <span class="num">${fmt(x.ha_sure)}</span>`;
+const subLine = x => x.c70 ? `${t("allPix")}: <span class="num">${fmt(area(x.all))}</span>` : `${t("sure")}: <span class="num">${fmt(area(x.ha_sure))}</span>`;
+// Adds up areas of several rows (regions or governorates): cropland, km² and every class's ha fields.
+function sumAreas(rows){
+  const o = {cropland_ha:0, processed_km2:0, planned_km2:0, classes:{}};
+  for(const r of rows){
+    o.cropland_ha += r.cropland_ha || 0; o.processed_km2 += r.processed_km2 || 0; o.planned_km2 += r.planned_km2 || 0;
+    for(const [c, v] of Object.entries(r.classes || {})){
+      const d = o.classes[c] || (o.classes[c] = {});
+      for(const [k, x] of Object.entries(v)) if(typeof x === "number") d[k] = (d[k] || 0) + x;
+    }
+  }
+  return o;
+}
 function renderStats(){
   const s = STATS;
   const done = s.tiles_finished, plan = s.tiles_planned;
@@ -600,16 +642,26 @@ function renderStats(){
   pb.innerHTML = done < plan ? t("provisional",{d:done,p:plan,pc:Math.round(100*done/plan)+"%"}) : t("complete",{p:plan});
   const tot = {wheat:0, barley:0, crop:0};
   s.regions.forEach(r => { tot.wheat += cls(r,"wheat").ha; tot.barley += cls(r,"barley").ha; tot.crop += r.cropland_ha; });
+  // National total = the two regions added up (they cover Iraq once; governorates and districts give the same sums)
+  const nat = sumAreas(s.regions), nw = cls(nat,"wheat"), nb = cls(nat,"barley"), ncov = nat.planned_km2 ? nat.processed_km2/nat.planned_km2 : 0;
+  $("#national").innerHTML = `<div class="card region national"><div class="name">${t("iraq")}</div><div class="rgrid">
+      <div><div class="rrow"><span class="k"><span class="sw" style="background:var(--c-wheat)"></span>${t("wheat")}</span><span><span class="num">${fmt(area(nw.ha))}</span> ${t(UNIT)}</span></div>
+        <div class="rsub">${subLine(nw)}</div></div>
+      <div><div class="rrow"><span class="k"><span class="sw" style="background:var(--c-barley)"></span>${t("barley")}</span><span><span class="num">${fmt(area(nb.ha))}</span> ${t(UNIT)}</span></div>
+        <div class="rsub">${subLine(nb)}</div></div>
+      <div><div class="rrow"><span class="k">${t("cropland")}</span><span><span class="num">${fmt(area(nat.cropland_ha))}</span> ${t(UNIT)}</span></div></div>
+      <div><div class="share" style="margin-top:8px">${t("processed")}: ${Math.round(100*ncov)}%</div><div class="bar"><i style="width:${Math.min(100,100*ncov)}%"></i></div></div>
+    </div></div>`;
   const order = [...s.regions].sort((a,b) => (a.name===KRI_NAME ? 0 : 1) - (b.name===KRI_NAME ? 0 : 1));
   $("#regions").innerHTML = order.map(r => {
     const w = cls(r,"wheat"), b = cls(r,"barley"), cov = r.planned_km2 ? r.processed_km2/r.planned_km2 : 0;
     const share = (v, T) => T ? `<span class="num">${Math.round(100*v/T)}%</span> ${t("ofIraq")}` : "";
     return `<div class="card region"><div class="name">${regionName(r.name)}</div>
-      <div class="rrow"><span class="k"><span class="sw" style="background:var(--c-wheat)"></span>${t("wheat")}</span><span><span class="num">${fmt(w.ha)}</span> ${t("ha")}</span></div>
+      <div class="rrow"><span class="k"><span class="sw" style="background:var(--c-wheat)"></span>${t("wheat")}</span><span><span class="num">${fmt(area(w.ha))}</span> ${t(UNIT)}</span></div>
       <div class="rsub">${subLine(w)} · ${share(w.ha, tot.wheat)}</div>
-      <div class="rrow"><span class="k"><span class="sw" style="background:var(--c-barley)"></span>${t("barley")}</span><span><span class="num">${fmt(b.ha)}</span> ${t("ha")}</span></div>
+      <div class="rrow"><span class="k"><span class="sw" style="background:var(--c-barley)"></span>${t("barley")}</span><span><span class="num">${fmt(area(b.ha))}</span> ${t(UNIT)}</span></div>
       <div class="rsub">${subLine(b)} · ${share(b.ha, tot.barley)}</div>
-      <div class="rrow"><span class="k">${t("cropland")}</span><span><span class="num">${fmt(r.cropland_ha)}</span> ${t("ha")}</span></div>
+      <div class="rrow"><span class="k">${t("cropland")}</span><span><span class="num">${fmt(area(r.cropland_ha))}</span> ${t(UNIT)}</span></div>
       <div class="share" style="margin-top:8px">${t("processed")}: ${Math.round(100*cov)}%</div>
       <div class="bar"><i style="width:${Math.min(100,100*cov)}%"></i></div></div>`;
   }).join("");
@@ -646,16 +698,19 @@ function renderGovTable(){
   for(const r of rows){
     const kri = r.g.region===KRI_NAME;
     body.push(`<tr class="gov${kri?" kri":""}${openGov===r.g.name?" sel":""}" data-g="${r.g.name}">
-      <td>${r.name}${COVERAGE_GAP[r.g.name] ? ` <sup class="gap" title="${esc(t("gapTip",{p:COVERAGE_GAP[r.g.name]}))}">†</sup>` : ""}</td><td class="n">${fmt(r.wheat)}</td><td class="n">${fmt(r.barley)}</td>
+      <td>${r.name}${COVERAGE_GAP[r.g.name] ? ` <sup class="gap" title="${esc(t("gapTip",{p:COVERAGE_GAP[r.g.name]}))}">†</sup>` : ""}</td><td class="n">${fmt(area(r.wheat))}</td><td class="n">${fmt(area(r.barley))}</td>
       <td class="n pct">${r.cov<0?"–":Math.round(100*r.cov)+"%"}</td></tr>`);
     if(openGov===r.g.name){
       STATS.districts.filter(d => d.gov===r.g.name).sort((a,b)=>cls(b,"wheat").ha-cls(a,"wheat").ha).forEach(d => {
-        body.push(`<tr class="dist"><td>${d.name}</td><td class="n">${fmt(cls(d,"wheat").ha)}</td><td class="n">${fmt(cls(d,"barley").ha)}</td>
+        body.push(`<tr class="dist"><td>${d.name}</td><td class="n">${fmt(area(cls(d,"wheat").ha))}</td><td class="n">${fmt(area(cls(d,"barley").ha))}</td>
           <td class="n pct">${d.planned_km2?Math.round(100*d.processed_km2/d.planned_km2)+"%":"–"}</td></tr>`);
       });
     }
   }
   $("#govtable tbody").innerHTML = body.join("");
+  const nat = sumAreas(STATS.regions);   // same sum as the Iraq card above, so the two never differ by rounding
+  $("#govtable tfoot").innerHTML = `<tr><td>${t("iraq")}</td><td class="n">${fmt(area(cls(nat,"wheat").ha))}</td><td class="n">${fmt(area(cls(nat,"barley").ha))}</td>
+    <td class="n pct">${nat.planned_km2 ? Math.round(100*nat.processed_km2/nat.planned_km2)+"%" : "–"}</td></tr>`;
   document.querySelectorAll("#govtable tr.gov").forEach(tr => tr.onclick = () => {
     openGov = openGov===tr.dataset.g ? null : tr.dataset.g;
     renderGovTable();
@@ -967,9 +1022,10 @@ function renderCheck(){
   const rk = CropLayer.opts.cerealRule === "p70" && CMP.total && CMP.total.rule_p70 ? "rule_p70" : null;
   const pick = m => rk && m[rk] ? {wc26:m[rk].wc26, both:m[rk].wc_both, ratio:m[rk].ratio} : {wc26:m.wc26, both:m.wc_both, ratio:m.wc_ratio_2026_to_2021};
   const row = (name, m, cls) => { const q = pick(m);
-    return `<tr${cls?` class="${cls}"`:""}><td>${name}</td><td class="n">${fmt(m.wc21)}</td><td class="n">${fmt(q.wc26)}</td><td class="n">${fmt(q.both)}</td><td class="n">${q.ratio!=null?"×"+q.ratio:"–"}</td></tr>`; };
+    return `<tr${cls?` class="${cls}"`:""}><td>${name}</td><td class="n">${fmt(area(m.wc21))}</td><td class="n">${fmt(area(q.wc26))}</td><td class="n">${fmt(area(q.both))}</td><td class="n">${q.ratio!=null?"×"+q.ratio:"–"}</td></tr>`; };
   const gmeta = Object.fromEntries((STATS ? STATS.governorates : []).map(g => [g.name, g]));
   const rows = [];
+  if(CMP.total) rows.push(row(`<b>${t("iraq")}</b>`, CMP.total));
   if(CMP.regions["Kurdistan Region"]) rows.push(row(`<b>${t("kri")}</b>`, CMP.regions["Kurdistan Region"]));
   if(CMP.regions["Other governorates"]) rows.push(row(`<b>${t("fed")}</b>`, CMP.regions["Other governorates"]));
   CMP.governorates.filter(g => g.name && g.name[0] !== "(" && g.wc21 + g.wc26 > 0)
