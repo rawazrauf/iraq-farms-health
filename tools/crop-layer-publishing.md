@@ -88,7 +88,7 @@
   - 1 + WorldCereal class index (1 wheat, 2 barley … 24 no_crop)
   - +100 where WorldCereal's own confidence is below 60%
   - +200 = doubtful cereal (wheat + barley probability below 70%, or a speck under 0.1 ha)
-- `overview.tif` (national, 76 m; nodata 0 and colour table since 8 Nov), `iraq_crops.vrt` + `iraq_crops_ovr1..5.vrt`, `iraq_crops.qml` (labels written with `quoteattr`), `legend.csv`, `index.json`, `compare_2021.json`, `stats*.json/csv`, `boundaries.geojson`, `sources.json`.
+- `overview.tif` (national, 76 m; nodata 0 and colour table since 8 Nov), `iraq_crops_10m.tif` (national, 10 m, one COG with the cells' own zoomed-out levels and colour table; made by `national_cog.py` in the publish notebook since 28 Nov, about 300 MB and 6 min; main map only, `cog_10m` in `index.json`; left out of the publish zip), `iraq_crops.vrt` + `iraq_crops_ovr1..5.vrt`, `iraq_crops.qml` (labels written with `quoteattr`), `legend.csv`, `index.json`, `compare_2021.json`, `stats*.json/csv`, `boundaries.geojson`, `sources.json`.
 
 ## Statistics
 - Counted at native 10 m in UTM from each tile, masked to its own UTM zone, and summed by district (geoBoundaries gbOpen IRQ ADM2) → governorate → region.
