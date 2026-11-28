@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northern spot check: second labeller</title>
+<style>
+  :root { --ink:#1d2327; --mute:#5f6b73; --line:#d9dee2; --bg:#f6f7f8; --accent:#2f6f4f; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--ink); background:var(--bg); }
+  header { position:sticky; top:0; z-index:5; background:#fff; border-bottom:1px solid var(--line); padding:10px 16px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0 12px 0 0; }
+  .prog { color:var(--mute); }
+  button { font:inherit; padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.4; cursor:default; }
+  main { max-width:1080px; margin:0 auto; padding:16px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .row { display:flex; gap:16px; flex-wrap:wrap; }
+  .imgs { display:flex; gap:6px; }
+  .tile { position:relative; width:320px; height:320px; overflow:hidden; background:#333; border-radius:4px; }
+  .tile img { position:absolute; width:256px; height:256px; }
+  .mark { position:absolute; left:153px; top:153px; width:14px; height:14px; border:2px solid #ff2a2a; border-radius:50%; box-shadow:0 0 0 1px #fff; }
+  .cap { font-size:12px; color:var(--mute); margin-top:2px; }
+  table.vals { border-collapse:collapse; font-size:13px; margin-top:6px; }
+  table.vals td, table.vals th { border:1px solid var(--line); padding:2px 6px; text-align:right; }
+  table.vals th { background:var(--bg); font-weight:600; }
+  fieldset { border:1px solid var(--line); border-radius:8px; margin:12px 0 0; padding:8px 12px; }
+  legend { font-weight:600; padding:0 4px; }
+  label.opt { display:inline-block; margin:4px 14px 4px 0; cursor:pointer; }
+  input[type=text] { width:100%; font:inherit; padding:6px 8px; border:1px solid var(--line); border-radius:6px; }
+  details { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 16px; margin-bottom:12px; }
+  details summary { cursor:pointer; font-weight:600; }
+  .guide h3 { font-size:15px; margin:12px 0 4px; }
+  .guide ul { margin:4px 0; padding-left:20px; }
+  .done { color:var(--accent); font-weight:600; }
+  .links a { margin-right:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Northern spot check</h1>
+  <button id="prev">◀ Previous</button>
+  <span class="prog" id="prog"></span>
+  <button id="next">Next ▶</button>
+  <button id="nextOpen">Next unanswered</button>
+  <span class="prog" id="count"></span>
+  <button class="primary" id="dl">Download answers (CSV)</button>
+</header>
+<main>
+<details id="guide" open>
+<summary>How to label (read once; click to fold)</summary>
+<div class="guide">
+<p>Each point is one 10 m pixel in the northern tiles. For each one you give <b>two independent answers</b>: what its greenness curve shows, and what the land looks like. Please don't open the crop map, the repository's <code>validation/accuracy_north_2026/data/</code> files or the crops page at these places until you have downloaded your answers.</p>
+<h3>1. The curve (offset-corrected NDVI, Sep 2025 – Aug 2026, values ×1000)</h3>
+<ul>
+<li><b>Winter crop</b>: one clear rise and fall with its peak in Dec–May. The peak is at least 350, rises at least 150 above the Sep–Nov level before it, and falls back at least half way to that level by July. A single-month spike does not count. A crop that comes up in Feb–Apr, peaks in Apr–May and is dry by June–July counts. A winter crop followed by a summer crop counts. Dips and regrowth inside Dec–May (grazing, cuts) still count.</li>
+<li><b>Summer crop only</b>: the rise and fall peaks in Jun–Oct (at least 350), or the curve is still at 350 or more in July, and Dec–Apr stays below 300.</li>
+<li><b>Perennial</b>: 300 or more in most months (9 or more) without a winter rise and fall that meets the winter-crop test (orchard, reeds, forest, alfalfa).</li>
+<li><b>No crop</b>: everything below 330, or only an isolated single-month spike.</li>
+<li><b>Water</b>: mostly negative.</li>
+<li><b>Unclear</b>: anything else: two competing seasons of similar size, gaps that hide the peak, or a weak 300–350 winter peak.</li>
+</ul>
+<p>Blank cells are months with no clear scene. Missing Jan–Feb (cloud or snow) is not by itself a reason for "unclear" if the rise and the fall are both visible.</p>
+<h3>2. The land (imagery: left wide view about 600 m across, right close-up; the red circle is the point)</h3>
+<ul>
+<li><b>Farmed</b>: the point is inside a cultivated parcel: straight or regular field edges, plough or drill lines, a patchwork of fields, terraces, an orchard or an irrigation pattern. Fallow-looking parcels inside a field pattern count.</li>
+<li><b>Not farmed</b>: no field pattern at the point: natural slopes, rangeland, scrub, oak woodland, forest, rock, gullies, river beds, villages, roads, water.</li>
+<li><b>Unsure</b>: on a field edge or track, blurred or dark imagery, or a pattern you can't call.</li>
+</ul>
+<p>The imagery is Esri World Imagery and is not dated to this season: judge land use, not this year's crop. You may also use the Google Maps or Google Earth links (Google Earth's history slider shows dated imagery) and your own knowledge of the area. Add a short note whenever it helps, especially for anything you decide from local knowledge.</p>
+<p>Your answers are kept in this browser as you go, so you can close the page and come back. When you finish, press <b>Download answers</b> and send me the CSV.</p>
+</div>
+</details>
+<div class="card" id="card"></div>
+</main>
+<script>
+const ITEMS = [{"id":"N457","lat":36.996858,"lon":43.368794,"v":[449,448,385,257,null,null,235,279,647,620,600,466]},{"id":"N451","lat":35.883787,"lon":44.820257,"v":[31,69,103,122,84,155,177,291,108,-12,71,82]},{"id":"N504","lat":36.51316,"lon":42.332065,"v":[79,77,98,100,83,132,160,184,186,106,118,111]},{"id":"N024","lat":36.970868,"lon":43.60162,"v":[579,581,451,368,null,null,96,428,860,786,734,694]},{"id":"N516","lat":35.102496,"lon":45.633668,"v":[127,127,132,278,391,600,612,748,579,295,175,171]},{"id":"N367","lat":36.224121,"lon":43.496933,"v":[70,89,73,86,101,188,336,697,269,166,142,145]},{"id":"N389","lat":36.513924,"lon":41.583727,"v":[52,50,68,74,123,165,171,813,759,140,116,107]},{"id":"N443","lat":35.212268,"lon":44.53007,"v":[91,70,78,127,270,312,335,458,274,161,147,146]},{"id":"N568","lat":35.947268,"lon":45.279148,"v":[202,184,183,223,null,249,340,442,764,257,232,235]},{"id":"N262","lat":35.501573,"lon":43.414958,"v":[115,134,111,113,365,906,909,769,183,140,128,121]},{"id":"N221","lat":35.33706,"lon":43.373865,"v":[72,62,107,98,249,178,99,-350,48,33,-1,42]},{"id":"N072","lat":35.844235,"lon":45.698002,"v":[234,269,216,245,null,331,399,475,663,349,344,289]},{"id":"N047","lat":36.094225,"lon":42.182799,"v":[56,66,63,111,103,121,144,262,222,133,104,90]},{"id":"N520","lat":36.311763,"lon":41.296604,"v":[64,52,65,72,128,187,121,217,236,110,102,94]},{"id":"N324","lat":36.150116,"lon":43.288087,"v":[522,463,264,164,142,343,781,900,229,100,82,128]},{"id":"N498","lat":35.755214,"lon":44.358092,"v":[82,67,82,81,158,362,460,845,198,144,136,127]},{"id":"N325","lat":35.848773,"lon":41.751797,"v":[69,73,64,92,63,69,78,108,122,87,93,86]},{"id":"N042","lat":36.226252,"lon":42.85381,"v":[131,104,107,155,159,125,167,29,51,135,155,194]},{"id":"N554","lat":35.419574,"lon":43.796733,"v":[843,881,423,367,307,442,729,831,311,124,277,744]},{"id":"N468","lat":36.724703,"lon":44.471441,"v":[371,372,369,304,358,294,413,635,814,558,405,391]},{"id":"N036","lat":35.887638,"lon":45.218723,"v":[161,172,164,268,290,364,484,541,408,202,154,163]},{"id":"N268","lat":36.272511,"lon":42.182905,"v":[142,70,123,374,467,698,668,690,602,186,199,190]},{"id":"N469","lat":35.867951,"lon":42.356573,"v":[61,64,71,108,73,109,115,191,113,95,86,84]},{"id":"N446","lat":35.847489,"lon":44.205234,"v":[95,99,97,213,395,461,488,550,456,565,403,268]},{"id":"N541","lat":35.072847,"lon":45.157453,"v":[84,74,83,128,211,274,268,275,234,126,91,83]},{"id":"N387","lat":36.312274,"lon":41.757185,"v":[80,66,79,86,118,138,119,141,153,91,96,79]},{"id":"N558","lat":35.384873,"lon":44.398234,"v":[61,60,49,69,27,68,19,68,25,73,37,63]},{"id":"N495","lat":35.808776,"lon":43.789761,"v":[124,143,150,142,199,436,727,853,395,179,151,167]},{"id":"N153","lat":35.209506,"lon":45.028152,"v":[114,98,83,107,219,281,274,375,322,134,119,110]},{"id":"N158","lat":36.141074,"lon":43.886208,"v":[549,480,258,162,134,140,140,199,255,341,305,305]},{"id":"N432","lat":35.091001,"lon":44.367388,"v":[122,72,88,88,187,163,79,167,70,75,84,81]},{"id":"N539","lat":35.224695,"lon":44.574016,"v":[105,86,78,91,120,89,108,91,103,121,175,167]},{"id":"N436","lat":35.991897,"lon":43.39288,"v":[102,113,115,121,149,169,316,514,239,136,72,70]},{"id":"N350","lat":36.379492,"lon":43.4682,"v":[92,98,95,149,211,217,265,381,273,183,173,143]},{"id":"N199","lat":35.573007,"lon":43.158258,"v":[59,52,68,84,151,142,201,145,84,97,133,123]},{"id":"N527","lat":35.570086,"lon":45.365771,"v":[47,56,72,92,93,141,122,192,137,75,78,60]},{"id":"N348","lat":35.469145,"lon":42.805428,"v":[75,74,85,85,164,388,509,936,261,243,269,240]},{"id":"N409","lat":36.483523,"lon":44.22034,"v":[175,159,145,null,null,null,450,524,660,291,203,182]},{"id":"N196","lat":36.780481,"lon":44.806736,"v":[132,114,129,null,null,null,null,-57,220,288,186,127]},{"id":"N130","lat":35.20122,"lon":43.568661,"v":[84,84,95,81,194,153,124,151,86,80,77,85]},{"id":"N529","lat":35.006508,"lon":45.335875,"v":[50,67,71,90,139,171,174,202,98,73,72,61]},{"id":"N280","lat":35.496757,"lon":44.949558,"v":[118,99,92,137,227,342,408,563,169,116,103,85]},{"id":"N336","lat":36.045811,"lon":42.290021,"v":[65,68,79,134,125,126,140,250,92,118,99,87]},{"id":"N217","lat":36.0681,"lon":43.332138,"v":[288,281,243,239,413,294,453,709,445,515,615,445]},{"id":"N015","lat":35.158653,"lon":43.520385,"v":[83,94,100,103,182,207,184,277,114,104,97,101]},{"id":"N549","lat":36.360013,"lon":41.386607,"v":[78,76,74,115,148,296,280,758,637,188,164,158]},{"id":"N188","lat":36.371156,"lon":42.448478,"v":[26,22,50,-60,34,15,20,6,4,9,25,26]},{"id":"N241","lat":36.440788,"lon":42.988815,"v":[101,94,138,129,147,121,223,871,844,119,104,112]},{"id":"N441","lat":37.009175,"lon":44.448201,"v":[184,159,215,277,null,null,350,477,415,226,198,181]},{"id":"N251","lat":37.063565,"lon":44.149774,"v":[428,419,374,285,null,null,217,327,801,765,700,645]},{"id":"N489","lat":35.990273,"lon":41.800073,"v":[75,82,60,116,88,134,146,498,412,93,83,88]},{"id":"N065","lat":36.475114,"lon":43.722153,"v":[73,80,86,73,71,89,57,38,57,87,83,78]},{"id":"N459","lat":36.216877,"lon":43.56021,"v":[94,94,138,186,272,356,526,549,182,177,148,157]},{"id":"N032","lat":35.743126,"lon":44.202065,"v":[796,745,126,123,240,686,888,932,349,114,134,339]},{"id":"N314","lat":35.845519,"lon":41.834828,"v":[69,78,67,105,83,79,85,198,191,107,95,91]},{"id":"N298","lat":35.692609,"lon":43.086002,"v":[65,72,92,97,134,191,315,466,179,150,95,105]},{"id":"N005","lat":36.062806,"lon":41.280019,"v":[64,67,69,114,78,89,96,302,277,101,104,91]}];
+const KEY = "ifh-north-spotcheck-2026-11";
+const MON = ["Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"];
+const CURVE = [["winter_crop","Winter crop"],["summer_only","Summer crop only"],["perennial","Perennial"],["no_crop","No crop"],["water","Water"],["unclear","Unclear"]];
+const LAND = [["farmed","Farmed"],["not_farmed","Not farmed"],["unsure","Unsure"]];
+let ans = {}; try { ans = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { ans = {}; }
+let i = 0;
+function save() { try { localStorage.setItem(KEY, JSON.stringify(ans)); } catch (e) {} }
+function tile(lat, lon, z) {
+  const S = 320, n = 256 * Math.pow(2, z), px = (lon + 180) / 360 * n, s = Math.sin(lat * Math.PI / 180);
+  const py = (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n, x0 = px - S / 2, y0 = py - S / 2;
+  let h = "";
+  for (let tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + S) / 256); tx++)
+    for (let ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + S) / 256); ty++)
+      h += `<img alt="" src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}" style="left:${tx * 256 - x0}px;top:${ty * 256 - y0}px">`;
+  return `<div class="tile">${h}<div class="mark"></div></div>`;
+}
+function chart(v) {
+  const W = 560, H = 260, L = 44, R = 10, T = 10, B = 30, xs = k => L + k * (W - L - R) / 11, ys = val => T + (H - T - B) * (1 - (val + 100) / 1100);
+  let g = "";
+  for (const y of [0, 250, 300, 350, 400, 500, 750, 1000]) {
+    const strong = y === 300 || y === 350;
+    g += `<line x1="${L}" x2="${W - R}" y1="${ys(y)}" y2="${ys(y)}" stroke="${strong ? '#b98b2e' : '#e3e6e8'}" stroke-dasharray="${strong ? '4 3' : ''}"/>`;
+    g += `<text x="${L - 6}" y="${ys(y) + 4}" font-size="11" text-anchor="end" fill="#5f6b73">${y}</text>`;
+  }
+  MON.forEach((m, k) => { g += `<text x="${xs(k)}" y="${H - 10}" font-size="11" text-anchor="middle" fill="#5f6b73">${m}</text>`; });
+  g += `<rect x="${xs(3) - 8}" y="${T}" width="${xs(8) - xs(3) + 16}" height="${H - T - B}" fill="#2f6f4f" opacity=".05"/>`;
+  let seg = [], path = "";
+  v.forEach((val, k) => { if (val === null) { if (seg.length) path += "M" + seg.join("L"); seg = []; } else seg.push(`${xs(k)},${ys(val)}`); });
+  if (seg.length) path += "M" + seg.join("L");
+  g += `<path d="${path}" fill="none" stroke="#2f6f4f" stroke-width="2.2"/>`;
+  v.forEach((val, k) => { if (val !== null) g += `<circle cx="${xs(k)}" cy="${ys(val)}" r="3.5" fill="#2f6f4f"/>`; });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="NDVI curve">${g}</svg>`;
+}
+function radios(name, opts, cur) {
+  return opts.map(([v, t]) => `<label class="opt"><input type="radio" name="${name}" value="${v}" ${cur === v ? "checked" : ""}> ${t}</label>`).join("");
+}
+function nDone() { return ITEMS.filter(it => ans[it.id] && ans[it.id].curve && ans[it.id].land).length; }
+function render() {
+  const it = ITEMS[i], a = ans[it.id] || {};
+  document.getElementById("prog").textContent = `Point ${i + 1} of ${ITEMS.length}`;
+  const d = nDone(); document.getElementById("count").innerHTML = d === ITEMS.length ? `<span class="done">All ${d} answered</span>` : `${d} answered`;
+  document.getElementById("prev").disabled = i === 0; document.getElementById("next").disabled = i === ITEMS.length - 1;
+  const tbl = `<table class="vals"><tr>${MON.map(m => `<th>${m}</th>`).join("")}</tr><tr>${it.v.map(x => `<td>${x === null ? "" : x}</td>`).join("")}</tr></table>`;
+  document.getElementById("card").innerHTML = `
+    <div class="row">
+      <div><b>Curve</b> <span class="cap">(shaded: Dec–May; dashed: 300 and 350)</span><br>${chart(it.v)}${tbl}</div>
+      <div><b>Imagery</b><div class="imgs">${tile(it.lat, it.lon, 16)}${tile(it.lat, it.lon, 18)}</div>
+        <div class="cap">Esri World Imagery, undated. ${it.lat.toFixed(5)}, ${it.lon.toFixed(5)}</div>
+        <div class="links cap"><a target="_blank" rel="noopener" href="https://www.google.com/maps/@${it.lat},${it.lon},600m/data=!3m1!1e3">Google Maps satellite</a><a target="_blank" rel="noopener" href="https://earth.google.com/web/@${it.lat},${it.lon},500d,800a,0h,0t,0r">Google Earth</a></div></div>
+    </div>
+    <fieldset><legend>1. What does the curve show?</legend>${radios("curve", CURVE, a.curve)}</fieldset>
+    <fieldset><legend>2. Is the land at the point farmed?</legend>${radios("land", LAND, a.land)}</fieldset>
+    <fieldset><legend>Note (optional)</legend><input type="text" id="note" value="${(a.note || "").replace(/"/g, "&quot;")}" placeholder="e.g. edge of a wheat field; Rabia plain; rangeland grazed in spring"></fieldset>`;
+  document.querySelectorAll("#card input[type=radio]").forEach(el => el.addEventListener("change", () => {
+    ans[it.id] = ans[it.id] || {}; ans[it.id][el.name] = el.value; ans[it.id].t = new Date().toISOString(); save(); render(); }));
+  document.getElementById("note").addEventListener("input", e => { ans[it.id] = ans[it.id] || {}; ans[it.id].note = e.target.value; save(); });
+}
+document.getElementById("prev").onclick = () => { if (i > 0) { i--; render(); window.scrollTo(0, 0); } };
+document.getElementById("next").onclick = () => { if (i < ITEMS.length - 1) { i++; render(); window.scrollTo(0, 0); } };
+document.getElementById("nextOpen").onclick = () => {
+  for (let k = 1; k <= ITEMS.length; k++) { const j = (i + k) % ITEMS.length, a = ans[ITEMS[j].id]; if (!a || !a.curve || !a.land) { i = j; render(); window.scrollTo(0, 0); return; } }
+};
+document.getElementById("dl").onclick = () => {
+  const q = s => '"' + String(s || "").replace(/"/g, '""') + '"';
+  const rows = ["order,id,curve_label,landuse,note,answered_at"].concat(ITEMS.map((it, k) => { const a = ans[it.id] || {}; return [k + 1, it.id, a.curve || "", a.land || "", q(a.note), a.t || ""].join(","); }));
+  const blob = new Blob([rows.join("\n") + "\n"], { type: "text/csv" });
+  const url = URL.createObjectURL(blob), el = document.createElement("a");
+  el.href = url; el.download = "spotcheck_north_second_labeller.csv"; document.body.appendChild(el); el.click(); el.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+render();
+</script>
+</body>
+</html>

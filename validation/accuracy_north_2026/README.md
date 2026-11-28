@@ -4,7 +4,7 @@ A stratified random accuracy assessment of the northern part of the Iraq Farms H
 
 **Status:** protocol written and sample drawn on 27 Nov 2026, **before any northern reference curve was fetched or labelled.** Nothing in sections 1–6 is to be changed after the curves come in; any later change is added as a dated note and reported both ways.
 
-**Results (27 Nov 2026, provisional until the second labeller's check, section 5):** the curve labels alone could not separate rain-fed crops from the spring green-up of natural grassland, so the reference was amended twice after the key was opened (section 7). With winter crop counted only on farmed land (amendment 2; unclear points left out; 95% intervals):
+**Results (27 Nov 2026; second labeller's check added 28 Nov, section 8):** the curve labels alone could not separate rain-fed crops from the spring green-up of natural grassland, so the reference was amended twice after the key was opened (section 7). With winter crop counted only on farmed land (amendment 2; unclear points left out; 95% intervals):
 
 | Map product | Map area | User's accuracy (winter crop) | Producer's accuracy | Overall accuracy |
 |---|---|---|---|---|
@@ -12,6 +12,8 @@ A stratified random accuracy assessment of the northern part of the Iraq Farms H
 | Confident + doubtful cereal ("top crop") | 3.16 Mha | 0.61 (0.55–0.68) | 0.77 (0.72–0.82) | 0.78 |
 
 **Winter crop on farmland in the northern tiles:** 2.50 Mha (95% CI 2.24–2.75 Mha; 2.41–2.79 Mha with the unclear points counted either way), against 1.71 Mha of confident cereal mapped. Kurdistan Region 0.77 Mha (UA 0.83, PA 0.57); federal north 1.73 Mha (UA 0.72, PA 0.50). The south, for comparison: UA 0.96, PA 0.71.
+
+**The reference is probably conservative.** On the 57 spot-check points a second labeller found winter crop on farmland at 21 points and Claude at 12 (they agree on 11 of Claude's 12). With the second labeller's answers on those points: UA 0.80, PA 0.52, 2.64 Mha. So the area and the user's accuracy above are more likely too low than too high; the producer's accuracy does not move (section 8).
 
 ---
 
@@ -131,9 +133,38 @@ By map class (amendment 2, unclear left out), the share of points with winter cr
 - Where the map says confident cereal, a winter crop grew on farmland about three times in four (0.76; south 0.96). Some of the difference may be reference error: the imagery is undated, and FTW disagrees with it on 29% of points.
 - Confident + doubtful cereal catches 77% of the area but is right only 61% of the time.
 
-**Still open:**
-- The second labeller (section 5) should label the 57 spot-check points' curves **and** their land use from the imagery, blind to the map and to Claude's labels. This matters more now that two steps were done with the key open.
-- In-season imagery (to-do item 30) would settle the land use and the cereal question on a subsample.
+**Still open:** in-season imagery (to-do item 30) would settle the land use and the cereal question on a subsample.
+
+## 8. Second labeller (28 Nov 2026)
+
+**Who and how.** Rawaz Rauf (project lead) labelled the 57 spot-check points on 28 Nov 2026 with `spotcheck_north.html`, a page that shows each point's curve (chart and monthly values) and Esri imagery (zoom 16 and 18) with links to Google Maps and Google Earth, in a new shuffled order (seed `20261201`). It shows no map class and none of Claude's labels. For each point he gave a curve label and a land-use label, with a note (`data/spotcheck_second_labeller.csv`). He used Google Earth's dated imagery and his knowledge of the area as well.
+
+**Not fully independent.** He knows the project and had seen the overall results (but not any point's label or map class) before labelling. The comparison is a check on Claude's reading, not an independent accuracy assessment.
+
+**Agreement** (`spotcheck_compare.py`):
+
+| | Agree |
+|---|---|
+| Curve label, exact | 38 of 57 |
+| Curve, winter crop or not | 45 of 57 |
+| Land use, where both decided | 16 of 19 (30 points looked at by both) |
+| Final reference, winter crop on farmland or not | 46 of 57 |
+
+**The disagreements nearly all go one way.** The second labeller found winter crop on farmland at 21 points, Claude at 12. He agrees with 11 of Claude's 12 (the exception, N217, he read as sparse forest). Claude missed 10 of his 21:
+- **Thin crops below the written threshold (N005, N015, N047, N336, N541).** Curves peak at only 250–302, rising in March–April, on land he judged farmed. The written criteria (a winter peak of at least 350; a curve below 330 is no crop) call them no crop. Poor rain-fed barley can stay this low, so the criteria may miss thin crops. That is a question for the next protocol, decided before labelling (see the to-do item on revisiting the 70% rule), not a reason to relabel now.
+- **Land calls where Claude was too strict (N268, N409, N443, N489, N495).** Points on a field corner or track, a hillside field and a slope, which Claude judged unsure or not farmed. FTW 2025 resolved two of them (N489, N495, both confident cereal with strong curves) to not farmed.
+- Five points with forest or sparse trees he labelled perennial where Claude's curve label was winter crop. The land is not farmed in both readings, so the final reference does not change.
+
+**Effect** (labels_amended2 with his answers on the 57 points; unclear left out):
+
+| | Claude (headline) | With the second labeller's answers |
+|---|---|---|
+| Confident cereal UA | 0.76 (0.67–0.84) | 0.80 (0.72–0.88) |
+| Confident cereal PA | 0.52 (0.47–0.57) | 0.52 (0.47–0.57) |
+| Confident + doubtful UA / PA | 0.61 / 0.77 | 0.63 / 0.76 |
+| Winter crop on farmland | 2.50 Mha (2.24–2.75) | 2.64 Mha (2.38–2.89) |
+
+This swaps only 10% of the sample. If the same pattern holds across all points, Claude's reference is conservative throughout: the area and the user's accuracy are probably underestimates, while the finding that the default map catches only about half of the winter crop holds either way. The published labels are not changed: re-labelling after seeing these answers would be a third amendment made with hindsight.
 
 ## Steps
 
@@ -152,8 +183,11 @@ python point_regions.py --crops <unzipped assessed map>/2026
 python amend_labels.py
 python estimate.py
 python estimate.py data/labels_amended2.csv --column amended_label
+# 8. Second labeller (spotcheck_north.html is the page that was used)
+python spotcheck_compare.py
+python estimate.py data/labels_amended2_second_labeller.csv --column amended_label
 ```
 
 ## Limits
 
-The same as in the south: the reference comes from the same satellite as the map, so agreement may be somewhat overstated; the reference is winter crop, not cereal, so user's accuracy and the area are upper bounds for cereal; and the label rules, though fixed in advance, are Claude's reading of NDVI curves.
+The same as in the south: the reference comes from the same satellite as the map, so agreement may be somewhat overstated; the reference is winter crop, not cereal, so user's accuracy and the area are upper bounds for cereal; and the label rules, though fixed in advance, are Claude's reading of NDVI curves. The second labeller's check (section 8) suggests that reading is conservative: it misses thin crops on farmland and is strict about field edges.

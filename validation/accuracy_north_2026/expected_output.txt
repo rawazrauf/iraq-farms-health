@@ -85,3 +85,41 @@ Kurdistan Region  (235 pts) confident cereal             OA 0.903±0.037  UA 0.8
 Kurdistan Region  (235 pts) confident + doubtful cereal  OA 0.886±0.039  UA 0.649±0.127  PA 0.840±0.103  winter-crop area 660,091 ± 184,669 ha (map 854,939 of 3,555,800)
 federal north     (335 pts) confident cereal             OA 0.758±0.043  UA 0.794±0.097  PA 0.507±0.065  winter-crop area 1,860,186 ± 242,969 ha (map 1,186,882 of 4,795,033)
 federal north     (335 pts) confident + doubtful cereal  OA 0.751±0.043  UA 0.645±0.076  PA 0.798±0.050  winter-crop area 1,860,186 ± 242,969 ha (map 2,301,304 of 4,795,033)
+
+## python spotcheck_compare.py   (second labeller, README section 8)
+Curve label, exact: 38 of 57
+Curve, winter crop or not: 45 of 57
+   Claude no_crop      second labeller perennial    1
+   Claude no_crop      second labeller unclear      1
+   Claude no_crop      second labeller water        1
+   Claude no_crop      second labeller winter_crop  5
+   Claude summer_only  second labeller perennial    1
+   Claude unclear      second labeller perennial    2
+   Claude unclear      second labeller summer_only  1
+   Claude winter_crop  second labeller perennial    5
+   Claude winter_crop  second labeller unclear      2
+Land use, points both looked at: 30; agree where both decided: 16 of 19
+Winter crop on farmland: agree on 46 of 57; Claude 12 points, second labeller 21; both 11; Claude only ['N217']; second labeller only ['N005', 'N015', 'N047', 'N268', 'N336', 'N409', 'N443', 'N489', 'N495', 'N541']
+written data/labels_amended2_second_labeller.csv
+
+## python estimate.py data/labels_amended2_second_labeller.csv --column amended_label   (sensitivity: second labeller's answers on the 57 spot-check points)
+confident cereal             unclear left out       OA 0.806±0.030  UA 0.796±0.080  PA 0.517±0.049  winter-crop area 2,635,762 ± 254,684 ha (map 1,710,507)
+confident cereal             unclear = winter crop  OA 0.773±0.032  UA 0.800±0.079  PA 0.468±0.045  winter-crop area 2,925,459 ± 270,333 ha (map 1,710,507)
+confident cereal             unclear = not          OA 0.809±0.030  UA 0.780±0.082  PA 0.523±0.050  winter-crop area 2,549,589 ± 249,351 ha (map 1,710,507)
+confident + doubtful cereal  unclear left out       OA 0.784±0.030  UA 0.632±0.063  PA 0.756±0.049  winter-crop area 2,635,762 ± 254,684 ha (map 3,156,244)
+confident + doubtful cereal  unclear = winter crop  OA 0.759±0.032  UA 0.644±0.062  PA 0.695±0.049  winter-crop area 2,925,459 ± 270,333 ha (map 3,156,244)
+confident + doubtful cereal  unclear = not          OA 0.782±0.030  UA 0.615±0.063  PA 0.761±0.049  winter-crop area 2,549,589 ± 249,351 ha (map 3,156,244)
+
+Winter crop by map class (unclear left out):
+map class           points  winter crop   share   winter-crop area (ha)
+confident_cereal        98           78     80%               1,361,424
+doubtful_cereal         96           42     44%                 632,510
+other_crop              57           29     51%                 296,806
+no_crop                 58            5      9%                  71,157
+not_cropland           235           17      7%                 273,866
+
+Sub-areas (domain estimates, unclear left out):
+Kurdistan Region  (235 pts) confident cereal             OA 0.878±0.042  UA 0.867±0.122  PA 0.554±0.126  winter-crop area 819,242 ± 207,012 ha (map 523,625 of 3,580,139)
+Kurdistan Region  (235 pts) confident + doubtful cereal  OA 0.862±0.044  UA 0.689±0.121  PA 0.719±0.117  winter-crop area 819,242 ± 207,012 ha (map 854,939 of 3,580,139)
+federal north     (335 pts) confident cereal             OA 0.751±0.045  UA 0.765±0.101  PA 0.500±0.068  winter-crop area 1,816,520 ± 247,592 ha (map 1,186,882 of 4,770,694)
+federal north     (335 pts) confident + doubtful cereal  OA 0.726±0.046  UA 0.610±0.077  PA 0.773±0.056  winter-crop area 1,816,520 ± 247,592 ha (map 2,301,304 of 4,770,694)

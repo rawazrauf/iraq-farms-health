@@ -1,0 +1,58 @@
+order,id,curve_label,landuse,note,answered_at
+1,N457,perennial,not_farmed,"looks life forest or trees",2026-11-28T08:40:38.187Z
+2,N451,unclear,unsure,"the imagery doesnt indicate it is farmed and the point is unclear about its indication",2026-11-28T08:45:20.275Z
+3,N504,no_crop,not_farmed,"all points are below 250",2026-11-28T08:46:52.557Z
+4,N024,perennial,not_farmed,"imagery certainly points to forest, the point heights are missing for a couple of months in winter but likely due to clouds. ",2026-11-28T08:47:46.614Z
+5,N516,winter_crop,unsure,"the points match winter cereal profile but the imagery indicates it is within a forest ",2026-11-28T08:48:58.388Z
+6,N367,winter_crop,farmed,"the satellite imagery and the curve show a consistent figure. ",2026-11-28T08:49:55.796Z
+7,N389,winter_crop,farmed,"the satellite imagery and the points correlate with winter crop.",2026-11-28T08:50:29.299Z
+8,N443,winter_crop,farmed,"the satellite imagery and the points agree",2026-11-28T08:51:14.732Z
+9,N568,winter_crop,not_farmed,"the points show winter crop but imagery shows forest",2026-11-28T08:52:35.364Z
+10,N262,winter_crop,farmed,"the winter cereal points are very strong and conclusive. satellite seems farmed",2026-11-28T08:53:21.722Z
+11,N221,water,not_farmed,"seems like a river bank and gets flooded",2026-11-28T08:54:08.105Z
+12,N072,perennial,not_farmed,"seems like a forest that gets green grassland in may",2026-11-28T08:55:09.579Z
+13,N047,winter_crop,farmed,"clear winter cereal",2026-11-28T08:55:46.070Z
+14,N520,no_crop,not_farmed,"doesnt seem like crop from curve and satellite imagery shows rocky land",2026-11-28T08:56:20.528Z
+15,N324,winter_crop,farmed,"seems like a farm that had two seasonal plantings with summer and winter",2026-11-28T08:57:30.177Z
+16,N498,winter_crop,farmed,"satellite and curve show farm",2026-11-28T08:58:12.143Z
+17,N325,no_crop,not_farmed,"seems like desert ",2026-11-28T08:59:08.142Z
+18,N042,no_crop,not_farmed,"seems like a dirt road that is between two farms",2026-11-28T08:59:59.883Z
+19,N554,winter_crop,farmed,"seems like a land that was farmed both in summer and winter",2026-11-28T09:01:28.353Z
+20,N468,perennial,not_farmed,"satellite shows forest, sustained high level points confirm the same",2026-11-28T09:02:38.801Z
+21,N036,perennial,unsure,"satellite shows forest but points show a similar profile to winter cereal though outside winter it is still consistently green",2026-11-28T09:06:53.894Z
+22,N268,winter_crop,farmed,"clearly farmed land and curve shows winter crop points",2026-11-28T09:10:03.045Z
+23,N469,no_crop,unsure,"the points show no cropland the imagery seems inconclusive and farmed but not clear enough",2026-11-28T09:34:23.640Z
+24,N446,summer_only,farmed,"points show farming and it is near farm land , the signals remain high even in June July august",2026-11-28T09:36:31.184Z
+25,N541,winter_crop,farmed,"it is an edge of a farm land from satellite imagery and the points almost show winter cereal",2026-11-28T09:37:23.741Z
+26,N387,no_crop,not_farmed,"seems like rocky hilltop ",2026-11-28T09:38:14.291Z
+27,N558,no_crop,not_farmed,"rooftop of a house for sure",2026-11-28T09:38:33.324Z
+28,N495,winter_crop,farmed,"both winter cereal profile and the satellite imagery shows a farm ",2026-11-28T09:38:55.148Z
+29,N153,winter_crop,unsure,"this seems like a edge or cliff of a hill top and points clearly show farm land but the imagery is showing a rugged terrain ",2026-11-28T09:39:36.352Z
+30,N158,summer_only,farmed,"it seems to be a dirt road or plowing zone between two farms ",2026-11-28T09:41:06.826Z
+31,N432,no_crop,farmed,"seems like a farm that there was little to no farming in the season according to the curve",2026-11-28T09:41:44.692Z
+32,N539,no_crop,not_farmed,"seems like a dirt road from satellite imagery",2026-11-28T09:42:29.500Z
+33,N436,winter_crop,farmed,"clear winter cereal points and imagery shows farmland",2026-11-28T09:42:45.099Z
+34,N350,winter_crop,unsure,"seems like a hill side with no formal farming unlikely to be have grown something and most likely grass ",2026-11-28T09:43:24.018Z
+35,N199,no_crop,not_farmed,"seems like a dirt road or near a house that uses it mostly as access",2026-11-28T09:44:29.601Z
+36,N527,no_crop,not_farmed,"definitely a dirt road and will likely be paved soon",2026-11-28T09:45:04.908Z
+37,N348,perennial,not_farmed,"looks like a desert with occasional trees and sparse forestry ",2026-11-28T09:47:31.029Z
+38,N409,winter_crop,farmed,"looks like a rain fed natural field from satellite imagery curves confirm some strong winter cereal points, it is on a hill side and shadows likely distort conclusions",2026-11-28T09:49:08.902Z
+39,N196,perennial,not_farmed,"seems like a sparse forest with a few trees",2026-11-28T09:50:52.225Z
+40,N130,no_crop,not_farmed,"the land itself is not farmed and curve shows weak signals perhaps just grass",2026-11-28T09:53:17.832Z
+41,N529,no_crop,not_farmed,"the satellite imagery shows a hill side, there is no farm, just likely grass",2026-11-28T09:53:54.468Z
+42,N280,winter_crop,farmed,"clearly a winter cereal with farmed land boundary ",2026-11-28T09:54:39.876Z
+43,N336,winter_crop,farmed,"a hill top that is farmed and shows high probability of farming. satellite imagery from google shows clear lines of farming footprint ",2026-11-28T09:55:32.850Z
+44,N217,perennial,not_farmed,"satellite imagery from google shows sparse forest in the area but the trees lose colour during hot seasons before regrowing.",2026-11-28T09:57:49.778Z
+45,N015,winter_crop,farmed,"edge of a farm field and curve shows winter cereal signals though may not be fully farmed at this exact point",2026-11-28T09:59:08.251Z
+46,N549,unclear,unsure,"the curve is not smooth enough for it to be winter cereal, the satellite imagery doesnt show a large farm perhaps just vegetable?",2026-11-28T10:02:04.830Z
+47,N188,no_crop,not_farmed,"roof top of a building ",2026-11-28T10:02:45.452Z
+48,N241,winter_crop,farmed,"curve is conclusive and land is clearly farmed ",2026-11-28T10:03:13.502Z
+49,N441,perennial,not_farmed,"clearly shows forest and any green that grows in-between the trees is just grass",2026-11-28T10:03:32.965Z
+50,N251,perennial,not_farmed,"satellite clearly shows dense forest ",2026-11-28T10:04:29.447Z
+51,N489,winter_crop,farmed,"strong winter cereal signals and organised farm from imagery ",2026-11-28T10:05:05.088Z
+52,N065,no_crop,not_farmed,"seems like a dirt road or zone between two houses ",2026-11-28T10:05:50.878Z
+53,N459,unclear,not_farmed,"the curve shows greenery, the satellite image shows a nearby farm but the point itself is a hill top with no visible farming signature and most likely just grass",2026-11-28T10:11:41.903Z
+54,N032,winter_crop,farmed,"satellite shows clear farm , winter cereal signal is strong, likely there was another planting in summer too",2026-11-28T10:12:25.273Z
+55,N314,no_crop,not_farmed,"mostly desert land, likely next to a high oil that cast shadow and the dark colour is unlikely to be farm ",2026-11-28T10:20:51.065Z
+56,N298,winter_crop,farmed,"clearly farmed land with clear markings of machinery on the land around a hill top",2026-11-28T10:22:30.107Z
+57,N005,winter_crop,farmed,"clear marking of agricultural equipment on the satellite image, point curve matches winter cereal ",2026-11-28T10:22:59.783Z
