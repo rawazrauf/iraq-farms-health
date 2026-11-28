@@ -20,7 +20,7 @@ They are **qualitative evidence**. They are not an accuracy figure. For that, se
 
 ## How a field was chosen
 - **Random draws (most fields):**
-  1. A random cropland pixel was drawn from the processed tiles of `crops/2026/iraq_crops.vrt`.
+  1. A random cropland pixel was drawn from the processed tiles of `crops/2026/iraq_crops.vrt` (the map in this repository at the time; the folder was removed on 28 Nov 2026, and the 7 Nov publish is kept in the release `crops-2026-assessed`).
   2. The app was opened at that point (`?lat=…&lon=…&z=16&debug=1`).
   3. The field under the point was read. If there was none, a random field of 1–500 ha in view was read instead.
 - **Picked by hand:** a few early fields (11, 14).

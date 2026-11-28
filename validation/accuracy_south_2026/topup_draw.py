@@ -7,7 +7,7 @@ Pixels already sampled in phase 1 are left out. Points are shuffled and numbered
 
 Writes data/topup_points.csv (id, lat, lon: nothing else, for blind labelling), data/topup_map_key.csv
 (id -> stratum, code, cell) and data/topup_design.json.
-Usage: python topup_draw.py [--crops crops/2026/]"""
+Usage: python topup_draw.py [--crops crops-2026-assessed/]"""
 import csv, json, numpy as np, rasterio, warnings; warnings.filterwarnings("ignore")
 from rasterio.features import rasterize
 from shapely.geometry import mapping, box

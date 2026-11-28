@@ -1,7 +1,8 @@
 """Shared settings for the southern accuracy assessment.
 
-Every script takes the crop layer folder with --crops (default: crops/2026 in this repo).
-To reproduce the published figures exactly, use the map that was assessed (commit 969b4aa,
+Every script takes the crop layer folder with --crops (default: crops/2026 in this repo; since 28 Nov 2026
+the repository holds no map, so download the release copy below and pass its folder).
+To reproduce the published figures exactly, use the map that was assessed (commit 969b4aa before the 28 Nov 2026 history clean-up,
 7 Nov 2026), attached to the release crops-2026-assessed:
     https://github.com/rawazrauf/iraq-farms-health/releases/download/crops-2026-assessed/crops-2026-assessed.zip
 Unzip it and pass the folder: --crops crops-2026-assessed
@@ -33,6 +34,9 @@ def args(extra=None):
 
 
 def load_index(crops):
+    if not os.path.exists(crops + "index.json"):
+        raise SystemExit(f"no index.json in {crops}: download crops-2026-assessed.zip from the release "
+                         "crops-2026-assessed, unzip it and pass the folder with --crops")
     return json.load(open(crops + "index.json"))
 
 

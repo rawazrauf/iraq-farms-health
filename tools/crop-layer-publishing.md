@@ -38,7 +38,7 @@
 - **Publishing merges the runs**: north > pilot > main for each tile. `sources.json` records which run each tile came from.
 
 ## Status
-- **Published 7 Nov 2026** (generated 12:54 UTC, repo commit `969b4aa` at 14:41 UTC; the map assessed in `validation/accuracy_south_2026/`, kept as the release `crops-2026-assessed` with the zip attached): 87 of 218 tiles, 84 from the main run and 3 from the pilot. 67 cells, 178 MB.
+- **Published 7 Nov 2026** (generated 12:54 UTC, repo commit `969b4aa` at 14:41 UTC, an id from before the 28 Nov history clean-up; the map assessed in `validation/accuracy_south_2026/`, kept as the release `crops-2026-assessed` with the zip attached): 87 of 218 tiles, 84 from the main run and 3 from the pilot. 67 cells, 178 MB.
   - The 84 main-run tiles are the 67 southern tiles that were assessed plus 17 northern tiles finished before northern tiles were held back.
   - Southern tiles not yet in the published layer: 83 of the 150 planned south of 34.8°N (main run; to be confirmed against the run folder's status).
 - 8 Nov: `overview.tif` rewritten with nodata 0 and a colour table (same pixels); `iraq_crops.qml` labels escaped (`&lt;`), so QGIS loads it.
@@ -102,7 +102,7 @@
   - Cloudflare's cache is bypassed for `data.iraqfarmshealth.com` (Cache Rule "data: no cache"), because every republish reuses the same file names.
   - Uploads: `tools/r2_upload.ipynb` with an Account API token limited to Object Read & Write on `ifh-data`, kept in Colab Secrets (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`). Free tier: 10 GB storage, no egress fees.
   - R2 keeps no old versions: every assessed map is also attached to a GitHub release (`crops-2026-assessed`, `crops-2026-north-assessed`).
-- Before 28 Nov the map was in this repo, `crops/2026/`, served by GitHub Pages. Each publish added a full copy of the cells to the git history (about 400 MB by 28 Nov). That folder is no longer read by the site and is to be removed together with a history purge.
+- Before 28 Nov the map was in this repo, `crops/2026/`, served by GitHub Pages. Each publish added a full copy of the cells to the git history (about 400 MB by 28 Nov). On 28 Nov 2026 the folder was removed from the repository and from its whole history (`history-cleanup-2026.11.28-a`: git filter-repo, every commit kept; repository about 400 MB to about 18 MB). Every commit id changed then, so ids quoted in notes written before that date refer to the old history; the release tags were moved to the rewritten commits and their zip files are unchanged.
 - The season pilot `crops/2026p/` stays in the repo (`?data=2026p/` on the crop page, `?crops=2026p` in the app's debug mode).
 - The page loads `crop-layer.js?v=…`; bump `?v=` in `crops/index.html` whenever `crop-layer.js` changes.
 

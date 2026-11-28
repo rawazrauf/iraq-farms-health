@@ -23,9 +23,9 @@ Two things to keep in mind when reading these figures, both set out below:
 
 ## 1. What was assessed
 
-- **Map:** `crops/2026/` as generated on 7 Nov 2026 at 12:54 UTC (`index.json`) and committed at 14:41 UTC as repository commit `969b4aa`.
+- **Map:** `crops/2026/` as generated on 7 Nov 2026 at 12:54 UTC (`index.json`) and committed at 14:41 UTC as repository commit `969b4aa` (an id from before the 28 Nov 2026 history clean-up, which removed the map from this repository and its history; the release copy below is the map).
   - A fixed copy is attached to the release [`crops-2026-assessed`](https://github.com/rawazrauf/iraq-farms-health/releases/tag/crops-2026-assessed): `crops-2026-assessed.zip`, 84 files, SHA-256 `48d453a987435f74d3925508f9bd7405a73d7bd7c575eaef06f4ca8eeab86a23`. The SHA-256 of every file is in `data/assessed_map_sha256.txt`.
-  - Later publishes change `crops/2026/`. The north re-run, for example, replaces northern tiles. Use the release copy to reproduce the results.
+  - Later publishes replace the map. The north re-run, for example, replaces northern tiles. Use the release copy to reproduce the results.
   - The release tag sits on a later commit than `969b4aa`; the zip, not the tag, is the assessed copy. All 67 crop cells are byte-identical in both.
 - **Population:** every map pixel in the finished tiles of the main run (`iraq_winter2026`) whose centre lies south of 34.8°N, clipped to Iraq's boundary (`boundaries.geojson`).
   - A tile's centre is the middle of its bounding box.

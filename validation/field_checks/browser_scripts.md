@@ -11,7 +11,7 @@ They depend on globals in IFH `index.html` (build 2026.10.30-k): `map`, `fieldsI
 4. In a **separate** call run `await eval(localStorage.pw)`. It returns `{n, ha, c, conf, log, months}`: 24 monthly NDVI values, the 2021 ESA line, the 2026 line, the confident-cereal percentage and the verdict. If the 2021 line hasn't arrived yet, poll again with `pl`.
 5. Score the field as Yes / Partly / No / Not scored and add a row to claude/field-checks.md.
 
-Random points are drawn in Python from `crops/2026/iraq_crops.vrt` (rasterio). Only tiles listed as `processed` in `index.json` are used, and codes 0 and 255 are skipped. Larger fields are therefore more likely to be picked, and pixels mapped as 0 are never sampled. A research-grade sample must fix both.
+Random points are drawn in Python from `iraq_crops.vrt` of the published map (rasterio; until 28 Nov 2026 it was `crops/2026/iraq_crops.vrt` in this repository). Only tiles listed as `processed` in `index.json` are used, and codes 0 and 255 are skipped. Larger fields are therefore more likely to be picked, and pixels mapped as 0 are never sampled. A research-grade sample must fix both.
 
 ## pk: pick a field
 If the link opened a field, it returns that one. Otherwise, or if the link's polygon was refused (over 500 ha), it taps a random 1–500 ha field in view.

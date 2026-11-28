@@ -1,6 +1,6 @@
 # Validation of the Iraq Farms Health crop map
 
-This folder holds how the 2025-26 winter-cereal map (`crops/2026/`) was checked, the data behind each check, and the scripts to repeat them. Anyone following the same steps on the same inputs should get the same numbers. Where that isn't fully possible (for example, if Planetary Computer reprocesses scenes), the folder says so and includes a script that measures the difference.
+This folder holds how the 2025-26 winter-cereal map (published at `https://data.iraqfarmshealth.com/crops/2026/`; each assessed version is attached to a GitHub release) was checked, the data behind each check, and the scripts to repeat them. Anyone following the same steps on the same inputs should get the same numbers. Where that isn't fully possible (for example, if Planetary Computer reprocesses scenes), the folder says so and includes a script that measures the difference.
 
 | Study | What it answers | Kind of evidence |
 |---|---|---|
